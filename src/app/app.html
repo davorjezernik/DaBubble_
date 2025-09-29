@@ -1,3 +1,5 @@
-<app-intro-overlay *ngIf="showIntro" (done)="onIntroDone()"></app-intro-overlay>
+@if (showIntro) {
+  <app-intro-overlay (done)="showIntro = false"></app-intro-overlay>
+}
 <app-backdrop-component></app-backdrop-component>
 <router-outlet></router-outlet>

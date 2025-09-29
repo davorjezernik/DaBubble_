@@ -19,8 +19,4 @@ export class App {
   protected readonly title = signal('dabubble');
 
   showIntro = true;
-
-  onIntroDone() {
-    this.showIntro = true;
-  }
 }

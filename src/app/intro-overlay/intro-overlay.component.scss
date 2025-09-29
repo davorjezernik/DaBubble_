@@ -1,9 +1,16 @@
 .overlay {
-  position: fixed; inset: 0; z-index: 9999;
-  display: grid; place-items: center;
-  background: linear-gradient(to bottom, #8e9efc, #3b3bfc);
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: grid;
+  place-items: center;
+}
 
-  animation: overlay-fade 1300ms ease 4.0s forwards;
+.overlay-bg {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, #8e9efc, #3b3bfc);
+  z-index: -1;
 }
 
 .stage {
@@ -19,51 +26,18 @@
   display: flex;
   align-items: center;
   gap: 0;
-  animation: moveAndResize 700ms ease-in 3.5s forwards;
 }
 
-.logo {
-  position: relative;
-  z-index: 2;
-  animation: logo-left 800ms ease-out 1s forwards;
+.logo { 
+    display:block; 
 }
 
 .title {
-  position: relative; z-index: 1; margin: 0;
-  color: #fff; font-weight: 700;
-  font-size: clamp(40px, 8vw, 96px); 
+  margin:0;
+  font-family:'Nunito', sans-serif;
+  font-weight:700;
+  font-size:clamp(40px, 8vw, 96px);
+  color:#fff;
   opacity: 0;
-  transform-origin: left center;
-  will-change: transform, opacity;
-  transform: translateX(-10px);           
-  animation: title-in 700ms cubic-bezier(.22,.9,.26,1) 1.8s forwards;
+  transform: translateX(-120px); 
 }
-
-.title-clip{
-  display:inline-block;
-  overflow:hidden;             
-}
-
-@keyframes logo-left {
-  from { transform: translateX(0); }
-  to   { transform: translateX(-60px); }
-}
-
-@keyframes title-in {
-  from { opacity: 0; transform: translateX(-120px); }
-  to   { opacity: 1; transform: translateX(0px); }
-}
-
-@keyframes moveAndResize {
-  from {
-    transform: translate(-50%, -50%) scale(1);
-  }
-  to {
-    transform:
-      translate(calc(-50% - (50vw - 220px)),
-                calc(-50% - (50vh - 110px)))
-      scale(0.4);
-  }
-}
-
-@keyframes overlay-fade { to { opacity: 0; visibility: hidden; } }
