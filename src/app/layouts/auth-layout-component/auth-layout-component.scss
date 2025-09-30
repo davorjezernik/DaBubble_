@@ -1,4 +1,4 @@
-@import 'mixins';
+@use 'mixins';
 
 :host {
   position: relative;
@@ -31,7 +31,7 @@ section {
   gap: 16px;
 
   > a {
-    @include nav-link();
+    @include mixins.nav-link();
   }
 }
 
@@ -53,10 +53,10 @@ section {
   margin-right: 40px;
 
   > p {
-    @include text-style($size: 18px, $color: #000000, $font-weight: 400, $font-family: 'Nunito', $line-height: 100%);
+    @include mixins.text-style($size: 18px, $color: #000000, $font-weight: 400, $font-family: 'Nunito', $line-height: 100%);
   }
 
   > a {
-    @include nav-link();
+    @include mixins.nav-link();
   }
 }
