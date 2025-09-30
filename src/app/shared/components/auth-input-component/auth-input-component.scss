@@ -32,7 +32,7 @@
 .input-control {
   border: none;
   background: transparent;
-  @include text-style($size: 18px, $color: Text gray, $font-weight: 500, $font-family: 'Nunito');
+  @include mixins.text-style($size: 18px, $color: Text gray, $font-weight: 500, $font-family: 'Nunito');
   outline: none;
   height: 60px;
   width: 100%;
