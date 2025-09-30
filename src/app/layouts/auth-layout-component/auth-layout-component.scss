@@ -1,0 +1,62 @@
+@import 'mixins';
+
+:host {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  width: 100%;
+  max-width: 1920px;
+}
+section {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  margin-top: 40px;
+}
+
+.footer {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  margin: auto 0 40px;
+  gap: 16px;
+
+  > a {
+    @include nav-link();
+  }
+}
+
+.logo {
+  img {
+    cursor: pointer;
+    transition: transform 125ms ease;
+
+    &:hover {
+      transform: scale(1.1);
+    }
+  }
+}
+
+.signup-text {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-right: 40px;
+
+  > p {
+    @include text-style($size: 18px, $color: #000000, $font-weight: 400, $font-family: 'Nunito', $line-height: 100%);
+  }
+
+  > a {
+    @include nav-link();
+  }
+}
