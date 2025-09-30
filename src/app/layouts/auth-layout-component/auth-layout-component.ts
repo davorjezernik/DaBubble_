@@ -36,6 +36,7 @@ export class AuthLayoutComponent implements OnInit {
   }
 
   openDialog(): void {
+    this.isLogin = false;
     this.dialog.closeAll();
     const dialogRef = this.dialog.open(DialogSigninComponent, {
       disableClose: true,
