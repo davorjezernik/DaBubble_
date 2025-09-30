@@ -13,3 +13,46 @@
     border: 1px solid #797ef3;
   }
 }
+
+@mixin text-style(
+  $size: 16px,
+  $color: #000000,
+  $font-weight: 400,
+  $font-family: 'Figtree',
+  $line-height: 1.2
+) {
+  font-size: $size;
+  color: $color;
+  font-weight: $font-weight;
+  font-family: $font-family;
+}
+
+@mixin primary-button($hover-bg-color: #797ef3, $bg-color: #444df2) {
+  @include text-style($size: 18px, $color: #ffffff, $font-weight: 700, $font-family: 'Figtree');
+  background-color: $bg-color;
+  border-radius: 25px;
+  padding: 12px 25px 12px;
+  cursor: pointer;
+  transition: background-color 125ms ease-in-out;
+
+  &:hover {
+    background-color: $hover-bg-color;
+  }
+}
+
+@mixin secondary-button($hover-bg-color: #444df2) {
+  @include text-style($size: 18px, $color: #444df2, $font-weight: 700, $font-family: 'Figtree');
+  background-color: transparent;
+  border-radius: 25px;
+  padding: 12px 25px 12px;
+  cursor: pointer;
+  border: 1px solid #797ef3;
+
+  transition: all 125ms ease-in-out;
+
+  &:hover {
+    background-color: $hover-bg-color;
+    border: 1px solid $hover-bg-color;
+    color: #ffffff;
+  }
+}

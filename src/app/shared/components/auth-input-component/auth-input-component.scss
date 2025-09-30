@@ -1,0 +1,40 @@
+@import 'mixins';
+
+.input-row {
+  background: #eef0fc;
+  border-radius: 100px;
+  border: 1px solid transparent;
+  transition: border 125ms ease-in-out;
+  cursor: text;
+
+  label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 18px;
+    cursor: text;
+  }
+
+  &:hover:not(:focus-within) {
+    border: 1px solid #686868;
+  }
+
+  &:focus-within {
+    border: 1px solid #535af1;
+  }
+}
+
+.input-icon {
+  font-size: 1.3rem;
+  color: #8a94a6;
+}
+
+.input-control {
+  border: none;
+  background: transparent;
+  @include text-style($size: 18px, $color: Text gray, $font-weight: 500, $font-family: 'Nunito');
+  outline: none;
+  height: 60px;
+  width: 100%;
+  cursor: text;
+}

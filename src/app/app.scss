@@ -1,12 +1,4 @@
-@use 'mixins';
-
-.backdrop {
-  position: fixed;
-  top: 0;
-  height: 100%;
-  width: 100%;
-  z-index: 0;
-}
+@import 'mixins';
 
 .content-wrapper {
   display: flex;
@@ -34,7 +26,7 @@
   gap: 16px;
 
   > a {
-    @include mixins.nav-link();
+    @include nav-link();
   }
 }
 
@@ -46,13 +38,13 @@ section {
 }
 
 .header {
-  margin-top: 20px;
   display: flex;
   justify-content: space-between;
   width: 100%;
 }
 
 .logo {
+  margin-top: 20px;
   img {
     cursor: pointer;
     transition: transform 125ms ease;
@@ -75,6 +67,6 @@ section {
   }
 
   > a {
-    @include mixins.nav-link();
+    @include nav-link();
   }
 }

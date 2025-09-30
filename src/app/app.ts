@@ -7,7 +7,7 @@ import { DialogSigninComponent } from './dialogs/dialog.signin-component/dialog.
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, RouterModule, MatIconModule, CommonModule, DialogSigninComponent],
+  imports: [RouterOutlet, RouterModule, MatIconModule, CommonModule],
   templateUrl: './app.html',
   styleUrl: './app.scss',
 })
