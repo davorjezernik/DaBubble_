@@ -1,1 +1,44 @@
-<p>dialog.login-component works!</p>
+<section class="dialog-login" role="dialog" aria-modal="true" aria-labelledby="login-title">
+  <h1 id="login-title" class="dialog-login__title">Anmeldung</h1>
+  <p class="dialog-login__subtitle">
+    Wir empfehlen dir, die E-Mail-Adresse zu nutzen, die du bei der Arbeit verwendest.
+  </p>
+  <form #loginForm="ngForm" (ngSubmit)="login()">
+    <div class="form-group">
+      <app-auth-input-component
+        name="email"
+        [(ngModel)]="email"
+        [type]="'email'"
+        [placeholder]="'beispielname@gmail.com'"
+        [imgSrc]="'assets/icons/mail-empty.svg'"
+        [autocomplete]="'email'"
+        required
+      ></app-auth-input-component>
+      <app-auth-input-component
+        name="password"
+        [(ngModel)]="password"
+        [type]="'password'"
+        [placeholder]="'Passwort'"
+        [imgSrc]="'assets/icons/password-empty.svg'"
+        [autocomplete]="'current-password'"
+        required
+      ></app-auth-input-component>
+    </div>
+    <a href="#" class="dialog-login__forgot">Passwort vergessen?</a>
+    <div class="dialog-login__divider">
+      <span class="line"></span>
+      <span class="text">ODER</span>
+      <span class="line"></span>
+    </div>
+    <div class="google-login-row" tabindex="0" (click)="signInWithGoogle()">
+      <img class="google-icon" src="assets/icons/google-logo.svg" alt="Google Icon" />
+      <span class="google-text">Anmelden mit Google</span>
+    </div>
+    <div class="dialog-login__actions">
+      <button type="submit" class="btn btn--primary" [disabled]="!loginForm.form.valid">
+        Anmelden
+      </button>
+      <button type="button" class="btn btn--secondary">Gäste-Login</button>
+    </div>
+  </form>
+</section>
