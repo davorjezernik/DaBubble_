@@ -3,15 +3,15 @@ import { CommonModule } from '@angular/common';
 import { MatDialogModule } from '@angular/material/dialog';
 
 @Component({
-  selector: 'app-dialog-user-card',
+  selector: 'app-dialog.user-card-guest',
   standalone: true,
   imports: [
     CommonModule,
-    MatDialogModule,  
+    MatDialogModule,
   ],
-  templateUrl: './dialog-user-card.component.html',
-  styleUrl: './dialog-user-card.component.scss'
+  templateUrl: './dialog.user-card-guest.component.html',
+  styleUrl: './dialog.user-card-guest.component.scss'
 })
-export class DialogUserCardComponent {
+export class DialogUserCardGuestComponent {
 
 }
