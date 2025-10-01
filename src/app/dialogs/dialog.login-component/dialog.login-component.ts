@@ -7,7 +7,7 @@ import { FormsModule } from '@angular/forms';
 import { AuthInputComponent } from '../../shared/components/auth-input-component/auth-input-component';
 import { CommonModule } from '@angular/common';
 import { Auth, GoogleAuthProvider, signInWithRedirect } from '@angular/fire/auth';
-
+import { Router, RouterLink } from '@angular/router';
 @Component({
   selector: 'app-dialog-login',
   standalone: true,
@@ -19,12 +19,13 @@ import { Auth, GoogleAuthProvider, signInWithRedirect } from '@angular/fire/auth
     MatButtonModule,
     FormsModule,
     AuthInputComponent,
-  ],
+    RouterLink
+],
   templateUrl: './dialog.login-component.html',
   styleUrl: './dialog.login-component.scss',
 })
 export class DialogLoginComponent {
-  constructor() {}
+  constructor(public router: Router) {}
 
   auth: Auth = inject(Auth);
 
