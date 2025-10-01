@@ -1,0 +1,29 @@
+<header>
+  <div>LOGO</div>
+  <div>Search Area</div>
+  <div>User Menu</div>
+</header>
+<main>
+  <div class="devspace-sidenav-button">
+    <button type="button" matButton (click)="devspaceDrawer.toggle()">Toggle left sidenav</button>
+  </div>
+
+  <section class="main-and-thread-wrapper">
+    <mat-drawer-container class="main-container" autosize>
+      <mat-drawer #devspaceDrawer class="devspace-sidenav" mode="side">
+        <app-devspace-sidenav-content></app-devspace-sidenav-content>
+      </mat-drawer>
+
+      <mat-drawer #threadDrawer class="thread-sidenav" mode="side" position="end">
+        <app-devspace-sidenav-content></app-devspace-sidenav-content>
+      </mat-drawer>
+
+      <div class="main-content-area">
+        <app-chat-interface-component></app-chat-interface-component>
+      </div>
+    </mat-drawer-container>
+    <div class="thread-sidenav-button">
+      <button type="button" matButton (click)="threadDrawer.toggle()">Toggle right sidenav</button>
+    </div>
+  </section>
+</main>

@@ -38,7 +38,7 @@
       <button type="submit" class="btn btn--primary" [disabled]="!loginForm.form.valid">
         Anmelden
       </button>
-      <button type="button" class="btn btn--secondary">Gäste-Login</button>
+      <button [routerLink]="'/workspace'" type="button" class="btn btn--secondary">Gäste-Login</button>
     </div>
   </form>
 </section>

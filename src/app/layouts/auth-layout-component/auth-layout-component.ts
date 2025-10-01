@@ -1,4 +1,4 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnDestroy, OnInit, signal } from '@angular/core';
 import { DialogLoginComponent } from '../../dialogs/dialog.login-component/dialog.login-component';
 import { MatDialog } from '@angular/material/dialog';
 import { DialogSigninComponent } from '../../dialogs/dialog.signin-component/dialog.signin-component';
@@ -11,7 +11,8 @@ import { filter } from 'rxjs';
   templateUrl: './auth-layout-component.html',
   styleUrl: './auth-layout-component.scss',
 })
-export class AuthLayoutComponent implements OnInit {
+export class AuthLayoutComponent implements OnInit, OnDestroy {
+
   constructor(public dialog: MatDialog, public router: Router) {}
 
   isLogin = true;
@@ -46,5 +47,9 @@ export class AuthLayoutComponent implements OnInit {
     dialogRef.afterClosed().subscribe((result) => {
       console.log('The dialog was closed');
     });
+  }
+
+  ngOnDestroy(): void {
+    this.dialog.closeAll();
   }
 }
