@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import {MatSidenavModule} from '@angular/material/sidenav';
 import { DevspaceSidenavContent } from "../../features/workspace/components/devspace-sidenav-content/devspace-sidenav-content";
-import { ChatInterfaceComponent } from "../../features/workspace/components/chat-interface-component/chat-interface-component";
+import { ChatInterfaceComponent } from "../../features/workspace/components/chat-interface-content/chat-interface-content";
 
 @Component({
   selector: 'app-workspace-layout-component',
