@@ -44,11 +44,11 @@ export class IntroOverlayComponent implements AfterViewInit {
       [
         { transform: 'translate(-50%,-50%) scale(1)' },
         {
-          transform: `translate(calc(-50% - (50vw - 219px)),
-                               calc(-50% - (50vh - 110px))) scale(0.4)`,
+          transform: `translate(calc(-50% - (50vw - 215px)),
+                               calc(-50% - (50vh - 125px))) scale(0.4)`,
         },
       ],
-      { duration: 500, easing: 'ease-in', fill: 'forwards' }
+      { duration: 1200, easing: 'ease-in', fill: 'forwards' }
     );
 
     const colorFade = this.titleEl.nativeElement.animate([{ color: '#fff' }, { color: '#000' }], {
@@ -68,18 +68,6 @@ export class IntroOverlayComponent implements AfterViewInit {
 
     await Promise.all([clusterFly.finished, colorFade.finished, bgFade.finished]);
     // Parallel: Fly + Farbwechsel + Overlay-Fade ende//
-
-    // Cluster ins Backdrop mounten anfang//
-    const mount = document.getElementById('brandMount');
-    if (mount) {
-      const ghost = this.cluster.nativeElement.cloneNode(true) as HTMLElement;
-      (ghost.querySelector('.title') as HTMLElement).style.color = '#000';
-      ghost.style.transform = 'scale(0.4)';
-      ghost.style.transformOrigin = 'top left';
-      ghost.classList.add('brand-cluster');
-      mount.innerHTML = '';
-      mount.appendChild(ghost);
-    }
 
     this.done.emit();
     // Cluster ins Backdrop mounten ende//
