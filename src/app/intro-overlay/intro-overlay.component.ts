@@ -48,7 +48,7 @@ export class IntroOverlayComponent implements AfterViewInit {
                                calc(-50% - (50vh - 125px))) scale(0.4)`,
         },
       ],
-      { duration: 1200, easing: 'ease-in', fill: 'forwards' }
+      { duration: 800, easing: 'ease-in', fill: 'forwards' }
     );
 
     const colorFade = this.titleEl.nativeElement.animate([{ color: '#fff' }, { color: '#000' }], {
