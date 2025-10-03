@@ -1,1 +1,60 @@
-<p>Auto-resizing sidenav</p>
+<!-- Primary Sidebar Navigation -->
+<nav class="sidenav" aria-label="Main navigation">
+  <!-- Brand / Workspace -->
+  <header class="sidenav-brand">
+    <a class="brand-link" href="#" aria-label="Devspace Home">
+      <img class="brand-logo" src="assets/icons/devspace-logo.svg" alt="Devspace Logo" />
+      <span class="brand-name">Devspace</span>
+    </a>
+
+    <button class="brand-action" type="button" aria-label="Create new post">
+      <img src="assets/icons/devspace-message-trigger.svg" alt="Pencil Icon" />
+    </button>
+  </header>
+
+  <!-- Channels -->
+  <section class="sidenav-section" aria-labelledby="channels-heading">
+    <header class="section-header">
+      <div class="section-title">
+        <img class="section-icon" src="assets/icons/channels-control.svg" alt="Channels Icon" />
+        <!-- <h2 id="channels-heading" class="section-heading">Channels</h2> -->
+      </div>
+      <button class="section-addon" type="button" aria-label="Create new channel">
+        <img src="assets/icons/add-channels.svg" alt="Plus Icon" />
+      </button>
+    </header>
+
+    <div class="section-content-wrapper">
+      <ul class="channel-list" role="list">
+        <li class="channel-list-item">
+          <a class="channel is-active" href="#">
+            <img class="channel-icon" src="assets/icons/hashtag.svg" alt="Hashtag Icon" />
+            <span class="channel-name">Entwicklerteam</span>
+          </a>
+        </li>
+      </ul>
+
+      <div class="section-footer">
+        <button class="add-channel" type="button">
+          <img class="add-channel-icon" src="assets/icons/add_circle.svg" alt="Plus Icon" />
+          <span class="add-channel-label">Channel hinzufügen</span>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Direct Messages -->
+  <section class="sidenav-section" aria-labelledby="dms-heading">
+    <header class="section-header">
+      <div class="section-title">
+        <img src="assets/icons/arrow-down.svg" alt="Open direct messages" />
+        <img
+          class="section-icon"
+          src="assets/icons/account_circle.svg"
+          alt="Direct Messages Icon"
+        />
+        <h2 id="dms-heading" class="section-heading">Direktnachrichten</h2>
+      </div>
+    </header>
+  </section>
+</nav>
