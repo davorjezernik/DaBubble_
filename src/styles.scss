@@ -41,50 +41,25 @@ body {
   margin: 0;
 }
 
-
 body, html {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
 
-#brandMount {
-  position: relative;
-  z-index: 10;
+// intro //
+app-auth-layout-component .header .logo img {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity .25s ease, transform .25s ease;
 }
 
-.brand-cluster {
-  position: fixed;
-  left: 75px;
-  top: 75px;
-  transform: scale(0.4);
-  transform-origin: top left;
-  display: inline-flex;
-  align-items: center;
-  gap: 0;
+body.intro-active app-auth-layout-component .header .logo img {
+  opacity: 0;
+  transform: translateY();
+  pointer-events: none;
 }
-
-.brand-cluster .logo {
-  display: block;
-  margin-right: 30px;
-}
-
-.brand-cluster .title {
-  margin: 0;
-  line-height: 1;
-}
-
-.brand-cluster .title{
-  margin: 0;
-  line-height: 1;
-  font-family: 'Nunito', sans-serif;
-  font-weight: 700;
-  font-size: clamp(40px, 8vw, 96px);
-  letter-spacing: 1px;
-  color: #000000;
-  transform: translateX(-12px); 
-  -webkit-font-smoothing: antialiased;
-}
+// intro //
 
 /* nunito-regular - latin */
 @font-face {
