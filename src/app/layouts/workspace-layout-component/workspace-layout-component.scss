@@ -35,13 +35,11 @@ header {
 .devspace-sidenav {
   background-color: #ffffff;
   border-radius: 25px;
-  margin-left: 20px;
 }
 
 .thread-sidenav {
   background-color: antiquewhite;
   border-radius: 30px;
-  margin-right: 20px;
 }
 
 .thread-sidenav-button {
@@ -123,4 +121,12 @@ header {
   > p {
     transform: rotate(-180deg);
   }
+}
+
+.main-content-wrapper {
+  margin-left: 20px; // spacing from left drawer
+  margin-right: 20px;
+  height: 100%;
+  display: flex;
+  flex: 1;
 }
