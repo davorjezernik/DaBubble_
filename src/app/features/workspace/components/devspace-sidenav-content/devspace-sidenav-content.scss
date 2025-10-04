@@ -115,6 +115,7 @@ $radius-pill: 999px;
 }
 
 .dms-title {
+  cursor: pointer;
   transition: all 125ms ease-in-out;
   &:hover {
     .section-heading {
@@ -259,14 +260,27 @@ $radius-pill: 999px;
   color: inherit;
   cursor: pointer;
   border-radius: 8px;
-  transition: color 140ms ease-out;
+  transition: color 125ms ease-in-out;
+
+  &:hover {
+    color: $color-brand;
+
+    .add-channel-icon path {
+      stroke: $color-brand;
+      stroke-width: 0.5;
+    }
+
+    .add-channel-label {
+      color: $color-brand;
+    }
+  }
 
   .add-channel-icon {
-    transition: fill 140ms ease-out;
+    transition: fill 125ms ease-out;
 
     path {
       fill: currentColor; // inherit from button color
-      transition: fill 140ms ease-out;
+      transition: fill 125ms ease-out;
     }
   }
 
@@ -278,19 +292,6 @@ $radius-pill: 999px;
       $font-family: 'Nunito',
       $line-height: 1
     );
-  }
-
-  &:hover {
-    color: $color-brand;
-
-    .add-channel-icon path {
-      fill: $color-brand;
-    }
-  }
-
-  &:focus-visible {
-    outline: 2px solid $color-brand;
-    outline-offset: 2px;
   }
 }
 
