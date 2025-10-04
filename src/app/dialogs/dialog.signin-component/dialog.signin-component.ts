@@ -10,7 +10,7 @@ import { User } from '../../../models/user.class';
 import { MyErrorStateMatcher } from '../error-state-matcher';
 
 @Component({
-  selector: 'app-dialog.signin-component',
+  selector: 'app-dialog-signin-component',
   standalone: true,
   imports: [
     MatDialogModule,

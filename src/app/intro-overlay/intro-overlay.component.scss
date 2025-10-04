@@ -1,0 +1,43 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: grid;
+  place-items: center;
+}
+
+.overlay-bg {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, #8e9efc, #3b3bfc);
+  z-index: -1;
+}
+
+.stage {
+  position: relative;
+  width: min(90vw, 900px);
+  height: min(40vh, 300px);
+}
+
+.cluster {
+  position: absolute;
+  left: 50%; top: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  align-items: center;
+  gap: 0;
+}
+
+.logo { 
+    display:block; 
+}
+
+.title {
+  margin:0;
+  font-family:'Nunito', sans-serif;
+  font-weight:700;
+  font-size:clamp(40px, 8vw, 96px);
+  color:#fff;
+  opacity: 0;
+  transform: translateX(-120px); 
+}

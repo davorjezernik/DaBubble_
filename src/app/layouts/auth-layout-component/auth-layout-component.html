@@ -1,0 +1,20 @@
+<section class="login-dialog">
+  <header class="header">
+    <figure class="logo">
+      <a [routerLink]="'/'"><img src="assets/icons/static-logo.svg" alt="Backdrop Image" /></a>
+    </figure>
+    @if (isLogin) {
+    <hgroup class="signup-text">
+      <p>Neu bei DABubble?</p>
+      <a (click)="openDialog(); $event.preventDefault()">Konto erstellen</a>
+    </hgroup>
+    }
+  </header>
+
+  <footer class="footer">
+    @if (isAuth()) {
+    <a [routerLink]="'/imprint'">Impressum</a>
+    <a [routerLink]="'/privacy-policy'">Datenschutz</a>
+    }
+  </footer>
+</section>

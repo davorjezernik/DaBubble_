@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { BackdropComponent } from './backdrop-component';
+import { DialogUserCardComponent } from './dialog-user-card.component';
 
-describe('BackdropComponent', () => {
-  let component: BackdropComponent;
-  let fixture: ComponentFixture<BackdropComponent>;
+describe('DialogUserCardComponent', () => {
+  let component: DialogUserCardComponent;
+  let fixture: ComponentFixture<DialogUserCardComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [BackdropComponent]
+      imports: [DialogUserCardComponent]
     })
     .compileComponents();
-
-    fixture = TestBed.createComponent(BackdropComponent);
+    
+    fixture = TestBed.createComponent(DialogUserCardComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
