@@ -1,3 +1,5 @@
+@use 'mixins';
+
 // Theme tokens
 $color-text: #0f0f10;
 $color-muted: #6b6f76;
@@ -45,9 +47,13 @@ $radius-pill: 999px;
   }
 
   .brand-name {
-    font-weight: 700;
-    font-size: 22px;
-    letter-spacing: 0.2px;
+    @include mixins.text-style(
+      $size: 24px,
+      $color: #000000,
+      $font-weight: 700,
+      $font-family: 'Nunito',
+      $line-height: 1
+    );
   }
 
   .brand-action {
@@ -77,12 +83,74 @@ $radius-pill: 999px;
   grid-template-columns: 1fr auto;
   align-items: center;
   margin-bottom: 16px;
-  border-radius: 8px;
+}
 
-  /* Hover color change for headings ("Channels" & "Direktnachrichten") */
-  &:hover .section-heading {
-    color: $color-brand;
+.channels-title {
+  cursor: pointer;
+  transition: all 125ms ease-in-out;
+  &:hover {
+    .channels-title-arrow {
+      path {
+        fill: $color-brand;
+      }
+    }
+
+    .channels-title-logo {
+      path {
+        fill: $color-brand;
+      }
+    }
+
+    .channels-title-text {
+      color: $color-brand;
+    }
   }
+
+  &.open {
+    .channels-title-arrow {
+      transition: transform 125ms ease-in-out;
+      transform: rotate(-90deg);
+    }
+  }
+}
+
+.dms-title {
+  transition: all 125ms ease-in-out;
+  &:hover {
+    .section-heading {
+      color: $color-brand;
+    }
+
+    .arrow-dropdown-icon {
+      path {
+        fill: $color-brand;
+      }
+    }
+
+    .section-icon {
+      path {
+        fill: $color-brand;
+      }
+    }
+  }
+
+  &.open {
+    .arrow-dropdown-icon {
+      transition: transform 125ms ease-in-out;
+      transform: rotate(-90deg);
+    }
+  }
+}
+
+.dms-title,
+.channels-title-text {
+  @include mixins.text-style(
+    $size: 20px,
+    $color: #000000,
+    $font-weight: 700,
+    $font-family: 'Nunito',
+    $line-height: 1
+  );
 }
 
 .section-title {
@@ -99,18 +167,25 @@ $radius-pill: 999px;
 }
 
 .section-addon {
-  display: inline-grid;
-  place-items: center;
-  width: 28px;
-  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  width: 35px;
+  height: 35px;
   border: none;
   background: transparent;
-  border-radius: 6px;
   cursor: pointer;
+  transition: background-color 125ms ease-in-out, transform 125ms ease-in-out;
 
-  &:focus-visible {
-    outline: 2px solid $color-brand;
-    outline-offset: 2px;
+  &:hover {
+    background-color: #eceefe;
+
+    svg {
+      path {
+        fill: $color-brand;
+      }
+    }
   }
 }
 
@@ -127,32 +202,45 @@ $radius-pill: 999px;
   .channel-list-item + .channel-list-item {
     margin-top: 4px;
   }
-}
 
-.channel {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  padding: 8px 0;
-  text-decoration: none;
-  color: inherit;
-  border-radius: $radius-pill;
-  transition: background-color 140ms ease-out, color 140ms ease-out;
+  .channel {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 4px 20px 4px;
+    border-radius: 20px;
+    margin-left: -19px;
+    text-decoration: none;
+    color: inherit;
+    transition: background-color 125ms ease-in-out, color 125ms ease-in-out;
 
-  .channel-icon {
-    width: 18px;
-    height: 18px;
-  }
+    .channel-icon {
+      flex-shrink: 0;
 
-  &.is-active {
-    background: transparent;
-    color: $color-brand;
-    font-weight: 600;
-  }
+      path {
+        fill: currentColor;
+        transition: fill 125ms ease-in-out;
+      }
+    }
 
-  &:focus-visible {
-    outline: 2px solid $color-brand;
-    outline-offset: 2px;
+    .channel-name {
+      @include mixins.text-style(
+        $size: 18px,
+        $color: #000000,
+        $font-weight: 400,
+        $font-family: 'Nunito',
+        $line-height: 1
+      );
+    }
+
+    &:hover {
+      background-color: #eceefe;
+      color: #444df2;
+
+      .channel-icon path {
+        fill: #444df2;
+      }
+    }
   }
 }
 
@@ -173,18 +261,36 @@ $radius-pill: 999px;
   border-radius: 8px;
   transition: color 140ms ease-out;
 
+  .add-channel-icon {
+    transition: fill 140ms ease-out;
+
+    path {
+      fill: currentColor; // inherit from button color
+      transition: fill 140ms ease-out;
+    }
+  }
+
+  .add-channel-label {
+    @include mixins.text-style(
+      $size: 18px,
+      $color: #000000,
+      $font-weight: 400,
+      $font-family: 'Nunito',
+      $line-height: 1
+    );
+  }
+
   &:hover {
     color: $color-brand;
+
+    .add-channel-icon path {
+      fill: $color-brand;
+    }
   }
 
   &:focus-visible {
     outline: 2px solid $color-brand;
     outline-offset: 2px;
-  }
-
-  .add-channel-label {
-    font-size: 16px;
-    font-weight: 500;
   }
 }
 
@@ -197,4 +303,23 @@ $radius-pill: 999px;
     margin-top: 2px;
   }
 }
+.message-trigger-icon {
+  cursor: pointer;
+  border-radius: 20px;
+  background-color: transparent;
+  transition: all 125ms ease-in-out;
 
+  path {
+    fill: black;
+    transition: fill 125ms ease-in-out;
+  }
+
+  &:hover {
+    /* apply background + rounding to whole icon */
+    background-color: #eceefe;
+
+    path {
+      fill: #444df2;
+    }
+  }
+}
