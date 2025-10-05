@@ -4,10 +4,10 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { FormsModule } from '@angular/forms';
-import { AuthInputComponent } from '../../shared/components/auth-input-component/auth-input-component';
 import { CommonModule } from '@angular/common';
 import { Auth, GoogleAuthProvider, signInWithRedirect } from '@angular/fire/auth';
 import { Router, RouterLink } from '@angular/router';
+import { AuthInputComponent } from '../../../../shared/components/auth-input-component/auth-input-component';
 @Component({
   selector: 'app-dialog-login',
   standalone: true,

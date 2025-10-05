@@ -1,6 +1,6 @@
 import { Component, signal } from '@angular/core';
 import { Router, RouterModule, RouterOutlet } from '@angular/router';
-import { IntroOverlayComponent } from './intro-overlay/intro-overlay.component';
+import { IntroOverlayComponent } from './core/intro-overlay/intro-overlay.component';
 import { CommonModule } from '@angular/common';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';

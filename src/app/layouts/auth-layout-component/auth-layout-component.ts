@@ -1,9 +1,9 @@
 import { Component, OnDestroy, OnInit, signal } from '@angular/core';
-import { DialogLoginComponent } from '../../dialogs/dialog.login-component/dialog.login-component';
 import { MatDialog } from '@angular/material/dialog';
-import { DialogSigninComponent } from '../../dialogs/dialog.signin-component/dialog.signin-component';
+import { DialogSigninComponent } from '../../features/authentication/components/dialog.signup-component/dialog.signup-component';
 import { NavigationEnd, Router, RouterModule } from '@angular/router';
 import { filter } from 'rxjs';
+import { DialogLoginComponent } from '../../features/authentication/components/dialog.login-component/dialog.login-component';
 
 @Component({
   selector: 'app-auth-layout-component',
@@ -12,7 +12,6 @@ import { filter } from 'rxjs';
   styleUrl: './auth-layout-component.scss',
 })
 export class AuthLayoutComponent implements OnInit, OnDestroy {
-
   constructor(public dialog: MatDialog, public router: Router) {}
 
   isLogin = true;
