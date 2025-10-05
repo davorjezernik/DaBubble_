@@ -1,6 +1,13 @@
-<h2 mat-dialog-title class="title">Konto erstellen 2</h2>
+<mat-icon class="back-arrow" (click)="goBack()">arrow_back</mat-icon>
+<h2 mat-dialog-title class="title">Konto erstellen</h2>
 
-<form [formGroup]="signinForm" (ngSubmit)="saveUser()">
+@if (loading) {
+<div class="loading-overlay">
+  <mat-progress-spinner mode="indeterminate" color="primary"></mat-progress-spinner>
+</div>
+}
+
+<form [formGroup]="signinForm" (ngSubmit)="proceedToAvatarSelection()" [class.hidden]="loading">
   <mat-dialog-content>
     <p>Mit deinem Namen und deiner E-Mail-Adresse hast du dein neues DaBubble-Konto.</p>
 
@@ -46,6 +53,10 @@
       <mat-error>Bitte gib ein Passwort ein.</mat-error>
       }
     </mat-form-field>
+
+    <mat-checkbox formControlName="privacyPolicy" color="primary">
+      Ich stimme der <a href="/privacy-policy" target="_blank">Datenschutzerklärung</a> zu.
+    </mat-checkbox>
   </mat-dialog-content>
 
   <div mat-dialog-actions align="end">
@@ -54,7 +65,7 @@
       class="btn-weiter"
       type="submit"
       cdkFocusInitial
-      [disabled]="!signinForm.valid"
+      [disabled]="!signinForm.valid || loading"
     >
       Weiter
     </button>
