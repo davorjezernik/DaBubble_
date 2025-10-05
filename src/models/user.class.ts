@@ -1,19 +1,19 @@
 export class User {
+  uid: string;
   name: string;
   email: string;
-  passwort: string;
 
   constructor(obj?: any) {
+    this.uid = obj?.uid ?? '';
     this.name = obj?.name ?? '';    
     this.email = obj?.email ?? '';
-    this.passwort = obj?.passwort ?? '';    
   }
 
   public toJSON() {
     return {
+      uid: this.uid,
       name: this.name,
-      email: this.email,
-      passwort: this.passwort
+      email: this.email
     };
   }
 }
