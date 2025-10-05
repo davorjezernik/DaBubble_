@@ -5,8 +5,10 @@
 // custom components at https://material.angular.dev/guide/theming
 @use '@angular/material' as mat;
 
+
 :root {
   --purple-1: #444df2;
+  --purple-2: #797EF3;
 }
 
 :root {
@@ -127,13 +129,13 @@ body.intro-active app-auth-layout-component .header .logo img {
   src: url('./assets/fonts/figtree-v9-latin-700.woff2') format('woff2'); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
 }
 
-.TopRight {
+.top-right {
     position: absolute;
     top: 16px;
     right: 16px;
 }
 
-.Column {
+.column {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -141,6 +143,157 @@ body.intro-active app-auth-layout-component .header .logo img {
     text-align: left;
 }
 
-.FullWidth {
+.full-width {
     width: 100%;
+}
+
+/* Global overrides for form-field icons and inputs
+   Placing these in styles.scss ensures consistent behavior for all team members
+   (no need for ::ng-deep in components) and works across Material versions.
+*/
+.mat-mdc-form-field-icon-prefix > .mat-icon,
+.mat-mdc-form-field-icon-suffix > .mat-icon,
+.mat-mdc-form-field-prefix .material-icons-outlined,
+.mat-mdc-form-field-suffix .material-icons-outlined {
+  padding: 0 24px !important;
+  color: #6b6b6b; /* default gray */
+}
+
+/* Move the prefix container (not the placeholder) to create space from the field edge */
+.mat-mdc-form-field-prefix,
+.mat-mdc-form-field-icon-prefix,
+.mat-mdc-form-field-icon-suffix,
+.mat-mdc-form-field-suffix {
+  padding-left: 16px !important; /* push icon away from left edge */
+  margin-right: 8px !important; /* spacing between icon and input content */
+}
+
+/* Focus styles: purple outline and icon color change */
+.mat-mdc-form-field-wrapper:focus-within .mat-mdc-form-field-flex,
+.mat-mdc-form-field:focus-within .mat-mdc-form-field-flex {
+  /* Thinner, less pronounced focus ring using theme variable */
+  /* Use a semi-transparent fallback and prefer the CSS variable for theming */
+  /* Use the exact theme color, fully opaque (no transparent mix) */
+  box-shadow: 0 0 0 1px var(--purple-1) !important;
+}
+.mat-mdc-form-field:focus-within .mat-mdc-notched-outline {
+  /* Make the visible outline thinner on focus */
+  border-color: var(--purple-1) !important;
+  border-width: 1px !important;
+}
+.mat-mdc-form-field:focus-within .material-icons-outlined,
+.mat-mdc-form-field:focus-within .mat-icon {
+  color: #000 !important;
+}
+
+/* Hover state: subtle 1px outline using the placeholder gray (only when not focused) */
+.mat-mdc-form-field:hover:not(:focus-within) .mat-mdc-form-field-flex,
+.custom-form-field:hover:not(:focus-within) .mat-mdc-form-field-flex {
+  box-shadow: 0 0 0 1px #6b6b6b !important;
+}
+
+/* Smooth transitions for hover/focus changes */
+.mat-mdc-form-field .mat-mdc-form-field-flex,
+.custom-form-field .mat-mdc-form-field-flex {
+  transition: box-shadow 140ms ease, border-color 140ms ease;
+}
+
+/* Styles for the 'Weiter' button in the signin dialog */
+.btn-weiter {
+  background-color: var(--purple-1) !important;
+  color: white !important;
+  border-radius: 20px;
+  padding: 8px 16px;
+  transition: background-color 160ms ease, color 160ms ease;
+}
+.btn-weiter:hover:not(:disabled) {
+  /* Slightly transparent on hover: use rgba of the theme color */
+  background-color: rgba(116, 122, 236, 0.9) !important; /* var(--purple-1) = #444df2 */
+  color: white !important;
+}
+.btn-weiter:disabled {
+  background-color: #bfbfdc !important; /* dimmed purple */
+  color: #f5f5f7 !important;
+}
+
+/* Migrated from dialog.signin-component.scss: component-scoped rules made global
+   These ensure `.custom-form-field` elements get consistent background, outline
+   and placeholder behavior across the app without using ::ng-deep in components.
+*/
+.custom-form-field .mat-mdc-form-field-flex {
+  background-color: var(--purple-light);
+  border-radius: 100px;
+  overflow: hidden;
+}
+
+.custom-form-field .mdc-notched-outline > * {
+  border: none !important;
+}
+
+.custom-form-field .material-icons-outlined,
+.custom-form-field .mat-mdc-form-field-prefix .material-icons-outlined {
+  color: #6b6b6b !important; /* default gray */
+}
+
+.custom-form-field:focus-within .material-icons-outlined,
+.custom-form-field:focus-within .mat-mdc-form-field-prefix .material-icons-outlined {
+  color: #000000 !important; /* black on focus */
+}
+
+/* Placeholder behavior for custom-form-field inputs */
+.custom-form-field input::placeholder {
+  color: #6b6b6b;
+  transition: color 120ms ease;
+}
+.custom-form-field input::-webkit-input-placeholder { color: #6b6b6b; }
+.custom-form-field input::-moz-placeholder { color: #6b6b6b; }
+.custom-form-field input:-ms-input-placeholder { color: #6b6b6b; }
+
+.custom-form-field:focus-within input::placeholder { color: transparent !important; }
+.custom-form-field:focus-within input::-webkit-input-placeholder { color: transparent !important; }
+.custom-form-field:focus-within input::-moz-placeholder { color: transparent !important; }
+.custom-form-field:focus-within input:-ms-input-placeholder { color: transparent !important; }
+
+ul {
+  list-style: none;
+}
+
+.success-snackbar {
+  --mdc-snackbar-container-color: var(--purple-1);
+  background-color: var(--purple-1);
+  --mdc-snackbar-supporting-text-color: #fff;
+  color: white;
+  border-radius: 24px !important;
+
+  text-align: center;
+  font-family: 'Nunito', system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  font-weight: 700;
+  font-size: 36px;
+
+  /* Mittig auf dem Bildschirm positionieren */
+  position: fixed !important;
+  top: 50% !important;
+  left: 50% !important;
+  bottom: auto !important;
+  transform: translate(-50%, -50%) !important;
+  z-index: 9999 !important;
+
+  max-width: 90% !important;
+  width: auto;
+  padding: 12px 20px !important;
+  display: inline-block;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+}
+
+.back-arrow {
+  position: absolute;
+  top: 45px;
+  left: 45px;
+  cursor: pointer;
+  color: black;
+  transition: transform 0.1s ease-in-out;
+
+  &:hover {
+    transform: scale(1.1);
+  }
 }

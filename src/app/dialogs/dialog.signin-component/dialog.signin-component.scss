@@ -1,5 +1,5 @@
 .title {
-//   font-family: 'Nunito';
+  font-family: 'Nunito', sans-serif;
   font-weight: 700;
   font-size: 46px;
   color: var(--purple-1);
@@ -15,12 +15,64 @@ p {
 mat-dialog-content {
     display: flex;
     flex-direction: column;
-    gap: 32px;
+    gap: 16px;
     padding-top: 20px;
 }
 
-// .custom-form-field {
-//     // background-color: var(--purple-light);
-//     // // border-radius: 100px;
-//     // overflow: hidden;
-// }
+.example-form {
+  min-width: 150px;
+  max-width: 500px;
+  width: 100%;
+}
+
+.example-full-width {
+  width: 100%;
+}
+
+.loading-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.6);
+  z-index: 2;
+}
+
+.hidden {
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+:host {
+  ::ng-deep .mat-mdc-dialog-container .mdc-dialog__surface {
+    position: relative;
+  }
+}
+
+mat-checkbox {
+  ::ng-deep .mdc-checkbox__background {
+    border-color: var(--purple-2) !important;
+  }
+
+  ::ng-deep .mdc-checkbox__ripple {
+    background-color: transparent !important;
+  }
+
+  &:hover ::ng-deep .mdc-checkbox__ripple {
+    background-color: #ECEEFE !important;
+  }
+
+  ::ng-deep .mdc-checkbox--selected .mdc-checkbox__background {
+    background-color: var(--purple-2) !important;
+  }
+
+  a {
+    color: var(--purple-2);
+    text-decoration: none;
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+

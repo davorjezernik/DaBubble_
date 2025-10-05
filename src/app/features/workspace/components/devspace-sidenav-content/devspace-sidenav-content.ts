@@ -8,4 +8,9 @@ import { MatSidenavModule } from '@angular/material/sidenav';
   templateUrl: './devspace-sidenav-content.html',
   styleUrl: './devspace-sidenav-content.scss',
 })
-export class DevspaceSidenavContent {}
+export class DevspaceSidenavContent {
+
+  dmsOpen: boolean = true;
+  channelsOpen: boolean = true;
+
+}

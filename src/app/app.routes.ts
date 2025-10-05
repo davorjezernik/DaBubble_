@@ -1,8 +1,8 @@
 import { Routes } from '@angular/router';
 import { AuthLayoutComponent } from './layouts/auth-layout-component/auth-layout-component';
 import { WorkspaceLayoutComponent } from './layouts/workspace-layout-component/workspace-layout-component';
-import { PrivacyPolicyComponent } from './privacy-policy/privacy-policy.component';
-import { ImpressumComponent } from './impressum/impressum.component';
+import { ImpressumComponent } from './shared/impressum/impressum.component';
+import { PrivacyPolicyComponent } from './shared/privacy-policy/privacy-policy.component';
 
 export const routes: Routes = [
   { path: '', component: AuthLayoutComponent },

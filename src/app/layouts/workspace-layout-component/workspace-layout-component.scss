@@ -8,6 +8,9 @@
   min-height: 100vh;
   width: 100%;
   max-width: 1920px;
+  box-sizing: border-box;
+  padding: 20px;
+  position: relative;
 }
 
 main {
@@ -30,14 +33,16 @@ header {
 }
 
 .devspace-sidenav {
-  background-color: antiquewhite;
+  background-color: #ffffff;
+  border-radius: 25px;
 }
 
 .thread-sidenav {
   background-color: antiquewhite;
+  border-radius: 30px;
 }
 
-.thread-sidenav-buttons {
+.thread-sidenav-button {
   margin-left: auto;
 }
 
@@ -47,10 +52,81 @@ header {
   display: flex;
   align-items: start;
   justify-content: center;
-  background-color: cadetblue;
+  background-color: #ffffff;
+  border-radius: 30px;
+  box-sizing: border-box;
 }
 
 .main-and-thread-wrapper {
   flex: 1;
   display: flex;
+}
+
+.mat-drawer-container {
+  background-color: rgb(236 238 254);
+}
+
+.devspace-sidenav-button {
+  @include mixins.text-style(
+    $size: 20px,
+    $color: #000000,
+    $font-weight: 500,
+    $font-family: 'Nunito',
+    $line-height: 1.2
+  );
+  margin-right: 24px;
+  left: 0;
+  bottom: 440px;
+  padding: 0 12px 0;
+  position: absolute;
+  z-index: 2;
+  transform: rotate(90deg);
+  transform-origin: left bottom;
+  display: flex;
+  align-items: center;
+  flex-direction: row-reverse;
+  background-color: #ffffff;
+  gap: 8px;
+  border: none;
+  cursor: pointer;
+  height: 56px;
+  border-top-right-radius: 30px;
+  border-top-left-radius: 30px;
+  filter: drop-shadow(4px 4px 7px rgba(0, 0, 0, 0.2));
+  transition: all 125ms ease-in-out;
+
+  &:hover {
+    p {
+      color: #535af1;
+      font-weight: 700;
+    }
+
+    svg {
+      path {
+        stroke: #444df2;
+        stroke-width: 2.5;
+      }
+
+      rect {
+        stroke: #444df2;
+        stroke-width: 2.5;
+      }
+    }
+  }
+
+  > svg {
+    transform: rotate(-90deg);
+  }
+
+  > p {
+    transform: rotate(-180deg);
+  }
+}
+
+.main-content-wrapper {
+  margin-left: 20px; // spacing from left drawer
+  margin-right: 20px;
+  height: 100%;
+  display: flex;
+  flex: 1;
 }
