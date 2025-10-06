@@ -58,7 +58,7 @@ app-auth-layout-component .header .logo img {
 
 body.intro-active app-auth-layout-component .header .logo img {
   opacity: 0;
-  transform: translateY();
+  transform: translateY(-6px);
   pointer-events: none;
 }
 // intro //
