@@ -1,11 +1,18 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, NgZone } from '@angular/core';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { Auth, GoogleAuthProvider, signInWithRedirect } from '@angular/fire/auth';
+import {
+  Auth,
+  deleteUser,
+  getAdditionalUserInfo,
+  GoogleAuthProvider,
+  signInWithEmailAndPassword,
+  signInWithPopup,
+} from '@angular/fire/auth';
 import { Router, RouterLink } from '@angular/router';
 import { AuthInputComponent } from '../../../../shared/components/auth-input-component/auth-input-component';
 @Component({
@@ -19,27 +26,52 @@ import { AuthInputComponent } from '../../../../shared/components/auth-input-com
     MatButtonModule,
     FormsModule,
     AuthInputComponent,
-    RouterLink
-],
+    RouterLink,
+  ],
   templateUrl: './dialog.login-component.html',
   styleUrl: './dialog.login-component.scss',
 })
 export class DialogLoginComponent {
-  constructor(public router: Router) {}
+  constructor(public router: Router, private zone: NgZone) {}
 
   auth: Auth = inject(Auth);
 
   password: string = '';
   email: string = '';
+  isLoading = true;
 
   login() {
-    console.log('Email:', this.email);
-    console.log('Password:', this.password);
+    this.zone.run(async () => {
+      try {
+        const userCredential = await signInWithEmailAndPassword(
+          this.auth,
+          this.email,
+          this.password
+        );
+        this.router.navigate(['/workspace']);
+      } catch (err: any) {
+        console.log(err);
+      }
+    });
   }
 
-  async signInWithGoogle() {
-    const provider = new GoogleAuthProvider();
-    // This will navigate the user away, so the code below will not execute immediately.
-    await signInWithRedirect(this.auth, provider);
+  signInWithGoogle() {
+    this.zone.run(async () => {
+      const provider = new GoogleAuthProvider();
+      try {
+        const userCredential = await signInWithPopup(this.auth, provider);
+        const additionalInfo = getAdditionalUserInfo(userCredential);
+        console.log('Google sign-in successful:', additionalInfo);
+        if (additionalInfo?.isNewUser) {
+          if (userCredential.user) {
+            await deleteUser(userCredential.user);
+          }
+        } else {
+          this.router.navigate(['/workspace']);
+        }
+      } catch (error) {
+        console.error('Google sign-in error', error);
+      }
+    });
   }
 }

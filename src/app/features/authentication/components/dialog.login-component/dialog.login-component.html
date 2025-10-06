@@ -3,7 +3,7 @@
   <p class="dialog-login__subtitle">
     Wir empfehlen dir, die E-Mail-Adresse zu nutzen, die du bei der Arbeit verwendest.
   </p>
-  <form #loginForm="ngForm" (ngSubmit)="login()">
+  <form #loginForm="ngForm" (submit)="login()">
     <div class="form-group">
       <app-auth-input-component
         name="email"
