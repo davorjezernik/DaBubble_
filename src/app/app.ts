@@ -1,11 +1,11 @@
 import { Component, signal, Inject, PLATFORM_ID, OnInit  } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { Router, NavigationEnd, RouterOutlet } from '@angular/router';
-import { IntroOverlayComponent } from './intro-overlay/intro-overlay.component';
 import { CommonModule } from '@angular/common';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { filter } from 'rxjs';
+import { IntroOverlayComponent } from './core/intro-overlay/intro-overlay.component';
 
 @Component({
   selector: 'app-root',
