@@ -1,11 +1,16 @@
 import { Component, Inject, inject } from '@angular/core';
-import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule, MatDialog } from '@angular/material/dialog';
+import {
+  MatDialogRef,
+  MAT_DIALOG_DATA,
+  MatDialogModule,
+  MatDialog,
+} from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { CommonModule } from '@angular/common';
 import { Firestore, doc, setDoc } from '@angular/fire/firestore';
 import { Auth, createUserWithEmailAndPassword, updateProfile } from '@angular/fire/auth';
-import { DialogSigninComponent } from '../dialog.signin-component/dialog.signin-component';
+import { DialogSigninComponent } from '../dialog.signup-component/dialog.signup-component';
 import { DialogLoginComponent } from '../dialog.login-component/dialog.login-component';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -19,10 +24,10 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
     MatIconModule,
     MatButtonModule,
     MatSnackBarModule,
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule,
   ],
   templateUrl: './dialog.avatar-select-component.html',
-  styleUrl: './dialog.avatar-select-component.scss'
+  styleUrl: './dialog.avatar-select-component.scss',
 })
 export class DialogAvatarSelectComponent {
   firestore: Firestore = inject(Firestore);
@@ -32,7 +37,7 @@ export class DialogAvatarSelectComponent {
 
   constructor(
     public dialogRef: MatDialogRef<DialogAvatarSelectComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: { name: string, email: string, password: string },
+    @Inject(MAT_DIALOG_DATA) public data: { name: string; email: string; password: string },
     private dialog: MatDialog,
     private snackBar: MatSnackBar
   ) {}
@@ -46,7 +51,11 @@ export class DialogAvatarSelectComponent {
       this.loading = true;
       try {
         // Step 1: Create user in Firebase Authentication
-        const userCredential = await createUserWithEmailAndPassword(this.auth, this.data.email, this.data.password);
+        const userCredential = await createUserWithEmailAndPassword(
+          this.auth,
+          this.data.email,
+          this.data.password
+        );
         const user = userCredential.user;
 
         // Step 2: Update the new user's profile with the name
@@ -57,7 +66,7 @@ export class DialogAvatarSelectComponent {
           uid: user.uid,
           name: this.data.name,
           email: this.data.email,
-          avatar: this.selectedAvatar
+          avatar: this.selectedAvatar,
         };
 
         const userDocRef = doc(this.firestore, 'users', user.uid);
@@ -65,7 +74,6 @@ export class DialogAvatarSelectComponent {
 
         this.loading = false;
         this.showSuccessSnackbarAndProceed();
-
       } catch (error) {
         console.error('Error during final registration:', error);
         this.loading = false;
@@ -77,7 +85,7 @@ export class DialogAvatarSelectComponent {
   showSuccessSnackbarAndProceed() {
     const snackBarRef = this.snackBar.open('Konto erfolgreich erstellt!', '', {
       duration: 2500,
-      panelClass: ['success-snackbar']
+      panelClass: ['success-snackbar'],
     });
 
     snackBarRef.afterDismissed().subscribe(() => {
@@ -92,8 +100,8 @@ export class DialogAvatarSelectComponent {
       data: {
         name: this.data.name,
         email: this.data.email,
-        passwort: this.data.password
-      }
+        passwort: this.data.password,
+      },
     });
   }
 }

@@ -1,12 +1,17 @@
 import { Component, inject, Inject, Optional } from '@angular/core';
 import { Firestore } from '@angular/fire/firestore';
-import { MatDialog, MatDialogModule, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import {
+  MatDialog,
+  MatDialogModule,
+  MatDialogRef,
+  MAT_DIALOG_DATA,
+} from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { ReactiveFormsModule, FormGroup, FormControl, Validators } from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
-import { MyErrorStateMatcher } from '../error-state-matcher';
+
 import { Auth } from '@angular/fire/auth';
 import { DialogAvatarSelectComponent } from '../dialog.avatar-select-component/dialog.avatar-select-component';
 import { DialogLoginComponent } from '../dialog.login-component/dialog.login-component';
@@ -14,6 +19,7 @@ import { CommonModule } from '@angular/common';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MyErrorStateMatcher } from './error-state-matcher';
 
 @Component({
   selector: 'app-dialog-signin-component',
@@ -28,11 +34,11 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
     CommonModule,
     MatProgressSpinnerModule,
     MatSnackBarModule,
-    MatCheckboxModule
+    MatCheckboxModule,
   ],
   providers: [],
-  templateUrl: './dialog.signin-component.html',
-  styleUrls: ['./dialog.signin-component.scss']
+  templateUrl: './dialog.signup-component.html',
+  styleUrls: ['./dialog.signup-component.scss'],
 })
 export class DialogSigninComponent {
   loading = false;
@@ -49,7 +55,9 @@ export class DialogSigninComponent {
   constructor(
     public dialogRef: MatDialogRef<DialogSigninComponent>,
     private dialog: MatDialog,
-    @Optional() @Inject(MAT_DIALOG_DATA) public data: { name: string, email: string, passwort: string }
+    @Optional()
+    @Inject(MAT_DIALOG_DATA)
+    public data: { name: string; email: string; passwort: string }
   ) {
     if (this.data) {
       this.signinForm.patchValue(this.data);
@@ -63,8 +71,8 @@ export class DialogSigninComponent {
         data: {
           name: this.signinForm.value.name,
           email: this.signinForm.value.email,
-          password: this.signinForm.value.passwort
-        }
+          password: this.signinForm.value.passwort,
+        },
       });
     }
   }
@@ -78,6 +86,3 @@ export class DialogSigninComponent {
     this.dialog.open(DialogLoginComponent);
   }
 }
-
-
-
