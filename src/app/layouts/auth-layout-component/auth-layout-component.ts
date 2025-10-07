@@ -1,6 +1,6 @@
 import { Component, OnDestroy, OnInit, signal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { DialogSigninComponent } from '../../features/authentication/components/dialog.signup-component/dialog.signup-component';
+import { DialogSignupComponent } from '../../features/authentication/components/dialog.signup-component/dialog.signup-component';
 import { NavigationEnd, Router, RouterModule } from '@angular/router';
 import { filter } from 'rxjs';
 import { DialogLoginComponent } from '../../features/authentication/components/dialog.login-component/dialog.login-component';
@@ -38,7 +38,7 @@ export class AuthLayoutComponent implements OnInit, OnDestroy {
   openDialog(): void {
     this.isLogin = false;
     this.dialog.closeAll();
-    const dialogRef = this.dialog.open(DialogSigninComponent, {
+    const dialogRef = this.dialog.open(DialogSignupComponent, {
       disableClose: true,
       hasBackdrop: false,
     });

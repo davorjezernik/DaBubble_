@@ -8,48 +8,67 @@
 }
 
 .dialog-login {
+  padding: 32px 32px 48px;
   background: #fff;
   border-radius: 32px;
   box-shadow: 0 4px 32px 0 rgba(160, 170, 255, 0.1);
-  padding: 40px;
   max-width: 420px;
   width: 100%;
   margin: auto;
   display: flex;
   flex-direction: column;
-  gap: 28px;
 }
 
 .dialog-login__title {
   text-align: center;
-  margin-bottom: 12px;
-  @include mixins.text-style($size: 46px, $color: #444df2, $font-weight: 700, $font-family: 'Nunito');
+  @include mixins.text-style(
+    $size: 46px,
+    $color: #444df2,
+    $font-weight: 700,
+    $font-family: 'Nunito'
+  );
 }
 
 .dialog-login__subtitle {
   text-align: center;
-  margin-bottom: 10px;
-  @include mixins.text-style($size: 20px, $color: #000000, $font-weight: 400, $font-family: 'Nunito');
+  margin-bottom: 32px;
+  @include mixins.text-style(
+    $size: 20px,
+    $color: #000000,
+    $font-weight: 400,
+    $font-family: 'Nunito'
+  );
 }
 
 .form-group {
   display: flex;
   flex-direction: column;
-  gap: 40px;
+  gap: 20px;
+  padding: 10px 0px 10px !important;
 }
 
 .dialog-login__forgot {
-  display: block;
-  text-align: center;
-  margin: 40px 0 32px;
+  margin: 0px 0 32px;
   color: #4863ed;
   text-decoration: none;
-  @include mixins.text-style($size: 18px, $color: #797ef3, $font-weight: 400, $font-family: 'Figtree');
+  @include mixins.text-style(
+    $size: 18px,
+    $color: #797ef3,
+    $font-weight: 400,
+    $font-family: 'Figtree'
+  );
   cursor: pointer;
   transition: color 125ms ease-in-out;
   &:hover {
     color: #3247b7;
   }
+}
+
+.password-forgotten {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .dialog-login__divider {
@@ -117,7 +136,7 @@
     transition: font-weight 125ms ease-in-out;
     @include mixins.text-style(
       $size: 18px,
-      $color: #444DF2,
+      $color: #444df2,
       $font-weight: 400,
       $font-family: 'Nunito',
       $line-height: 120%
@@ -143,7 +162,12 @@
 .input-control {
   border: none;
   background: transparent;
-  @include mixins.text-style($size: 18px, $color: Text gray, $font-weight: 500, $font-family: 'Nunito');
+  @include mixins.text-style(
+    $size: 18px,
+    $color: Text gray,
+    $font-weight: 500,
+    $font-family: 'Nunito'
+  );
   outline: none;
   height: 60px;
   width: 100%;

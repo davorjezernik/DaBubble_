@@ -3,28 +3,38 @@
   <p class="dialog-login__subtitle">
     Wir empfehlen dir, die E-Mail-Adresse zu nutzen, die du bei der Arbeit verwendest.
   </p>
-  <form #loginForm="ngForm" (ngSubmit)="login()">
-    <div class="form-group">
-      <app-auth-input-component
-        name="email"
-        [(ngModel)]="email"
-        [type]="'email'"
-        [placeholder]="'beispielname@gmail.com'"
-        [imgSrc]="'assets/icons/mail-empty.svg'"
-        [autocomplete]="'email'"
-        required
-      ></app-auth-input-component>
-      <app-auth-input-component
-        name="password"
-        [(ngModel)]="password"
-        [type]="'password'"
-        [placeholder]="'Passwort'"
-        [imgSrc]="'assets/icons/password-empty.svg'"
-        [autocomplete]="'current-password'"
-        required
-      ></app-auth-input-component>
-    </div>
-    <a href="#" class="dialog-login__forgot">Passwort vergessen?</a>
+  <form [formGroup]="loginForm" (submit)="login()">
+    <mat-dialog-content class="form-group">
+      <mat-form-field class="custom-form-field" appearance="outline">
+        <mat-icon matPrefix class="material-icons-outlined">mail</mat-icon>
+        <input
+          matInput
+          placeholder="beispielname@example.com"
+          formControlName="email"
+          (blur)="updateErrorMessage()"
+          required
+        />
+        @if (this.loginForm.controls.email.invalid && this.loginForm.controls.email.touched) {
+        <mat-error>{{ emailErrorMessage() }}</mat-error>
+        }
+      </mat-form-field>
+      <mat-form-field class="custom-form-field" appearance="outline">
+        <mat-icon matPrefix class="material-icons-outlined">lock</mat-icon>
+        <input
+          matInput
+          placeholder="Passwort"
+          formControlName="password"
+          (blur)="updateErrorMessage()"
+          required
+        />
+        @if (this.loginForm.controls.password.invalid && this.loginForm.controls.email.touched) {
+        <mat-error>{{ passwordErrorMessage() }}</mat-error>
+        }
+      </mat-form-field>
+    </mat-dialog-content>
+    <p class="password-forgotten">
+      <a href="#" class="dialog-login__forgot">Passwort vergessen?</a>
+    </p>
     <div class="dialog-login__divider">
       <span class="line"></span>
       <span class="text">ODER</span>
@@ -35,10 +45,17 @@
       <span class="google-text">Anmelden mit Google</span>
     </div>
     <div class="dialog-login__actions">
-      <button type="submit" class="btn btn--primary" [disabled]="!loginForm.form.valid">
+      <button
+        type="submit"
+        class="btn btn--primary"
+        [class.disabled]="loginForm.invalid"
+        [disabled]="loginForm.invalid"
+      >
         Anmelden
       </button>
-      <button [routerLink]="'/workspace'" type="button" class="btn btn--secondary">Gäste-Login</button>
+      <button [routerLink]="'/workspace'" type="button" class="btn btn--secondary">
+        Gäste-Login
+      </button>
     </div>
   </form>
 </section>
