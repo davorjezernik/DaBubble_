@@ -10,7 +10,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { CommonModule } from '@angular/common';
 import { Firestore, doc, setDoc } from '@angular/fire/firestore';
 import { Auth, createUserWithEmailAndPassword, updateProfile } from '@angular/fire/auth';
-import { DialogSigninComponent } from '../dialog.signup-component/dialog.signup-component';
+import { DialogSignupComponent } from '../dialog.signup-component/dialog.signup-component';
 import { DialogLoginComponent } from '../dialog.login-component/dialog.login-component';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -96,7 +96,7 @@ export class DialogAvatarSelectComponent {
 
   goBack() {
     this.dialogRef.close();
-    this.dialog.open(DialogSigninComponent, {
+    this.dialog.open(DialogSignupComponent, {
       data: {
         name: this.data.name,
         email: this.data.email,

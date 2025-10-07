@@ -40,7 +40,7 @@ import { MyErrorStateMatcher } from './error-state-matcher';
   templateUrl: './dialog.signup-component.html',
   styleUrls: ['./dialog.signup-component.scss'],
 })
-export class DialogSigninComponent {
+export class DialogSignupComponent {
   loading = false;
 
   signinForm = new FormGroup({
@@ -53,7 +53,7 @@ export class DialogSigninComponent {
   matcher = new MyErrorStateMatcher();
 
   constructor(
-    public dialogRef: MatDialogRef<DialogSigninComponent>,
+    public dialogRef: MatDialogRef<DialogSignupComponent>,
     private dialog: MatDialog,
     @Optional()
     @Inject(MAT_DIALOG_DATA)
