@@ -63,11 +63,11 @@ textarea {
   }
 
   &:first-child:hover img {
-    content: url('/assets/icons/sentiment-hover.png');
+    content: url('/assets/icons/sentiment-hover.svg');
   }
 
   &:nth-child(2):hover img {
-    content: url('/assets/icons/alternate-hover.png');
+    content: url('/assets/icons/alternate-hover.svg');
   }
 
   &:hover {
@@ -76,14 +76,14 @@ textarea {
 }
 
 .send-btn {
-  width: 36px;
-  height: 36px;
+  width: 30px;
+  height: 30px;
   border: none;
-  background: transparent url('/assets/icons/send.png') center/30px no-repeat;
+  background: transparent url('/assets/icons/send.svg') center/30px no-repeat;
   cursor: pointer;
 
   &:hover {
-    background-image: url('/assets/icons/send-hover.png');
+    background-image: url('/assets/icons/send-hover.svg');
   }
 
    &:disabled {
