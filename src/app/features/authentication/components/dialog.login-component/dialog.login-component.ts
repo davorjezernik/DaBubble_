@@ -40,7 +40,8 @@ export class DialogLoginComponent {
     password: new FormControl('', [Validators.required]),
   });
 
-  errorMessage = signal('');
+  emailErrorMessage = signal('');
+  passwordErrorMessage = signal('');
 
   constructor(public router: Router, private zone: NgZone) {
     merge(this.loginForm.controls.email.statusChanges, this.loginForm.controls.email.valueChanges)
@@ -48,15 +49,21 @@ export class DialogLoginComponent {
       .subscribe(() => this.updateErrorMessage());
   }
 
-  updateErrorMessage() {
-    if (this.loginForm.controls.email.hasError('required')) {
-      this.errorMessage.set('You must enter a value');
-    } else if (this.loginForm.controls.email.hasError('email')) {
-      this.errorMessage.set('Not a valid email');
-    } else {
-      this.errorMessage.set('');
-    }
+updateErrorMessage() {
+  // Email errors
+  const emailControl = this.loginForm.controls.email;
+  if (emailControl.hasError('required')) {
+    this.emailErrorMessage.set('Diese E-Mail-Adresse ist leider ungültig.');
   }
+
+  // Password errors
+  const passwordControl = this.loginForm.controls.password;
+  if (passwordControl.hasError('required')) {
+    this.passwordErrorMessage.set('Falsches Passwort oder E-Mail. Bitten noch einmal versuchen.');
+  } else {
+    this.passwordErrorMessage.set('');
+  }
+}
 
   auth: Auth = inject(Auth);
   isLoading = true;

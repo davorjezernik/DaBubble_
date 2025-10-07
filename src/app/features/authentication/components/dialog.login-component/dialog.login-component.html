@@ -15,7 +15,7 @@
           required
         />
         @if (this.loginForm.controls.email.invalid && this.loginForm.controls.email.touched) {
-        <mat-error>{{ errorMessage() }}</mat-error>
+        <mat-error>{{ emailErrorMessage() }}</mat-error>
         }
       </mat-form-field>
       <mat-form-field class="custom-form-field" appearance="outline">
@@ -28,11 +28,13 @@
           required
         />
         @if (this.loginForm.controls.password.invalid && this.loginForm.controls.email.touched) {
-        <mat-error>{{ errorMessage() }}</mat-error>
+        <mat-error>{{ passwordErrorMessage() }}</mat-error>
         }
       </mat-form-field>
     </mat-dialog-content>
-    <a href="#" class="dialog-login__forgot">Passwort vergessen?</a>
+    <p class="password-forgotten">
+      <a href="#" class="dialog-login__forgot">Passwort vergessen?</a>
+    </p>
     <div class="dialog-login__divider">
       <span class="line"></span>
       <span class="text">ODER</span>
@@ -43,7 +45,12 @@
       <span class="google-text">Anmelden mit Google</span>
     </div>
     <div class="dialog-login__actions">
-      <button type="submit" class="btn btn--primary" [class.disabled]="loginForm.invalid" [disabled]="loginForm.invalid">
+      <button
+        type="submit"
+        class="btn btn--primary"
+        [class.disabled]="loginForm.invalid"
+        [disabled]="loginForm.invalid"
+      >
         Anmelden
       </button>
       <button [routerLink]="'/workspace'" type="button" class="btn btn--secondary">
