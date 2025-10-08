@@ -77,7 +77,6 @@ export class DialogAvatarSelectComponent {
       } catch (error) {
         console.error('Error during final registration:', error);
         this.loading = false;
-        // Optionally, show an error message to the user
       }
     }
   }
@@ -86,6 +85,8 @@ export class DialogAvatarSelectComponent {
     const snackBarRef = this.snackBar.open('Konto erfolgreich erstellt!', '', {
       duration: 2500,
       panelClass: ['success-snackbar'],
+      verticalPosition: 'bottom',
+      horizontalPosition: 'end',
     });
 
     snackBarRef.afterDismissed().subscribe(() => {

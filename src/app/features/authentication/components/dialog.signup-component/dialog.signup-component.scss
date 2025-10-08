@@ -1,22 +1,14 @@
-.title {
-  font-family: 'Nunito', sans-serif;
-  font-weight: 700;
-  font-size: 46px;
-  color: var(--purple-1);
-  text-align: center;
-  line-height: 120%;
-  margin-top: 32px;
-}
+/* Global .dialog-authentication-* utilities * in styles.scss */
 
 p {
     text-align: center;
 }
 
 mat-dialog-content {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-    padding-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding-top: 20px;
 }
 
 .example-form {
@@ -48,6 +40,15 @@ mat-dialog-content {
   ::ng-deep .mat-mdc-dialog-container .mdc-dialog__surface {
     position: relative;
   }
+
+  ::ng-deep .mat-mdc-dialog-content,
+  ::ng-deep .mdc-dialog__content {
+    overflow-y: hidden !important;
+    max-height: none !important;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  ::-webkit-scrollbar { display: none; }
 }
 
 mat-checkbox {
