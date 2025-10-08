@@ -193,7 +193,6 @@
       </div>
     </div>
     }
-    
   </section>
 
   <!-- Direct Messages -->
@@ -258,8 +257,25 @@
       </div>
     </header>
     @if (dmsOpen) {
-    <ul>
-      <li>Place for user</li>
+
+    <ul class="dm-list">
+      <li
+        class="dm-item"
+        *ngFor="let u of visibleUsers; let i = index; trackBy: trackById"
+        [class.is-active]="i === activeIndex"
+        (click)="setActive(i)"
+      >
+        <div class="avatar-wrap">
+          <img class="avatar" [src]="u.avatar" [alt]="u.name" />
+          <span class="status" [class.online]="u.online"></span>
+        </div>
+        <span class="name">{{ u.name }}</span>
+      </li>
+
+      <li class="dm-item more" *ngIf="hiddenCount > 0" (click)="loadMore()">
+        <div class="more-avatar">+{{ hiddenCount }}</div>
+        <span class="name">weitere anzeigen</span>
+      </li>
     </ul>
     }
   </section>
