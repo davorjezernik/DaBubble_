@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output, ViewChild, ElementRef } from '@angular/core';
+import { Component, EventEmitter, Input, Output, ViewChild, ElementRef, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { PickerComponent } from '@ctrl/ngx-emoji-mart';
@@ -64,5 +64,15 @@ export class MessageAreaComponentComponent {
   addEmoji(event: any) {
     this.text += event.emoji.native;
     this.showEmojiPicker = false;
+  }
+
+  @HostListener('document:click', ['$event'])
+  clickOutside(event: MouseEvent) {
+    const target = event.target as HTMLElement;
+
+    // If click is not on the picker or the button, close picker
+    if (!target.closest('.emoji-picker-container') && !target.closest('.icon-btn')) {
+      this.showEmojiPicker = false;
+    }
   }
 }
