@@ -8,10 +8,10 @@ import { SharedComponentsModule } from '../shared-components/shared-components-m
   selector: 'app-message-area-component',
   standalone: true,
   imports: [CommonModule, FormsModule, EmojiPickerComponent, SharedComponentsModule],
-  templateUrl: './message-area-component.component.html',
-  styleUrl: './message-area-component.component.scss',
+  templateUrl: './message-area-component.html',
+  styleUrl: './message-area-component.scss',
 })
-export class MessageAreaComponentComponent {
+export class MessageAreaComponent {
   @Input() hint = 'Nachricht an #Team';
   @Input() disabled = false;
   @Input() maxHeight = 240; // px
@@ -63,6 +63,6 @@ export class MessageAreaComponentComponent {
   }
 
   addEmojiToText(emoji: string) {
-  this.text += emoji;  // append emoji to your textarea's value
-}
+    this.text += emoji; // append emoji to your textarea's value
+  }
 }
