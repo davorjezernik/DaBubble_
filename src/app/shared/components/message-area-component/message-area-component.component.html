@@ -12,8 +12,7 @@
 
   <div class="bottom-row" aria-hidden="false">
     <div class="left-icons">
-    
-        <div class="emoji-container">
+      <div class="emoji-container">
         <button
           (click)="toggleEmojiPicker()"
           type="button"
@@ -22,11 +21,11 @@
         >
           <img src="assets/icons/sentiment_satisfied.svg" alt="" />
         </button>
-        @if(showEmojiPicker) {
-        <div class="emoji-picker-container">
-          <emoji-mart (emojiClick)="addEmoji($event)"></emoji-mart>
-        </div>
-        }
+        <app-emoji-picker-component
+          [showEmojiPicker]="showEmojiPicker"
+          (emojiSelected)="addEmojiToText($event)"
+          (closePicker)="showEmojiPicker = false"
+        ></app-emoji-picker-component>
       </div>
 
       <button type="button" class="icon-btn" aria-label="Jemanden erwähnen">

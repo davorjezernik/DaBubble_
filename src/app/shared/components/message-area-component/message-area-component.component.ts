@@ -1,12 +1,13 @@
-import { Component, EventEmitter, Input, Output, ViewChild, ElementRef, HostListener } from '@angular/core';
+import { Component, EventEmitter, Input, Output, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { PickerComponent } from '@ctrl/ngx-emoji-mart';
+import { EmojiPickerComponent } from '../emoji-picker-component/emoji-picker-component';
+import { SharedComponentsModule } from '../shared-components/shared-components-module';
 
 @Component({
   selector: 'app-message-area-component',
   standalone: true,
-  imports: [CommonModule, FormsModule, PickerComponent],
+  imports: [CommonModule, FormsModule, EmojiPickerComponent, SharedComponentsModule],
   templateUrl: './message-area-component.component.html',
   styleUrl: './message-area-component.component.scss',
 })
@@ -18,8 +19,6 @@ export class MessageAreaComponentComponent {
 
   text = '';
   focused = false;
-
-  showEmojiPicker = false;
 
   @ViewChild('ta') ta!: ElementRef<HTMLTextAreaElement>;
 
@@ -57,22 +56,13 @@ export class MessageAreaComponentComponent {
     queueMicrotask(() => this.autoResize(this.ta.nativeElement));
   }
 
+  showEmojiPicker = false;
+
   toggleEmojiPicker() {
     this.showEmojiPicker = !this.showEmojiPicker;
   }
 
-  addEmoji(event: any) {
-    this.text += event.emoji.native;
-    this.showEmojiPicker = false;
-  }
-
-  @HostListener('document:click', ['$event'])
-  clickOutside(event: MouseEvent) {
-    const target = event.target as HTMLElement;
-
-    // If click is not on the picker or the button, close picker
-    if (!target.closest('.emoji-picker-container') && !target.closest('.icon-btn')) {
-      this.showEmojiPicker = false;
-    }
-  }
+  addEmojiToText(emoji: string) {
+  this.text += emoji;  // append emoji to your textarea's value
+}
 }
