@@ -89,5 +89,11 @@ textarea {
    &:disabled {
     cursor: default;
   }
+}
 
+.emoji-picker-container {
+  position: absolute;
+  bottom: 50px;
+  left: 0;
+  z-index: 10;
 }

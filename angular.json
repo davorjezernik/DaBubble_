@@ -35,7 +35,7 @@
                 "output": "assets"
               }
             ],
-            "styles": ["src/styles.scss"]
+            "styles": ["src/styles.scss", "node_modules/@ctrl/ngx-emoji-mart/picker.css"]
           },
           "configurations": {
             "production": {
@@ -102,7 +102,7 @@
                 "output": "assets"
               }
             ],
-            "styles": ["src/styles.scss"]
+            "styles": ["src/styles.scss", "node_modules/@ctrl/ngx-emoji-mart/picker.css"]
           }
         }
       }
