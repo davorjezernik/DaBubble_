@@ -105,7 +105,7 @@ export class DialogLoginComponent {
       const provider = new GoogleAuthProvider();
       try {
         await this.trySignInWithGoogle(provider);
-      } catch (error) {
+      } catch (err: any) {
         this.loginForm.controls.email.setErrors({ loginFailed: true });
         this.loginForm.controls.password.setErrors({ loginFailed: true });
         this.updateErrorMessage();
