@@ -10,7 +10,7 @@ $purple: #444df2;
   padding: 16px 56px 48px 16px;
 
   &:focus-within {
-    border-color: $msg-border; 
+    border-color: $msg-border;
   }
 }
 
@@ -25,7 +25,7 @@ textarea {
   color: #000;
   padding: 18px 0 0 0;
   background: transparent;
-  font-family:'Nunito', sans-serif;
+  font-family: 'Nunito', sans-serif;
   font-weight: 400;
   font-size: 18px;
 }
@@ -86,14 +86,33 @@ textarea {
     background-image: url('/assets/icons/send-hover.svg');
   }
 
-   &:disabled {
+  &:disabled {
     cursor: default;
   }
 }
+
+/* EMOJI-PICKER-STYLING */
 
 .emoji-picker-container {
   position: absolute;
   bottom: 50px;
   left: 0;
   z-index: 10;
+}
+
+@media (max-width: 700px) {
+  :host ::ng-deep {
+    .emoji-mart {
+      width: 280px !important;
+    }
+
+    .emoji-mart-scroll {
+      height: 200px !important;
+    }
+
+    .emoji-mart-anchors svg,
+    .emoji-mart-anchors img {
+      height: 14px;
+    }
+  }
 }
