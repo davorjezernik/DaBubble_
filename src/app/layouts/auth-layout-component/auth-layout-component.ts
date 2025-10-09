@@ -3,7 +3,6 @@ import { MatDialog } from '@angular/material/dialog';
 import { DialogSignupComponent } from '../../features/authentication/components/dialog.signup-component/dialog.signup-component';
 import { NavigationEnd, Router, RouterModule } from '@angular/router';
 import { filter } from 'rxjs';
-import { DialogLoginComponent } from '../../features/authentication/components/dialog.login-component/dialog.login-component';
 
 @Component({
   selector: 'app-auth-layout-component',
@@ -28,11 +27,6 @@ export class AuthLayoutComponent implements OnInit, OnDestroy {
           this.isAuth.set(false);
         }
       });
-
-    this.dialog.open(DialogLoginComponent, {
-      disableClose: true,
-      hasBackdrop: false,
-    });
   }
 
   openDialog(): void {
