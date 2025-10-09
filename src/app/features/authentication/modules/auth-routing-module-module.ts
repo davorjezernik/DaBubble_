@@ -1,6 +1,5 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { AuthLayoutComponent } from '../../../layouts/auth-layout-component/auth-layout-component';
 import { RouterModule, Routes } from '@angular/router';
 import { DialogLoginComponent } from '../components/dialog.login-component/dialog.login-component';
 import { DialogSignupComponent } from '../components/dialog.signup-component/dialog.signup-component';

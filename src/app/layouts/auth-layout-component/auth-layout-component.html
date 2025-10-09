@@ -6,7 +6,7 @@
     @if (isLogin) {
     <hgroup class="signup-text">
       <p>Neu bei DABubble?</p>
-      <a (click)="openDialog(); $event.preventDefault()">Konto erstellen</a>
+      <a [routerLink]="'/signup'">Konto erstellen</a>
     </hgroup>
     }
   </header>

@@ -21,17 +21,17 @@
   display: flex;
   justify-content: space-between;
   width: 100%;
-  margin-top: 75px;
+  margin-top: 50px;
 }
 
-.logo{
+.logo {
   margin: 0px;
   padding-left: 75px;
   display: flex;
   align-items: center;
 }
 
-.signup-text{
+.signup-text {
   margin: 0px;
   padding-right: 75px;
 }
@@ -40,7 +40,7 @@
   display: flex;
   justify-content: center;
   width: 100%;
-  margin: auto 0 40px;
+  padding-bottom: 20px;
   gap: 16px;
 
   > a {
@@ -66,10 +66,20 @@
   margin-right: 40px;
 
   > p {
-    @include mixins.text-style($size: 18px, $color: #000000, $font-weight: 400, $font-family: 'Nunito', $line-height: 100%);
+    @include mixins.text-style(
+      $size: 18px,
+      $color: #000000,
+      $font-weight: 400,
+      $font-family: 'Nunito',
+      $line-height: 100%
+    );
   }
 
   > a {
     @include mixins.nav-link();
   }
+}
+
+.content {
+  flex-grow: 1;
 }
