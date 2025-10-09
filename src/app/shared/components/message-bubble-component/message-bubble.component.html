@@ -1,0 +1,17 @@
+<div class="message-container">
+  <div class="message-content">
+    <div class="message-header">
+      <span class="user-name">{{ name }}</span>
+      <span class="timestamp">{{ time }}</span>
+    </div>
+    <div class="speech-bubble">
+      <p>{{ text }}</p>
+    </div>
+    <div class="reactions">
+      <!-- Reactions can go here in the future -->
+    </div>
+  </div>
+  <div class="avatar-container">
+    <img [src]="avatar" alt="User Avatar" class="avatar-img" />
+  </div>
+</div>
