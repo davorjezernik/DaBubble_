@@ -1,0 +1,410 @@
+@use 'mixins';
+
+// Theme tokens
+$color-text: #0f0f10;
+$color-muted: #6b6f76;
+$color-brand: #535af1; // hover color for headings and 'Channel hinzufügen'
+$color-dm-hover: #eceefe; // hover bg for user rows + active channel pill
+$color-surface: #ffffff;
+$radius-pill: 999px;
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+.sidenav {
+  width: 100%;
+  height: 100%;
+  padding: 32px 30px 32px;
+  font: 16px/1.3 system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, 'Apple Color Emoji',
+    'Segoe UI Emoji';
+  color: $color-text;
+  background: $color-surface;
+}
+
+.sidenav-brand {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  column-gap: 8px;
+  margin-bottom: 20px;
+
+  .brand-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .brand-logo {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    object-fit: cover;
+  }
+
+  .brand-name {
+    @include mixins.text-style(
+      $size: 24px,
+      $color: #000000,
+      $font-weight: 700,
+      $font-family: 'Nunito',
+      $line-height: 1
+    );
+  }
+
+  .brand-action {
+    display: inline-grid;
+    place-items: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+
+    &:focus-visible {
+      outline: 2px solid $color-brand;
+      outline-offset: 2px;
+    }
+  }
+}
+
+/* Section skeleton */
+.sidenav-section + .sidenav-section {
+  margin-top: 24px;
+}
+
+.section-header {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.channels-title {
+  cursor: pointer;
+  transition: all 125ms ease-in-out;
+  &:hover {
+    .channels-title-arrow {
+      path {
+        fill: $color-brand;
+      }
+    }
+
+    .channels-title-logo {
+      path {
+        fill: $color-brand;
+      }
+    }
+
+    .channels-title-text {
+      color: $color-brand;
+    }
+  }
+
+  &.open {
+    .channels-title-arrow {
+      transition: transform 125ms ease-in-out;
+      transform: rotate(-90deg);
+    }
+  }
+}
+
+.dms-title {
+  cursor: pointer;
+  transition: all 125ms ease-in-out;
+  &:hover {
+    .section-heading {
+      color: $color-brand;
+    }
+
+    .arrow-dropdown-icon {
+      path {
+        fill: $color-brand;
+      }
+    }
+
+    .section-icon {
+      path {
+        fill: $color-brand;
+      }
+    }
+  }
+
+  &.open {
+    .arrow-dropdown-icon {
+      transition: transform 125ms ease-in-out;
+      transform: rotate(-90deg);
+    }
+  }
+}
+
+.dms-title,
+.channels-title-text {
+  @include mixins.text-style(
+    $size: 20px,
+    $color: #000000,
+    $font-weight: 700,
+    $font-family: 'Nunito',
+    $line-height: 1
+  );
+}
+
+.section-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+
+  .section-heading {
+    font-size: 18px;
+    font-weight: 700;
+    margin: 0;
+    transition: color 140ms ease-out;
+  }
+}
+
+.section-addon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  width: 35px;
+  height: 35px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  transition: background-color 125ms ease-in-out, transform 125ms ease-in-out;
+
+  &:hover {
+    background-color: #eceefe;
+
+    svg {
+      path {
+        fill: $color-brand;
+      }
+    }
+  }
+}
+
+.section-content-wrapper {
+  padding-left: 38px;
+}
+
+/* Channel list */
+.channel-list {
+  list-style: none;
+  margin-bottom: 16px;
+  padding: 0;
+
+  .channel-list-item + .channel-list-item {
+    margin-top: 4px;
+  }
+
+  .channel {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 4px 20px 4px;
+    border-radius: 20px;
+    margin-left: -19px;
+    text-decoration: none;
+    color: inherit;
+    transition: background-color 125ms ease-in-out, color 125ms ease-in-out;
+
+    .channel-icon {
+      flex-shrink: 0;
+
+      path {
+        fill: currentColor;
+        transition: fill 125ms ease-in-out;
+      }
+    }
+
+    .channel-name {
+      @include mixins.text-style(
+        $size: 18px,
+        $color: #000000,
+        $font-weight: 400,
+        $font-family: 'Nunito',
+        $line-height: 1
+      );
+    }
+
+    &:hover {
+      background-color: #eceefe;
+      color: #444df2;
+
+      .channel-icon path {
+        fill: #444df2;
+      }
+    }
+  }
+}
+
+/* "Channel hinzufügen" button — text changes to brand color on hover */
+.section-footer {
+  padding: 6px 0 0 0;
+}
+
+.add-channel {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 0;
+  border: none;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: color 125ms ease-in-out;
+
+  &:hover {
+    color: $color-brand;
+
+    .add-channel-icon path {
+      stroke: $color-brand;
+      stroke-width: 0.5;
+    }
+
+    .add-channel-label {
+      color: $color-brand;
+    }
+  }
+
+  .add-channel-icon {
+    transition: fill 125ms ease-out;
+
+    path {
+      fill: currentColor; // inherit from button color
+      transition: fill 125ms ease-out;
+    }
+  }
+
+  .add-channel-label {
+    @include mixins.text-style(
+      $size: 18px,
+      $color: #000000,
+      $font-weight: 400,
+      $font-family: 'Nunito',
+      $line-height: 1
+    );
+  }
+}
+
+/* Direktnachrichten */
+.dm-list {
+  list-style: none;
+  padding: 0;
+
+  .dm-list-item + .dm-list-item {
+    margin-top: 2px;
+  }
+}
+.message-trigger-icon {
+  cursor: pointer;
+  border-radius: 20px;
+  background-color: transparent;
+  transition: all 125ms ease-in-out;
+
+  path {
+    fill: black;
+    transition: fill 125ms ease-in-out;
+  }
+
+  &:hover {
+    /* apply background + rounding to whole icon */
+    background-color: #eceefe;
+
+    path {
+      fill: #444df2;
+    }
+  }
+}
+
+// users //
+
+.dm-list{
+  list-style:none;
+  margin:0;
+  padding:0;
+  display:flex;
+  flex-direction:column;
+  align-items:flex-start; 
+  gap:13px;
+  margin-left: 25px;
+}
+
+.dm-item{
+  min-width:205px; 
+  width:auto;             
+  height:58px;
+
+  display:flex;
+  align-items:center;
+  gap:15px;
+  padding:4px 20px;
+  border-radius: 30px; 
+  cursor:pointer;
+  transition:background .2s ease, color .2s ease;
+
+  &:hover{ background:#ECEEFE; }
+  &.is-active{ background:#ECEEFE; }
+
+  .avatar-wrap{
+    position:relative;
+    width:50px; height:50px;
+
+    .avatar{
+      width:100%; height:100%;
+      border-radius:50%;
+      object-fit:cover;
+      display:block;
+    }
+    .status{
+      position:absolute;
+      right:0; bottom:0;
+      width:14px; height:14px;
+      border-radius:50%;
+      border:2px solid #fff;
+      background:#686868;        
+      &.online{ background:#92C83E; }
+    }
+  }
+
+  .name{
+    font-family:'Nunito', sans-serif;
+    font-size:18px;
+    font-weight:400;
+    color:#000;
+    white-space:nowrap;
+
+    &:hover{ 
+      color:#535af1; 
+      font-weight: 700px;
+    } 
+  }
+}
+
+
+.dm-item.more{
+  justify-content:flex-start;
+
+  .more-avatar{
+    width:50px; 
+    height:50px;
+    border-radius:50%;
+    background:#ECEEFE;
+    display:grid; place-items:center;
+    font-weight:700; color:#535af1;
+  }
+
+  .name{ 
+    color:#535af1; 
+  }
+}
+
+// users //

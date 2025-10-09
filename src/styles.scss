@@ -5,8 +5,10 @@
 // custom components at https://material.angular.dev/guide/theming
 @use '@angular/material' as mat;
 
+
 :root {
   --purple-1: #444df2;
+  --purple-2: #797EF3;
 }
 
 :root {
@@ -41,50 +43,25 @@ body {
   margin: 0;
 }
 
-
 body, html {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
 
-#brandMount {
-  position: relative;
-  z-index: 10;
+// intro //
+app-auth-layout-component .header .logo img {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity .25s ease, transform .25s ease;
 }
 
-.brand-cluster {
-  position: fixed;
-  left: 75px;
-  top: 75px;
-  transform: scale(0.4);
-  transform-origin: top left;
-  display: inline-flex;
-  align-items: center;
-  gap: 0;
+body.intro-active app-auth-layout-component .header .logo img {
+  opacity: 0;
+  transform: translateY(-6px);
+  pointer-events: none;
 }
-
-.brand-cluster .logo {
-  display: block;
-  margin-right: 30px;
-}
-
-.brand-cluster .title {
-  margin: 0;
-  line-height: 1;
-}
-
-.brand-cluster .title{
-  margin: 0;
-  line-height: 1;
-  font-family: 'Nunito', sans-serif;
-  font-weight: 700;
-  font-size: clamp(40px, 8vw, 96px);
-  letter-spacing: 1px;
-  color: #000000;
-  transform: translateX(-12px); 
-  -webkit-font-smoothing: antialiased;
-}
+// intro //
 
 /* nunito-regular - latin */
 @font-face {
@@ -152,13 +129,13 @@ body, html {
   src: url('./assets/fonts/figtree-v9-latin-700.woff2') format('woff2'); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
 }
 
-.TopRight {
+.top-right {
     position: absolute;
     top: 16px;
     right: 16px;
 }
 
-.Column {
+.column {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -166,6 +143,185 @@ body, html {
     text-align: left;
 }
 
-.FullWidth {
+.full-width {
     width: 100%;
+}
+
+.mat-mdc-form-field-icon-prefix > .mat-icon,
+.mat-mdc-form-field-icon-suffix > .mat-icon,
+.mat-mdc-form-field-prefix .material-icons-outlined,
+.mat-mdc-form-field-suffix .material-icons-outlined {
+  padding: 0 24px !important;
+  color: #6b6b6b;
+}
+
+.mat-mdc-form-field-prefix,
+.mat-mdc-form-field-icon-prefix,
+.mat-mdc-form-field-icon-suffix,
+.mat-mdc-form-field-suffix {
+  padding-left: 16px !important;
+  margin-right: 8px !important;
+}
+
+
+.mat-mdc-form-field-wrapper:focus-within .mat-mdc-form-field-flex,
+.mat-mdc-form-field:focus-within .mat-mdc-form-field-flex {
+  box-shadow: 0 0 0 1px var(--purple-1) !important;
+}
+
+.mat-mdc-form-field:focus-within .mat-mdc-notched-outline {
+  border-color: var(--purple-1) !important;
+  border-width: 1px !important;
+}
+
+.mat-mdc-form-field:focus-within .material-icons-outlined,
+.mat-mdc-form-field:focus-within .mat-icon {
+  color: #000 !important;
+}
+
+.mat-mdc-form-field:hover:not(:focus-within) .mat-mdc-form-field-flex,
+.custom-form-field:hover:not(:focus-within) .mat-mdc-form-field-flex {
+  box-shadow: 0 0 0 1px #6b6b6b !important;
+}
+
+.mat-mdc-form-field .mat-mdc-form-field-flex,
+.custom-form-field .mat-mdc-form-field-flex {
+  transition: box-shadow 140ms ease, border-color 140ms ease;
+}
+
+.btn-weiter {
+  background-color: var(--purple-1) !important;
+  color: white !important;
+  border-radius: 20px;
+  padding: 8px 16px;
+  transition: background-color 160ms ease, color 160ms ease;
+}
+
+.btn-weiter:hover:not(:disabled) {
+  background-color: rgba(116, 122, 236, 0.9) !important;
+  color: white !important;
+}
+
+.btn-weiter:disabled {
+  background-color: #bfbfdc !important;
+  color: #f5f5f7 !important;
+}
+
+/* These ensure `.custom-form-field` elements get consistent background, outline
+   and placeholder behavior across the app without using ::ng-deep in components.
+*/
+.custom-form-field .mat-mdc-form-field-flex {
+  background-color: var(--purple-light);
+  border-radius: 100px;
+  overflow: hidden;
+}
+
+.custom-form-field .mdc-notched-outline > * {
+  border: none !important;
+}
+
+.custom-form-field .material-icons-outlined,
+.custom-form-field .mat-mdc-form-field-prefix .material-icons-outlined {
+  color: #6b6b6b !important;
+}
+
+.custom-form-field:focus-within .material-icons-outlined,
+.custom-form-field:focus-within .mat-mdc-form-field-prefix .material-icons-outlined {
+  color: #000000 !important;
+}
+
+.custom-form-field input::placeholder {
+  color: #6b6b6b;
+  transition: color 120ms ease;
+}
+.custom-form-field input::-webkit-input-placeholder { color: #6b6b6b; }
+.custom-form-field input::-moz-placeholder { color: #6b6b6b; }
+.custom-form-field input:-ms-input-placeholder { color: #6b6b6b; }
+.custom-form-field:focus-within input::placeholder { color: transparent !important; }
+.custom-form-field:focus-within input::-webkit-input-placeholder { color: transparent !important; }
+.custom-form-field:focus-within input::-moz-placeholder { color: transparent !important; }
+.custom-form-field:focus-within input:-ms-input-placeholder { color: transparent !important; }
+
+ul {
+  list-style: none;
+}
+
+
+.success-snackbar {
+  position: fixed !important;
+  bottom: 26px !important;
+  right: 26px !important;
+  left: auto !important;
+  transform: none !important;
+  z-index: 9999 !important;
+  width: min(350px, 90vw);
+  height: 70px;
+}
+
+.success-snackbar .mdc-snackbar__surface {
+  width: 100%;
+  height: 100%;
+  background-color: var(--purple-1) !important;
+  border-radius: 30px 30px 0 30px !important; 
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 50px !important;
+}
+
+.success-snackbar .mdc-snackbar__actions { display: none !important; }
+
+.success-snackbar .mdc-snackbar__label,
+.success-snackbar .mat-mdc-snack-bar-label {
+  color: #fff !important;
+  font-weight: 400 !important;
+  font-size: 24px !important;
+  white-space: nowrap !important;
+  text-align: center !important;
+  margin: 0 !important;
+}
+
+.dialog-authentication-container {
+  display: flex;
+  flex-direction: column;
+  padding: 40px 26px;
+  position: relative;
+  font-family: 'Nunito', sans-serif;
+  margin: 0;
+}
+
+.dialog-authentication-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding-top: 0;
+}
+
+.dialog-authentication-title {
+  font-family: 'Nunito', sans-serif;
+  font-weight: 700;
+  font-size: 46px;
+  color: var(--purple-1);
+  text-align: center;
+  line-height: 120%;
+  margin: 0;
+  white-space: nowrap;
+}
+
+.dialog-authentication-back-arrow {
+  position: relative;
+  top: 0px;
+  font-size: 24px;
+  cursor: pointer;
+  color: black;
+  z-index: 3;
+  transition: transform 0.1s ease-in-out;
+}
+.dialog-authentication-back-arrow:hover { transform: scale(1.1); }
+
+.dialog-authentication-actions {
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 24px;
 }

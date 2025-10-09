@@ -1,9 +1,9 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { AuthInputComponent } from '../auth-input-component/auth-input-component';
-
+import { MessageAreaComponent } from '../message-area-component/message-area-component';
+import { EmojiPickerComponent } from '../emoji-picker-component/emoji-picker-component';
 @NgModule({
   declarations: [],
-  imports: [CommonModule, AuthInputComponent],
+  imports: [CommonModule, MessageAreaComponent, EmojiPickerComponent],
 })
 export class SharedComponentsModule {}

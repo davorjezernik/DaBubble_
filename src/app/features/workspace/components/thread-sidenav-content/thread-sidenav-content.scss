@@ -1,0 +1,95 @@
+@use 'mixins';
+
+:host {
+  height: 100%;
+  width: 100%;
+}
+
+.chat-container {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  align-items: center;
+}
+
+.chat-content {
+  flex: 1;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.chat-header {
+  border-top-left-radius: 30px;
+  border-top-right-radius: 30px;
+  margin-bottom: 20px;
+  height: 104px;
+  width: 100%;
+  padding: 40px 35.5px 40px;
+  box-shadow: 0 2px 10px rgb(0 0 0 / 8%);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-sizing: border-box;
+}
+
+.icon-btn {
+  width: 24px;
+  height: 24px;
+  border: 0;
+  outline: 0;
+  border-radius: 50%;
+  background: transparent;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+
+  img {
+    width: 13.15px;
+    height: 13.15px;
+    transition: 0.2s;
+  }
+
+  &:first-child:hover img {
+    content: url('/assets/icons/close-hover.svg');
+  }
+
+  &:hover {
+    background: #f1f3fe;
+  }
+}
+
+.channel-info-thread-container{
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.thread-name {
+  margin: 0;
+  @include mixins.text-style(
+    $size: 24px,
+    $color: #000000,
+    $font-weight: 700,
+    $font-family: 'Nunito',
+    $line-height: 1
+  );
+}
+
+.channel-name{
+    margin: 0;
+    color: #797EF3;
+    font-family:'Nunito', sans-serif;
+    font-weight: 400;
+    font-size: 14px;
+}
+
+.footer {
+  width: 100%;
+  padding: 0 20px 40px 20px;
+  box-sizing: border-box;
+  border-bottom-left-radius: 30px;
+  border-bottom-right-radius: 30px;
+}
