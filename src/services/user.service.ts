@@ -9,14 +9,19 @@ export class UserService {
 
   users$(): Observable<User[]> {
     const ref = collection(this.firestore, 'users');
-    const q   = query(ref, orderBy('name'));
+    const q = query(ref, orderBy('name'));
     return collectionData(q, { idField: 'uid' }).pipe(
       map((docs: any[]) =>
-        docs.map(d => new User({
-          ...d,
-          avatar: d.avatar?.startsWith('/') ? d.avatar : `/${d.avatar}`,
-          online: !!d.online,
-        }))
+        docs
+          .map(
+            (d) =>
+              new User({
+                ...d,
+                avatar: d.avatar?.startsWith('/') ? d.avatar : `/${d.avatar}`,
+                online: !!d.online,
+              })
+          )
+          .sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()))
       )
     );
   }
