@@ -14,6 +14,7 @@ import { DialogSignupComponent } from '../dialog.signup-component/dialog.signup-
 import { DialogLoginComponent } from '../dialog.login-component/dialog.login-component';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { AccountCreatedSuccessfullyComponent } from '../account-created-successfully/account-created-successfully.component';
 
 @Component({
   selector: 'app-dialog-avatar-select-component',
@@ -83,12 +84,12 @@ export class DialogAvatarSelectComponent {
   }
 
   showSuccessSnackbarAndProceed() {
-    const snackBarRef = this.snackBar.open('Konto erfolgreich erstellt!', '', {
+    const ref = this.snackBar.openFromComponent(AccountCreatedSuccessfullyComponent, {
       duration: 2500,
-      panelClass: ['success-snackbar'],
+      panelClass: ['custom-snackbar'],
     });
 
-    snackBarRef.afterDismissed().subscribe(() => {
+    ref.afterDismissed().subscribe(() => {
       this.dialogRef.close();
       this.dialog.open(DialogLoginComponent);
     });

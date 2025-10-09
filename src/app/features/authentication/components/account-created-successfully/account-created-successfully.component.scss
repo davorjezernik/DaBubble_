@@ -1,0 +1,20 @@
+.success-snackbar {
+  background-color: #444df2;
+  color: #fff;
+  border-radius: 30px 30px 0 30px; 
+  font-family: 'Nunito', sans-serif;
+  font-weight: 700;
+  font-size: 36px;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 531px;
+  height: 149px;
+  padding: 20px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
