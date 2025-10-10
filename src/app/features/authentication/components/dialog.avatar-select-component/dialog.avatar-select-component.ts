@@ -11,6 +11,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { SharedDataService } from '../../../../core/services/shared-data-service';
 import { Router } from '@angular/router';
+import { MatCardModule } from '@angular/material/card';
 
 @Component({
   selector: 'app-dialog-avatar-select-component',
@@ -22,6 +23,7 @@ import { Router } from '@angular/router';
     MatButtonModule,
     MatSnackBarModule,
     MatProgressSpinnerModule,
+    MatCardModule,
   ],
   templateUrl: './dialog.avatar-select-component.html',
   styleUrl: './dialog.avatar-select-component.scss',
@@ -33,10 +35,18 @@ export class DialogAvatarSelectComponent implements OnInit {
   loading = false;
   userData: any = null;
 
-  constructor(private snackBar: MatSnackBar,private router: Router , private sharedUser: SharedDataService) {}
+  constructor(
+    private snackBar: MatSnackBar,
+    private router: Router,
+    private sharedUser: SharedDataService
+  ) {}
 
   ngOnInit(): void {
     this.userData = this.sharedUser.getUser();
+    if (!this.userData) {
+      this.router.navigate(['/signup']);
+      return;
+    }
     console.log('Retrieved user data:', this.userData);
   }
 
@@ -45,7 +55,12 @@ export class DialogAvatarSelectComponent implements OnInit {
   }
 
   async finishSelection() {
-    if (this.selectedAvatar && this.userData.email && this.userData.password && this.userData.name) {
+    if (
+      this.selectedAvatar &&
+      this.userData.email &&
+      this.userData.password &&
+      this.userData.name
+    ) {
       this.loading = true;
       try {
         const userCredential = await createUserWithEmailAndPassword(

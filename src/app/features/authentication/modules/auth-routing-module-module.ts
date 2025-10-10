@@ -12,7 +12,7 @@ const routes: Routes = [
     children: [
       { path: 'login', component: DialogLoginComponent },
       { path: 'signup', component: DialogSignupComponent },
-      { path: 'avatar-choice', component: DialogAvatarSelectComponent },
+      { path: 'select-avatar', component: DialogAvatarSelectComponent },
       { path: 'password-reset', component: PasswordResetComponent },
       { path: '', redirectTo: 'login', pathMatch: 'full' }, // default route
     ],

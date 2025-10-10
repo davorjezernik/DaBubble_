@@ -1,78 +1,101 @@
-/* Rely on global .dialog-authentication-* utilities for header/container/title/back-arrow */
-:host {
-  ::ng-deep .mat-mdc-dialog-container .mdc-dialog__surface {
-    width: fit-content !important;
-    max-width: calc(100vw - 52px) !important;
-    max-height: calc(100vh - 52px) !important;
-    box-sizing: border-box;
-  }
+.avatar-select-card {
+  background-color: white;
+  border-radius: 30px;
+  padding: 40px 50px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: clamp(300px, 80vw, 600px);
+  margin-top: 60px;
+  position: relative;
 }
 
-/* Component-specific styles below */
+.dialog-authentication-header {
+  display: flex;
+  align-items: center;
+  gap: 25px;
+  position: relative;
+}
+
+.dialog-authentication-back-arrow {
+  cursor: pointer;
+}
+
+.dialog-authentication-title {
+  font-size: 24px;
+  font-weight: bold;
+  margin: 20px 0 32px;
+}
+
+mat-card-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 0 !important;
+}
+
 .profile-picture-container {
-  width: 168px;
-  height: 168px;
+  width: 128px;
+  height: 128px;
   border-radius: 50%;
-  margin-top: 48px;
-  margin-bottom: 38px;
   overflow: hidden;
-  margin-left: auto;
-  margin-right: auto;
+  margin-bottom: 32px;
+
 }
 
-.profile-picture-container .profile-picture { width: 100%; height: 100%; object-fit: cover; }
+.profile-picture {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
 
 .user-name {
-  font-family: 'Nunito', sans-serif;
-  font-size: 32px;
-  font-weight: 700;
-  color: black;
-  margin-bottom: 8px;
-  text-align: center;
+  font-size: 24px;
+  font-weight: bold;
 }
 
 .avatar-list-title {
-  font-weight: 400;
-  font-size: 20px;
-  color: black;
-  width: 80%;
-  text-align: left;
-  margin-bottom: 16px;
-  margin-left: 8px;
+  align-self: flex-start;
 }
 
 .avatar-list {
   display: flex;
-  flex-direction: row;
-  justify-content: flex-start;
-  gap: 4px;
-  margin-bottom: 32px;
-  width: 100%;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
 }
 
-.avatar-list .avatar-image {
+.avatar-image {
   width: 64px;
   height: 64px;
   border-radius: 50%;
-  object-fit: cover;
   cursor: pointer;
-  border: 8px solid transparent;
-  transition: all 0.2s ease-in-out;
+  border: 4px solid transparent;
+  transition: border-color 0.2s;
+
+  &:hover {
+    border-color: #eceefe;
+  }
+
+  &.selected {
+    border-color: var(--purple-1);
+  }
 }
-.avatar-list .avatar-image:hover { border-color: #E6E6E6; }
-.avatar-list .avatar-image.selected { border-color: #ECEEFE; }
-.btn-weiter { max-width: 200px; }
+
+mat-card-actions {
+  padding: 0 !important;
+  display: flex;
+  justify-content: flex-end;
+}
 
 .loading-overlay {
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(255, 255, 255, 0.8);
+  inset: 0;
   display: flex;
-  justify-content: center;
   align-items: center;
-  z-index: 1000;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.6);
+  z-index: 2;
   border-radius: 30px;
 }

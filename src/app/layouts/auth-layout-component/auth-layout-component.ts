@@ -21,11 +21,8 @@ export class AuthLayoutComponent implements OnInit, OnDestroy {
     this.router.events
       .pipe(filter((event): event is NavigationEnd => event instanceof NavigationEnd))
       .subscribe((event: NavigationEnd) => {
-        if (event.urlAfterRedirects === '/') {
-          this.isAuth.set(true);
-        } else {
-          this.isAuth.set(false);
-        }
+        this.isAuth.set(true);
+        this.isLogin = event.urlAfterRedirects.includes('login');
       });
   }
 
