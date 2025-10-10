@@ -1,0 +1,83 @@
+:host {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.signup-card {
+  background-color: white;
+  border-radius: 30px;
+  padding: 40px 50px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: clamp(300px, 70vw, 600px);
+  margin-top: 60px;
+}
+
+.dialog-authentication-header {
+  display: flex;
+  align-items: center;
+  gap: 25px;
+  position: relative;
+}
+
+.dialog-authentication-back-arrow {
+  cursor: pointer;
+}
+
+.dialog-authentication-title {
+  font-size: 24px;
+  font-weight: bold;
+  margin: 0;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+mat-card-content {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 0 !important;
+
+  p {
+    text-align: center;
+  }
+}
+
+mat-card-actions {
+  padding: 0 !important;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.loading-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.6);
+  z-index: 2;
+  border-radius: 30px;
+}
+
+.hidden {
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+mat-checkbox {
+  a {
+    color: var(--purple-2);
+    text-decoration: none;
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}

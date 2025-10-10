@@ -4,8 +4,8 @@ import { WorkspaceLayoutComponent } from './layouts/workspace-layout-component/w
 import { ImprintLayoutComponent } from './layouts/imprint-layout-component/imprint-layout.component';
 import { PrivacyPolicyLayoutComponent } from './layouts/privacy-policy-layout-component/privacy-policy-layout.component';
 
-export const routes: Routes = [
-  { path: '', component: AuthLayoutComponent },
+export const AuthRoutes: Routes = [
+  { path: '', component: AuthLayoutComponent, loadChildren: () => import('./features/authentication/modules/auth-routing-module').then(m => m.AuthRoutingModuleModule) },
   { path: 'workspace', component: WorkspaceLayoutComponent },
   { path: 'privacy-policy', component: PrivacyPolicyLayoutComponent },
   { path: 'imprint', component: ImprintLayoutComponent },

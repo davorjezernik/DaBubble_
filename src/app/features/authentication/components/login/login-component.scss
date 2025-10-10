@@ -8,18 +8,19 @@
 }
 
 .dialog-login {
-  padding: 32px 32px 48px;
+  width: clamp(300px, 70vw, 600px);
+  padding: 32px;
   background: #fff;
   border-radius: 32px;
   box-shadow: 0 4px 32px 0 rgba(160, 170, 255, 0.1);
   max-width: 420px;
-  width: 100%;
   margin: auto;
   display: flex;
   flex-direction: column;
 }
 
 .dialog-login__title {
+  margin: 24px 0 24px;
   text-align: center;
   @include mixins.text-style(
     $size: 46px,
@@ -48,7 +49,7 @@
 }
 
 .dialog-login__forgot {
-  margin: 0px 0 32px;
+  margin: 0px 0 24px;
   color: #4863ed;
   text-decoration: none;
   @include mixins.text-style(

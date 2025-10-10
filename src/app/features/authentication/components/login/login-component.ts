@@ -5,6 +5,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { FormControl, FormGroup, FormsModule, Validators, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import {MatCardModule} from '@angular/material/card';
 import {
   Auth,
   deleteUser,
@@ -26,15 +27,16 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
     MatFormFieldModule,
     MatInputModule,
     MatButtonModule,
+    MatCardModule,
     FormsModule,
     RouterLink,
     MatIcon,
-    ReactiveFormsModule
+    ReactiveFormsModule,
 ],
-  templateUrl: './dialog.login-component.html',
-  styleUrl: './dialog.login-component.scss',
+  templateUrl: './login-component.html',
+  styleUrl: './login-component.scss',
 })
-export class DialogLoginComponent {
+export class LoginComponent {
   loginForm = new FormGroup({
     email: new FormControl('', [Validators.required, Validators.email]),
     password: new FormControl('', [Validators.required]),
