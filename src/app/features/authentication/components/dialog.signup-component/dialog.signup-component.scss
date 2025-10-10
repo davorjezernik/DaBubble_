@@ -1,24 +1,59 @@
-/* Global .dialog-authentication-* utilities * in styles.scss */
-
-p {
-    text-align: center;
+:host {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-mat-dialog-content {
+.signup-card {
+  background-color: white;
+  border-radius: 30px;
+  padding: 40px 50px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: clamp(300px, 70vw, 600px);
+  margin-top: 60px;
+}
+
+.dialog-authentication-header {
+  display: flex;
+  align-items: center;
+  gap: 25px;
+  position: relative;
+}
+
+.dialog-authentication-back-arrow {
+  cursor: pointer;
+}
+
+.dialog-authentication-title {
+  font-size: 24px;
+  font-weight: bold;
+  margin: 0;
+}
+
+form {
   display: flex;
   flex-direction: column;
   gap: 16px;
-  padding-top: 20px;
 }
 
-.example-form {
-  min-width: 150px;
-  max-width: 500px;
-  width: 100%;
+mat-card-content {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 0 !important;
+
+  p {
+    text-align: center;
+  }
 }
 
-.example-full-width {
-  width: 100%;
+mat-card-actions {
+  padding: 0 !important;
+  display: flex;
+  justify-content: flex-end;
 }
 
 .loading-overlay {
@@ -29,6 +64,7 @@ mat-dialog-content {
   justify-content: center;
   background: rgba(255, 255, 255, 0.6);
   z-index: 2;
+  border-radius: 30px;
 }
 
 .hidden {
@@ -36,38 +72,7 @@ mat-dialog-content {
   pointer-events: none;
 }
 
-:host {
-  ::ng-deep .mat-mdc-dialog-container .mdc-dialog__surface {
-    position: relative;
-  }
-
-  ::ng-deep .mat-mdc-dialog-content,
-  ::ng-deep .mdc-dialog__content {
-    overflow-y: hidden !important;
-    max-height: none !important;
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-  }
-  ::-webkit-scrollbar { display: none; }
-}
-
 mat-checkbox {
-  ::ng-deep .mdc-checkbox__background {
-    border-color: var(--purple-2) !important;
-  }
-
-  ::ng-deep .mdc-checkbox__ripple {
-    background-color: transparent !important;
-  }
-
-  &:hover ::ng-deep .mdc-checkbox__ripple {
-    background-color: #ECEEFE !important;
-  }
-
-  ::ng-deep .mdc-checkbox--selected .mdc-checkbox__background {
-    background-color: var(--purple-2) !important;
-  }
-
   a {
     color: var(--purple-2);
     text-decoration: none;
@@ -76,4 +81,3 @@ mat-checkbox {
     }
   }
 }
-

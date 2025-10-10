@@ -10,11 +10,12 @@
   max-width: 1920px;
 }
 
-.login-dialog {
+.auth-section {
   position: relative;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  align-items: center;
 }
 
 .header {
@@ -40,8 +41,8 @@
   display: flex;
   justify-content: center;
   width: 100%;
-  padding-bottom: 20px;
   gap: 16px;
+  margin-bottom: 40px;
 
   > a {
     @include mixins.nav-link();

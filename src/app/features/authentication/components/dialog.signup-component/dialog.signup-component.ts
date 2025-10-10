@@ -1,4 +1,4 @@
-import { Component, inject, Inject, Optional } from '@angular/core';
+import { Component, EventEmitter, inject, Inject, Optional } from '@angular/core';
 import { Firestore } from '@angular/fire/firestore';
 import {
   MatDialog,
@@ -20,6 +20,9 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MyErrorStateMatcher } from './error-state-matcher';
+import { MatCardModule } from '@angular/material/card';
+import { Router } from '@angular/router';
+import { SharedDataService } from '../../../../core/services/shared-data-service';
 
 @Component({
   selector: 'app-dialog-signin-component',
@@ -35,12 +38,14 @@ import { MyErrorStateMatcher } from './error-state-matcher';
     MatProgressSpinnerModule,
     MatSnackBarModule,
     MatCheckboxModule,
+    MatCardModule,
   ],
   providers: [],
   templateUrl: './dialog.signup-component.html',
   styleUrls: ['./dialog.signup-component.scss'],
 })
 export class DialogSignupComponent {
+
   loading = false;
 
   signinForm = new FormGroup({
@@ -52,37 +57,22 @@ export class DialogSignupComponent {
 
   matcher = new MyErrorStateMatcher();
 
-  constructor(
-    public dialogRef: MatDialogRef<DialogSignupComponent>,
-    private dialog: MatDialog,
-    @Optional()
-    @Inject(MAT_DIALOG_DATA)
-    public data: { name: string; email: string; passwort: string }
-  ) {
-    if (this.data) {
-      this.signinForm.patchValue(this.data);
-    }
+  constructor(private router: Router, private sharedData: SharedDataService) {
   }
 
   proceedToAvatarSelection() {
     if (this.signinForm.valid) {
-      this.dialogRef.close();
-      this.dialog.open(DialogAvatarSelectComponent, {
-        data: {
+        const userData = {
           name: this.signinForm.value.name,
           email: this.signinForm.value.email,
           password: this.signinForm.value.passwort,
-        },
-      });
+        }
+        this.sharedData.setUser(userData)
+        this.router.navigate(['/select-avatar']);
     }
   }
 
-  onNoClick(): void {
-    this.dialogRef.close();
-  }
-
   goBack(): void {
-    this.dialogRef.close();
-    this.dialog.open(DialogLoginComponent);
+    this.router.navigate(['/login']);
   }
 }
