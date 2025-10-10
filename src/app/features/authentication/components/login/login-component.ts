@@ -33,10 +33,10 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
     MatIcon,
     ReactiveFormsModule,
 ],
-  templateUrl: './dialog.login-component.html',
-  styleUrl: './dialog.login-component.scss',
+  templateUrl: './login-component.html',
+  styleUrl: './login-component.scss',
 })
-export class DialogLoginComponent {
+export class LoginComponent {
   loginForm = new FormGroup({
     email: new FormControl('', [Validators.required, Validators.email]),
     password: new FormControl('', [Validators.required]),

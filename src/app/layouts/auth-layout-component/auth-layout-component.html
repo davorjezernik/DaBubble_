@@ -3,7 +3,7 @@
     <figure class="logo">
       <a [routerLink]="'/'"><img src="assets/icons/static-logo.svg" alt="Backdrop Image" /></a>
     </figure>
-    @if (isLogin) {
+    @if (isLogin()) {
     <hgroup class="signup-text">
       <p>Neu bei DABubble?</p>
       <a [routerLink]="'/signup'">Konto erstellen</a>

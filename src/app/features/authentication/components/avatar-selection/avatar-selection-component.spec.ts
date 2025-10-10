@@ -1,18 +1,17 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { DialogAvatarSelectComponent } from './dialog.avatar-select-component';
+import { AvatarSelectComponent } from './avatar-selection-component';
 
 describe('DialogAvatarSelectComponent', () => {
-  let component: DialogAvatarSelectComponent;
-  let fixture: ComponentFixture<DialogAvatarSelectComponent>;
+  let component: AvatarSelectComponent;
+  let fixture: ComponentFixture<AvatarSelectComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [DialogAvatarSelectComponent]
-    })
-    .compileComponents();
+      imports: [AvatarSelectComponent],
+    }).compileComponents();
 
-    fixture = TestBed.createComponent(DialogAvatarSelectComponent);
+    fixture = TestBed.createComponent(AvatarSelectComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

@@ -1,12 +1,9 @@
 import { Component, inject, OnInit } from '@angular/core';
-import { MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { CommonModule } from '@angular/common';
 import { Firestore, doc, setDoc } from '@angular/fire/firestore';
 import { Auth, createUserWithEmailAndPassword, updateProfile } from '@angular/fire/auth';
-import { DialogSignupComponent } from '../dialog.signup-component/dialog.signup-component';
-import { DialogLoginComponent } from '../dialog.login-component/dialog.login-component';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { SharedDataService } from '../../../../core/services/shared-data-service';
@@ -18,17 +15,16 @@ import { MatCardModule } from '@angular/material/card';
   standalone: true,
   imports: [
     CommonModule,
-    MatDialogModule,
     MatIconModule,
     MatButtonModule,
     MatSnackBarModule,
     MatProgressSpinnerModule,
     MatCardModule,
   ],
-  templateUrl: './dialog.avatar-select-component.html',
-  styleUrl: './dialog.avatar-select-component.scss',
+  templateUrl: './avatar-selection-component.html',
+  styleUrl: './avatar-selection-component.scss',
 })
-export class DialogAvatarSelectComponent implements OnInit {
+export class AvatarSelectComponent implements OnInit {
   firestore: Firestore = inject(Firestore);
   auth: Auth = inject(Auth);
   selectedAvatar: string | null = null;
@@ -47,7 +43,6 @@ export class DialogAvatarSelectComponent implements OnInit {
       this.router.navigate(['/signup']);
       return;
     }
-    console.log('Retrieved user data:', this.userData);
   }
 
   selectAvatar(avatarPath: string) {
