@@ -3,9 +3,15 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
-import { FormControl, FormGroup, FormsModule, Validators, ReactiveFormsModule } from '@angular/forms';
+import {
+  FormControl,
+  FormGroup,
+  FormsModule,
+  Validators,
+  ReactiveFormsModule,
+} from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import {MatCardModule} from '@angular/material/card';
+import { MatCardModule } from '@angular/material/card';
 import {
   Auth,
   deleteUser,
@@ -32,7 +38,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
     RouterLink,
     MatIcon,
     ReactiveFormsModule,
-],
+  ],
   templateUrl: './login-component.html',
   styleUrl: './login-component.scss',
 })
@@ -51,21 +57,21 @@ export class LoginComponent {
       .subscribe(() => this.updateErrorMessage());
   }
 
-updateErrorMessage() {
-  // Email errors
-  const emailControl = this.loginForm.controls.email;
-  if (emailControl.hasError('required')) {
-    this.emailErrorMessage.set('Diese E-Mail-Adresse ist leider ungültig.');
-  }
+  updateErrorMessage() {
+    // Email errors
+    const emailControl = this.loginForm.controls.email;
+    if (emailControl.hasError('required')) {
+      this.emailErrorMessage.set('Diese E-Mail-Adresse ist leider ungültig.');
+    }
 
-  // Password errors
-  const passwordControl = this.loginForm.controls.password;
-  if (passwordControl.hasError('required')) {
-    this.passwordErrorMessage.set('Falsches Passwort oder E-Mail. Bitten noch einmal versuchen.');
-  } else {
-    this.passwordErrorMessage.set('');
+    // Password errors
+    const passwordControl = this.loginForm.controls.password;
+    if (passwordControl.hasError('required')) {
+      this.passwordErrorMessage.set('Falsches Passwort oder E-Mail. Bitten noch einmal versuchen.');
+    } else {
+      this.passwordErrorMessage.set('');
+    }
   }
-}
 
   auth: Auth = inject(Auth);
   isLoading = true;
@@ -80,6 +86,8 @@ updateErrorMessage() {
       try {
         const userCredential = await signInWithEmailAndPassword(this.auth, email!, password!);
         this.router.navigate(['/workspace']);
+        localStorage.setItem('user', JSON.stringify(userCredential.user));
+        console.log(userCredential.user);
       } catch (err: any) {
         console.log(err);
       }
@@ -99,6 +107,8 @@ updateErrorMessage() {
           }
         } else {
           this.router.navigate(['/workspace']);
+          localStorage.setItem('user', JSON.stringify(userCredential.user));
+          console.log(userCredential.user);
         }
       } catch (error) {
         console.error('Google sign-in error', error);
