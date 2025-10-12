@@ -38,11 +38,8 @@ export class DevspaceSidenavContent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.sub = this.usersService.users$().subscribe((list) => {
-      if (this.currentUser) {
-        this.users = list.filter((u) => u.uid !== JSON.parse(this.currentUser!).uid);
-      } else {
-        this.users = list;
-      }
+      this.users = list;
+
       this.maxVisible = Math.min(this.maxVisible, this.users.length);
     });
   }
@@ -78,10 +75,8 @@ export class DevspaceSidenavContent implements OnInit, OnDestroy {
 
     await setDoc(docRef, { members: [uid1, uid2] }, { merge: true });
 
-    this.router.navigate(['/workspace/dm', this.currentChatId])
+    this.router.navigate(['/workspace/dm', this.currentChatId]);
   }
 
   trackById = (_: number, u: User) => u.uid;
-
-
 }

@@ -17,7 +17,8 @@ export const AuthRoutes: Routes = [
   {
     path: 'workspace',
     component: WorkspaceLayoutComponent,
-    children: [{ path: 'dm/:id', component: ChatInterfaceComponent }],
+    children: [{ path: 'dm/:id', component: ChatInterfaceComponent }
+    ],
   },
   { path: 'privacy-policy', component: PrivacyPolicyLayoutComponent },
   {
