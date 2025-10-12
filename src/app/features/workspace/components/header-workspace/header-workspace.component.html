@@ -1,0 +1,46 @@
+<header class="ws-header">
+  <section class="brand">
+    <img src="assets/icons/static-logo.svg" alt="DABubble" class="logo" />
+  </section>
+
+  <section class="search">
+    <mat-form-field appearance="outline" class="search-field">
+      <mat-icon matPrefix>search</mat-icon>
+      <input
+        matInput
+        [formControl]="searchCtrl"
+        placeholder="Suche in Devspace (Channels, DMs …)"
+        autocomplete="off"
+        aria-label="Suche"
+      />
+      <button
+        mat-icon-button
+        matSuffix
+        *ngIf="searchCtrl.value"
+        (click)="searchCtrl.setValue('')"
+        aria-label="Suche löschen"
+      >
+        <mat-icon>close</mat-icon>
+      </button>
+    </mat-form-field>
+  </section>
+
+  <section class="user">
+    <button mat-button [matMenuTriggerFor]="userMenu" class="user-chip">
+      <img class="avatar" [src]="(user$ | async)?.avatar" (error)="fallbackAvatar($event)" alt="" />
+      <span class="name">{{ (user$ | async)?.name }}</span>
+      <mat-icon>expand_more</mat-icon>
+    </button>
+
+    <mat-menu #userMenu="matMenu">
+      <button mat-menu-item disabled>
+        <mat-icon>person</mat-icon>
+        <span>{{ (user$ | async)?.email }}</span>
+      </button>
+      <button mat-menu-item (click)="logout()">
+        <mat-icon>logout</mat-icon>
+        <span>Abmelden</span>
+      </button>
+    </mat-menu>
+  </section>
+</header>

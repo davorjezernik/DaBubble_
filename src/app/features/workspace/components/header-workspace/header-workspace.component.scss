@@ -1,0 +1,64 @@
+.ws-header {
+  height: 80px;
+  width: 100%;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 24px;
+  padding: 0 40px 20px 40px;
+  box-sizing: border-box;
+}
+
+.brand .logo { 
+    height: 36px; 
+    display: block; 
+}
+
+.search { 
+    display: flex; 
+    justify-content: center; 
+}
+
+.search-field { 
+    width: min(720px, 100%); 
+}
+
+.user { 
+    display: flex; 
+    align-items: center; 
+}
+
+.user-chip {
+  display: inline-flex; 
+  align-items: center; 
+  gap: 10px; 
+  padding: 6px 10px; 
+  border-radius: 999px;
+
+  .avatar { 
+    width: 28px; 
+    height: 28px; 
+    border-radius: 50%; 
+    object-fit: cover; 
+  }
+
+  .name {
+    max-width: 200px; 
+    white-space: nowrap; 
+    overflow: hidden; 
+    text-overflow: ellipsis;
+    font-family: 'Nunito', sans-serif; 
+    font-weight: 600;
+  }
+}
+
+@media (max-width: 720px) {
+  .ws-header { 
+    gap: 12px; 
+    padding: 0 16px 16px; 
+  }
+
+  .name { 
+    display: none; 
+  } 
+}
