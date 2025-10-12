@@ -22,7 +22,7 @@ export class DevspaceSidenavContent implements OnInit, OnDestroy {
   channelsOpen: boolean = true;
 
   currentUser = localStorage.getItem('user');
-  currentDmId: string = '';
+  currentChatId: string = '';
 
   // Users//
 
@@ -67,20 +67,21 @@ export class DevspaceSidenavContent implements OnInit, OnDestroy {
     this.activeIndex = i;
 
     const loggedInUser = localStorage.getItem('user');
-    console.log(otherUser);
     if (!loggedInUser) return;
 
     const uid1 = JSON.parse(loggedInUser).uid;
     const uid2 = otherUser.uid;
 
-    this.currentDmId = uid1 < uid2 ? `${uid1}-${uid2}` : `${uid2}-${uid1}`;
+    this.currentChatId = uid1 < uid2 ? `${uid1}-${uid2}` : `${uid2}-${uid1}`;
 
-    const docRef = doc(this.firestore, 'dms', this.currentDmId);
+    const docRef = doc(this.firestore, 'dms', this.currentChatId);
 
     await setDoc(docRef, { members: [uid1, uid2] }, { merge: true });
+
+    this.router.navigate(['/workspace/dm', this.currentChatId])
   }
 
   trackById = (_: number, u: User) => u.uid;
 
-  
+
 }
