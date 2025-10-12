@@ -5,8 +5,9 @@ import { serverTimestamp } from 'firebase/firestore';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { query, orderBy, collectionData } from '@angular/fire/firestore';
-import { Observable, of } from 'rxjs';
+import { firstValueFrom, Observable, of } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
+import { AuthService } from '../../../../services/auth-service';
 
 @Component({
   selector: 'app-chat-interface-component',
@@ -18,8 +19,12 @@ import { switchMap } from 'rxjs/operators';
 export class ChatInterfaceComponent implements OnInit {
   messages$: Observable<any[]> = of([]);
 
-  constructor(private firestore: Firestore, private route: ActivatedRoute) {
-        console.log("Chat Interface Component CREATED!");
+  constructor(
+    public firestore: Firestore,
+    private route: ActivatedRoute,
+    private authService: AuthService
+  ) {
+    console.log('Chat Interface Component CREATED!');
   }
 
   ngOnInit(): void {
@@ -40,8 +45,9 @@ export class ChatInterfaceComponent implements OnInit {
   }
 
   async handleNewMessage(messageText: string) {
-        console.log('Attempting to send message. Current URL:', this.route.snapshot.url);
     const chatId = this.route.snapshot.paramMap.get('id');
+
+    const user: any = await firstValueFrom(this.authService.currentUser$);
 
     if (!chatId) {
       console.error('No chat ID found in route parameters.');
@@ -51,9 +57,7 @@ export class ChatInterfaceComponent implements OnInit {
     const messageData = {
       text: messageText,
       timestamp: serverTimestamp(),
-      authorId: localStorage.getItem('user')
-        ? JSON.parse(localStorage.getItem('user')!).uid
-        : 'unknown',
+      authorId: user.uid,
     };
 
     console.log('chatId', chatId);

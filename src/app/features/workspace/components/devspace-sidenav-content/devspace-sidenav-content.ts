@@ -7,6 +7,8 @@ import { UserService } from '../../../../../services/user.service';
 import { User } from '../../../../../models/user.class';
 import { Firestore, doc, setDoc } from '@angular/fire/firestore';
 import { Router } from '@angular/router';
+import { firstValueFrom } from 'rxjs';
+import { AuthService } from '../../../../services/auth-service';
 
 @Component({
   selector: 'app-devspace-sidenav-content',
@@ -33,7 +35,8 @@ export class DevspaceSidenavContent implements OnInit, OnDestroy {
   constructor(
     private usersService: UserService,
     private firestore: Firestore,
-    private router: Router
+    private router: Router,
+    private authService: AuthService
   ) {}
 
   ngOnInit(): void {
@@ -63,10 +66,10 @@ export class DevspaceSidenavContent implements OnInit, OnDestroy {
   async openDirectMessages(i: number, otherUser: User) {
     this.activeIndex = i;
 
-    const loggedInUser = localStorage.getItem('user');
-    if (!loggedInUser) return;
+    const user: any = await firstValueFrom(this.authService.currentUser$);
+    if (!user) return;
 
-    const uid1 = JSON.parse(loggedInUser).uid;
+    const uid1 = user.uid;
     const uid2 = otherUser.uid;
 
     this.currentChatId = uid1 < uid2 ? `${uid1}-${uid2}` : `${uid2}-${uid1}`;
