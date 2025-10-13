@@ -18,6 +18,7 @@ import { MatIcon } from '@angular/material/icon';
 import { merge } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AuthService } from '../../../../services/auth-service';
+import { firstValueFrom } from 'rxjs';
 @Component({
   selector: 'app-dialog-login',
   standalone: true,
@@ -92,7 +93,10 @@ export class LoginComponent {
           await deleteUser(userCredential.user);
         }
       } else {
-        this.router.navigate(['/workspace']);
+        const user = await firstValueFrom(this.authService.currentUser$);
+        const selfDmUid = `${user?.uid}-${user?.uid}`;
+        if (!user) return;
+        this.router.navigate([`/workspace/dm/${selfDmUid}`]);
       }
     } catch (error) {
       console.error('Google sign-in error', error);
