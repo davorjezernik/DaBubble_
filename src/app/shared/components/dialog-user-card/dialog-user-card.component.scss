@@ -90,6 +90,36 @@
     }
 }
 
+.user-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'Nunito', sans-serif;
+  font-size: 18px;
+  font-weight: 500;
+  color: #000;
+}
+
+.status-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid #fff;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1);
+  background-color: #686868; 
+  transition: background-color 0.3s ease;
+
+  &.online {
+    background-color: #92c83e; 
+  }
+
+  &.offline {
+    background-color: #686868; 
+  }
+    
+}
+
+
 .user-card-btn{
     background-color: rgb(33, 137, 255);
     color: white;

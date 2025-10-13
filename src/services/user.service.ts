@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { Firestore, doc, docData, collection, collectionData, query, orderBy } from '@angular/fire/firestore';
+import { Firestore, doc, docData, collection, collectionData, query, orderBy, updateDoc, serverTimestamp } from '@angular/fire/firestore';
 import { Auth, authState } from '@angular/fire/auth';
 import { Observable, of, switchMap, map, catchError } from 'rxjs';
 import { User } from '../models/user.class';
@@ -8,6 +8,21 @@ import { User } from '../models/user.class';
 export class UserService {
   private firestore = inject(Firestore);
   private auth = inject(Auth);
+
+  // Online-Status im Firestore setzen //
+  async markOnline(online: boolean) {
+    const u = this.auth.currentUser;
+    if (!u) return;
+    const ref = doc(this.firestore, 'users', u.uid);
+    try {
+      await updateDoc(ref, {
+        online,
+        lastActive: serverTimestamp(),
+      });
+    } catch (e) {
+      console.warn('markOnline failed', e);
+    }
+  }
 
   users$(): Observable<User[]> {
     const ref = collection(this.firestore, 'users');
@@ -55,9 +70,9 @@ export class UserService {
   }
 
   private normalizeAvatar(raw?: string): string {
-  if (!raw) return 'assets/img-profile/profile.png';
-  if (/^https?:\/\//i.test(raw)) return raw;
-  const clean = raw.replace(/^\/+/, '');
-  return clean.startsWith('assets/') ? clean : `assets/${clean}`;
-}
+    if (!raw) return 'assets/img-profile/profile.png';
+    if (/^https?:\/\//i.test(raw)) return raw;
+    const clean = raw.replace(/^\/+/, '');
+    return clean.startsWith('assets/') ? clean : `assets/${clean}`;
+  }
 }
