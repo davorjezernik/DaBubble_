@@ -4,10 +4,12 @@ import { WorkspaceLayoutComponent } from './layouts/workspace-layout-component/w
 import { ImprintLayoutComponent } from './layouts/imprint-layout-component/imprint-layout.component';
 import { PrivacyPolicyLayoutComponent } from './layouts/privacy-policy-layout-component/privacy-policy-layout.component';
 import { PasswordResetComponent } from './features/authentication/components/password-reset/password-reset.component';
+import { ConfirmNewPasswordComponent } from './features/authentication/components/password-reset/confirm-new-password/confirm-new-password.component';
 
 export const AuthRoutes: Routes = [
   { path: '', component: AuthLayoutComponent, loadChildren: () => import('./features/authentication/modules/auth-routing-module').then(m => m.AuthRoutingModuleModule) },
   { path: 'password-reset', component: PasswordResetComponent },
+  { path: 'confirm-new-password', component: ConfirmNewPasswordComponent },
   { path: 'workspace', component: WorkspaceLayoutComponent },
   { path: 'privacy-policy', component: PrivacyPolicyLayoutComponent },
   { path: 'imprint', component: ImprintLayoutComponent },

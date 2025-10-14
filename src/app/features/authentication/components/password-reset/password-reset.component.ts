@@ -1,6 +1,5 @@
 import { Component, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { Auth, sendPasswordResetEmail } from '@angular/fire/auth';
 import { NgIf } from '@angular/common';
@@ -18,7 +17,7 @@ export class PasswordResetComponent {
   successMessage: string = '';
   errorMessage: string = '';
 
-    async onSubmit() {
+  async onSubmit() {
     try {
       await sendPasswordResetEmail(this.auth, this.email);
       this.successMessage = 'E-Mail zum Zurücksetzen des Passworts wurde gesendet.';
