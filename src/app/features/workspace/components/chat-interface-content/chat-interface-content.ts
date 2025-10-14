@@ -1,10 +1,19 @@
 import { Component, OnInit } from '@angular/core';
 import { MessageAreaComponent } from '../../../../shared/components/message-area-component/message-area-component';
-import { Firestore, addDoc, collection } from '@angular/fire/firestore';
-import { doc, getDoc, serverTimestamp } from 'firebase/firestore';
+import {
+  Firestore,
+  doc,
+  getDoc,
+  addDoc,
+  collection,
+  collectionData,
+  orderBy,
+  query,
+  serverTimestamp,
+  Timestamp,
+} from '@angular/fire/firestore';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
-import { query, orderBy, collectionData } from '@angular/fire/firestore';
 import { firstValueFrom, Observable, of } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 import { AuthService } from '../../../../services/auth-service';
@@ -23,6 +32,8 @@ export class ChatInterfaceComponent implements OnInit {
   recipientData: any = null;
 
   chatId: string | null = null;
+
+  lastMessageTimestamp: any | null = null;
 
   constructor(
     public firestore: Firestore,
@@ -51,6 +62,9 @@ export class ChatInterfaceComponent implements OnInit {
         }
       })
     );
+    this.messages$.subscribe(() => {
+      this.lastMessageTimestamp = null;
+    });
   }
 
   async handleNewMessage(messageText: string) {
@@ -72,7 +86,6 @@ export class ChatInterfaceComponent implements OnInit {
   }
 
   async checkIfOwnDm() {
-    // Renamed from isOwnDm
     const user: any = await firstValueFrom(this.authService.currentUser$);
     const ownDmId = `${user.uid}-${user.uid}`;
     if (ownDmId === this.chatId) {
@@ -110,4 +123,35 @@ export class ChatInterfaceComponent implements OnInit {
     const recipientSnap = await getDoc(recipientRef);
     this.recipientData = recipientSnap.data() as any;
   }
+
+  shouldShowDateSeparator(messageTimestamp: Timestamp) {
+    if (!messageTimestamp) return false;
+
+    let showSeparator = false;
+    const currentDate = messageTimestamp.toDate();
+
+    if (!this.lastMessageTimestamp) {
+      showSeparator = true;
+    } else {
+      const lastDate = this.lastMessageTimestamp.toDate();
+
+      if (currentDate.toDateString() !== lastDate.toDateString()) {
+        showSeparator = true;
+      }
+    }
+    this.lastMessageTimestamp = messageTimestamp;
+    return showSeparator;
+  }
+
+  isTodaysMessage(messageTimestamp: Timestamp) {
+    const todayTimestamp = Timestamp.now();
+    const todayDate = todayTimestamp.toDate();
+
+    if (todayDate.toDateString() === messageTimestamp.toDate().toDateString()) {
+      return true;
+    } else {
+      return false;
+    }
+  }
 }
+

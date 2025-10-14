@@ -12,9 +12,28 @@
   <main class="chat-content" [class.empty]="(messages$ | async)?.length === 0">
     @if (messages$ | async; as messages) { @for (message of messages; track message.id) {
     <div class="message-item">
-      <div class="message-author">{{ message.authorId }}</div>
-      <div class="message-text">{{ message.text }}</div>
-      <div class="message-timestamp">{{ message.timestamp?.toDate() | date : 'short' }}</div>
+      @if (shouldShowDateSeparator(message.timestamp)) {
+      <section class="timestamp-block">
+        <p class="timestamp-line"></p>
+        <div class="timestamp-bubble">
+          <span class="message-timestamp">{{
+            isTodaysMessage(message.timestamp)
+              ? 'Heute'
+              : (message.timestamp?.toDate() | date : 'EEEE, d. MMMM')
+          }}</span>
+        </div>
+        <p class="timestamp-line"></p>
+      </section>
+      }
+
+      <article class="message">
+        <!-- Message Component: Start -->
+        <p>I am just a placeholder for message-bubble-component.</p>
+        <h2>{{ message.authorId }}</h2>
+        <p>{{ message.text }}</p>
+        <!-- Message Component: End -->
+      </article>
+
     </div>
     } @empty { @if (isOwnDm) {
     <section>
