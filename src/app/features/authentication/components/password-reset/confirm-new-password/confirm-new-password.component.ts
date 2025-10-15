@@ -1,61 +1,41 @@
-import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { RouterModule } from '@angular/router';
 import { Auth, confirmPasswordReset } from '@angular/fire/auth';
 import { NgIf } from '@angular/common';
-
 @Component({
   selector: 'app-confirm-new-password',
-  imports: [FormsModule, NgIf],
+  imports: [FormsModule],
   templateUrl: './confirm-new-password.component.html',
-  styleUrl: './confirm-new-password.component.scss',
+  styleUrl: './confirm-new-password.component.scss'
 })
-export class ConfirmNewPasswordComponent implements OnInit {
+export class ConfirmNewPasswordComponent {
+  auth: Auth = inject(Auth);
+
   newPassword: string = '';
   confirmPassword: string = '';
-  oobCode: string = '';
-  errorMessage: string = '';
   successMessage: string = '';
+  errorMessage: string = '';
 
-  constructor(
-    private route: ActivatedRoute,
-    private router: Router,
-    private auth: Auth
-  ) {}
-
-  ngOnInit() {
-    this.route.queryParams.subscribe(params => {
-      this.oobCode = params['oobCode'];
-    });
-  }
-
-  async onSubmit() {
-    if (this.newPassword !== this.confirmPassword) {
-      this.errorMessage = 'Passwörter stimmen nicht überein.';
-      return;
-    }
-
-    try {
-      await confirmPasswordReset(this.auth, this.oobCode, this.newPassword);
+  onSubmit(): void {
+    if (this.newPassword === this.confirmPassword) {
       this.successMessage = 'Passwort wurde erfolgreich zurückgesetzt.';
       this.errorMessage = '';
-    } catch (error: any) {
-      console.error(error);
+      return;
+    } else {
       this.successMessage = '';
-      this.errorMessage = this.mapFirebaseError(error.code);
+      this.errorMessage = 'Die Passwörter stimmen nicht überein.';
+      return;
     }
   }
 
   private mapFirebaseError(code: string): string {
-    switch (code) {
-      case 'auth/expired-action-code':
-        return 'Der Link ist abgelaufen.';
-      case 'auth/invalid-action-code':
-        return 'Ungültiger Link.';
-      case 'auth/user-disabled':
-        return 'Benutzerkonto ist deaktiviert.';
-      default:
-        return 'Ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut.';
+    if (code === 'auth/weak-password') {
+      return 'Das Passwort ist zu schwach. Bitte wählen Sie ein stärkeres Passwort.';
+    } else {
+      return 'Ein Fehler ist aufgetreten. Bitte versuchen Sie es später erneut.';
     }
   }
+  
 }
+
