@@ -1,7 +1,4 @@
-import { Component, OnDestroy, OnInit, signal } from '@angular/core';
-import { DialogLoginComponent } from '../../dialogs/dialog.login-component/dialog.login-component';
-import { MatDialog } from '@angular/material/dialog';
-import { DialogSigninComponent } from '../../dialogs/dialog.signin-component/dialog.signin-component';
+import { Component, signal } from '@angular/core';
 import { NavigationEnd, Router, RouterModule } from '@angular/router';
 import { filter } from 'rxjs';
 
@@ -11,45 +8,23 @@ import { filter } from 'rxjs';
   templateUrl: './auth-layout-component.html',
   styleUrl: './auth-layout-component.scss',
 })
-export class AuthLayoutComponent implements OnInit, OnDestroy {
+export class AuthLayoutComponent {
+  constructor(public router: Router) {}
 
-  constructor(public dialog: MatDialog, public router: Router) {}
-
-  isLogin = true;
+  isLogin = signal(false);
 
   isAuth = signal(true);
 
   ngOnInit(): void {
+    const isLoginPage = this.router.url.includes('login');
+    this.isLogin.set(isLoginPage);
+
     this.router.events
       .pipe(filter((event): event is NavigationEnd => event instanceof NavigationEnd))
       .subscribe((event: NavigationEnd) => {
-        if (event.urlAfterRedirects === '/') {
-          this.isAuth.set(true);
-        } else {
-          this.isAuth.set(false);
-        }
+        const isLoginPage = event.urlAfterRedirects.includes('login');
+        this.isLogin.set(isLoginPage);
+        this.isAuth.set(true);
       });
-
-    this.dialog.open(DialogLoginComponent, {
-      disableClose: true,
-      hasBackdrop: false,
-    });
-  }
-
-  openDialog(): void {
-    this.isLogin = false;
-    this.dialog.closeAll();
-    const dialogRef = this.dialog.open(DialogSigninComponent, {
-      disableClose: true,
-      hasBackdrop: false,
-    });
-
-    dialogRef.afterClosed().subscribe((result) => {
-      console.log('The dialog was closed');
-    });
-  }
-
-  ngOnDestroy(): void {
-    this.dialog.closeAll();
   }
 }

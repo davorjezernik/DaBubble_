@@ -22,23 +22,13 @@ main {
   flex: 1;
 }
 
-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 60px;
-  padding: 0 40px 0;
-  height: 80px;
-  background-color: antiquewhite;
-}
-
 .devspace-sidenav {
   background-color: #ffffff;
   border-radius: 25px;
 }
 
 .thread-sidenav {
-  background-color: antiquewhite;
+  background-color: #ffffff;
   border-radius: 30px;
 }
 

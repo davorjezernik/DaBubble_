@@ -1,0 +1,25 @@
+/* EMOJI-PICKER-STYLING */
+
+.emoji-picker-container {
+  position: absolute;
+  bottom: 50px;
+  left: 0;
+  z-index: 10;
+}
+
+@media (max-width: 700px) {
+  :host ::ng-deep {
+    .emoji-mart {
+      width: 280px !important;
+    }
+
+    .emoji-mart-scroll {
+      height: 200px !important;
+    }
+
+    .emoji-mart-anchors svg,
+    .emoji-mart-anchors img {
+      height: 14px;
+    }
+  }
+}
