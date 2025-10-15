@@ -2,7 +2,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { CommonModule } from '@angular/common';
-import { Subscription } from 'rxjs';
+import { Subscription, combineLatest  } from 'rxjs';
 import { UserService } from '../../../../../services/user.service';
 import { User } from '../../../../../models/user.class';
 
@@ -17,8 +17,8 @@ export class DevspaceSidenavContent implements OnInit, OnDestroy {
   users: User[] = [];
   private sub?: Subscription;
 
-  dmsOpen: boolean = true;
-  channelsOpen: boolean = true;
+  dmsOpen = true;
+  channelsOpen = true;
 
   // Users//
 
@@ -26,11 +26,26 @@ export class DevspaceSidenavContent implements OnInit, OnDestroy {
   maxVisible = this.pageSizeUsers;
   activeIndex: number | null = null;
 
+  meUid: string | null = null;
+
   constructor(private usersService: UserService) {}
 
   ngOnInit(): void {
-    this.sub = this.usersService.users$().subscribe((list) => {
-      this.users = list;
+    this.sub = combineLatest([
+      this.usersService.users$(),
+      this.usersService.currentUser$(),  
+    ]).subscribe(([list, me]) => {
+      this.meUid = me?.uid ?? null;
+
+      if (this.meUid) {
+        const meUser = list.find(u => u.uid === this.meUid);
+        const others = list.filter(u => u.uid !== this.meUid);
+        // eigener Eintrag ganz oben
+        this.users = meUser ? [meUser, ...others] : list;
+      } else {
+        this.users = list;
+      }
+
       this.maxVisible = Math.min(this.maxVisible, this.users.length);
     });
   }

@@ -1,15 +1,19 @@
-<section class="login-dialog">
+<section class="auth-section">
   <header class="header">
     <figure class="logo">
       <a [routerLink]="'/'"><img src="assets/icons/static-logo.svg" alt="Backdrop Image" /></a>
     </figure>
-    @if (isLogin) {
+    @if (isLogin()) {
     <hgroup class="signup-text">
       <p>Neu bei DABubble?</p>
-      <a (click)="openDialog(); $event.preventDefault()">Konto erstellen</a>
+      <a [routerLink]="'/signup'">Konto erstellen</a>
     </hgroup>
     }
   </header>
+
+  <main class="content">
+    <router-outlet></router-outlet>
+  </main>
 
   <footer class="footer">
     @if (isAuth()) {
