@@ -4,7 +4,9 @@
   align-items: flex-start;
   gap: 20px;
   width: 100%;
-  max-width: 700px;
+  max-width: 100%;
+  padding: 0 45px; /* 20px inset from chat container edges */
+  box-sizing: border-box; /* include padding in width */
   margin-bottom: 20px;
 }
 
@@ -14,6 +16,9 @@
   align-items: flex-end;
   gap: 8px;
   flex-grow: 1;
+  /* Ensure content + avatar never exceed container width */
+  max-width: calc(100% - 115px); /* 70px avatar + 20px gap */
+  min-width: 0; /* allow flex child to shrink and wrap */
 }
 
 .message-header {
@@ -43,7 +48,6 @@
   align-items: center;
   padding: 15px;
   gap: 8px;
-  width: 100%;
   background: #797EF3;
   border-radius: 30px 0px 30px 30px;
 
@@ -55,6 +59,9 @@
     color: #FFFFFF;
     margin: 0;
     width: 100%;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+    hyphens: auto;
   }
 }
 
@@ -71,7 +78,169 @@
 .reactions {
   display: flex;
   flex-direction: row;
-  align-items: flex-start;
+  align-items: center;
+  justify-content: flex-end; /* default left */
   padding: 0px;
   gap: 8px;
+  width: 100%; /* span full width so wrapping lines start at left */
+
+  .reaction-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    justify-content: flex-end; /* default left */
+  }
+
+  .reaction-chip {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 8px;
+    border-radius: 14px;
+    border: 1px solid #e0e0e0;
+    background: #fff;
+    cursor: pointer;
+    line-height: 1;
+    transition: background 0.15s ease, border-color 0.15s ease;
+
+    &:hover {
+      background: #f7f7f7;
+      border-color: #d5d5d5;
+    }
+
+    .emoji {
+      font-size: 16px;
+    }
+
+    .count-badge {
+      position: absolute;
+      top: -6px;
+      right: -6px;
+      min-width: 16px;
+      height: 16px;
+      padding: 0 4px;
+      border-radius: 999px;
+      background: #797EF3;
+      color: #fff;
+      font-size: 10px;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid #fff;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.08);
+      pointer-events: none;
+    }
+  }
+
+  .more-chip {
+    background: #f0f2ff;
+    border-color: #d6d9ff;
+    color: #3a3f8f;
+    font-weight: 600;
+  }
+
+  .less-chip {
+    background: #f7f7f7;
+    border-color: #e0e0e0;
+    color: #555;
+  }
+
+  .add-reaction-icon {
+    width: 22px;
+    height: 22px;
+    cursor: pointer;
+    user-select: none;
+
+    &:hover {
+      filter: brightness(0.95);
+      transform: scale(1.02);
+    }
+  }
+
+  .reaction-trigger {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 8px; /* larger gap before the add reaction icon */
+
+    app-emoji-picker-component {
+      position: absolute;
+      bottom: 18px; /* small gap above the icon */
+      left: 24px; /* base anchor at icon's left edge */
+      transform: translateX(-100%); /* shift the entire picker to be fully left of the icon */
+      z-index: 1000;
+    }
+  }
+}
+
+/* Center reactions on narrow viewports */
+@media (max-width: 450px) {
+  .reactions.center-narrow {
+    justify-content: center;
+  }
+  .reactions.center-narrow .reaction-list {
+    justify-content: center;
+  }
+}
+
+/* Hide emoji-mart search and preview only within this component */
+:host ::ng-deep app-emoji-picker-component {
+  /* Rounded corners for the picker */
+  .emoji-picker-container,
+  .emoji-mart {
+    border-radius: 20px !important;
+    overflow: hidden; /* ensure inner content follows rounded corners */
+    padding: 0 16px;
+  }
+  /* Hide the top category anchors row */
+  .emoji-mart-anchors {
+    display: none !important;
+  }
+  /* Neutralize inner absolute offsets to avoid double-positioning */
+  .emoji-picker-container {
+    bottom: 0 !important;
+    right: 0 !important; /* open towards left by aligning the picker's right edge inside host */
+    left: auto !important;
+  }
+  .emoji-mart-search {
+    display: none !important;
+  }
+  .emoji-mart-preview {
+    display: none !important;
+  }
+  /* Reduce list height to about half */
+  .emoji-mart-scroll {
+    height: 104px !important;
+  }
+
+  /* Remove any residual top/bottom lines from emoji-mart */
+  .emoji-mart,
+  .emoji-mart-scroll,
+  .emoji-mart-anchors,
+  .emoji-mart-preview,
+  .emoji-mart-bar {
+    border: none !important;
+    box-shadow: none !important;
+  }
+
+  /* Some builds render thin separators via .emoji-mart-bar; hide completely */
+  .emoji-mart-bar {
+    display: none !important;
+  }
+
+  /* Add requested outer border (after resets to ensure it applies) */
+  .emoji-mart {
+    border: 1px solid #adb0d9 !important;
+  }
+}
+
+@media (max-width: 700px) {
+  :host ::ng-deep {
+    .emoji-mart {
+      width: 120% !important;
+    }
+  }
 }

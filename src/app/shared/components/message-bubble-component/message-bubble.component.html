@@ -7,8 +7,36 @@
     <div class="speech-bubble">
       <p>{{ text }}</p>
     </div>
-    <div class="reactions">
-      <!-- Reactions can go here in the future -->
+    <div class="reactions" [class.center-narrow]="shouldCenterNarrow">
+      <div class="reaction-list">
+        @for (r of visibleReactions; track r.emoji) {
+        <button class="reaction-chip" (click)="onClickReaction(r.emoji)">
+          <span class="emoji">{{ r.emoji }}</span>
+          @if (r.count > 1) {
+          <span class="count-badge">{{ r.count }}</span>
+          }
+        </button>
+        } @if (!reactionsExpanded && hasMore) {
+        <button class="reaction-chip more-chip" (click)="showMore()">
+          + {{ moreCount }} weitere
+        </button>
+        } @if (reactionsExpanded && hasMore) {
+        <button class="reaction-chip less-chip" (click)="showLess()">weniger anzeigen</button>
+        }
+        <div class="reaction-trigger">
+          <img
+            src="assets/icons/add_reaction.svg"
+            alt="Add reaction"
+            class="add-reaction-icon icon-btn"
+            (click)="toggleEmojiPicker()"
+          />
+          <app-emoji-picker-component
+            [showEmojiPicker]="showEmojiPicker"
+            (emojiSelected)="onEmojiSelected($event)"
+            (closePicker)="onClosePicker()"
+          ></app-emoji-picker-component>
+        </div>
+      </div>
     </div>
   </div>
   <div class="avatar-container">
