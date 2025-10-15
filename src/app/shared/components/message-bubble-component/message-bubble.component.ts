@@ -10,6 +10,7 @@ import { EmojiPickerComponent } from '../../components/emoji-picker-component/em
   styleUrl: './message-bubble.component.scss'
 })
 export class MessageBubbleComponent {
+  @Input() incoming: boolean = false; // when true, render as left-side/incoming message
   @Input() name: string = 'Frederik Beck';
   @Input() time: string = '15:06 Uhr';
   @Input() avatar: string = 'assets/img-profile/frederik-beck.png';

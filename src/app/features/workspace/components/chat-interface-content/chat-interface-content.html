@@ -66,7 +66,17 @@
       </button>
     </nav>
   </header>
-  <main class="chat-content">main <app-message-bubble></app-message-bubble></main>
+  <main class="chat-content">
+    main
+    <app-message-bubble></app-message-bubble>
+    <app-message-bubble
+      [incoming]="true"
+      [name]="'Mark Corzilius'"
+      [time]="'15:20 Uhr'"
+      [avatar]="'assets/img-profile/frederik-beck.png'"
+      [text]="'Hey, hier ist noch eine zweite Nachricht zum Testen der Anzeige.'"
+    ></app-message-bubble>
+  </main>
   <footer class="footer">
     <app-message-area-component></app-message-area-component>
   </footer>

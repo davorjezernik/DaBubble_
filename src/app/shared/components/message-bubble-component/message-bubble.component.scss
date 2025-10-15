@@ -1,3 +1,7 @@
+:host {
+  display: block;
+  width: 100%;
+}
 .message-container {
   display: flex;
   flex-direction: row;
@@ -16,6 +20,7 @@
   align-items: flex-end;
   gap: 8px;
   flex-grow: 1;
+  width: 100%;
   /* Ensure content + avatar never exceed container width */
   max-width: calc(100% - 115px); /* 70px avatar + 20px gap */
   min-width: 0; /* allow flex child to shrink and wrap */
@@ -353,7 +358,61 @@
 @media (max-width: 700px) {
   :host ::ng-deep {
     .emoji-mart {
-      width: 120% !important;
+      width: 110% !important;
     }
+  }
+}
+
+/* ================= Incoming (left-side) variant ================= */
+
+.message-container.incoming .avatar-container {
+  order: -1; /* place avatar on the far left */
+}
+
+.message-container.incoming .message-content {
+  align-items: flex-start; /* align bubble to left */
+}
+
+.message-container.incoming .message-header {
+  .user-name { order: 1; }
+  .timestamp { order: 2; }
+}
+
+.message-container.incoming .speech-bubble {
+  /* Round bottom-left, bottom-right, top-right; flat top-left */
+  border-radius: 0px 30px 30px 30px;
+}
+
+.message-container.incoming .mini-actions {
+  left: auto;
+  right: 0; /* show above-right */
+  transform: translate(8px, -8px);
+  border-radius: 25px 25px 25px 0px;
+}
+
+.message-container.incoming .reactions {
+  justify-content: flex-start;
+}
+
+.message-container.incoming .reactions .reaction-list {
+  justify-content: flex-start;
+}
+
+.message-container.incoming .reactions .reaction-trigger {
+  order: -1; /* add icon at the left */
+  margin-left: 0;
+  margin-right: 8px;
+}
+
+.message-container.incoming .reactions .reaction-trigger app-emoji-picker-component {
+  left: 24px;
+  transform: none; /* open picker to the right of the icon */
+}
+
+/* For incoming bubbles, flip the inner picker container so it opens to the right of the icon */
+:host .message-container.incoming ::ng-deep app-emoji-picker-component {
+  .emoji-picker-container {
+    right: auto !important;
+    left: 0 !important; /* align picker's left edge to host, so it expands to the right */
   }
 }
