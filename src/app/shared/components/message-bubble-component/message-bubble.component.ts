@@ -16,15 +16,12 @@ export class MessageBubbleComponent {
   @Input() avatar: string = 'assets/img-profile/frederik-beck.png';
   @Input() text: string = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque blandit odio efficitur lectus vestibulum, quis accumsan ante vulputate. Quisque tristique iaculis erat, eu faucibus lacus iaculis ac.';
 
-  // Emoji picker
   showEmojiPicker = false;
   reactionsExpanded = false;
 
-  // More (three-dots) menu
   isMoreMenuOpen = false;
   @Output() editMessage = new EventEmitter<void>();
 
-  // Sticky mini-actions hover
   showMiniActions = false;
   private miniActionsHideTimer: any;
 
@@ -34,7 +31,6 @@ export class MessageBubbleComponent {
 
   openEmojiPicker() {
     this.showEmojiPicker = true;
-    // hide mini actions after click on mini add_reaction
     this.showMiniActions = false;
   }
 
@@ -47,13 +43,11 @@ export class MessageBubbleComponent {
     this.showEmojiPicker = false;
   }
 
-  // Reactions state
   reactions: { emoji: string; count: number }[] = [];
   private readonly MAX_UNIQUE_REACTIONS = 20;
   private readonly DEFAULT_COLLAPSE_THRESHOLD = 7;
   private readonly NARROW_COLLAPSE_THRESHOLD = 6;
 
-  // responsive collapse state
   isNarrow = typeof window !== 'undefined' ? window.innerWidth <= 450 : false;
 
   @HostListener('window:resize')
@@ -67,7 +61,6 @@ export class MessageBubbleComponent {
       existing.count += 1;
     } else {
       if (this.reactions.length >= this.MAX_UNIQUE_REACTIONS) {
-        // Cap at 20 unique; ignore new unique emoji beyond this limit
         return;
       }
       this.reactions.push({ emoji, count: 1 });
@@ -107,12 +100,10 @@ export class MessageBubbleComponent {
     return this.isNarrow ? this.NARROW_COLLAPSE_THRESHOLD : this.DEFAULT_COLLAPSE_THRESHOLD;
   }
 
-  // Center reactions on narrow viewports only if there are at least two visible reactions
   get shouldCenterNarrow(): boolean {
     return this.isNarrow && this.visibleReactions.length >= 2;
   }
 
-  // Three-dots menu handlers
   toggleMoreMenu(event?: MouseEvent) {
     if (event) {
       event.stopPropagation();
@@ -141,7 +132,6 @@ export class MessageBubbleComponent {
     }
   }
 
-  // Mini-actions sticky hover handlers
   onSpeechBubbleEnter() {
     this.clearMiniActionsHideTimer();
     this.showMiniActions = true;
@@ -174,18 +164,14 @@ export class MessageBubbleComponent {
     }
   }
 
-  // Quick react from mini-actions
   onQuickReact(emoji: string) {
     this.addOrIncrementReaction(emoji);
-    // hide mini actions after a quick reaction click
     this.showMiniActions = false;
   }
 
   onMiniAddReactionClick(event: MouseEvent) {
     event.stopPropagation();
-    // hide mini actions first so hover does not re-open while moving
     this.showMiniActions = false;
-    // open picker on next tick to avoid outside-click closing it immediately
     setTimeout(() => {
       this.showEmojiPicker = true;
     });

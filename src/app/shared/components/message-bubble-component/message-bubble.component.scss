@@ -9,8 +9,8 @@
   gap: 20px;
   width: 100%;
   max-width: 100%;
-  padding: 0 45px; /* 20px inset from chat container edges */
-  box-sizing: border-box; /* include padding in width */
+  padding: 0 45px;
+  box-sizing: border-box;
   margin-bottom: 20px;
 }
 
@@ -21,9 +21,8 @@
   gap: 8px;
   flex-grow: 1;
   width: 100%;
-  /* Ensure content + avatar never exceed container width */
-  max-width: calc(100% - 115px); /* 70px avatar + 20px gap */
-  min-width: 0; /* allow flex child to shrink and wrap */
+  max-width: calc(100% - 115px);
+  min-width: 0;
 }
 
 .message-header {
@@ -71,7 +70,6 @@
   }
 }
 
-/* Mini hover actions above-left of the speech bubble */
 .mini-actions {
   position: absolute;
   bottom: 100%;
@@ -86,10 +84,9 @@
   border-radius: 25px 25px 0px 25px;
   box-shadow: 0 6px 24px rgba(0,0,0,0.08);
   z-index: 2;
-  overflow: visible; /* ensure hover backgrounds aren’t clipped */
+  overflow: visible;
 }
 
-/* programmatic sticky visibility */
 .mini-actions.visible {
   display: inline-flex;
 }
@@ -106,7 +103,6 @@
   cursor: pointer;
 }
 
-/* Hover background circle on mini action icons (pseudo-element, no layout shift) */
 .mini-actions .mini-hit,
 .mini-actions .mini-icon-btn {
   display: inline-flex;
@@ -120,11 +116,11 @@
 .mini-actions .mini-icon-btn::after {
   content: "";
   position: absolute;
-  inset: -4px; /* creates ~28x28 circle around 20x20 icon */
+  inset: -4px;
   border-radius: 50%;
   background-color: transparent;
   transition: background-color 0.15s ease;
-  z-index: -1; /* behind icon content */
+  z-index: -1;
   pointer-events: none;
 }
 
@@ -133,7 +129,6 @@
   background-color: rgba(236, 238, 254, 1);
 }
 
-/* three-dots menu inside mini-actions */
 .more-menu {
   position: relative;
   display: inline-flex;
@@ -197,16 +192,16 @@
   display: flex;
   flex-direction: row;
   align-items: center;
-  justify-content: flex-end; /* default left */
+  justify-content: flex-end;
   padding: 0px;
   gap: 8px;
-  width: 100%; /* span full width so wrapping lines start at left */
+  width: 100%;
 
   .reaction-list {
     display: flex;
     flex-wrap: wrap;
     gap: 6px;
-    justify-content: flex-end; /* default left */
+    justify-content: flex-end;
   }
 
   .reaction-chip {
@@ -282,19 +277,18 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    margin-left: 8px; /* larger gap before the add reaction icon */
+    margin-left: 8px;
 
     app-emoji-picker-component {
       position: absolute;
-      bottom: 18px; /* small gap above the icon */
-      left: 24px; /* base anchor at icon's left edge */
-      transform: translateX(-100%); /* shift the entire picker to be fully left of the icon */
+      bottom: 18px;
+      left: 24px;
+      transform: translateX(-100%);
       z-index: 1000;
     }
   }
 }
 
-/* Center reactions on narrow viewports */
 @media (max-width: 450px) {
   .reactions.center-narrow {
     justify-content: center;
@@ -304,23 +298,21 @@
   }
 }
 
-/* Hide emoji-mart search and preview only within this component */
 :host ::ng-deep app-emoji-picker-component {
-  /* Rounded corners for the picker */
   .emoji-picker-container,
   .emoji-mart {
     border-radius: 20px !important;
-    overflow: hidden; /* ensure inner content follows rounded corners */
+    overflow: hidden;
     padding: 0 16px;
   }
-  /* Hide the top category anchors row */
+
   .emoji-mart-anchors {
     display: none !important;
   }
-  /* Neutralize inner absolute offsets to avoid double-positioning */
+
   .emoji-picker-container {
     bottom: 0 !important;
-    right: 0 !important; /* open towards left by aligning the picker's right edge inside host */
+    right: 0 !important;
     left: auto !important;
   }
   .emoji-mart-search {
@@ -329,12 +321,11 @@
   .emoji-mart-preview {
     display: none !important;
   }
-  /* Reduce list height to about half */
+
   .emoji-mart-scroll {
     height: 104px !important;
   }
 
-  /* Remove any residual top/bottom lines from emoji-mart */
   .emoji-mart,
   .emoji-mart-scroll,
   .emoji-mart-anchors,
@@ -344,12 +335,10 @@
     box-shadow: none !important;
   }
 
-  /* Some builds render thin separators via .emoji-mart-bar; hide completely */
   .emoji-mart-bar {
     display: none !important;
   }
 
-  /* Add requested outer border (after resets to ensure it applies) */
   .emoji-mart {
     border: 1px solid #adb0d9 !important;
   }
@@ -366,11 +355,11 @@
 /* ================= Incoming (left-side) variant ================= */
 
 .message-container.incoming .avatar-container {
-  order: -1; /* place avatar on the far left */
+  order: -1;
 }
 
 .message-container.incoming .message-content {
-  align-items: flex-start; /* align bubble to left */
+  align-items: flex-start;
 }
 
 .message-container.incoming .message-header {
@@ -379,13 +368,12 @@
 }
 
 .message-container.incoming .speech-bubble {
-  /* Round bottom-left, bottom-right, top-right; flat top-left */
   border-radius: 0px 30px 30px 30px;
 }
 
 .message-container.incoming .mini-actions {
   left: auto;
-  right: 0; /* show above-right */
+  right: 0;
   transform: translate(8px, -8px);
   border-radius: 25px 25px 25px 0px;
 }
@@ -399,20 +387,19 @@
 }
 
 .message-container.incoming .reactions .reaction-trigger {
-  order: -1; /* add icon at the left */
+  order: -1;
   margin-left: 0;
   margin-right: 8px;
 }
 
 .message-container.incoming .reactions .reaction-trigger app-emoji-picker-component {
   left: 24px;
-  transform: none; /* open picker to the right of the icon */
+  transform: none;
 }
 
-/* For incoming bubbles, flip the inner picker container so it opens to the right of the icon */
 :host .message-container.incoming ::ng-deep app-emoji-picker-component {
   .emoji-picker-container {
     right: auto !important;
-    left: 0 !important; /* align picker's left edge to host, so it expands to the right */
+    left: 0 !important;
   }
 }
