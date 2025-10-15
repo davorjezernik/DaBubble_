@@ -1,4 +1,4 @@
-import { Component, HostListener, Input } from '@angular/core';
+import { Component, HostListener, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { EmojiPickerComponent } from '../../components/emoji-picker-component/emoji-picker-component';
 
@@ -19,8 +19,22 @@ export class MessageBubbleComponent {
   showEmojiPicker = false;
   reactionsExpanded = false;
 
+  // More (three-dots) menu
+  isMoreMenuOpen = false;
+  @Output() editMessage = new EventEmitter<void>();
+
+  // Sticky mini-actions hover
+  showMiniActions = false;
+  private miniActionsHideTimer: any;
+
   toggleEmojiPicker() {
     this.showEmojiPicker = !this.showEmojiPicker;
+  }
+
+  openEmojiPicker() {
+    this.showEmojiPicker = true;
+    // hide mini actions after click on mini add_reaction
+    this.showMiniActions = false;
   }
 
   onEmojiSelected(emoji: string) {
@@ -95,5 +109,84 @@ export class MessageBubbleComponent {
   // Center reactions on narrow viewports only if there are at least two visible reactions
   get shouldCenterNarrow(): boolean {
     return this.isNarrow && this.visibleReactions.length >= 2;
+  }
+
+  // Three-dots menu handlers
+  toggleMoreMenu(event?: MouseEvent) {
+    if (event) {
+      event.stopPropagation();
+      event.preventDefault();
+    }
+    this.isMoreMenuOpen = !this.isMoreMenuOpen;
+  }
+
+  onEditMessage() {
+    this.isMoreMenuOpen = false;
+    this.editMessage.emit();
+  }
+
+  @HostListener('document:click')
+  closeMenusOnOutsideClick() {
+    if (this.isMoreMenuOpen) {
+      this.isMoreMenuOpen = false;
+    }
+  }
+
+  @HostListener('document:keydown.escape')
+  onEscapeClose() {
+    if (this.isMoreMenuOpen || this.showEmojiPicker) {
+      this.isMoreMenuOpen = false;
+      this.showEmojiPicker = false;
+    }
+  }
+
+  // Mini-actions sticky hover handlers
+  onSpeechBubbleEnter() {
+    this.clearMiniActionsHideTimer();
+    this.showMiniActions = true;
+  }
+
+  onSpeechBubbleLeave() {
+    this.startMiniActionsHideTimer();
+  }
+
+  onMiniActionsEnter() {
+    this.clearMiniActionsHideTimer();
+    this.showMiniActions = true;
+  }
+
+  onMiniActionsLeave() {
+    this.startMiniActionsHideTimer();
+  }
+
+  private startMiniActionsHideTimer(delay = 180) {
+    this.clearMiniActionsHideTimer();
+    this.miniActionsHideTimer = setTimeout(() => {
+      this.showMiniActions = false;
+    }, delay);
+  }
+
+  private clearMiniActionsHideTimer() {
+    if (this.miniActionsHideTimer) {
+      clearTimeout(this.miniActionsHideTimer);
+      this.miniActionsHideTimer = undefined;
+    }
+  }
+
+  // Quick react from mini-actions
+  onQuickReact(emoji: string) {
+    this.addOrIncrementReaction(emoji);
+    // hide mini actions after a quick reaction click
+    this.showMiniActions = false;
+  }
+
+  onMiniAddReactionClick(event: MouseEvent) {
+    event.stopPropagation();
+    // hide mini actions first so hover does not re-open while moving
+    this.showMiniActions = false;
+    // open picker on next tick to avoid outside-click closing it immediately
+    setTimeout(() => {
+      this.showEmojiPicker = true;
+    });
   }
 }

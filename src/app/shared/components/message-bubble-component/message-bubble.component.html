@@ -1,10 +1,79 @@
 <div class="message-container">
   <div class="message-content">
     <div class="message-header">
-      <span class="user-name">{{ name }}</span>
       <span class="timestamp">{{ time }}</span>
+      <span class="user-name">{{ name }}</span>
     </div>
-    <div class="speech-bubble">
+    <div
+      class="speech-bubble"
+      (mouseenter)="onSpeechBubbleEnter()"
+      (mouseleave)="onSpeechBubbleLeave()"
+    >
+      <div
+        class="mini-actions"
+        [class.visible]="showMiniActions"
+        (mouseenter)="onMiniActionsEnter()"
+        (mouseleave)="onMiniActionsLeave()"
+        (click)="$event.stopPropagation()"
+      >
+        <span class="mini-hit" (click)="onQuickReact('✅')">
+          <svg
+            class="mini-icon"
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            aria-label="Erledigt"
+            role="img"
+            focusable="false"
+          >
+            <circle cx="12" cy="12" r="10" fill="#22C55E" />
+            <path
+              d="M9.5 12.5l2 2 4-4"
+              stroke="#FFFFFF"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              fill="none"
+            />
+          </svg>
+        </span>
+        <span class="mini-hit" title="Daumen hoch" (click)="onQuickReact('👍')">
+          <span class="mini-emoji">👍</span>
+        </span>
+        <span class="mini-hit" (click)="onMiniAddReactionClick($event)">
+          <img src="assets/icons/add_reaction.svg" alt="Add reaction" class="mini-icon" />
+        </span>
+        <span class="mini-hit">
+          <img src="assets/icons/comment.svg" alt="Comment" class="mini-icon" />
+        </span>
+        <div class="more-menu" (click)="$event.stopPropagation()">
+          <button
+            class="mini-icon-btn"
+            (click)="toggleMoreMenu($event)"
+            aria-label="Weitere Aktionen"
+          >
+            <svg
+              class="mini-icon"
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              focusable="false"
+              aria-hidden="true"
+            >
+              <circle cx="12" cy="5" r="1.8" fill="#4B5563"></circle>
+              <circle cx="12" cy="12" r="1.8" fill="#4B5563"></circle>
+              <circle cx="12" cy="19" r="1.8" fill="#4B5563"></circle>
+            </svg>
+          </button>
+          @if (isMoreMenuOpen) {
+          <div class="menu-dropdown" role="menu">
+            <button class="menu-item" role="menuitem" (click)="onEditMessage()">
+              Nachricht bearbeiten
+            </button>
+          </div>
+          }
+        </div>
+      </div>
       <p>{{ text }}</p>
     </div>
     <div class="reactions" [class.center-narrow]="shouldCenterNarrow">
