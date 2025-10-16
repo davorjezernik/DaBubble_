@@ -42,12 +42,20 @@ export class ChatInterfaceComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    this.loadDmMetadataOnInit();
+    this.initializeMessagesStream();
+  }
+
+  loadDmMetadataOnInit() {
     this.route.paramMap.subscribe(async (params) => {
+      this.resetLastMessageTimestamp();
       this.chatId = params.get('id');
       await this.checkIfOwnDm();
       await this.getMessageDetails();
     });
+  }
 
+  initializeMessagesStream() {
     this.messages$ = this.route.paramMap.pipe(
       switchMap((params) => {
         this.chatId = params.get('id');
@@ -62,9 +70,10 @@ export class ChatInterfaceComponent implements OnInit {
         }
       })
     );
-    this.messages$.subscribe(() => {
-      this.lastMessageTimestamp = null;
-    });
+  }
+
+  resetLastMessageTimestamp() {
+    this.lastMessageTimestamp = null;
   }
 
   async handleNewMessage(messageText: string) {
@@ -72,15 +81,12 @@ export class ChatInterfaceComponent implements OnInit {
       console.error('No chat ID found in route parameters.');
       return;
     }
-
     const user: any = await firstValueFrom(this.authService.currentUser$);
-
     const messageData = {
       text: messageText,
       timestamp: serverTimestamp(),
       authorId: user.uid,
     };
-
     const messagesCollectionRef = collection(this.firestore, `dms/${this.chatId}/messages`);
     await addDoc(messagesCollectionRef, messageData);
   }
@@ -95,33 +101,46 @@ export class ChatInterfaceComponent implements OnInit {
     }
   }
 
-  async getMessageDetails() {
-    let recipientId: any = null;
-
-    const user: any = await firstValueFrom(this.authService.currentUser$);
-
-    const dmRef = doc(this.firestore, `dms/${this.chatId}`);
-    const dmSnap = await getDoc(dmRef);
-
-    if (!dmSnap.exists()) {
-      console.warn(`DM document not found for chatId: ${this.chatId}`);
+  async getMessageDetails(): Promise<void> {
+    const user = await this.getCurrentUser();
+    const dmData = await this.getDmDocument(this.chatId!);
+    if (!dmData) {
       this.recipientData = null;
       return;
     }
+    const recipientId = this.getRecipientId(dmData.members, user.uid);
+    if (!recipientId) {
+      this.recipientData = null;
+      return;
+    }
+    this.recipientData = await this.getUserData(recipientId);
+  }
 
-    const dmData = dmSnap.data() as any;
-    const members = dmData.members || [];
+  private async getCurrentUser(): Promise<any> {
+    return firstValueFrom(this.authService.currentUser$);
+  }
+
+  private async getDmDocument(chatId: string): Promise<any | null> {
+    const dmRef = doc(this.firestore, `dms/${chatId}`);
+    const dmSnap = await getDoc(dmRef);
+    if (!dmSnap.exists()) return null;
+    return dmSnap.data();
+  }
+
+  private getRecipientId(members: string[], currentUserId: string): string | null {
+    if (!members || members.length === 0) return null;
 
     const isPersonalDm = members.length === 2 && members[0] === members[1];
-    if (isPersonalDm) {
-      recipientId = members[0];
-    } else {
-      recipientId = members.find((id: string) => id !== user.uid);
-    }
+    if (isPersonalDm) return members[0];
 
-    const recipientRef = doc(this.firestore, `users/${recipientId}`);
-    const recipientSnap = await getDoc(recipientRef);
-    this.recipientData = recipientSnap.data() as any;
+    const recipient = members.find((id) => id !== currentUserId);
+    return recipient || null;
+  }
+
+  private async getUserData(userId: string): Promise<any | null> {
+    const userRef = doc(this.firestore, `users/${userId}`);
+    const userSnap = await getDoc(userRef);
+    return userSnap.exists() ? userSnap.data() : null;
   }
 
   shouldShowDateSeparator(messageTimestamp: Timestamp) {
@@ -154,4 +173,3 @@ export class ChatInterfaceComponent implements OnInit {
     }
   }
 }
-

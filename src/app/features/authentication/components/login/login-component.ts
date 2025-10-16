@@ -49,17 +49,22 @@ export class LoginComponent {
   constructor(public router: Router, private zone: NgZone, private authService: AuthService) {
     merge(this.loginForm.controls.email.statusChanges, this.loginForm.controls.email.valueChanges)
       .pipe(takeUntilDestroyed())
-      .subscribe(() => this.updateErrorMessage());
+      .subscribe(() => this.updateErrorMessages());
   }
 
-  updateErrorMessage() {
-    // Email errors
+  updateErrorMessages() {
+    this.updateEmailErrorMessage();
+    this.updatePasswordErrorMessage();
+  }
+
+  updateEmailErrorMessage() {
     const emailControl = this.loginForm.controls.email;
     if (emailControl.hasError('required')) {
       this.emailErrorMessage.set('Diese E-Mail-Adresse ist leider ungültig.');
     }
+  }
 
-    // Password errors
+  updatePasswordErrorMessage() {
     const passwordControl = this.loginForm.controls.password;
     if (passwordControl.hasError('required')) {
       this.passwordErrorMessage.set('Falsches Passwort oder E-Mail. Bitten noch einmal versuchen.');
@@ -77,7 +82,7 @@ export class LoginComponent {
 
     try {
       await this.authService.loginWithEmail(email!, password!);
-      this.router.navigate(['/workspace']);
+      await this.navigateToSelfDm();
     } catch (err: any) {
       console.log(err);
     }
@@ -93,13 +98,17 @@ export class LoginComponent {
           await deleteUser(userCredential.user);
         }
       } else {
-        const user = await firstValueFrom(this.authService.currentUser$);
-        const selfDmUid = `${user?.uid}-${user?.uid}`;
-        if (!user) return;
-        this.router.navigate([`/workspace/dm/${selfDmUid}`]);
+        await this.navigateToSelfDm();
       }
     } catch (error) {
       console.error('Google sign-in error', error);
     }
+  }
+
+  async navigateToSelfDm() {
+    const user = await firstValueFrom(this.authService.currentUser$);
+    const selfDmUid = `${user?.uid}-${user?.uid}`;
+    if (!user) return;
+    this.router.navigate([`/workspace/dm/${selfDmUid}`]);
   }
 }

@@ -11,7 +11,7 @@
           matInput
           placeholder="beispielname@example.com"
           formControlName="email"
-          (blur)="updateErrorMessage()"
+          (blur)="updateErrorMessages()"
           required
         />
         @if (this.loginForm.controls.email.invalid && this.loginForm.controls.email.touched) {
@@ -24,7 +24,7 @@
           matInput
           placeholder="Passwort"
           formControlName="password"
-          (blur)="updateErrorMessage()"
+          (blur)="updateErrorMessages()"
           required
         />
         @if (this.loginForm.controls.password.invalid && this.loginForm.controls.email.touched) {
