@@ -75,6 +75,7 @@ export class HeaderWorkspaceComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this.sub?.unsubscribe();
+    this.userService.markOnline(false);
   }
 
   // Avatar-Fallback //
