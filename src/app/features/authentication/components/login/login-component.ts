@@ -58,16 +58,27 @@ export class LoginComponent {
   }
 
   updateErrorMessage() {
-    // Email errors
-    const emailControl = this.loginForm.controls.email;
-    if (emailControl.hasError('required')) {
-      this.emailErrorMessage.set('Diese E-Mail-Adresse ist leider ungültig.');
-    }
+    this.updateEmailErrorMessage();
+    this.updatePasswordErrorMessage();
+  }
 
-    // Password errors
+  updateEmailErrorMessage() {
+    const emailControl = this.loginForm.controls.email;
+    if (emailControl.hasError('loginFailed')) {
+      this.emailErrorMessage.set('Falsches Passwort oder E-Mail. Bitte noch einmal versuchen.');
+    } else if (emailControl.hasError('required') || emailControl.hasError('email')) {
+      this.emailErrorMessage.set('Diese E-Mail-Adresse ist leider ungültig.');
+    } else {
+      this.emailErrorMessage.set('');
+    }
+  }
+
+  updatePasswordErrorMessage() {
     const passwordControl = this.loginForm.controls.password;
-    if (passwordControl.hasError('required')) {
-      this.passwordErrorMessage.set('Falsches Passwort oder E-Mail. Bitten noch einmal versuchen.');
+    if (passwordControl.hasError('loginFailed')) {
+      this.passwordErrorMessage.set('Falsches Passwort oder E-Mail. Bitte noch einmal versuchen.');
+    } else if (passwordControl.hasError('required')) {
+      this.passwordErrorMessage.set('Bitte geben Sie Ihr Passwort ein.');
     } else {
       this.passwordErrorMessage.set('');
     }
@@ -77,9 +88,6 @@ export class LoginComponent {
   isLoading = true;
 
   login() {
-    if (this.loginForm.invalid) {
-      return;
-    }
     const { email, password } = this.loginForm.getRawValue();
 
     this.zone.run(async () => {
@@ -89,7 +97,9 @@ export class LoginComponent {
         localStorage.setItem('user', JSON.stringify(userCredential.user));
         console.log(userCredential.user);
       } catch (err: any) {
-        console.log(err);
+        this.loginForm.controls.email.setErrors({ loginFailed: true });
+        this.loginForm.controls.password.setErrors({ loginFailed: true });
+        this.updateErrorMessage();
       }
     });
   }
@@ -98,21 +108,24 @@ export class LoginComponent {
     this.zone.run(async () => {
       const provider = new GoogleAuthProvider();
       try {
-        const userCredential = await signInWithPopup(this.auth, provider);
-        const additionalInfo = getAdditionalUserInfo(userCredential);
-        console.log('Google sign-in successful:', additionalInfo);
-        if (additionalInfo?.isNewUser) {
-          if (userCredential.user) {
-            await deleteUser(userCredential.user);
-          }
-        } else {
-          this.router.navigate(['/workspace']);
-          localStorage.setItem('user', JSON.stringify(userCredential.user));
-          console.log(userCredential.user);
-        }
-      } catch (error) {
-        console.error('Google sign-in error', error);
+        await this.trySignInWithGoogle(provider);
+      } catch (err: any) {
+        this.loginForm.controls.email.setErrors({ loginFailed: true });
+        this.loginForm.controls.password.setErrors({ loginFailed: true });
+        this.updateErrorMessage();
       }
     });
+  }
+
+  async trySignInWithGoogle(provider: any) {
+    const userCredential = await signInWithPopup(this.auth, provider);
+    const additionalInfo = getAdditionalUserInfo(userCredential);
+    if (additionalInfo?.isNewUser) {
+      if (userCredential.user) {
+        await deleteUser(userCredential.user);
+      }
+    } else {
+      this.router.navigate(['/workspace']);
+    }
   }
 }
