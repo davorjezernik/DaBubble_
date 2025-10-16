@@ -13,8 +13,8 @@
   position: relative;
 }
 
-main {
-  flex: 1;
+.main-content {
+  position: relative;
   display: flex;
 }
 
@@ -60,6 +60,7 @@ header {
 .main-and-thread-wrapper {
   flex: 1;
   display: flex;
+  height: 80vh;
 }
 
 .mat-drawer-container {
@@ -78,6 +79,7 @@ header {
   left: 0;
   bottom: 440px;
   padding: 0 12px 0;
+  margin-left: -20px;
   position: absolute;
   z-index: 2;
   transform: rotate(90deg);

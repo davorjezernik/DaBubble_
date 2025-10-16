@@ -62,7 +62,7 @@ export class ChatInterfaceComponent implements OnInit {
         if (this.chatId) {
           const messagesRef = collection(this.firestore, `dms/${this.chatId}/messages`);
 
-          const q = query(messagesRef, orderBy('timestamp'));
+          const q = query(messagesRef, orderBy('timestamp', 'desc'));
 
           return collectionData(q, { idField: 'id' });
         } else {
