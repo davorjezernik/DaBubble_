@@ -30,13 +30,13 @@
   }
 
   &.empty {
-    justify-content: flex-end;
+    justify-content: flex-start;
     align-items: flex-start;
-    margin-left: 100px;
+    padding-left: 45px;
   }
 
   &:not(.empty) {
-    justify-content: flex-start; /* default: stack from top */
+    justify-content: flex-end;
   }
 }
 
