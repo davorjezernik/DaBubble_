@@ -1,6 +1,6 @@
 <button (click)="openModal()">Add Chanel</button>
 
-<div class="modal" *ngIf="isModalOpen">
+<div class="modal" *ngIf="isModalOpen" (click)="closeModal()">
   <div class="modal-content">
     <div class="modal-header">
         <h2>Add Chanel</h2>

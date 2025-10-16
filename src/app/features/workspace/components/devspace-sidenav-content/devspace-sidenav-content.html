@@ -1,3 +1,5 @@
+<app-add-chat></app-add-chat>
+
 <!-- Primary Sidebar Navigation -->
 <nav class="sidenav" aria-label="Main navigation">
   <!-- Brand / Workspace -->
@@ -98,7 +100,7 @@
         <h3 id="channels-title-text" class="channels-title-text">Channels</h3>
       </div>
 
-      <button class="section-addon" type="button" aria-label="Create new channel">
+      <button (click)="addChannel.openModal()" class="section-addon" type="button" aria-label="Create new channel">
         <svg
           class="channel-plus-icon"
           width="24"
@@ -160,7 +162,7 @@
       </ul>
 
       <div class="section-footer">
-        <button class="add-channel" type="button">
+        <button (click)="addChannel.openModal()" class="add-channel" type="button">
           <svg
             class="add-channel-icon"
             width="24"

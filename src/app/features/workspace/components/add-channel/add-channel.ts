@@ -4,10 +4,10 @@ import { NgIf } from '@angular/common';
 @Component({
   selector: 'app-add-chat',
   imports: [NgIf],
-  templateUrl: './add-chat.html',
-  styleUrl: './add-chat.scss'
+  templateUrl: './add-channel.html',
+  styleUrl: './add-channel.scss'
 })
-export class AddChat {
+export class AddChannel {
   isModalOpen = false;
 
   openModal() {

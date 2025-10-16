@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { CommonModule } from '@angular/common';
@@ -9,14 +9,18 @@ import { Firestore, doc, setDoc } from '@angular/fire/firestore';
 import { Router } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { AuthService } from '../../../../services/auth-service';
+import { AddChannel } from '../add-channel/add-channel';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-devspace-sidenav-content',
-  imports: [MatButtonModule, MatSidenavModule, CommonModule],
+  imports: [MatButtonModule, MatSidenavModule, CommonModule, AddChannel, FormsModule],
   templateUrl: './devspace-sidenav-content.html',
   styleUrl: './devspace-sidenav-content.scss',
 })
 export class DevspaceSidenavContent implements OnInit, OnDestroy {
+  @ViewChild(AddChannel) addChannel!: AddChannel;
+
   users: User[] = [];
   private sub?: Subscription;
 
