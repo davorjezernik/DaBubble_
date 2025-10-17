@@ -76,3 +76,13 @@
     display: flex;
     align-items: center;
 }
+
+.submit-btn {
+    border: none;
+    @include mixins.primary-button($hover-bg-color: #797ef3, $bg-color: #444df2);
+
+    &.disabled {
+        cursor: default;
+        pointer-events: none;
+    }
+}

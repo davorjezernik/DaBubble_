@@ -8,7 +8,7 @@ import { User } from '../../../../../models/user.class';
 import { Firestore, doc, setDoc } from '@angular/fire/firestore';
 import { Router } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
-import { AuthService } from '../../../../services/auth-service';
+import { AuthService } from '../../../../../services/auth-service';
 import { AddChannel } from '../add-channel/add-channel';
 import { FormsModule } from '@angular/forms';
 
