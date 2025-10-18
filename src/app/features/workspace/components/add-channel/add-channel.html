@@ -1,23 +1,89 @@
-<div class="modal" *ngIf="isModalOpen" (click)="closeModal()">
-  <div class="modal-content" (click)="$event.stopPropagation()">
-    <div class="modal-header">
-        <h2>Add Chanel</h2>
-        <h3 class="close" (click)="closeModal()">&times;</h3>
-    </div>
-    <p>Channels are used by your team for communication. Ideally, they should be topic-based — for example, #marketing.</p>
-    <div>
-        <h3>Chanel Name</h3>
-        <input [(ngModel)]="channelName" class="input-field" type="text" name="channelName" minlength="2" required #channelNameInput="ngModel" placeholder="# e.g., collaboration projects">
-        @if (namingConflict) {
-          <mat-error style="color: red">Dieser Name existiert bereits oder beinhaltet weniger als 2 Buchstaben.</mat-error>
-        }
-    </div>
-    <div>
-        <h3>Description <span>(optional)</span></h3>
-        <input [(ngModel)]="description" class="input-field" type="text" placeholder="Your text here">
-    </div>
-    <div class="button-container">
-        <button class="submit-btn" [class.disabled]="channelNameInput.invalid" (click)="createChannel()">Erstellen</button>
-    </div>
-  </div>
+<div class="create-channel-dialog">
+  <header mat-dialog-title class="dialog-header">
+    <h1 id="dialog-title" class="dialog-title">Channel erstellen</h1>
+    <button
+      class="dialog-close-button"
+      mat-icon-button
+      mat-dialog-close
+      aria-label="Dialog schließen"
+    >
+      <svg
+        class="close-icon"
+        width="18"
+        height="18"
+        viewBox="0 0 14 14"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path d="M2 2L12 12M12 2L2 12" stroke="#1C1B1F" stroke-width="1.8" stroke-linecap="round" />
+      </svg>
+    </button>
+  </header>
+
+  <mat-dialog-content
+    class="dialog-content"
+    role="dialog"
+    aria-labelledby="dialog-title"
+    aria-describedby="dialog-description"
+  >
+    <p id="dialog-description" class="dialog-description">
+      Channels dienen deinem Team zur Kommunikation. Am besten sollten sie themenbezogen sein
+      #marketing zum Beispiel.
+    </p>
+
+    <form class="dialog-form" #channelForm="ngForm">
+      <div class="form-group">
+        <label for="channelName" class="form-field-label">Channel-Name</label>
+        <mat-form-field appearance="outline" class="form-field">
+          <mat-icon matIconPrefix>tag</mat-icon>
+          <input
+            matInput
+            id="channelName"
+            name="channelName"
+            [(ngModel)]="channelName"
+            type="text"
+            minlength="2"
+            pattern="^\S*$"
+            required
+            #channelNameInput="ngModel"
+            placeholder="Office-Team"
+          />
+          @if (namingConflict || (channelNameInput.invalid && channelNameInput.touched)) {
+          <mat-error>
+            Der Name darf keine Leerzeichen enthalten, muss mind. 2 Zeichen lang sein oder existiert
+            bereits.
+          </mat-error>
+          }
+        </mat-form-field>
+      </div>
+      <div class="form-group">
+        <label for="description" class="form-field-label"
+          >Beschreibung <span class="label-optional">(optional)</span></label
+        >
+        <mat-form-field appearance="outline" class="form-field form-field-description">
+          <input
+            matInput
+            id="description"
+            name="description"
+            [(ngModel)]="description"
+            placeholder="Beschreibung"
+            cdkTextareaAutosize
+            cdkAutosizeMinRows="3"
+          />
+        </mat-form-field>
+      </div>
+    </form>
+  </mat-dialog-content>
+
+  <mat-dialog-actions class="dialog-actions" align="end">
+    <button
+      class="submit-btn"
+      mat-raised-button
+      color="primary"
+      [class.disabled]="channelForm.invalid"
+      (click)="onConfirm()"
+    >
+      Erstellen
+    </button>
+  </mat-dialog-actions>
 </div>

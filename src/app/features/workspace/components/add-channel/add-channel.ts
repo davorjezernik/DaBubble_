@@ -1,14 +1,17 @@
-import { Component } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
 import { NgIf } from '@angular/common';
-import { Firestore } from '@angular/fire/firestore';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, NgModel } from '@angular/forms';
 import { ChannelService } from '../../../../../services/channel-service';
 import { firstValueFrom } from 'rxjs';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import { MatInputModule } from '@angular/material/input';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'app-add-chat',
-  imports: [NgIf, FormsModule, MatFormFieldModule],
+  standalone: true,
+  imports: [ FormsModule, MatFormFieldModule, MatDialogModule, MatInputModule, MatIconModule],
   templateUrl: './add-channel.html',
   styleUrl: './add-channel.scss',
 })
@@ -20,32 +23,29 @@ export class AddChannel {
   channelName: string = '';
   description: string = '';
 
-  constructor(firestore: Firestore, private channelService: ChannelService) {}
+  @ViewChild('channelNameInput') channelNameInput?: NgModel;
 
-  openModal() {
-    this.isModalOpen = true;
-  }
+  constructor(private channelService: ChannelService, public dialogRef: MatDialogRef<AddChannel>) {}
 
-  closeModal() {
-    this.isModalOpen = false;
-  }
+  async onConfirm() {
+    this.channelName = this.channelName.trim();
+    const channelExists = await this.doesChannelExists();
 
-  async createChannel() {
-    try {
-      await this.doesChannelExists();
-    } catch (error) {
-      console.error('Error adding channel:', error);
-    } finally {
-      if (this.namingConflict) return;
-      this.closeModal();
-    }
-  }
-
-  async doesChannelExists() {
-    const channels = await firstValueFrom(this.channelService.getChannels());
-    const channelExists = channels.some((channel) => channel.name === this.channelName);
     if (channelExists) {
-      this.namingConflict = true;
+      this.channelNameInput?.control.setErrors({ namingConflict: true });
+      return;
     }
+
+    if (!this.channelNameInput?.invalid) {
+      this.dialogRef.close({
+        channelName: this.channelName,
+        description: this.description,
+      });
+    }
+  }
+
+  async doesChannelExists(): Promise<boolean> {
+    const channels = await firstValueFrom(this.channelService.getChannels());
+    return channels.some((channel) => channel.name === this.channelName);
   }
 }

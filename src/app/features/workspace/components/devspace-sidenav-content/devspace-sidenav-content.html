@@ -98,7 +98,7 @@
         <h3 id="channels-title-text" class="channels-title-text">Channels</h3>
       </div>
 
-      <button (click)="addChannel.openModal()" class="section-addon" type="button" aria-label="Create new channel">
+      <button (click)="openAddChannelDialog()" class="section-addon" type="button" aria-label="Create new channel">
         <svg
           class="channel-plus-icon"
           width="24"
@@ -160,7 +160,7 @@
       </ul>
 
       <div class="section-footer">
-        <button (click)="addChannel.openModal()" class="add-channel" type="button">
+        <button (click)="openAddChannelDialog()" class="add-channel" type="button">
           <svg
             class="add-channel-icon"
             width="24"
@@ -283,5 +283,3 @@
     }
   </section>
 </nav>
-
-<app-add-chat></app-add-chat>
