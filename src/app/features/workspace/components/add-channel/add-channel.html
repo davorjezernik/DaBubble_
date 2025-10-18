@@ -1,5 +1,5 @@
-<div class="create-channel-dialog">
-  <header mat-dialog-title class="dialog-header">
+<div class="dialog">
+  <header class="dialog-header">
     <h1 id="dialog-title" class="dialog-title">Channel erstellen</h1>
     <button
       class="dialog-close-button"
@@ -34,7 +34,7 @@
     <form class="dialog-form" #channelForm="ngForm">
       <div class="form-group">
         <label for="channelName" class="form-field-label">Channel-Name</label>
-        <mat-form-field appearance="outline" class="form-field">
+        <mat-form-field appearance="outline" class="form-field no-border">
           <mat-icon matIconPrefix>tag</mat-icon>
           <input
             matInput
@@ -60,7 +60,7 @@
         <label for="description" class="form-field-label"
           >Beschreibung <span class="label-optional">(optional)</span></label
         >
-        <mat-form-field appearance="outline" class="form-field form-field-description">
+        <mat-form-field appearance="outline" class="form-field no-border form-field-description">
           <input
             matInput
             id="description"

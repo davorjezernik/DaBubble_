@@ -105,6 +105,7 @@ export class DevspaceSidenavContent implements OnInit, OnDestroy {
 
   openAddChannelDialog() {
     const dialogRef = this.dialog.open(AddChannel, {
+      panelClass: 'dialog-panel',
       width: '80vw',
       maxWidth: '800px',
       minWidth: '300px',
@@ -119,6 +120,7 @@ export class DevspaceSidenavContent implements OnInit, OnDestroy {
 
   openAddUsersToChannelDialog(result: any) {
     const addUsersDialogRef = this.dialog.open(AddUsersToChannel, {
+      panelClass: 'dialog-panel',
       width: '80vw',
       maxWidth: '750px',
       minWidth: '300px',

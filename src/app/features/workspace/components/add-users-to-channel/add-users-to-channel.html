@@ -22,7 +22,7 @@
 
   <mat-dialog-content class="dialog-content">
     <mat-radio-group class="options-group" aria-label="Wählen Sie eine Option">
-      <mat-radio-button [disableRipple]="true" class="option-item" value="all" checked="true">
+      <mat-radio-button ripple-color="none" class="option-item" value="all" checked="true">
         <span class="option-text">
           Alle Mitglieder von
           <a class="dialog-link" href="#" (click)="$event.preventDefault()">Entwicklerteam</a>
@@ -30,11 +30,21 @@
         </span>
       </mat-radio-button>
 
-      <mat-radio-button [disableRipple]="true" class="option-item" value="specific">
+      <mat-radio-button disableRipple class="option-item" value="specific">
         <span class="option-text">Bestimmte Leute hinzufügen</span>
       </mat-radio-button>
     </mat-radio-group>
   </mat-dialog-content>
+  <mat-form-field appearance="outline">
+    <input
+      matInput
+      id="description"
+      name="description"
+      placeholder="Beschreibung"
+      cdkTextareaAutosize
+      cdkAutosizeMinRows="3"
+    />
+  </mat-form-field>
 
   <mat-dialog-actions class="dialog-actions" align="end">
     <button class="dialog-action-button" color="primary">Erstellen</button>
