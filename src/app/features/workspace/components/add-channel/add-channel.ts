@@ -13,7 +13,7 @@ import { MatIconModule } from '@angular/material/icon';
   standalone: true,
   imports: [ FormsModule, MatFormFieldModule, MatDialogModule, MatInputModule, MatIconModule],
   templateUrl: './add-channel.html',
-  styleUrl: './add-channel.scss',
+  styleUrls: ['./add-channel.scss', '../../../../shared/styles/form-field-styles.scss'],
 })
 export class AddChannel {
   isModalOpen = false;

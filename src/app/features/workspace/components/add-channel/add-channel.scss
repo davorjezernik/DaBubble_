@@ -1,6 +1,5 @@
 @use 'mixins';
 
-
 .dialog {
   padding: 20px 20px 40px;
 }
@@ -92,29 +91,6 @@
   }
 }
 
-// Global or component-level override for rounded form fields
-// to match the design in the image.
-:host ::ng-deep {
-  .mat-form-field-appearance-outline .mat-form-field-outline-start,
-  .mat-form-field-appearance-outline .mat-form-field-outline-end {
-    border-radius: 28px; // Increased for a more pill-like shape
-  }
-
-  .mat-form-field-appearance-outline .mat-form-field-outline-start {
-    border-right-style: none;
-    width: 28px !important; // Adjust to match border-radius
-  }
-
-  .mat-form-field-appearance-outline .mat-form-field-outline-end {
-    border-left-style: none;
-  }
-
-  // Adjust label position to align with the new border shape
-  .mat-form-field-appearance-outline .mat-form-field-label {
-    padding-left: 10px;
-  }
-}
-
 .submit-btn {
   border: none;
   @include mixins.primary-button($hover-bg-color: #797ef3, $bg-color: #444df2);
@@ -124,88 +100,3 @@
     pointer-events: none;
   }
 }
-
-/* STYLING FOR MAT-INPUTS (MIGHT BE REUSABLE) */
-
-:host ::ng-deep {
-  .form-field .mat-mdc-form-field-flex {
-    background-color: transparent;
-    border-radius: 100px;
-    overflow: hidden;
-    border: 1px solid #adb0d9;
-    box-shadow: none !important;
-  }
-
-  .mat-mdc-form-field:hover:not(:focus-within) .mat-mdc-form-field-flex {
-    box-shadow: none !important;
-    border: 1px solid #797ef3 !important;
-  }
-
-  .mat-mdc-form-field:focus-within .mat-mdc-form-field-flex {
-    border: 1px solid #797ef3 !important;
-  }
-
-  .form-field .mdc-notched-outline > * {
-    border: none !important;
-  }
-
-  .form-field .material-icons-outlined,
-  .form-field .mat-mdc-form-field-prefix .material-icons-outlined {
-    color: #797ef3 !important;
-  }
-
-  .form-field:focus-within .material-icons-outlined,
-  .form-field:focus-within .mat-mdc-form-field-prefix .material-icons-outlined {
-    color: #797ef3 !important;
-  }
-
-  .form-field-description input {
-    padding-left: 20px;
-  }
-
-  .form-field input::placeholder {
-    color: transparent;
-    transition: color 120ms ease;
-  }
-
-  .form-field input::placeholder {
-    color: #6b6b6b;
-    transition: color 120ms ease;
-  }
-  .form-field input::-webkit-input-placeholder {
-    color: #6b6b6b;
-  }
-  .form-field input::-moz-placeholder {
-    color: #6b6b6b;
-  }
-  .form-field input:-ms-input-placeholder {
-    color: #6b6b6b;
-  }
-  .form-field:focus-within input::placeholder {
-    color: transparent !important;
-  }
-  .form-field:focus-within input::-webkit-input-placeholder {
-    color: transparent !important;
-  }
-  .form-field:focus-within input::-moz-placeholder {
-    color: transparent !important;
-  }
-  .form-field:focus-within input:-ms-input-placeholder {
-    color: transparent !important;
-  }
-
-  .form-field .mdc-text-field--outlined {
-    padding-left: 0 !important;
-  }
-  .mat-form-field {
-    box-shadow: none !important;       /* remove fill shadow */
-    background-color: transparent !important; /* optional: remove fill color */
-  }
-  
-  .mat-form-field-underline,
-  .mat-form-field-outline {
-    display: none !important;          /* remove underline/outline if present */
-  }
-}
-
-
