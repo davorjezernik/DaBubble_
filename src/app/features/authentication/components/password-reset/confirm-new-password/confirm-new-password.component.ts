@@ -2,10 +2,10 @@ import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Auth, confirmPasswordReset } from '@angular/fire/auth';
-import { NgIf } from '@angular/common';
+import { NgIf, NgClass } from '@angular/common';
 @Component({
   selector: 'app-confirm-new-password',
-  imports: [FormsModule, NgIf],
+  imports: [FormsModule, NgIf, NgClass],
   templateUrl: './confirm-new-password.component.html',
   styleUrl: './confirm-new-password.component.scss'
 })
@@ -53,8 +53,6 @@ export class ConfirmNewPasswordComponent {
 
 private mapFirebaseError(code: string): string {
     switch (code) {
-      case 'auth/weak-password':
-        return 'Das Passwort ist zu schwach. Bitte wählen Sie ein stärkeres Passwort.';
       case 'auth/expired-action-code':
         return 'Der Link ist abgelaufen. Bitte fordern Sie eine neue E-Mail an.';
       case 'auth/invalid-action-code':
