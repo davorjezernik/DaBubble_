@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { CommonModule } from '@angular/common';
@@ -8,11 +8,16 @@ import { User } from '../../../../../models/user.class';
 import { Firestore, doc, setDoc } from '@angular/fire/firestore';
 import { Router } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
-import { AuthService } from '../../../../services/auth-service';
+import { AuthService } from '../../../../../services/auth-service';
+import { FormsModule } from '@angular/forms';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { AddChannel } from '../add-channel/add-channel';
+import { AddUsersToChannel } from '../add-users-to-channel/add-users-to-channel';
 
 @Component({
   selector: 'app-devspace-sidenav-content',
-  imports: [MatButtonModule, MatSidenavModule, CommonModule],
+  standalone: true,
+  imports: [MatButtonModule, MatSidenavModule, CommonModule, FormsModule, MatDialogModule],
   templateUrl: './devspace-sidenav-content.html',
   styleUrl: './devspace-sidenav-content.scss',
 })
@@ -38,7 +43,8 @@ export class DevspaceSidenavContent implements OnInit, OnDestroy {
     private usersService: UserService,
     private firestore: Firestore,
     private router: Router,
-    private authService: AuthService
+    private authService: AuthService,
+    private dialog: MatDialog
   ) {}
 
   ngOnInit(): void {
@@ -96,4 +102,34 @@ export class DevspaceSidenavContent implements OnInit, OnDestroy {
   }
 
   trackById = (_: number, u: User) => u.uid;
+
+  openAddChannelDialog() {
+    const dialogRef = this.dialog.open(AddChannel, {
+      panelClass: 'dialog-panel',
+      width: '80vw',
+      maxWidth: '800px',
+      minWidth: '300px',
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result && result.channelName) {
+        this.openAddUsersToChannelDialog(result);
+      }
+    });
+  }
+
+  openAddUsersToChannelDialog(result: any) {
+    const addUsersDialogRef = this.dialog.open(AddUsersToChannel, {
+      panelClass: 'dialog-panel',
+      width: '80vw',
+      maxWidth: '750px',
+      minWidth: '300px',
+      data: result,
+    });
+    addUsersDialogRef.afterClosed().subscribe((usersResult) => {
+      if (usersResult) {
+        console.log('Users added to channel:', usersResult);
+      }
+    });
+  }
 }
