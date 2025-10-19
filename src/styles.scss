@@ -349,3 +349,16 @@ ul {
   justify-content: flex-end;
   margin-top: 24px;
 }
+
+.mdc-radio .mdc-radioripple,
+.mdc-radio .mdc-radioripple::before,
+.mdc-radio .mdc-radioripple::after {
+  display: none !important;
+  background: transparent !important;
+}
+
+.mdc-radio .mdc-radiobackground::before,
+.mdc-radio .mdc-radio__background::after {
+  display: none !important;
+  box-shadow: none !important;
+}
