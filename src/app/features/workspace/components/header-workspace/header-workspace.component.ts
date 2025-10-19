@@ -81,15 +81,22 @@ export class HeaderWorkspaceComponent implements OnInit, OnDestroy {
   });
 }
 
-  openProfil() {
-    this.user$.pipe(take(1)).subscribe(user => {
-      if (!user) return;
-      this.dialog.open(DialogUserCardComponent, {
-        data: { user },           
-        panelClass: 'user-card-dialog' 
-      });
+openProfil() {
+  this.user$.pipe(take(1)).subscribe(user => {
+    if (!user) return;
+    this.dialog.open(DialogUserCardComponent, {
+      data: { user },
+      panelClass: 'user-card-dialog',   // eigener Klassen-Hook
+      width: '500px',                   // feste Breite
+      height: '705px',                  // feste Höhe
+      maxWidth: 'none',                 // Material-Default (80vw) deaktivieren
+      maxHeight: 'none',                // Material-Default (80vh) deaktivieren
+      autoFocus: false,                 // kein Autofokus-Scroll
+      restoreFocus: true
     });
-  }
+  });
+}
+
 
   // Beim Logout erst offline, dann abmelden //
   async logout() {
