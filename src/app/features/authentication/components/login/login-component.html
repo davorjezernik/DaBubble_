@@ -4,14 +4,14 @@
     Wir empfehlen dir, die E-Mail-Adresse zu nutzen, die du bei der Arbeit verwendest.
   </p>
   <form [formGroup]="loginForm" (submit)="login()">
-    <mat-dialog-content class="form-group">
+    <mat-card-content class="form-group">
       <mat-form-field class="custom-form-field" appearance="outline">
         <mat-icon matPrefix class="material-icons-outlined">mail</mat-icon>
         <input
           matInput
           placeholder="beispielname@example.com"
           formControlName="email"
-          (blur)="updateErrorMessage()"
+          (blur)="updateErrorMessages()"
           required
         />
         @if (this.loginForm.controls.email.invalid && this.loginForm.controls.email.touched) {
@@ -20,18 +20,18 @@
       </mat-form-field>
       <mat-form-field class="custom-form-field" appearance="outline">
         <mat-icon matPrefix class="material-icons-outlined">lock</mat-icon>
-        <input
+        <input type="password"
           matInput
           placeholder="Passwort"
           formControlName="password"
-          (blur)="updateErrorMessage()"
+          (blur)="updateErrorMessages()"
           required
         />
         @if (this.loginForm.controls.password.invalid && this.loginForm.controls.email.touched) {
         <mat-error>{{ passwordErrorMessage() }}</mat-error>
         }
       </mat-form-field>
-    </mat-dialog-content>
+    </mat-card-content>
     <p class="password-forgotten">
       <a href="#" class="dialog-login__forgot">Passwort vergessen?</a>
     </p>

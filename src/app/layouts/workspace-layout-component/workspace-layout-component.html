@@ -1,9 +1,5 @@
-<header>
-  <div>LOGO</div>
-  <div>Search Area</div>
-  <div>User Menu</div>
-</header>
-<main>
+<app-header-workspace></app-header-workspace>
+<main class="main-content">
   @if (devspaceDrawer.opened) {
   <button class="devspace-sidenav-button" type="button" matButton (click)="devspaceDrawer.toggle()">
     <p>Workspace-Menu-Schließen</p>
@@ -47,7 +43,7 @@
 
   <div class="main-content-wrapper">
       <div class="main-content-area">
-        <app-chat-interface-component></app-chat-interface-component>
+        <router-outlet></router-outlet>
       </div>
     </div>
     </mat-drawer-container>

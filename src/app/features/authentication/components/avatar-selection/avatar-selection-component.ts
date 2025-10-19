@@ -1,71 +1,76 @@
-import { Component, Inject, inject } from '@angular/core';
-import {
-  MatDialogRef,
-  MAT_DIALOG_DATA,
-  MatDialogModule,
-  MatDialog,
-} from '@angular/material/dialog';
+import { Component, inject, OnInit } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { CommonModule } from '@angular/common';
 import { Firestore, doc, setDoc } from '@angular/fire/firestore';
 import { Auth, createUserWithEmailAndPassword, updateProfile } from '@angular/fire/auth';
-import { DialogSignupComponent } from '../dialog.signup-component/dialog.signup-component';
-import { DialogLoginComponent } from '../dialog.login-component/dialog.login-component';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { SharedDataService } from '../../../../core/services/shared-data-service';
+import { Router } from '@angular/router';
+import { MatCardModule } from '@angular/material/card';
 
 @Component({
   selector: 'app-dialog-avatar-select-component',
   standalone: true,
   imports: [
     CommonModule,
-    MatDialogModule,
     MatIconModule,
     MatButtonModule,
     MatSnackBarModule,
     MatProgressSpinnerModule,
+    MatCardModule,
   ],
-  templateUrl: './dialog.avatar-select-component.html',
-  styleUrl: './dialog.avatar-select-component.scss',
+  templateUrl: './avatar-selection-component.html',
+  styleUrl: './avatar-selection-component.scss',
 })
-export class DialogAvatarSelectComponent {
+export class AvatarSelectComponent implements OnInit {
   firestore: Firestore = inject(Firestore);
   auth: Auth = inject(Auth);
   selectedAvatar: string | null = null;
   loading = false;
+  userData: any = null;
 
   constructor(
-    public dialogRef: MatDialogRef<DialogAvatarSelectComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: { name: string; email: string; password: string },
-    private dialog: MatDialog,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private router: Router,
+    private sharedUser: SharedDataService
   ) {}
+
+  ngOnInit(): void {
+    this.userData = this.sharedUser.getUser();
+    if (!this.userData) {
+      this.router.navigate(['/signup']);
+      return;
+    }
+  }
 
   selectAvatar(avatarPath: string) {
     this.selectedAvatar = avatarPath;
   }
 
   async finishSelection() {
-    if (this.selectedAvatar && this.data.email && this.data.password && this.data.name) {
+    if (
+      this.selectedAvatar &&
+      this.userData.email &&
+      this.userData.password &&
+      this.userData.name
+    ) {
       this.loading = true;
       try {
-        // Step 1: Create user in Firebase Authentication
         const userCredential = await createUserWithEmailAndPassword(
           this.auth,
-          this.data.email,
-          this.data.password
+          this.userData.email,
+          this.userData.password
         );
         const user = userCredential.user;
 
-        // Step 2: Update the new user's profile with the name
-        await updateProfile(user, { displayName: this.data.name });
+        await updateProfile(user, { displayName: this.userData.name });
 
-        // Step 3: Store additional user data in Firestore
         const userProfile = {
           uid: user.uid,
-          name: this.data.name,
-          email: this.data.email,
+          name: this.userData.name,
+          email: this.userData.email,
           avatar: this.selectedAvatar,
         };
 
@@ -90,19 +95,11 @@ export class DialogAvatarSelectComponent {
     });
 
     snackBarRef.afterDismissed().subscribe(() => {
-      this.dialogRef.close();
-      this.dialog.open(DialogLoginComponent);
+      this.router.navigate(['']);
     });
   }
 
   goBack() {
-    this.dialogRef.close();
-    this.dialog.open(DialogSignupComponent, {
-      data: {
-        name: this.data.name,
-        email: this.data.email,
-        passwort: this.data.password,
-      },
-    });
+    this.router.navigate(['/signup']);
   }
 }

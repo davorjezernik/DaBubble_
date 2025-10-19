@@ -257,19 +257,22 @@
       </div>
     </header>
     @if (dmsOpen) {
-
     <ul class="dm-list">
       <li
         class="dm-item"
         *ngFor="let u of visibleUsers; let i = index; trackBy: trackById"
         [class.is-active]="i === activeIndex"
-        (click)="setActive(i)"
+        (click)="openDirectMessages(i, u)"
       >
         <div class="avatar-wrap">
           <img class="avatar" [src]="u.avatar" [alt]="u.name" />
           <span class="status" [class.online]="u.online"></span>
         </div>
-        <span class="name">{{ u.name }}</span>
+
+        <span class="name">
+          {{ u.name }}
+          <span class="you" *ngIf="u.uid === meUid">(Du)</span>
+        </span>
       </li>
 
       <li class="dm-item more" *ngIf="hiddenCount > 0" (click)="loadMore()">

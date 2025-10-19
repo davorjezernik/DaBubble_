@@ -325,3 +325,13 @@ ul {
   justify-content: flex-end;
   margin-top: 24px;
 }
+
+//user-menu-dialog.coponent //
+.user-menu-dialog .mat-mdc-dialog-container,
+.user-menu-dialog .mat-mdc-dialog-container .mdc-dialog__surface {
+  background: transparent !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+  overflow: visible !important; 
+}
+//user-menu-dialog.coponent //
