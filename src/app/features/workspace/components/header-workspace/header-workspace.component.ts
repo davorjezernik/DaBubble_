@@ -14,6 +14,7 @@ import { User } from '../../../../../models/user.class';
 import { MatDialog } from '@angular/material/dialog'; 
 import { take } from 'rxjs/operators';  
 import { DialogUserCardComponent } from '../../../../shared/components/dialog-user-card/dialog-user-card.component';
+import { UserMenuDialogComponent } from '../user-menu-dialog.component/user-menu-dialog.component';
 
 
 @Component({
@@ -56,6 +57,30 @@ export class HeaderWorkspaceComponent implements OnInit, OnDestroy {
     await this.userService.markOnline(true);
   }
 
+  openUserMenu(evt: MouseEvent) {
+  const target = (evt.currentTarget as HTMLElement);
+  const rect = target.getBoundingClientRect();
+
+  this.user$.pipe(take(1)).subscribe(user => {
+    this.dialog.open(UserMenuDialogComponent, {
+      data: { user },
+      panelClass: 'user-menu-dialog',
+      hasBackdrop: true,
+      backdropClass: 'transparent-backdrop',
+      autoFocus: false,
+      restoreFocus: true,
+      // Position direkt unter dem Trigger
+      position: {
+        top: `${rect.bottom + 8}px`,
+        left: `${rect.left}px`,
+      }
+    }).afterClosed().subscribe(action => {
+      if (action === 'profile') this.openProfil();
+      if (action === 'logout') this.logout();
+    });
+  });
+}
+
   openProfil() {
     this.user$.pipe(take(1)).subscribe(user => {
       if (!user) return;
@@ -75,6 +100,7 @@ export class HeaderWorkspaceComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this.sub?.unsubscribe();
+    this.userService.markOnline(false);
   }
 
   // Avatar-Fallback //

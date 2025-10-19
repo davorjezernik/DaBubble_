@@ -1,0 +1,24 @@
+<div class="mention-panel" *ngIf="visible">
+  <ul class="list" *ngIf="mode === 'users'; else channelList">
+    <li class="item" *ngFor="let u of users" (click)="onPickUser(u)">
+      <div class="avatar-wrap">
+        <img class="avatar" [src]="u.avatar" [alt]="u.name" />
+        <span class="status" [class.online]="u.online"></span>
+      </div>
+
+      <span class="name">
+        {{ u.name }}
+        <span *ngIf="u.uid === currentUserId" class="you">(Du)</span>
+      </span>
+    </li>
+  </ul>
+
+  <ng-template #channelList>
+    <ul class="list">
+      <li class="item" *ngFor="let c of channels" (click)="onPickChannel(c)">
+        <div class="hash">#</div>
+        <span class="name">{{ c.name }}</span>
+      </li>
+    </ul>
+  </ng-template>
+</div>
