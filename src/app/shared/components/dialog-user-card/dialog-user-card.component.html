@@ -1,4 +1,4 @@
-<mat-dialog-content class="dialog-user-card-container">
+<div class="dialog-user-card-container">
   <header class="dialog-user-card-header-container">
     <h2 class="h2-dialog-user" mat-dialog-title>Profil</h2>
     <img class="close-icon" mat-dialog-close src="assets/icons/close.svg" alt="Schließen" />
@@ -10,7 +10,10 @@
 
   <main class="main-container-user-dialog">
     <section class="mat-typography">
-      <h3>{{ data.user.name }}</h3>
+      <div class="user-name-edit">
+        <h3>{{ data.user.name }}</h3>
+        <button class="edit-btn" (click)="onEditUser()">Bearbeiten</button>
+      </div>
       <p class="user-status">
         <span
           class="status-dot"
@@ -34,4 +37,4 @@
       <img src="assets/icons/message-icon.svg" alt="" />Nachricht
     </button>
   </mat-dialog-actions>
-</mat-dialog-content>
+</div>
