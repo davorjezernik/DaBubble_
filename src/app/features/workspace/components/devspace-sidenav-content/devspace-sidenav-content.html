@@ -262,7 +262,7 @@
         class="dm-item"
         *ngFor="let u of visibleUsers; let i = index; trackBy: trackById"
         [class.is-active]="i === activeIndex"
-        (click)="setActive(i)"
+        (click)="openDirectMessages(i, u)"
       >
         <div class="avatar-wrap">
           <img class="avatar" [src]="u.avatar" [alt]="u.name" />

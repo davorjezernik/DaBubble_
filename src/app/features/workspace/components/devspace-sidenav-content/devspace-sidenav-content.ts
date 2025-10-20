@@ -2,9 +2,13 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { CommonModule } from '@angular/common';
-import { Subscription, combineLatest  } from 'rxjs';
+import { Subscription, combineLatest } from 'rxjs';
 import { UserService } from '../../../../../services/user.service';
 import { User } from '../../../../../models/user.class';
+import { Firestore, doc, setDoc } from '@angular/fire/firestore';
+import { Router } from '@angular/router';
+import { firstValueFrom } from 'rxjs';
+import { AuthService } from '../../../../services/auth-service';
 
 @Component({
   selector: 'app-devspace-sidenav-content',
@@ -12,13 +16,15 @@ import { User } from '../../../../../models/user.class';
   templateUrl: './devspace-sidenav-content.html',
   styleUrl: './devspace-sidenav-content.scss',
 })
-
 export class DevspaceSidenavContent implements OnInit, OnDestroy {
   users: User[] = [];
   private sub?: Subscription;
 
   dmsOpen = true;
   channelsOpen = true;
+
+  currentUser = localStorage.getItem('user');
+  currentChatId: string = '';
 
   // Users//
 
@@ -28,18 +34,23 @@ export class DevspaceSidenavContent implements OnInit, OnDestroy {
 
   meUid: string | null = null;
 
-  constructor(private usersService: UserService) {}
+  constructor(
+    private usersService: UserService,
+    private firestore: Firestore,
+    private router: Router,
+    private authService: AuthService
+  ) {}
 
   ngOnInit(): void {
     this.sub = combineLatest([
       this.usersService.users$(),
-      this.usersService.currentUser$(),  
+      this.usersService.currentUser$(),
     ]).subscribe(([list, me]) => {
       this.meUid = me?.uid ?? null;
 
       if (this.meUid) {
-        const meUser = list.find(u => u.uid === this.meUid);
-        const others = list.filter(u => u.uid !== this.meUid);
+        const meUser = list.find((u) => u.uid === this.meUid);
+        const others = list.filter((u) => u.uid !== this.meUid);
         // eigener Eintrag ganz oben
         this.users = meUser ? [meUser, ...others] : list;
       } else {
@@ -66,8 +77,22 @@ export class DevspaceSidenavContent implements OnInit, OnDestroy {
     this.maxVisible = Math.min(this.maxVisible + this.pageSizeUsers, this.users.length);
   }
 
-  setActive(i: number) {
+  async openDirectMessages(i: number, otherUser: User) {
     this.activeIndex = i;
+
+    const user: any = await firstValueFrom(this.authService.currentUser$);
+    if (!user) return;
+
+    const uid1 = user.uid;
+    const uid2 = otherUser.uid;
+
+    this.currentChatId = uid1 < uid2 ? `${uid1}-${uid2}` : `${uid2}-${uid1}`;
+
+    const docRef = doc(this.firestore, 'dms', this.currentChatId);
+
+    await setDoc(docRef, { members: [uid1, uid2] }, { merge: true });
+
+    this.router.navigate(['/workspace/dm', this.currentChatId]);
   }
 
   trackById = (_: number, u: User) => u.uid;
