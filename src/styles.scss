@@ -325,3 +325,56 @@ ul {
   justify-content: flex-end;
   margin-top: 24px;
 }
+
+//user-menu-dialog.coponent //
+.user-menu-dialog .mat-mdc-dialog-container,
+.user-menu-dialog .mat-mdc-dialog-container .mdc-dialog__surface {
+  background: transparent !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+  overflow: visible !important; 
+}
+//user-menu-dialog.coponent //
+
+//dialog-user-card.component //
+.user-card-dialog .mat-mdc-dialog-container,
+.user-card-dialog .mat-mdc-dialog-container .mdc-dialog__surface {
+  background: transparent !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  max-height: none !important;
+  padding: 0 !important;
+  overflow: visible !important;
+}
+
+.user-card-dialog .mat-mdc-dialog-content,
+.user-card-dialog .mdc-dialog__content {
+  max-height: none !important;
+  height: auto !important;
+  overflow: visible !important;
+  padding: 0 !important;
+}
+//dialog-user-card.component //
+
+.user-edit-dialog .mat-mdc-dialog-container,
+.user-edit-dialog .mat-mdc-dialog-container .mdc-dialog__surface {
+  background: transparent !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+  overflow: visible !important;
+  width: 100% !important;
+  height: 100% !important;
+  max-width: none !important;
+  max-height: none !important;
+  padding: 0 !important;
+}
+
+/* Falls du irgendwo <mat-dialog-content> benutzt: Scroll & Padding aus */
+.user-edit-dialog .mat-mdc-dialog-content,
+.user-edit-dialog .mdc-dialog__content {
+  max-height: none !important;
+  overflow: visible !important;
+  padding: 0 !important;
+}

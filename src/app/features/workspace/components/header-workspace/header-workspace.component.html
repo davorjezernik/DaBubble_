@@ -3,19 +3,17 @@
     <img src="assets/img/14. Home-Workspaces.svg" alt="DABubble" class="logo" />
   </section>
 
-  <section class="search">
-    <input
-      matInput
-      [formControl]="searchCtrl"
-      placeholder="Devspace durchsuchen"
-      autocomplete="off"
-      aria-label="Suche"
-    />
-    <mat-icon matPrefix>search</mat-icon>
-  </section>
+  <input
+    class="search"
+    matInput
+    [formControl]="searchCtrl"
+    placeholder="Devspace durchsuchen"
+    autocomplete="off"
+    aria-label="Suche"
+  />
 
   <section>
-    <section class="user" [matMenuTriggerFor]="userMenu">
+    <section class="user" (click)="openUserMenu($event)">
       <span class="name">{{ (user$ | async)?.name }}</span>
 
       <div class="avatar-wrap">
@@ -30,17 +28,5 @@
 
       <mat-icon class="expand-icon">expand_more</mat-icon>
     </section>
-
-    <mat-menu
-      #userMenu="matMenu"
-      xPosition="after"
-      yPosition="below"
-      [overlapTrigger]="false"
-      #menu="matMenu"
-      panelClass="user-menu-panel"
-    >
-      <button mat-menu-item class="menu-item" (click)="openProfil()">Profil</button>
-      <button mat-menu-item class="menu-item" (click)="logout()">Log out</button>
-    </mat-menu>
   </section>
 </header>

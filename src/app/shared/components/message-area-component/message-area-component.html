@@ -1,4 +1,4 @@
-<section class="msg-box" [class.focused]="focused" [class.has-text]="!!text">
+<section class="msg-box" #root [class.focused]="focused" [class.has-text]="!!text">
   <textarea
     #ta
     [(ngModel)]="text"
@@ -8,17 +8,13 @@
     (blur)="focused = false"
     [attr.placeholder]="hintText"
     rows="1"
+    (keydown)="onEnter($event)"
   ></textarea>
 
   <div class="bottom-row" aria-hidden="false">
     <div class="left-icons">
       <div class="emoji-container">
-        <button
-          (click)="toggleEmojiPicker()"
-          type="button"
-          class="icon-btn"
-          aria-label="Emoji einfügen"
-        >
+        <button type="button" class="icon-btn" (click)="toggleEmojiPicker()">
           <img src="assets/icons/sentiment_satisfied.svg" alt="" />
         </button>
         <app-emoji-picker-component
@@ -28,8 +24,8 @@
         ></app-emoji-picker-component>
       </div>
 
-      <button type="button" class="icon-btn" aria-label="Jemanden erwähnen">
-        <img src="assets/icons/alternate_email.svg" alt="" />
+      <button type="button" class="icon-btn" (click)="toggleMentionMode()">
+        <img src="assets/icons/alternate_email.svg" alt="Erwähnen" />
       </button>
     </div>
 
@@ -40,5 +36,15 @@
       (click)="triggerSend()"
       aria-label="Nachricht senden"
     ></button>
+  </div>
+
+  <div class="mention-anchor">
+    <app-mention-list
+      [visible]="showMention"
+      [mode]="mentionMode"
+      [users]="mentionUsers"
+      [channels]="mentionChannels"
+      (pick)="insertMention($event)"
+    ></app-mention-list>
   </div>
 </section>
