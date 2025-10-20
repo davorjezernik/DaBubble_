@@ -58,27 +58,29 @@ export class HeaderWorkspaceComponent implements OnInit, OnDestroy {
   }
 
   openUserMenu(evt: MouseEvent) {
-  const target = (evt.currentTarget as HTMLElement);
-  const rect = target.getBoundingClientRect();
+  const trigger = evt.currentTarget as HTMLElement;
 
-  this.user$.pipe(take(1)).subscribe(user => {
-    this.dialog.open(UserMenuDialogComponent, {
-      data: { user },
-      panelClass: 'user-menu-dialog',
-      hasBackdrop: true,
-      backdropClass: 'transparent-backdrop',
-      autoFocus: false,
-      restoreFocus: true,
-      // Position direkt unter dem Trigger
-      position: {
-        top: `${rect.bottom + 8}px`,
-        left: `${rect.left}px`,
-      }
-    }).afterClosed().subscribe(action => {
-      if (action === 'profile') this.openProfil();
-      if (action === 'logout') this.logout();
-    });
-  });
+  const avatar = trigger.querySelector('.avatar-wrap') as HTMLElement ?? trigger;
+
+  const r = avatar.getBoundingClientRect();
+  const MENU_W = 260;  
+  const GAP    = 8;     
+  const MARGIN = 8;    
+
+  let left = r.right - MENU_W;
+  
+  left = Math.max(MARGIN, Math.min(left, window.innerWidth - MENU_W - MARGIN));
+
+  const top = r.bottom + GAP;
+
+  this.dialog.open(UserMenuDialogComponent, {
+    data: {},
+    panelClass: 'user-menu-dialog',
+    hasBackdrop: true,
+    autoFocus: false,
+    restoreFocus: true,
+    position: { top: `${top}px`, left: `${left}px` },
+  }).afterClosed().subscribe();
 }
 
 openProfil() {
@@ -86,19 +88,17 @@ openProfil() {
     if (!user) return;
     this.dialog.open(DialogUserCardComponent, {
       data: { user },
-      panelClass: 'user-card-dialog',   // eigener Klassen-Hook
-      width: '500px',                   // feste Breite
-      height: '705px',                  // feste Höhe
-      maxWidth: 'none',                 // Material-Default (80vw) deaktivieren
-      maxHeight: 'none',                // Material-Default (80vh) deaktivieren
-      autoFocus: false,                 // kein Autofokus-Scroll
+      panelClass: 'user-card-dialog',   
+      width: '500px',                   
+      height: '705px',                 
+      maxWidth: 'none',                 
+      maxHeight: 'none',               
+      autoFocus: false,              
       restoreFocus: true
     });
   });
 }
 
-
-  // Beim Logout erst offline, dann abmelden //
   async logout() {
     await this.userService.markOnline(false);
     await signOut(this.auth);
