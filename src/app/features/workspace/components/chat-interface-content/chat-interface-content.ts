@@ -15,7 +15,7 @@ import {
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { firstValueFrom, Observable, of } from 'rxjs';
-import { switchMap } from 'rxjs/operators';
+import { switchMap, map } from 'rxjs/operators';
 import { AuthService } from '../../../../../services/auth-service';
 import { MessageBubbleComponent } from '../../../../shared/components/message-bubble-component/message-bubble.component';
 
@@ -66,9 +66,20 @@ export class ChatInterfaceComponent implements OnInit {
         if (this.chatId) {
           const messagesRef = collection(this.firestore, `dms/${this.chatId}/messages`);
 
-          const q = query(messagesRef, orderBy('timestamp', 'desc'));
+          const q = query(messagesRef, orderBy('timestamp', 'asc'));
 
-          return collectionData(q, { idField: 'id' });
+          return collectionData(q, { idField: 'id' }).pipe(
+            map((msgs: any[]) =>
+              msgs.map((m, idx, arr) => {
+                const curr = m?.timestamp?.toDate ? m.timestamp.toDate() : null;
+                const prev = idx > 0 && arr[idx - 1]?.timestamp?.toDate ? arr[idx - 1].timestamp.toDate() : null;
+                const showDateSeparator = idx === 0
+                  ? true
+                  : !!(curr && prev) && curr.toDateString() !== prev.toDateString();
+                return { ...m, showDateSeparator };
+              })
+            )
+          );
         } else {
           return of([]);
         }
@@ -199,7 +210,10 @@ export class ChatInterfaceComponent implements OnInit {
     return showSeparator;
   }
 
-  isTodaysMessage(messageTimestamp: Timestamp) {
+  isTodaysMessage(messageTimestamp: Timestamp | null): boolean {
+    if (!messageTimestamp) {
+      return false;
+    }
     const todayTimestamp = Timestamp.now();
     const todayDate = todayTimestamp.toDate();
 
