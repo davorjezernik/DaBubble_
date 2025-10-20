@@ -15,7 +15,7 @@ import {
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { firstValueFrom, Observable, of } from 'rxjs';
-import { switchMap } from 'rxjs/operators';
+import { switchMap, map } from 'rxjs/operators';
 import { AuthService } from '../../../../../services/auth-service';
 import { MessageBubbleComponent } from '../../../../shared/components/message-bubble-component/message-bubble.component';
 
@@ -68,7 +68,23 @@ export class ChatInterfaceComponent implements OnInit {
 
           const q = query(messagesRef, orderBy('timestamp', 'desc'));
 
-          return collectionData(q, { idField: 'id' });
+          return collectionData(q, { idField: 'id' }).pipe(
+            map((docs: any[]) => {
+              let lastDateString: string | null = null;
+              return docs.map((m) => {
+                const ts = m?.timestamp?.toDate?.() ?? null;
+                const dateStr = ts ? ts.toDateString() : null;
+                let showSeparator = false;
+                if (ts) {
+                  if (!lastDateString || dateStr !== lastDateString) {
+                    showSeparator = true;
+                    lastDateString = dateStr;
+                  }
+                }
+                return { ...m, showSeparator };
+              });
+            })
+          );
         } else {
           return of([]);
         }
@@ -180,24 +196,7 @@ export class ChatInterfaceComponent implements OnInit {
     return clean.startsWith('assets/') ? clean : `assets/${clean}`;
   }
 
-  shouldShowDateSeparator(messageTimestamp: Timestamp) {
-    if (!messageTimestamp) return false;
-
-    let showSeparator = false;
-    const currentDate = messageTimestamp.toDate();
-
-    if (!this.lastMessageTimestamp) {
-      showSeparator = true;
-    } else {
-      const lastDate = this.lastMessageTimestamp.toDate();
-
-      if (currentDate.toDateString() !== lastDate.toDateString()) {
-        showSeparator = true;
-      }
-    }
-    this.lastMessageTimestamp = messageTimestamp;
-    return showSeparator;
-  }
+  // Date separator is now computed in the stream (showSeparator on each message)
 
   isTodaysMessage(messageTimestamp: Timestamp) {
     const todayTimestamp = Timestamp.now();
