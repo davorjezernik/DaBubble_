@@ -31,6 +31,8 @@ export class ChatInterfaceComponent implements OnInit {
   isOwnDm: boolean = false;
 
   recipientData: any = null;
+  currentUserId: string | null = null;
+  currentUserProfile: { name: string; avatar: string } | null = null;
 
   chatId: string | null = null;
 
@@ -45,6 +47,7 @@ export class ChatInterfaceComponent implements OnInit {
   ngOnInit(): void {
     this.loadDmMetadataOnInit();
     this.initializeMessagesStream();
+    this.subscribeToCurrentUser();
   }
 
   loadDmMetadataOnInit() {
@@ -71,6 +74,28 @@ export class ChatInterfaceComponent implements OnInit {
         }
       })
     );
+  }
+
+  private subscribeToCurrentUser() {
+    this.authService.currentUser$.subscribe(async (u: any) => {
+      this.currentUserId = u?.uid ?? null;
+      if (!u) {
+        this.currentUserProfile = null;
+        return;
+      }
+
+      // Try to read profile from users/{uid} to get the avatar stored for this userId
+      try {
+        const profile = await this.getUserData(u.uid);
+        const name = profile?.name || u.displayName || u.email || 'Du';
+        const avatar = this.normalizeAvatar(profile?.avatar || u.photoURL || '');
+        this.currentUserProfile = { name, avatar };
+      } catch {
+        const fallbackName = u.displayName || u.email || 'Du';
+        const fallbackAvatar = this.normalizeAvatar(u.photoURL || '');
+        this.currentUserProfile = { name: fallbackName, avatar: fallbackAvatar };
+      }
+    });
   }
 
   resetLastMessageTimestamp() {
@@ -141,7 +166,18 @@ export class ChatInterfaceComponent implements OnInit {
   private async getUserData(userId: string): Promise<any | null> {
     const userRef = doc(this.firestore, `users/${userId}`);
     const userSnap = await getDoc(userRef);
-    return userSnap.exists() ? userSnap.data() : null;
+    if (!userSnap.exists()) return null;
+    const data: any = userSnap.data();
+    // Normalize avatar to a usable src
+    data.avatar = this.normalizeAvatar(data?.avatar);
+    return data;
+  }
+
+  private normalizeAvatar(raw?: string): string {
+    if (!raw) return 'assets/img-profile/profile.png';
+    if (/^https?:\/\//i.test(raw)) return raw;
+    const clean = raw.replace(/^\/+/, '');
+    return clean.startsWith('assets/') ? clean : `assets/${clean}`;
   }
 
   shouldShowDateSeparator(messageTimestamp: Timestamp) {

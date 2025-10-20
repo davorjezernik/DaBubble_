@@ -1,6 +1,8 @@
-import { Component, HostListener, Input, Output, EventEmitter } from '@angular/core';
+import { Component, HostListener, Input, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { EmojiPickerComponent } from '../../components/emoji-picker-component/emoji-picker-component';
+import { Firestore, doc, updateDoc } from '@angular/fire/firestore';
+import { deleteField, increment } from 'firebase/firestore';
 
 @Component({
   selector: 'app-message-bubble',
@@ -9,12 +11,16 @@ import { EmojiPickerComponent } from '../../components/emoji-picker-component/em
   templateUrl: './message-bubble.component.html',
   styleUrl: './message-bubble.component.scss'
 })
-export class MessageBubbleComponent {
+export class MessageBubbleComponent implements OnChanges {
   @Input() incoming: boolean = false; // when true, render as left-side/incoming message
   @Input() name: string = 'Frederik Beck';
   @Input() time: string = '15:06 Uhr';
   @Input() avatar: string = 'assets/img-profile/frederik-beck.png';
   @Input() text: string = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque blandit odio efficitur lectus vestibulum, quis accumsan ante vulputate. Quisque tristique iaculis erat, eu faucibus lacus iaculis ac.';
+  // Persistence wiring
+  @Input() chatId?: string;
+  @Input() messageId?: string;
+  @Input() reactionsMap?: Record<string, number> | null;
 
   showEmojiPicker = false;
   reactionsExpanded = false;
@@ -55,15 +61,26 @@ export class MessageBubbleComponent {
     this.isNarrow = typeof window !== 'undefined' ? window.innerWidth <= 450 : this.isNarrow;
   }
 
+  ngOnChanges(changes: SimpleChanges) {
+    if ('reactionsMap' in changes) {
+      const map = this.reactionsMap || {};
+      this.reactions = Object.entries(map)
+        .filter(([_, v]) => typeof v === 'number' && v > 0)
+        .map(([emoji, count]) => ({ emoji, count: Number(count) }));
+    }
+  }
+
   addOrIncrementReaction(emoji: string) {
     const existing = this.reactions.find(r => r.emoji === emoji);
     if (existing) {
       existing.count += 1;
+      this.persistReactionDelta(emoji, +1, existing.count);
     } else {
       if (this.reactions.length >= this.MAX_UNIQUE_REACTIONS) {
         return;
       }
       this.reactions.push({ emoji, count: 1 });
+      this.persistReactionDelta(emoji, +1, 1);
     }
   }
 
@@ -73,8 +90,10 @@ export class MessageBubbleComponent {
       const r = this.reactions[idx];
       if (r.count > 1) {
         r.count -= 1;
+        this.persistReactionDelta(emoji, -1, r.count);
       } else {
         this.reactions.splice(idx, 1);
+        this.persistReactionDelta(emoji, -1, 0);
       }
     }
   }
@@ -176,4 +195,23 @@ export class MessageBubbleComponent {
       this.showEmojiPicker = true;
     });
   }
+
+  private async persistReactionDelta(emoji: string, delta: number, newCount: number) {
+    // Only persist if we have identifiers
+    if (!this.chatId || !this.messageId) return;
+    try {
+      const ref = doc(this.firestore, `dms/${this.chatId}/messages/${this.messageId}`);
+      const fieldPath = `reactions.${emoji}`;
+      if (newCount <= 0) {
+        await updateDoc(ref, { [fieldPath]: deleteField() });
+      } else {
+        await updateDoc(ref, { [fieldPath]: increment(delta) });
+      }
+    } catch (e) {
+      // swallow errors for now; could add retry/notification
+      // console.warn('persistReactionDelta failed', e);
+    }
+  }
+
+  constructor(private firestore: Firestore) {}
 }

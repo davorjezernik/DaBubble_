@@ -26,13 +26,30 @@
       </section>
       }
 
-      <article class="message">
-        <!-- Message Component: Start -->
-        <p>I am just a placeholder for message-bubble-component.</p>
-        <h2>{{ message.authorId }}</h2>
-        <p>{{ message.text }}</p>
-        <!-- Message Component: End -->
-      </article>
+      <app-message-bubble
+        [incoming]="message.authorId !== currentUserId"
+        [name]="
+          message.authorId !== currentUserId
+            ? recipientData?.name ?? ''
+            : currentUserProfile?.name ?? 'Du'
+        "
+        [avatar]="
+          message.authorId !== currentUserId
+            ? recipientData?.avatar ?? 'assets/img-profile/profile.png'
+            : currentUserProfile?.avatar ?? 'assets/img-profile/profile.png'
+        "
+        [time]="
+          message.time
+            ? message.time + ' Uhr'
+            : message.timestamp
+            ? (message.timestamp.toDate() | date : 'HH:mm') + ' Uhr'
+            : ''
+        "
+        [text]="message.text ?? ''"
+        [chatId]="chatId || ''"
+        [messageId]="message.id"
+        [reactionsMap]="message.reactions"
+      ></app-message-bubble>
     </div>
     } @empty { @if (isOwnDm) {
     <section>
@@ -66,15 +83,6 @@
       </p>
     </section>
     } } }
-
-    <app-message-bubble></app-message-bubble>
-    <app-message-bubble
-      [incoming]="true"
-      [name]="'Mark Corzilius'"
-      [time]="'15:20 Uhr'"
-      [avatar]="'assets/img-profile/frederik-beck.png'"
-      [text]="'Hey, hier ist noch eine zweite Nachricht zum Testen der Anzeige.'"
-    ></app-message-bubble>
   </main>
   <footer class="footer">
     <app-message-area-component (send)="handleNewMessage($event)"></app-message-area-component>
