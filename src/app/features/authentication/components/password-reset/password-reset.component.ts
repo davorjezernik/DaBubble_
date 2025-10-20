@@ -1,6 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router'; // ✅ correct import
+import { Router } from '@angular/router'; 
 import { Auth, sendPasswordResetEmail } from '@angular/fire/auth';
 import { NgIf } from '@angular/common';
 @Component({
