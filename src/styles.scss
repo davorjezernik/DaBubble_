@@ -356,7 +356,7 @@ ul {
   background: transparent !important;
   box-shadow: none !important;
   border-radius: 0 !important;
-  overflow: visible !important; 
+  overflow: visible !important;
 }
 //user-menu-dialog.coponent //
 
@@ -402,15 +402,32 @@ ul {
   overflow: visible !important;
   padding: 0 !important;
 }
-.mdc-radio .mdc-radioripple,
-.mdc-radio .mdc-radioripple::before,
-.mdc-radio .mdc-radioripple::after {
-  display: none !important;
-  background: transparent !important;
+
+// MAT-RADIO OVERRIDES //
+:root {
+  @include mat.radio-overrides(
+    (
+      checked-ripple-color: none,
+      ripple-color: none,
+    )
+  );
 }
 
-.mdc-radio .mdc-radiobackground::before,
-.mdc-radio .mdc-radio__background::after {
-  display: none !important;
-  box-shadow: none !important;
+.mat-radio-button .mdc-radio__outer-circle {
+  border-color: #adb0d9 !important;
+  border-width: 1px !important;
+}
+
+.mat-radio-button .mdc-radio-checked .mdc-radio__outer-circle {
+  border-color: #adb0d9 !important;
+  border-width: 1px !important;
+}
+
+.mat-radio-button .mdc-radio {
+  padding: 0 !important;
+  margin-right: 20px;
+}
+
+.mat-radio-button:not(.mat-mdc-radio-checked):hover .mdc-radio__outer-circle {
+  border-color: #535af1 !important;
 }

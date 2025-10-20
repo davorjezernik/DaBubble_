@@ -26,7 +26,7 @@
       class="options-group"
       aria-label="Wählen Sie eine Option"
     >
-      <mat-radio-button class="option-item" value="all" checked="true">
+      <mat-radio-button class="option-item mat-radio-button" value="all" checked="true">
         <span class="option-text">
           Alle Mitglieder von
           <a class="dialog-link" href="#" (click)="$event.preventDefault()">Entwicklerteam</a>
@@ -34,7 +34,7 @@
         </span>
       </mat-radio-button>
 
-      <mat-radio-button [disableRipple]="true" class="option-item" value="specific">
+      <mat-radio-button class="option-item mat-radio-button" value="specific">
         <span class="option-text">Bestimmte Leute hinzufügen</span>
       </mat-radio-button>
     </mat-radio-group>

@@ -20,6 +20,7 @@
 .dialog-content {
   padding-left: 0;
   margin-bottom: 16px;
+  overflow: hidden;
 }
 
 .dialog-actions {
@@ -88,23 +89,6 @@
     $font-family: 'Nunito'
   );
   text-decoration: none;
-}
-
-// --- Radio Button Customization ---
-
-::ng-deep .option-item .mdc-radio__outer-circle {
-  border-color: #adb0d9 !important;
-  border-width: 1px !important;
-}
-
-::ng-deep .option-item.mdc-radio-checked .mdc-radio__outer-circle {
-  border-color: #adb0d9 !important; /* checked state */
-  border-width: 1px !important;
-}
-
-::ng-deep .option-item .mdc-radio {
-  padding: 0 !important;
-  margin-right: 20px;
 }
 
 // --- Action Button Styling ---
