@@ -40,13 +40,17 @@
     </mat-radio-group>
   </mat-dialog-content>
   @if (selectedOption === 'specific') {
-    <mat-form-field appearance="outline" class="form-field with-padding">
-      <input [(ngModel)]="inputValue" matInput placeholder="Name eingeben" />
-    </mat-form-field>
-    @if (inputValue.length > 0) {
-      <app-mention-list [searchTerm]="inputValue"></app-mention-list>
-    }
-  }
+  <mat-form-field appearance="outline" class="form-field with-padding">
+    <input [(ngModel)]="inputValue" matInput placeholder="Name eingeben" />
+  </mat-form-field>
+  @if (inputValue.length > 0) {
+  <app-mention-list
+    [searchTerm]="inputValue"
+    [visible]="showMention"
+    [mode]="mentionMode"
+    [users]="mentionUsers"
+  ></app-mention-list>
+  } }
 
   <mat-dialog-actions class="dialog-actions" align="end">
     <button class="dialog-action-button" color="primary">Erstellen</button>
