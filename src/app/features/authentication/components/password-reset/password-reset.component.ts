@@ -20,21 +20,47 @@ export class PasswordResetComponent {
 
   async onSubmit() {
     try {
-      await sendPasswordResetEmail(this.auth, this.email);
-      this.errorMessage = '';
-      this.successMessage = 'E-Mail zum Zurücksetzen wurde erfolgreich gesendet!';
-      this.email = '';
-      setTimeout(() => {
-        this.successMessage = '';
-        this.router.navigate(['/']); 
-      }, 300000);
+      await this.handlePasswordReset();
     } catch (error: any) {
-      this.successMessage = '';
-      this.errorMessage = this.mapFirebaseError(error.code);
-      setTimeout(() => {
-        this.errorMessage = '';
-      }, 300000);
+      this.handleError(error);
     }
+  }
+
+  private async handlePasswordReset() {
+    await sendPasswordResetEmail(this.auth, this.email);
+    this.showSuccessMessage('E-Mail zum Zurücksetzen wurde erfolgreich gesendet!');
+    this.resetEmailField();
+    this.navigateAfterDelay('/');
+  }
+
+  private handleError(error: any) {
+    this.clearSuccessMessage();
+    this.showErrorMessage(this.mapFirebaseError(error.code));
+  }
+
+  private showSuccessMessage(message: string) {
+    this.successMessage = message;
+    this.errorMessage = '';
+  }
+
+  private showErrorMessage(message: string) {
+    this.errorMessage = message;
+    setTimeout(() => (this.errorMessage = ''), 2000);
+  }
+
+  private clearSuccessMessage() {
+    this.successMessage = '';
+  }
+
+  private resetEmailField() {
+    this.email = '';
+  }
+
+  private navigateAfterDelay(path: string) {
+    setTimeout(() => {
+      this.successMessage = '';
+      this.router.navigate([path]);
+    }, 2000);
   }
 
   private mapFirebaseError(code: string): string {

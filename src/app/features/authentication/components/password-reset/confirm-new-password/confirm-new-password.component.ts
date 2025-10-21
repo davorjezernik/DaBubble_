@@ -27,31 +27,58 @@ export class ConfirmNewPasswordComponent {
     });
   }
 
- async onSubmit() {
-    if (this.newPassword !== this.confirmPassword) {
-      this.errorMessage = 'Die Passwörter stimmen nicht überein.';
-      this.successMessage = '';
-      return;
-    }
-
-    if (!this.oobCode) {
-      this.errorMessage = 'Ungültiger oder fehlender Code. Bitte überprüfen Sie den Link.';
-      return;
-    }
-
+  async onSubmit() {
+    if (!this.isPasswordMatching()) return;
+    if (!this.isCodeValid()) return;
     try {
-      await confirmPasswordReset(this.auth, this.oobCode, this.newPassword);
-      this.successMessage = 'Passwort wurde erfolgreich zurückgesetzt.';
-      this.errorMessage = '';
-
-      setTimeout(() => this.router.navigate(['/login']), 3000);
+      await this.resetPassword();
+      this.handleSuccess();
     } catch (error: any) {
-      this.errorMessage = this.mapFirebaseError(error.code);
-      this.successMessage = '';
+      this.handleError(error);
     }
   }
 
-private mapFirebaseError(code: string): string {
+  private isPasswordMatching(): boolean {
+    if (this.newPassword !== this.confirmPassword) {
+      this.showError('Die Passwörter stimmen nicht überein.');
+      return false;
+    }
+    return true;
+  }
+
+  private isCodeValid(): boolean {
+    if (!this.oobCode) {
+      this.showError('Ungültiger oder fehlender Code. Bitte überprüfen Sie den Link.');
+      return false;
+    }
+    return true;
+  }
+
+  private async resetPassword() {
+    await confirmPasswordReset(this.auth, this.oobCode, this.newPassword);
+  }
+
+  private handleSuccess() {
+    this.showSuccess('Passwort wurde erfolgreich zurückgesetzt.');
+    setTimeout(() => this.router.navigate(['/login']), 2000);
+  }
+
+  private handleError(error: any) {
+    this.showError(this.mapFirebaseError(error.code));
+  }
+
+  private showError(message: string) {
+    this.errorMessage = message;
+    this.successMessage = '';
+  }
+
+  private showSuccess(message: string) {
+    this.successMessage = message;
+    this.errorMessage = '';
+  }
+
+
+  private mapFirebaseError(code: string): string {
     switch (code) {
       case 'auth/expired-action-code':
         return 'Der Link ist abgelaufen. Bitte fordern Sie eine neue E-Mail an.';
