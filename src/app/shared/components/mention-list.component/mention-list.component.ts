@@ -26,21 +26,33 @@ export class MentionListComponent {
   @Input() channels: MentionChannel[] = [];
   @Input() visible = false;
   @Output() pick = new EventEmitter<string>();
+  @Input() searchTerm: string = '';
 
   private userService = inject(UserService);
   currentUserId: string | null = null;
 
   private _users: MentionUser[] = [];
   get users(): MentionUser[] {
-    if (!this.currentUserId) return this._users;
-    return [...this._users].sort((a, b) => (a.uid === this.currentUserId ? -1 : b.uid === this.currentUserId ? 1 : 0));
+    if (this.searchTerm) {
+      const trimmed =this.searchTerm = this.searchTerm.trim();
+      const isMention = trimmed.startsWith('@');
+      const isChannel = trimmed.startsWith('#');
+      if (isMention || isChannel) {
+        this.searchTerm = trimmed.substring(1);
+      }
+    }
+    const filteredUsers = this._users.filter(u => u.name.toLowerCase().includes(this.searchTerm.toLowerCase()))
+    if (!this.currentUserId) return filteredUsers;
+    return [...filteredUsers].sort((a, b) =>
+      a.uid === this.currentUserId ? -1 : b.uid === this.currentUserId ? 1 : 0
+    );
   }
   @Input() set users(value: MentionUser[]) {
     this._users = value ?? [];
   }
 
   constructor() {
-    this.userService.currentUser$().subscribe(u => {
+    this.userService.currentUser$().subscribe((u) => {
       this.currentUserId = u?.uid ?? null;
     });
   }

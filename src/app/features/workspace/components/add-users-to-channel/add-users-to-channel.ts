@@ -7,10 +7,11 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatRadioModule } from '@angular/material/radio';
+import { MentionListComponent } from "../../../../shared/components/mention-list.component/mention-list.component";
 
 @Component({
   selector: 'app-add-users-to-channel',
-  imports: [MatDialogModule, MatIconModule, MatRadioModule, MatButtonModule, FormsModule, MatFormFieldModule, MatInputModule],
+  imports: [MatDialogModule, MatIconModule, MatRadioModule, MatButtonModule, FormsModule, MatFormFieldModule, MatInputModule, MentionListComponent],
   templateUrl: './add-users-to-channel.html',
   styleUrls: ['./add-users-to-channel.scss', '../../../../shared/styles/form-field-styles.scss'],
 })
@@ -18,6 +19,7 @@ export class AddUsersToChannel {
 
   selectedOption: string = 'all';
   users: any[] = [];
+  inputValue: string = "";
 
   constructor(public dialogRef: DialogRef<AddUsersToChannel>) {
   }
