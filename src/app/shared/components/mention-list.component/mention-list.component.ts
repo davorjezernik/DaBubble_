@@ -33,20 +33,33 @@ export class MentionListComponent {
 
   private _users: MentionUser[] = [];
   get users(): MentionUser[] {
+    this.sanitizeSearchTerm();
+    const filteredUsers = this.filterUsers();
+    if (!this.currentUserId) return filteredUsers;
+    return this.returnSortedUsers(filteredUsers);
+  }
+
+  private sanitizeSearchTerm() {
     if (this.searchTerm) {
-      const trimmed =this.searchTerm = this.searchTerm.trim();
+      const trimmed = (this.searchTerm = this.searchTerm.trim());
       const isMention = trimmed.startsWith('@');
       const isChannel = trimmed.startsWith('#');
       if (isMention || isChannel) {
         this.searchTerm = trimmed.substring(1);
       }
     }
-    const filteredUsers = this._users.filter(u => u.name.toLowerCase().includes(this.searchTerm.toLowerCase()))
-    if (!this.currentUserId) return filteredUsers;
+  }
+
+  private filterUsers() {
+    return this._users.filter((u) => u.name.toLowerCase().includes(this.searchTerm.toLowerCase()));
+  }
+
+  returnSortedUsers(filteredUsers: MentionUser[]) {
     return [...filteredUsers].sort((a, b) =>
       a.uid === this.currentUserId ? -1 : b.uid === this.currentUserId ? 1 : 0
     );
   }
+
   @Input() set users(value: MentionUser[]) {
     this._users = value ?? [];
   }
