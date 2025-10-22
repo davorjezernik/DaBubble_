@@ -12,8 +12,8 @@ import {
   MentionUser,
 } from '../../../../shared/components/mention-list.component/mention-list.component';
 import { UserService } from '../../../../../services/user.service';
-import { user } from '@angular/fire/auth';
 import { firstValueFrom } from 'rxjs';
+import { ContactChip } from "../../../../shared/components/contact-chip/contact-chip";
 
 @Component({
   selector: 'app-add-users-to-channel',
@@ -26,7 +26,8 @@ import { firstValueFrom } from 'rxjs';
     MatFormFieldModule,
     MatInputModule,
     MentionListComponent,
-  ],
+    ContactChip
+],
   templateUrl: './add-users-to-channel.html',
   styleUrls: ['./add-users-to-channel.scss', '../../../../shared/styles/form-field-styles.scss'],
 })
@@ -34,6 +35,7 @@ export class AddUsersToChannel implements OnInit {
   selectedOption: string = 'all';
   users: any[] = [];
   inputValue: string = '';
+  selectedUsers: MentionUser[] = [];
 
   get showMention(): boolean {
     return this.inputValue.length > 0;
@@ -56,5 +58,11 @@ export class AddUsersToChannel implements OnInit {
 
   onConfirm() {
     this.dialogRef.close();
+  }
+
+  addUserToChosen(user: MentionUser) {
+    console.log('User selected:', user);
+    this.selectedUsers.push(user);
+    this.inputValue = '';
   }
 }

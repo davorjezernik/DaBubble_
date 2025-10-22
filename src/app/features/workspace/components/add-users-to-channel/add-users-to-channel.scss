@@ -96,3 +96,22 @@
   border: none;
   @include mixins.primary-button($hover-bg-color: #797ef3, $bg-color: #444df2);
 }
+
+.chosen-users-box {
+  display: flex;
+  align-items: center;
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  max-width: 95%;
+  overflow-x: auto;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.input-with-chosen-users {
+  position: relative;
+}

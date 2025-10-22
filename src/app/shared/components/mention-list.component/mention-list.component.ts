@@ -27,6 +27,7 @@ export class MentionListComponent {
   @Input() visible = false;
   @Output() pick = new EventEmitter<string>();
   @Input() searchTerm: string = '';
+  @Output() userSelected = new EventEmitter<MentionUser>();
 
   private userService = inject(UserService);
   currentUserId: string | null = null;
@@ -76,5 +77,9 @@ export class MentionListComponent {
 
   onPickChannel(c: MentionChannel) {
     this.pick.emit(`#${c.name} `);
+  }
+
+  onUserSelected(u: MentionUser) {
+    this.userSelected.emit(u);
   }
 }
