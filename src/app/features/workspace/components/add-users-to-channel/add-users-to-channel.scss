@@ -95,6 +95,10 @@
 .dialog-action-button {
   border: none;
   @include mixins.primary-button($hover-bg-color: #797ef3, $bg-color: #444df2);
+
+  &.disabled {
+    @include mixins.disabled-button();
+  }
 }
 
 // This is the main container for chips and the input
@@ -107,18 +111,16 @@
   gap: 8px;
   width: 100%;
 
-
   &::-webkit-scrollbar {
     display: none;
   }
 }
 
-// This is the actual text input field
 .user-input-field {
   flex-grow: 1;
   min-width: 50px;
   border: none;
   outline: none;
-  background: transparent; 
+  background: transparent;
   height: 55px;
 }
