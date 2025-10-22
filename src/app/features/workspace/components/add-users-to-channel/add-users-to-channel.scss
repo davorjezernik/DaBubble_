@@ -97,21 +97,28 @@
   @include mixins.primary-button($hover-bg-color: #797ef3, $bg-color: #444df2);
 }
 
-.chosen-users-box {
+// This is the main container for chips and the input
+.input-wrapper {
   display: flex;
+  flex-direction: row-reverse;
+  white-space: nowrap;
   align-items: center;
-  position: absolute;
-  left: 10px;
-  top: 50%;
-  transform: translateY(-50%);
-  max-width: 95%;
   overflow-x: auto;
+  gap: 8px;
+  width: 100%;
+
 
   &::-webkit-scrollbar {
     display: none;
   }
 }
 
-.input-with-chosen-users {
-  position: relative;
+// This is the actual text input field
+.user-input-field {
+  flex-grow: 1;
+  min-width: 50px;
+  border: none;
+  outline: none;
+  background: transparent; 
+  height: 55px;
 }

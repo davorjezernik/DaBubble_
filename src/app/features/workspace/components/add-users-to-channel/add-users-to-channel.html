@@ -41,21 +41,21 @@
   </mat-dialog-content>
   @if (selectedOption === 'specific') {
   <mat-form-field appearance="outline" class="form-field with-padding">
-    <div class="input-with-chosen-users">
+    <div class="input-wrapper">
       <input
         [(ngModel)]="inputValue"
         matInput
-        [placeholder]="''"
+        [placeholder]="selectedUsers.length === 0 ? 'Name eingeben' : ''"
+        class="user-input-field"
       />
-      <div id="chosenUsersBox" class="chosen-users-box">
-        @for(user of selectedUsers; track user.uid) {
-          <app-contact-chip [usersSelected]="selectedUsers" [userData]="user"></app-contact-chip>
-        }
-      </div>
+      @for(user of selectedUsers; track user.uid) {
+        <app-contact-chip [userData]="user" [usersSelected]="selectedUsers"></app-contact-chip>
+      }
     </div>
   </mat-form-field>
   @if (inputValue.length > 0) {
   <app-mention-list
+    [allSelectedUsers]="selectedUsers"
     (userSelected)="addUserToChosen($event)"
     [searchTerm]="inputValue"
     [visible]="showMention"

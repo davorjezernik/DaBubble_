@@ -28,6 +28,7 @@ export class MentionListComponent {
   @Output() pick = new EventEmitter<string>();
   @Input() searchTerm: string = '';
   @Output() userSelected = new EventEmitter<MentionUser>();
+  @Input() allSelectedUsers: MentionUser[] = [];
 
   private userService = inject(UserService);
   currentUserId: string | null = null;
@@ -35,9 +36,10 @@ export class MentionListComponent {
   private _users: MentionUser[] = [];
   get users(): MentionUser[] {
     this.sanitizeSearchTerm();
-    const filteredUsers = this.filterUsers();
-    if (!this.currentUserId) return filteredUsers;
-    return this.returnSortedUsers(filteredUsers);
+    const filteredUsers = this.filterByInputValue();
+    const alreadySelectedUsers = this.filterAlreadyChosen(filteredUsers);
+    if (!this.currentUserId) return alreadySelectedUsers;
+    return this.returnSortedUsers(alreadySelectedUsers);
   }
 
   private sanitizeSearchTerm() {
@@ -51,8 +53,14 @@ export class MentionListComponent {
     }
   }
 
-  private filterUsers() {
+  private filterByInputValue() {
     return this._users.filter((u) => u.name.toLowerCase().includes(this.searchTerm.toLowerCase()));
+  }
+
+  private filterAlreadyChosen(filteredUsers: MentionUser[]) {
+    return filteredUsers.filter(
+      (u) => u.uid !== this.allSelectedUsers.find((su) => su.uid === u.uid)?.uid
+    );
   }
 
   returnSortedUsers(filteredUsers: MentionUser[]) {

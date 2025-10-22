@@ -62,7 +62,7 @@ export class AddUsersToChannel implements OnInit {
 
   addUserToChosen(user: MentionUser) {
     console.log('User selected:', user);
-    this.selectedUsers.push(user);
+    this.selectedUsers.unshift(user);
     this.inputValue = '';
   }
 }
