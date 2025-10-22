@@ -103,9 +103,11 @@ input {
 :host ::ng-deep .user-menu-panel {
   min-width: 260px;
   border-radius: 24px !important;
-  box-shadow: 0 10px 30px rgba(0,0,0,.12), 0 2px 6px rgba(0,0,0,.06);
+  box-shadow: 0 10px 30px rgba(0,0,0,.12);
 
-  .mat-mdc-menu-content { padding: 16px 20px !important; }
+  .mat-mdc-menu-content { 
+    padding: 16px 20px !important; 
+  }
 
   .mat-mdc-menu-item {
     width: 100%;
@@ -117,7 +119,7 @@ input {
   .pill {
     display: inline-block;
     padding: 10px 28px;
-    border-radius: 9999px;
+    border-radius: 50px;
     font-family: 'Nunito', sans-serif;
     font-weight: 700;
     font-size: 18px;
@@ -131,5 +133,50 @@ input {
   .mat-mdc-menu-item:focus .pill {
     background: rgba(121,126,243,.15);
     color: #797EF3;
+  }
+}
+
+.user-menu-dialog .menu-card { 
+  width: 300px; 
+}
+
+@media (max-width: 1040px) {
+  .name {
+    display: none;
+  }
+
+  .user{
+    margin-right: 20px;
+    gap: 5px;
+  }
+}
+
+@media (max-width: 800px) {
+  .search {
+    display: none;
+  }
+
+  .expand-icon{
+    display: none;
+  }
+
+  .user-menu-dialog .menu-card { 
+    width: 350px; 
+  }
+}
+
+@media (max-width: 500px) {
+  .brand{
+    img{
+      width: 161px;
+    }
+  }
+
+  .user{
+    margin-right: 0px;
+  }
+
+  .ws-header{
+    padding-left: 10px;
   }
 }

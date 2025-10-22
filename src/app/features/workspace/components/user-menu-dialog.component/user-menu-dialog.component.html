@@ -1,9 +1,13 @@
 <div class="menu-card">
-  <button class="menu-item" (click)="close('profile')">
-    <span class="pill">Profil</span>
+  <div class="sheet-handle" cdkFocusInitial tabindex="-1" aria-hidden="true"></div>
+
+  <button class="menu-item pill profile" (click)="close('profile')">
+    <span class="icon"></span>
+    <span class="label">Profil</span>
   </button>
 
-  <button class="menu-item" (click)="close('logout')">
-    <span class="pill">Log out</span>
+  <button class="menu-item pill logout" (click)="close('logout')">
+    <span class="icon"></span>
+    <span class="label">Log out</span>
   </button>
 </div>
