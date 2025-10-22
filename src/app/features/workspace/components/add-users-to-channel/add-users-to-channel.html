@@ -65,6 +65,6 @@
   } }
 
   <mat-dialog-actions class="dialog-actions" align="end">
-    <button [class.disabled]="selectedOption == 'specific' && selectedUsers.length == 0" class="dialog-action-button" color="primary">Erstellen</button>
+    <button [class.disabled]="selectedOption == 'specific' && selectedUsers.length == 0" class="dialog-action-button" (click)="onConfirm()">Erstellen</button>
   </mat-dialog-actions>
 </div>

@@ -5,7 +5,7 @@ import { CommonModule } from '@angular/common';
 import { Subscription, combineLatest } from 'rxjs';
 import { UserService } from '../../../../../services/user.service';
 import { User } from '../../../../../models/user.class';
-import { Firestore, doc, setDoc } from '@angular/fire/firestore';
+import { Firestore, collection, doc, setDoc } from '@angular/fire/firestore';
 import { Router } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { AuthService } from '../../../../../services/auth-service';
@@ -128,8 +128,13 @@ export class DevspaceSidenavContent implements OnInit, OnDestroy {
     });
     addUsersDialogRef.afterClosed().subscribe((usersResult) => {
       if (usersResult) {
-        console.log('Users added to channel:', usersResult);
+        this.saveChannel(usersResult);
       }
     });
+  }
+
+  async saveChannel(channelData: any) {
+    const docRef = doc(collection(this.firestore, 'channels'));
+    await setDoc( docRef, channelData, { merge: true } );
   }
 }
