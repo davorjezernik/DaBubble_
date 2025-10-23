@@ -1,11 +1,11 @@
-import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { CommonModule } from '@angular/common';
-import { Subscription, combineLatest } from 'rxjs';
+import { Observable, Subscription, combineLatest } from 'rxjs';
 import { UserService } from '../../../../../services/user.service';
 import { User } from '../../../../../models/user.class';
-import { Firestore, doc, setDoc } from '@angular/fire/firestore';
+import { Firestore, addDoc, collection, collectionData, doc, setDoc } from '@angular/fire/firestore';
 import { Router } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { AuthService } from '../../../../../services/auth-service';
@@ -13,17 +13,20 @@ import { FormsModule } from '@angular/forms';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { AddChannel } from '../add-channel/add-channel';
 import { AddUsersToChannel } from '../add-users-to-channel/add-users-to-channel';
+import { ChannelItem } from "../channel-item/channel-item";
+import { ChannelService } from '../../../../../services/channel-service';
 
 @Component({
   selector: 'app-devspace-sidenav-content',
   standalone: true,
-  imports: [MatButtonModule, MatSidenavModule, CommonModule, FormsModule, MatDialogModule],
+  imports: [MatButtonModule, MatSidenavModule, CommonModule, FormsModule, MatDialogModule, ChannelItem],
   templateUrl: './devspace-sidenav-content.html',
   styleUrl: './devspace-sidenav-content.scss',
 })
 export class DevspaceSidenavContent implements OnInit, OnDestroy {
   users: User[] = [];
   private sub?: Subscription;
+  private channelsSub?: Subscription;
 
   dmsOpen = true;
   channelsOpen = true;
@@ -39,13 +42,17 @@ export class DevspaceSidenavContent implements OnInit, OnDestroy {
 
   meUid: string | null = null;
 
+  channels: any[] = [];
+  
   constructor(
     private usersService: UserService,
     private firestore: Firestore,
     private router: Router,
     private authService: AuthService,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private channelService: ChannelService
   ) {}
+  
 
   ngOnInit(): void {
     this.sub = combineLatest([
@@ -65,10 +72,15 @@ export class DevspaceSidenavContent implements OnInit, OnDestroy {
 
       this.maxVisible = Math.min(this.maxVisible, this.users.length);
     });
+    
+    this.channelsSub = this.channelService.getChannels().subscribe((channels: any) => {
+      this.channels = channels;
+    });
   }
 
   ngOnDestroy(): void {
     this.sub?.unsubscribe();
+    this.channelsSub?.unsubscribe();
   }
 
   get visibleUsers(): User[] {
@@ -128,8 +140,12 @@ export class DevspaceSidenavContent implements OnInit, OnDestroy {
     });
     addUsersDialogRef.afterClosed().subscribe((usersResult) => {
       if (usersResult) {
-        console.log('Users added to channel:', usersResult);
+        this.channelService.addChannel(usersResult)
       }
     });
+  }
+
+  async saveChannel(channelData: any) {
+    await addDoc(collection(this.firestore, 'channels'), channelData);
   }
 }

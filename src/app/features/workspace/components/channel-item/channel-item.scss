@@ -1,0 +1,45 @@
+@use 'mixins';
+
+.channel-list-item + .channel-list-item {
+  margin-top: 4px;
+}
+
+.channel {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 4px 20px 4px;
+  border-radius: 20px;
+  margin-left: -19px;
+  text-decoration: none;
+  color: inherit;
+  transition: background-color 125ms ease-in-out, color 125ms ease-in-out;
+
+  .channel-icon {
+    flex-shrink: 0;
+
+    path {
+      fill: currentColor;
+      transition: fill 125ms ease-in-out;
+    }
+  }
+
+  .channel-name {
+    @include mixins.text-style(
+      $size: 18px,
+      $color: #000000,
+      $font-weight: 400,
+      $font-family: 'Nunito',
+      $line-height: 1
+    );
+  }
+
+  &:hover {
+    background-color: #eceefe;
+    color: #444df2;
+
+    .channel-icon path {
+      fill: #444df2;
+    }
+  }
+}

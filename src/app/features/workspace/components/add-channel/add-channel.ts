@@ -29,6 +29,7 @@ export class AddChannel {
 
   async onConfirm() {
     this.channelName = this.channelName.trim();
+    this.description = this.description.trim();
     const channelExists = await this.doesChannelExists();
 
     if (channelExists) {
