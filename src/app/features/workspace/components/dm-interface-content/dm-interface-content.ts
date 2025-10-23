@@ -22,10 +22,10 @@ import { AuthService } from '../../../../../services/auth-service';
   selector: 'app-chat-interface-component',
   standalone: true,
   imports: [MessageAreaComponent, CommonModule],
-  templateUrl: './chat-interface-content.html',
-  styleUrl: './chat-interface-component.scss',
+  templateUrl: './dm-interface-content.html',
+  styleUrl: './dm-interface-component.scss',
 })
-export class ChatInterfaceComponent implements OnInit {
+export class DmInterfaceContent implements OnInit {
   messages$: Observable<any[]> = of([]);
   isOwnDm: boolean = false;
 

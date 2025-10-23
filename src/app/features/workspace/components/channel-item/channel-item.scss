@@ -1,5 +1,23 @@
 @use 'mixins';
 
+.channel-anker {
+  cursor: pointer;
+  text-decoration: none;
+
+  &.is-active .channel {
+    background-color: #eceefe;
+    .channel-name {
+      color: #444df2;
+    }
+
+    .channel-icon path {
+      fill: #444df2;
+      stroke: #444df2;
+      stroke-width: 0.7;
+    }
+  }
+}
+
 .channel-list-item + .channel-list-item {
   margin-top: 4px;
 }

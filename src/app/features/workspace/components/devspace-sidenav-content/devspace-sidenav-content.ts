@@ -5,21 +5,38 @@ import { CommonModule } from '@angular/common';
 import { Observable, Subscription, combineLatest } from 'rxjs';
 import { UserService } from '../../../../../services/user.service';
 import { User } from '../../../../../models/user.class';
-import { Firestore, addDoc, collection, collectionData, doc, setDoc } from '@angular/fire/firestore';
-import { Router } from '@angular/router';
+import {
+  Firestore,
+  addDoc,
+  collection,
+  collectionData,
+  doc,
+  setDoc,
+} from '@angular/fire/firestore';
+import { Router, RouterModule } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { AuthService } from '../../../../../services/auth-service';
 import { FormsModule } from '@angular/forms';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { AddChannel } from '../add-channel/add-channel';
 import { AddUsersToChannel } from '../add-users-to-channel/add-users-to-channel';
-import { ChannelItem } from "../channel-item/channel-item";
+import { ChannelItem } from '../channel-item/channel-item';
 import { ChannelService } from '../../../../../services/channel-service';
+import { ContactItem } from '../contact-item/contact-item';
 
 @Component({
   selector: 'app-devspace-sidenav-content',
   standalone: true,
-  imports: [MatButtonModule, MatSidenavModule, CommonModule, FormsModule, MatDialogModule, ChannelItem],
+  imports: [
+    MatButtonModule,
+    MatSidenavModule,
+    CommonModule,
+    FormsModule,
+    MatDialogModule,
+    ChannelItem,
+    RouterModule,
+    ContactItem,
+  ],
   templateUrl: './devspace-sidenav-content.html',
   styleUrl: './devspace-sidenav-content.scss',
 })
@@ -43,7 +60,7 @@ export class DevspaceSidenavContent implements OnInit, OnDestroy {
   meUid: string | null = null;
 
   channels: any[] = [];
-  
+
   constructor(
     private usersService: UserService,
     private firestore: Firestore,
@@ -52,7 +69,6 @@ export class DevspaceSidenavContent implements OnInit, OnDestroy {
     private dialog: MatDialog,
     private channelService: ChannelService
   ) {}
-  
 
   ngOnInit(): void {
     this.sub = combineLatest([
@@ -72,7 +88,7 @@ export class DevspaceSidenavContent implements OnInit, OnDestroy {
 
       this.maxVisible = Math.min(this.maxVisible, this.users.length);
     });
-    
+
     this.channelsSub = this.channelService.getChannels().subscribe((channels: any) => {
       this.channels = channels;
     });
@@ -95,9 +111,14 @@ export class DevspaceSidenavContent implements OnInit, OnDestroy {
     this.maxVisible = Math.min(this.maxVisible + this.pageSizeUsers, this.users.length);
   }
 
-  async openDirectMessages(i: number, otherUser: User) {
-    this.activeIndex = i;
+  calculateDmId(otherUser: User): string {
+    if (!this.meUid) return '';
+    const uid1 = this.meUid;
+    const uid2 = otherUser.uid;
+    return uid1 < uid2 ? `${uid1}-${uid2}` : `${uid2}-${uid1}`;
+  }
 
+  async ensureDmExists(otherUser: User) {
     const user: any = await firstValueFrom(this.authService.currentUser$);
     if (!user) return;
 
@@ -109,8 +130,6 @@ export class DevspaceSidenavContent implements OnInit, OnDestroy {
     const docRef = doc(this.firestore, 'dms', this.currentChatId);
 
     await setDoc(docRef, { members: [uid1, uid2] }, { merge: true });
-
-    this.router.navigate(['/workspace/dm', this.currentChatId]);
   }
 
   trackById = (_: number, u: User) => u.uid;
@@ -140,7 +159,7 @@ export class DevspaceSidenavContent implements OnInit, OnDestroy {
     });
     addUsersDialogRef.afterClosed().subscribe((usersResult) => {
       if (usersResult) {
-        this.channelService.addChannel(usersResult)
+        this.channelService.addChannel(usersResult);
       }
     });
   }

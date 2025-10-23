@@ -1,8 +1,9 @@
 import { Component, Input } from '@angular/core';
+import { RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-channel-item',
-  imports: [],
+  imports: [RouterModule],
   templateUrl: './channel-item.html',
   styleUrl: './channel-item.scss'
 })
