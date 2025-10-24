@@ -18,7 +18,7 @@
 
 .dialog-authentication-header {
   height: 55px;
-  width: 329px;
+  max-width: 329px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -85,10 +85,10 @@ mat-card-actions {
 }
 
 mat-checkbox {
-  span{
-  font-size: 16px;
-  font-family: 'Nunito', sans-serif;
-  font-weight: 400;
+  span {
+    font-size: 16px;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 400;
   }
   a {
     color: var(--purple-2);
@@ -102,10 +102,88 @@ mat-checkbox {
   }
 }
 
-.btn-weiter{
+.btn-weiter {
   width: 107px;
   height: 49px;
   font-size: 18px;
   font-weight: 700;
   font-family: 'Nunito', sans-serif;
+}
+
+@media (max-width: 750px) {
+  .signup-card {
+    padding: 35px 20px;
+    display: flex;
+    width: 398px;
+    margin-top: 0px;
+  }
+
+  .dialog-authentication-header {
+    height: 55px;
+    max-width: 329px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .dialog-authentication-title {
+    font-size: 32px;
+  }
+
+  mat-card-content {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 0 !important;
+
+    p {
+      width: auto;
+      height: 48px;
+      margin-top: 15px;
+      margin-bottom: 0px;
+      font-size: 17px;
+    }
+  }
+}
+
+@media (max-width: 420px) {
+  .signup-card {
+    padding: 35px 20px;
+    display: flex;
+    width: 300px;
+    margin-top: 0px;
+  }
+
+  .dialog-authentication-back-arrow {
+    cursor: pointer;
+    position: absolute;
+    top: 30px;
+    left: 30px;
+  }
+
+  .dialog-authentication-title {
+    font-size: 22px;
+  }
+
+  mat-card-content {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 0 !important;
+
+    p {
+      width: auto;
+      height: 48px;
+      margin-top: 15px;
+      margin-bottom: 15px;
+      font-size: 16px;
+    }
+  }
+
+  .btn-weiter {
+    width: 90px;
+    height: 40px;
+    font-size: 16px;
+    margin-right: 30px;
+  }
 }
