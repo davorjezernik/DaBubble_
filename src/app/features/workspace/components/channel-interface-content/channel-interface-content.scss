@@ -1,5 +1,9 @@
 @use 'mixins';
 
+@use '../chat-interface-styles' as chat;
+
+@include chat.chat-interface-base;
+
 :host {
   height: 100%;
   width: 100%;
