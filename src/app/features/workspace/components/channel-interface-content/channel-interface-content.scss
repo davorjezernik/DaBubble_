@@ -94,6 +94,7 @@ button {
   align-items: center;
   justify-content: center;
   padding: 6px 10px;
+  margin: 0;
   gap: 10px;
   transition: all 125ms ease-in-out;
   &:hover {
@@ -112,6 +113,11 @@ button {
       transition: 125ms ease-in-out;
       fill: #535af1;
     }
+
+    .arrow-visibility {
+      transition: all 125ms ease-in-out;
+      visibility: visible;
+    }
   }
 }
 
@@ -123,4 +129,49 @@ button {
     $font-family: 'Nunito',
     $line-height: 1
   );
+}
+
+.arrow-visibility {
+  visibility: hidden;
+}
+
+.current-channel {
+  display: flex;
+  align-items: center;
+}
+
+.channel-intro {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding-left: 10px;
+  @include mixins.text-style(
+    $size: 20px,
+    $color: #000000,
+    $font-weight: 400,
+    $font-family: 'Nunito',
+    $line-height: 1
+  );
+}
+
+.current-channel {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 400;
+  @include mixins.text-style(
+    $size: 20px,
+    $color: #535af1,
+    $font-weight: 600,
+    $font-family: 'Nunito',
+    $line-height: 1
+  );
+}
+
+.current-channel img {
+  width: 14px;
+  height: 14px;
 }

@@ -7,10 +7,11 @@ import { collectionData, Firestore, serverTimestamp } from '@angular/fire/firest
 import { addDoc, collection, orderBy, query } from '@firebase/firestore';
 import { AuthService } from '../../../../../services/auth-service';
 import { BaseChatInterfaceComponent } from '../base-chat-interface-component/base-chat-interface-component';
+import { DatePipe } from '@angular/common';
 
 @Component({
   selector: 'app-channel-interface-content',
-  imports: [MessageAreaComponent, RouterModule],
+  imports: [MessageAreaComponent, RouterModule, DatePipe],
   templateUrl: './channel-interface-content.html',
   styleUrl: './channel-interface-content.scss',
 })
@@ -19,6 +20,7 @@ export class ChannelInterfaceContent extends BaseChatInterfaceComponent implemen
 
   routeSub?: Subscription;
   messagesSub?: Subscription;
+
 
   channelData: Channel | null = null;
 
@@ -68,10 +70,12 @@ export class ChannelInterfaceContent extends BaseChatInterfaceComponent implemen
     if (!this.chatId) return;
 
     const user: any = await firstValueFrom(this.authService.currentUser$);
+    console.log('Current user:', user);
     const messageData = {
       text: messageText,
       timestamp: serverTimestamp(),
       authorId: user.uid,
+      authorName: user.displayName
     };
     const messagesCollectionRef = collection(this.firestore, `channels/${this.chatId}/messages`);
     await addDoc(messagesCollectionRef, messageData);
