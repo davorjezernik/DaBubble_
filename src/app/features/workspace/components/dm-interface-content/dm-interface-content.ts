@@ -17,6 +17,7 @@ import { ActivatedRoute } from '@angular/router';
 import { firstValueFrom, Observable, of } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 import { AuthService } from '../../../../../services/auth-service';
+import { BaseChatInterfaceComponent } from '../base-chat-interface-component/base-chat-interface-component';
 
 @Component({
   selector: 'app-chat-interface-component',
@@ -25,7 +26,7 @@ import { AuthService } from '../../../../../services/auth-service';
   templateUrl: './dm-interface-content.html',
   styleUrl: './dm-interface-component.scss',
 })
-export class DmInterfaceContent implements OnInit {
+export class DmInterfaceContent extends BaseChatInterfaceComponent implements OnInit {
   messages$: Observable<any[]> = of([]);
   isOwnDm: boolean = false;
 
@@ -33,13 +34,13 @@ export class DmInterfaceContent implements OnInit {
 
   chatId: string | null = null;
 
-  lastMessageTimestamp: any | null = null;
-
   constructor(
     public firestore: Firestore,
     private route: ActivatedRoute,
     private authService: AuthService
-  ) {}
+  ) {
+    super();
+  }
 
   ngOnInit(): void {
     this.loadDmMetadataOnInit();
@@ -70,10 +71,6 @@ export class DmInterfaceContent implements OnInit {
         }
       })
     );
-  }
-
-  resetLastMessageTimestamp() {
-    this.lastMessageTimestamp = null;
   }
 
   async handleNewMessage(messageText: string) {
@@ -139,35 +136,5 @@ export class DmInterfaceContent implements OnInit {
     const userRef = doc(this.firestore, `users/${userId}`);
     const userSnap = await getDoc(userRef);
     return userSnap.exists() ? userSnap.data() : null;
-  }
-
-  shouldShowDateSeparator(messageTimestamp: Timestamp) {
-    if (!messageTimestamp) return false;
-
-    let showSeparator = false;
-    const currentDate = messageTimestamp.toDate();
-
-    if (!this.lastMessageTimestamp) {
-      showSeparator = true;
-    } else {
-      const lastDate = this.lastMessageTimestamp.toDate();
-
-      if (currentDate.toDateString() !== lastDate.toDateString()) {
-        showSeparator = true;
-      }
-    }
-    this.lastMessageTimestamp = messageTimestamp;
-    return showSeparator;
-  }
-
-  isTodaysMessage(messageTimestamp: Timestamp) {
-    const todayTimestamp = Timestamp.now();
-    const todayDate = todayTimestamp.toDate();
-
-    if (todayDate.toDateString() === messageTimestamp.toDate().toDateString()) {
-      return true;
-    } else {
-      return false;
-    }
   }
 }

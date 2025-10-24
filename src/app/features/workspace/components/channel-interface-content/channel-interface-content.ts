@@ -6,6 +6,7 @@ import { firstValueFrom, Subscription, switchMap } from 'rxjs';
 import { collectionData, Firestore, serverTimestamp } from '@angular/fire/firestore';
 import { addDoc, collection, orderBy, query } from '@firebase/firestore';
 import { AuthService } from '../../../../../services/auth-service';
+import { BaseChatInterfaceComponent } from '../base-chat-interface-component/base-chat-interface-component';
 
 @Component({
   selector: 'app-channel-interface-content',
@@ -13,7 +14,7 @@ import { AuthService } from '../../../../../services/auth-service';
   templateUrl: './channel-interface-content.html',
   styleUrl: './channel-interface-content.scss',
 })
-export class ChannelInterfaceContent implements OnInit, OnDestroy {
+export class ChannelInterfaceContent extends BaseChatInterfaceComponent implements OnInit, OnDestroy {
   chatId: string | null = null;
 
   routeSub?: Subscription;
@@ -28,7 +29,9 @@ export class ChannelInterfaceContent implements OnInit, OnDestroy {
     private channelService: ChannelService,
     private authService: AuthService,
     private firestore: Firestore
-  ) {}
+  ) {
+    super();
+  }
 
   ngOnInit(): void {
     this.getChannelDataBasedOnRoute();
