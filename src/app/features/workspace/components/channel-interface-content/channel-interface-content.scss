@@ -73,16 +73,16 @@ button {
 }
 
 .add-user-btn {
-    &:hover {
-        svg {
-            transition: all 125ms ease-in-out;
-            transform: scale(1.1);
-        }
-        svg path {
-            transition: 125ms ease-in-out;
-            fill: #535af1;
-        }
+  &:hover {
+    svg {
+      transition: all 125ms ease-in-out;
+      transform: scale(1.1);
     }
+    svg path {
+      transition: 125ms ease-in-out;
+      fill: #535af1;
+    }
+  }
 }
 
 .channel-info-btn {

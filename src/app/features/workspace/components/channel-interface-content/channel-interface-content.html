@@ -64,8 +64,11 @@
     </section>
 
   </header>
-  <main class="chat-content"></main>
+  <main class="chat-content">
+    @for(message of messages; track messages) {
+    }
+  </main>
   <footer class="footer">
-    <app-message-area-component></app-message-area-component>
+    <app-message-area-component (send)="handleNewMessage($event)"></app-message-area-component>
   </footer>
 </section>

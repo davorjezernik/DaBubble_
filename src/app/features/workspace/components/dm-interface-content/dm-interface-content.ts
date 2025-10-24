@@ -77,10 +77,8 @@ export class DmInterfaceContent implements OnInit {
   }
 
   async handleNewMessage(messageText: string) {
-    if (!this.chatId) {
-      console.error('No chat ID found in route parameters.');
-      return;
-    }
+    if (!this.chatId) return;
+
     const user: any = await firstValueFrom(this.authService.currentUser$);
     const messageData = {
       text: messageText,
