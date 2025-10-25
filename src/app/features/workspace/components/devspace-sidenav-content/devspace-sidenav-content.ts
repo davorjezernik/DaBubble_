@@ -171,23 +171,23 @@ export class DevspaceSidenavContent implements OnInit, OnDestroy {
     });
   }
 
-  async saveChannelData(dialogResult: any) {
-    const batch = writeBatch(this.firestore);
-    const { channel, users } = dialogResult;
-    const channelsRef = collection(this.firestore, 'channels');
-    const channelDoc = doc(channelsRef);
+async saveChannelData(dialogResult: any) {
+  const batch = writeBatch(this.firestore);
+  const { channel, users } = dialogResult;
+  const channelsRef = collection(this.firestore, 'channels');
+  const channelDoc = doc(channelsRef);
 
-    batch.set(channelDoc, {
-      name: channel.channelName,
-      description: channel.description,
-      createdAt: serverTimestamp(),
-    });
+  // Write the channel with users embedded as an array
+  batch.set(channelDoc, {
+    name: channel.channelName,
+    description: channel.description,
+    createdAt: serverTimestamp(),
+    members: users.map((user: any) => ({
+      uid: user.uid,
+      displayName: user.displayName,
+    })),
+  });
 
-    users.forEach((user: any) => {
-      const userDoc = doc(this.firestore, `channels/${channelDoc.id}/members/${user.uid}`);
-       batch.set(userDoc, user);
-    });
-
-    await batch.commit();
-  }
+  await batch.commit();
+}
 }

@@ -2,7 +2,17 @@ import { Component, inject, OnInit } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { CommonModule } from '@angular/common';
-import { Firestore, arrayUnion, collection, doc, getDocs, query, setDoc, updateDoc, where } from '@angular/fire/firestore';
+import {
+  Firestore,
+  arrayUnion,
+  collection,
+  doc,
+  getDocs,
+  query,
+  setDoc,
+  updateDoc,
+  where,
+} from '@angular/fire/firestore';
 import { Auth, createUserWithEmailAndPassword, updateProfile } from '@angular/fire/auth';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -66,16 +76,16 @@ export class AvatarSelectComponent implements OnInit {
   }
 
   private async addNewUserToEveryoneChannel(user: any) {
-    
     const channelsRef = collection(this.firestore, `channels`);
-    const q = query(channelsRef, where('name', '==', 'everyone' ));
+    const q = query(channelsRef, where('name', '==', 'everyone'));
     const querySnapshot = await getDocs(q);
     if (querySnapshot.empty) return;
     const channelDoc = querySnapshot.docs[0];
-    const memberDocRef = doc(this.firestore, 'channels', channelDoc.id, 'members', user.uid);
+    const channelRef = doc(this.firestore, 'channels', channelDoc.id);
 
-    const memberData = this.defineMemberData(user)
-    await setDoc(memberDocRef, memberData, { merge: true });
+    const memberData = this.defineMemberData(user);
+    
+    await setDoc(channelRef, { members: arrayUnion(memberData) }, { merge: true });
   }
 
   private defineMemberData(user: any) {
@@ -87,10 +97,7 @@ export class AvatarSelectComponent implements OnInit {
 
   private isUserDataValid(): boolean {
     return (
-      this.selectedAvatar &&
-      this.userData.email &&
-      this.userData.password &&
-      this.userData.name
+      this.selectedAvatar && this.userData.email && this.userData.password && this.userData.name
     );
   }
 
@@ -105,7 +112,6 @@ export class AvatarSelectComponent implements OnInit {
     await updateProfile(user, { displayName: this.userData.name });
     return user;
   }
-
 
   private async saveUserProfile(user: any) {
     const userProfile = {
