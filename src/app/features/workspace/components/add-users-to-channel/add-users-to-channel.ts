@@ -61,9 +61,14 @@ export class AddUsersToChannel implements OnInit {
 
   onConfirm() {
     this.dialogRef.close({
-      name: this.data.channelName,
-      description: this.data.description,
-      selectedUsers: this.selectedUsers.map((user) => user.uid),
+      channel: {
+        channelName: this.data.channelName.trim(),
+        description: this.data.description.trim(),
+      },
+      users: this.selectedUsers.map((user) => ({
+        uid: user.uid,
+        displayName: user.name,
+      })),
     });
   }
 

@@ -11,7 +11,9 @@ import {
   collection,
   collectionData,
   doc,
+  serverTimestamp,
   setDoc,
+  writeBatch,
 } from '@angular/fire/firestore';
 import { Router, RouterModule } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
@@ -23,6 +25,7 @@ import { AddUsersToChannel } from '../add-users-to-channel/add-users-to-channel'
 import { ChannelItem } from '../channel-item/channel-item';
 import { ChannelService } from '../../../../../services/channel-service';
 import { ContactItem } from '../contact-item/contact-item';
+import { user } from '@angular/fire/auth';
 
 @Component({
   selector: 'app-devspace-sidenav-content',
@@ -90,7 +93,11 @@ export class DevspaceSidenavContent implements OnInit, OnDestroy {
     });
 
     this.channelsSub = this.channelService.getChannels().subscribe((channels: any) => {
-      this.channels = channels;
+      this.channels = channels.sort((a: any, b: any) => {
+        if (a.name?.toLowerCase() === 'everyone') return -1;
+        if (b.name?.toLowerCase() === 'everyone') return 1;
+        return a.name.localeCompare(b.name);
+      });
     });
   }
 
@@ -157,14 +164,30 @@ export class DevspaceSidenavContent implements OnInit, OnDestroy {
       minWidth: '300px',
       data: result,
     });
-    addUsersDialogRef.afterClosed().subscribe((usersResult) => {
-      if (usersResult) {
-        this.channelService.addChannel(usersResult);
+    addUsersDialogRef.afterClosed().subscribe((dialogResult) => {
+      if (dialogResult) {
+        this.saveChannelData(dialogResult);
       }
     });
   }
 
-  async saveChannel(channelData: any) {
-    await addDoc(collection(this.firestore, 'channels'), channelData);
+  async saveChannelData(dialogResult: any) {
+    const batch = writeBatch(this.firestore);
+    const { channel, users } = dialogResult;
+    const channelsRef = collection(this.firestore, 'channels');
+    const channelDoc = doc(channelsRef);
+
+    batch.set(channelDoc, {
+      name: channel.channelName,
+      description: channel.description,
+      createdAt: serverTimestamp(),
+    });
+
+    users.forEach((user: any) => {
+      const userDoc = doc(this.firestore, `channels/${channelDoc.id}/members/${user.uid}`);
+       batch.set(userDoc, user);
+    });
+
+    await batch.commit();
   }
 }
