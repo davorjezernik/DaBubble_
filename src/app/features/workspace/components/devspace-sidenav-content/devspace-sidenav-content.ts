@@ -55,6 +55,10 @@ export class DevspaceSidenavContent implements OnInit, OnDestroy {
 
   pageSizeUsers = 4;
   maxVisible = this.pageSizeUsers;
+
+  pageSizeChannels = 5;
+  maxVisibleChannels = this.pageSizeChannels;
+
   activeIndex: number | null = null;
 
   meUid: string | null = null;
@@ -103,12 +107,27 @@ export class DevspaceSidenavContent implements OnInit, OnDestroy {
     return this.users.slice(0, Math.min(this.maxVisible, this.users.length));
   }
 
+  get visibleChannels() {
+    return (this.channels ?? []).slice(0, Math.min(this.maxVisibleChannels, this.channels.length));
+  }
+
   get hiddenCount(): number {
     return Math.max(this.users.length - this.maxVisible, 0);
   }
 
+  get hiddenChannelsCount() {
+    return Math.max((this.channels?.length ?? 0) - this.maxVisibleChannels, 0);
+  }
+
   loadMore(): void {
     this.maxVisible = Math.min(this.maxVisible + this.pageSizeUsers, this.users.length);
+  }
+
+  loadMoreChannels() {
+    this.maxVisibleChannels = Math.min(
+      this.maxVisibleChannels + this.pageSizeChannels,
+      this.channels.length
+    );
   }
 
   calculateDmId(otherUser: User): string {

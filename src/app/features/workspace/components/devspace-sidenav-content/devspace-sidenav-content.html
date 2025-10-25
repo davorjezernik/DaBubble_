@@ -143,10 +143,15 @@
     @if(channelsOpen) {
     <div class="section-content-wrapper">
       <ul class="channel-list" role="list">
-        @for (channel of channels; track channel.id) {
+        @for (channel of visibleChannels; track channel.id) {
         <app-channel-item [channel]="channel"></app-channel-item>
         }
       </ul>
+
+      <li class="channel-item-more" *ngIf="hiddenChannelsCount > 0" (click)="loadMoreChannels()">
+        <div class="more-pill">+{{ hiddenChannelsCount }}</div>
+        <span class="name">weitere anzeigen</span>
+      </li>
 
       <div class="section-footer">
         <button (click)="openAddChannelDialog()" class="add-channel" type="button">
@@ -248,7 +253,11 @@
     @if (dmsOpen) {
     <ul class="dm-list">
       @for(u of visibleUsers; track u.uid) {
-      <a class="contact-item-anker" [routerLink]="['/workspace/dm', calculateDmId(u)]" routerLinkActive="is-active">
+      <a
+        class="contact-item-anker"
+        [routerLink]="['/workspace/dm', calculateDmId(u)]"
+        routerLinkActive="is-active"
+      >
         <app-contact-item
           [meUid]="meUid"
           [user]="u"

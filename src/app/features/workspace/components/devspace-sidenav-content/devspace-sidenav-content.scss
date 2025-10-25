@@ -24,7 +24,7 @@ $radius-pill: 999px;
   background: $color-surface;
   overflow-y: auto;
 
-    &::-webkit-scrollbar {
+  &::-webkit-scrollbar {
     display: none;
   }
 }
@@ -116,6 +116,45 @@ $radius-pill: 999px;
       transition: transform 125ms ease-in-out;
       transform: rotate(-90deg);
     }
+  }
+}
+
+.channel-item-more {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 4px 20px;
+  border-radius: 30px;
+  min-height: 58px;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+  
+
+  &:hover {
+    background: #eceefe;
+    .name {
+      color: #535af1;
+      font-weight: 700;
+      font-size: 18px;
+    }
+  }
+
+  .more-pill {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: #eceefe;
+    display: grid;
+    place-items: center;
+    font-weight: 700;
+    font-size: 18px;
+    color: #535af1;
+  }
+
+  .name {
+    color: #535af1;
+    font-size: 18px;
+    font-weight: 500;
   }
 }
 
@@ -326,6 +365,7 @@ $radius-pill: 999px;
     .name {
       color: #535af1;
       font-weight: 700;
+      font-size: 18px;
     }
   }
 
@@ -337,11 +377,14 @@ $radius-pill: 999px;
     display: grid;
     place-items: center;
     font-weight: 700;
+    font-size: 18px;
     color: #535af1;
   }
 
   .name {
     color: #535af1;
+    font-size: 18px;
+    font-weight: 500;
   }
 }
 
