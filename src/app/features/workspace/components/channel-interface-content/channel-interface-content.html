@@ -1,7 +1,7 @@
 <section class="chat-container">
   <header class="chat-header">
     <section>
-      <button class="channel-info-btn">
+      <button class="channel-info-btn" [class.basic-chat]="channelData?.name === 'everyone'">
         <svg
           class="info-hashtag"
           width="32"
@@ -67,7 +67,7 @@
   <main class="chat-content" [class.empty]="messages.length === 0">
     @if (messages.length === 0) {
     <section>
-      <button class="channel-info-btn">
+      <button class="channel-info-btn" [class.basic-chat]="channelData?.name === 'everyone'">
         <svg
           class="info-hashtag"
           width="32"

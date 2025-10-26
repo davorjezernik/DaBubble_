@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { RouterModule } from '@angular/router';
 
 @Component({
@@ -7,6 +7,10 @@ import { RouterModule } from '@angular/router';
   templateUrl: './channel-item.html',
   styleUrl: './channel-item.scss'
 })
-export class ChannelItem {
+export class ChannelItem implements OnInit {
   @Input() channel: any;
+
+
+  ngOnInit(): void {
+  }
 }

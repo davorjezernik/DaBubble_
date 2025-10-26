@@ -1,6 +1,7 @@
 <div class="wrapper">
   <img class="avatar" [src]="userData.avatar" alt="user avatar" />
   <span class="user-name">{{ userData.name }}</span>
+  @if (isRemovable) {
   <button (click)="removeAddedUser(userData.uid)" class="del-btn">
     <svg
       class="del-icon"
@@ -16,4 +17,5 @@
       />
     </svg>
   </button>
+  }
 </div>

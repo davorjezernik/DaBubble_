@@ -33,8 +33,10 @@ import { ContactChip } from '../../../../shared/components/contact-chip/contact-
 export class AddUsersToChannel implements OnInit {
   selectedOption: string = 'all';
   users: any[] = [];
+  allUsers: any[] = [];
   inputValue: string = '';
   selectedUsers: MentionUser[] = [];
+  currentUser: MentionUser | undefined;
 
   get showMention(): boolean {
     return this.inputValue.length > 0;
@@ -50,20 +52,60 @@ export class AddUsersToChannel implements OnInit {
   ) {}
 
   async ngOnInit() {
+    const currentUserData = await firstValueFrom(this.userService.currentUser$());
+    if (currentUserData) {
+    this.currentUser = {
+      uid: currentUserData.uid,
+      name: currentUserData.name,
+      avatar: currentUserData.avatar,
+      online: currentUserData.online,
+    };
+    this.selectedUsers.push(this.currentUser);
+  }
+
     const users = await firstValueFrom(this.userService.users$());
-    this.mentionUsers = users.map((u) => ({
-      uid: u.uid,
-      name: u.name,
-      avatar: u.avatar,
-      online: u.online,
-    }));
+    this.allUsers = users;
+    this.mentionUsers = users
+      .map((u) => ({
+        uid: u.uid,
+        name: u.name,
+        avatar: u.avatar,
+        online: u.online,
+      }))
+      .filter((u) => u.uid !== this.currentUser?.uid);
   }
 
   onConfirm() {
+    if (this.selectedOption === 'specific') {
+      this.createChannelWithSelectedUsers();
+    } else {
+      this.createChannelForAllUsers();
+    }
+  }
+
+  private createChannelWithSelectedUsers() {
     this.dialogRef.close({
-      name: this.data.channelName,
-      description: this.data.description,
-      selectedUsers: this.selectedUsers.map((user) => user.uid),
+      channel: {
+        channelName: this.data.channelName.trim(),
+        description: this.data.description.trim(),
+      },
+      users: this.selectedUsers.map((user) => ({
+        uid: user.uid,
+        displayName: user.name,
+      })),
+    });
+  }
+
+  private createChannelForAllUsers() {
+    this.dialogRef.close({
+      channel: {
+        channelName: this.data.channelName.trim(),
+        description: this.data.description.trim(),
+      },
+      users: this.allUsers.map((user) => ({
+        uid: user.uid,
+        displayName: user.name,
+      })),
     });
   }
 
