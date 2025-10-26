@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { AddChat } from './add-chat';
+import { DialogEditUserCard } from './dialog-edit-user-card';
 
-describe('AddChat', () => {
-  let component: AddChat;
-  let fixture: ComponentFixture<AddChat>;
+describe('DialogEditUserCard', () => {
+  let component: DialogEditUserCard;
+  let fixture: ComponentFixture<DialogEditUserCard>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [AddChat]
+      imports: [DialogEditUserCard]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(AddChat);
+    fixture = TestBed.createComponent(DialogEditUserCard);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

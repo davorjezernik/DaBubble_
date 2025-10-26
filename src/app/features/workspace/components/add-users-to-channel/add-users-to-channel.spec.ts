@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { ChatInterfaceComponent } from './chat-interface-content';
+import { AddUsersToChannel } from './add-users-to-channel';
 
-describe('ChatInterfaceComponent', () => {
-  let component: ChatInterfaceComponent;
-  let fixture: ComponentFixture<ChatInterfaceComponent>;
+describe('AddUsersToChannel', () => {
+  let component: AddUsersToChannel;
+  let fixture: ComponentFixture<AddUsersToChannel>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ChatInterfaceComponent]
+      imports: [AddUsersToChannel]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(ChatInterfaceComponent);
+    fixture = TestBed.createComponent(AddUsersToChannel);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

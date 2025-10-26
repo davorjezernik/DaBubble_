@@ -1,0 +1,102 @@
+@use 'mixins';
+
+.dialog {
+  padding: 20px 20px 40px;
+}
+
+.dialog-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24px 24px 0;
+  margin-bottom: 20px;
+}
+.dialog-title {
+  @include mixins.text-style(
+    $size: 24px,
+    $color: #1d1c1d,
+    $font-weight: 700,
+    $font-family: 'Nunito'
+  );
+  margin: 0;
+}
+
+.dialog-content {
+  padding: 16px 24px;
+}
+
+.dialog-description {
+  @include mixins.text-style(
+    $size: 18px,
+    $color: #606060,
+    $font-weight: 400,
+    $font-family: 'Nunito'
+  );
+  margin-bottom: 24px;
+}
+
+.dialog-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  .form-field {
+    width: 100%;
+    margin-top: 20px;
+  }
+}
+
+.dialog-actions {
+  padding: 0 24px 24px;
+}
+
+.form-field-label {
+  @include mixins.text-style(
+    $size: 18px,
+    $color: #000000,
+    $font-weight: 700,
+    $font-family: 'Nunito'
+  );
+}
+
+.label-optional {
+  @include mixins.text-style(
+    $size: 18px,
+    $color: #686868,
+    $font-weight: 400,
+    $font-family: 'Nunito'
+  );
+}
+
+.dialog-close-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
+  cursor: pointer;
+  border: none;
+  background-color: transparent;
+  border-radius: 50%;
+  transition: all 125ms ease-in-out;
+
+  &:hover {
+    background-color: #eceefe;
+
+    svg {
+      path {
+        transition: fill 125ms ease-in-out;
+        stroke: #535af1;
+        stroke-width: 2.5;
+      }
+    }
+  }
+}
+
+.submit-btn {
+  border: none;
+  @include mixins.primary-button($hover-bg-color: #797ef3, $bg-color: #444df2);
+
+  &.disabled {
+    cursor: default;
+    pointer-events: none;
+  }
+}

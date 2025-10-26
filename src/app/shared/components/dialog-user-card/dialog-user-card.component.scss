@@ -7,6 +7,7 @@
     background-color: rgb(255, 255, 255);
     padding: 40px;
     gap: 45px;
+    border-radius: 30px;
 }
 
 .dialog-user-card-header-container{
@@ -90,6 +91,35 @@
     }
 }
 
+.user-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'Nunito', sans-serif;
+  font-size: 18px;
+  font-weight: 500;
+  color: #000;
+}
+
+.status-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid #fff;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1);
+  background-color: #686868; 
+  transition: background-color 0.3s ease;
+
+  &.online {
+    background-color: #92c83e; 
+  }
+
+  &.offline {
+    background-color: #686868; 
+  }
+    
+}
+
 .user-card-btn{
     background-color: rgb(33, 137, 255);
     color: white;
@@ -103,4 +133,39 @@
     align-items: center;
     gap: 10px;
     cursor: pointer;
+}
+
+.user-name-edit {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 140px;
+  width: 100%;
+}
+
+.user-name-edit h3 {
+  margin: 0;
+  font-family: 'Nunito', sans-serif;
+  font-weight: 700;
+  font-size: 32px;
+  color: #000;
+}
+
+.edit-btn {
+  margin-left: auto; 
+  background: none;
+  border: none;
+  color: #797EF3;
+  font-family: 'Nunito', sans-serif;
+  font-weight: 700;
+  font-size: 18px;
+  cursor: pointer;
+  padding: 6px 12px;
+  border-radius: 9999px;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.edit-btn:hover {
+  background: rgba(121, 126, 243, 0.15);
+  color: #5a5ef0;
 }

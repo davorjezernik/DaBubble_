@@ -1,0 +1,32 @@
+<header class="ws-header">
+  <section class="brand">
+    <img src="assets/img/14. Home-Workspaces.svg" alt="DABubble" class="logo" />
+  </section>
+
+  <input
+    class="search"
+    matInput
+    [formControl]="searchCtrl"
+    placeholder="Devspace durchsuchen"
+    autocomplete="off"
+    aria-label="Suche"
+  />
+
+  <section>
+    <section class="user" (click)="openUserMenu($event)">
+      <span class="name">{{ (user$ | async)?.name }}</span>
+
+      <div class="avatar-wrap">
+        <img
+          class="avatar"
+          [src]="(user$ | async)?.avatar"
+          (error)="fallbackAvatar($event)"
+          [alt]="(user$ | async)?.name || 'Avatar'"
+        />
+        <span class="status" [class.online]="(user$ | async)?.online"></span>
+      </div>
+
+      <mat-icon class="expand-icon">expand_more</mat-icon>
+    </section>
+  </section>
+</header>
