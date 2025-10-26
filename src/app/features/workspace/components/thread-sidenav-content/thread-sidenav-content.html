@@ -1,16 +1,19 @@
 <section class="chat-container">
   <header class="chat-header">
     <div class="channel-info-thread-container">
-        <h2 class="thread-name">Thread</h2>
-        <span class="channel-name"># Entwicklerteam</span>
+      <h2 class="thread-name">Thread</h2>
+      <span class="channel-name"># Entwicklerteam</span>
     </div>
-    <div>    
-        <button type="button" class="icon-btn" aria-label="close button">
+    <div>
+      <button type="button" class="icon-btn" aria-label="close button" (click)="onClose()">
         <img src="assets/icons/close.svg" alt="" />
       </button>
-    </div>    
+    </div>
   </header>
-  <main class="chat-content">main</main>
+  <main class="chat-content">
+    <p>Thread für Nachricht: {{ messageId }}</p>
+    <p>Chat: {{ chatId }} ({{ collectionName }})</p>
+  </main>
   <footer class="footer">
     <app-message-area-component></app-message-area-component>
   </footer>

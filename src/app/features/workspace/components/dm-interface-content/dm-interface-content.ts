@@ -1,140 +1,60 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { MessageAreaComponent } from '../../../../shared/components/message-area-component/message-area-component';
-import {
-  Firestore,
-  doc,
-  getDoc,
-  addDoc,
-  collection,
-  collectionData,
-  orderBy,
-  query,
-  serverTimestamp,
-  Timestamp,
-} from '@angular/fire/firestore';
+import { Firestore, doc, getDoc } from '@angular/fire/firestore';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
-import { firstValueFrom, Observable, of } from 'rxjs';
-import { switchMap } from 'rxjs/operators';
+import { firstValueFrom } from 'rxjs';
 import { AuthService } from '../../../../../services/auth-service';
+import { MessageBubbleComponent } from '../../../../shared/components/message-bubble-component/message-bubble.component';
 import { BaseChatInterfaceComponent } from '../base-chat-interface-component/base-chat-interface-component';
 
 @Component({
-  selector: 'app-chat-interface-component',
+  selector: 'app-dm-interface-content',
   standalone: true,
-  imports: [MessageAreaComponent, CommonModule],
+  imports: [CommonModule, MessageAreaComponent, MessageBubbleComponent],
   templateUrl: './dm-interface-content.html',
   styleUrl: './dm-interface-component.scss',
 })
-export class DmInterfaceContent extends BaseChatInterfaceComponent implements OnInit {
-  messages$: Observable<any[]> = of([]);
+export class DmInterfaceContent extends BaseChatInterfaceComponent {
+  override collectionName: 'channels' | 'dms' = 'dms';
+  recipientData: any = null;
   isOwnDm: boolean = false;
 
-  recipientData: any = null;
-
-  chatId: string | null = null;
-
   constructor(
-    public firestore: Firestore,
-    private route: ActivatedRoute,
-    private authService: AuthService
+    protected override route: ActivatedRoute,
+    protected override firestore: Firestore,
+    protected override authService: AuthService
   ) {
-    super();
+    super(route, firestore, authService);
   }
 
-  ngOnInit(): void {
-    this.loadDmMetadataOnInit();
-    this.initializeMessagesStream();
+  override onChatIdChanged(chatId: string): void {
+    this.loadRecipientData(chatId);
   }
 
-  loadDmMetadataOnInit() {
-    this.route.paramMap.subscribe(async (params) => {
-      this.resetLastMessageTimestamp();
-      this.chatId = params.get('id');
-      await this.checkIfOwnDm();
-      await this.getMessageDetails();
-    });
-  }
+  private async loadRecipientData(chatId: string): Promise<void> {
+    const user = await firstValueFrom(this.authService.currentUser$);
+    if (!user) return;
 
-  initializeMessagesStream() {
-    this.messages$ = this.route.paramMap.pipe(
-      switchMap((params) => {
-        this.chatId = params.get('id');
-        if (this.chatId) {
-          const messagesRef = collection(this.firestore, `dms/${this.chatId}/messages`);
+    this.isOwnDm = chatId === `${user.uid}-${user.uid}`;
 
-          const q = query(messagesRef, orderBy('timestamp', 'desc'));
-
-          return collectionData(q, { idField: 'id' });
-        } else {
-          return of([]);
-        }
-      })
-    );
-  }
-
-  async handleNewMessage(messageText: string) {
-    if (!this.chatId) return;
-
-    const user: any = await firstValueFrom(this.authService.currentUser$);
-    const messageData = {
-      text: messageText,
-      timestamp: serverTimestamp(),
-      authorId: user.uid,
-    };
-    const messagesCollectionRef = collection(this.firestore, `dms/${this.chatId}/messages`);
-    await addDoc(messagesCollectionRef, messageData);
-  }
-
-  async checkIfOwnDm() {
-    const user: any = await firstValueFrom(this.authService.currentUser$);
-    const ownDmId = `${user.uid}-${user.uid}`;
-    if (ownDmId === this.chatId) {
-      this.isOwnDm = true;
-    } else {
-      this.isOwnDm = false;
-    }
-  }
-
-  async getMessageDetails(): Promise<void> {
-    const user = await this.getCurrentUser();
-    const dmData = await this.getDmDocument(this.chatId!);
-    if (!dmData) {
-      this.recipientData = null;
-      return;
-    }
-    const recipientId = this.getRecipientId(dmData.members, user.uid);
-    if (!recipientId) {
-      this.recipientData = null;
-      return;
-    }
-    this.recipientData = await this.getUserData(recipientId);
-  }
-
-  private async getCurrentUser(): Promise<any> {
-    return firstValueFrom(this.authService.currentUser$);
-  }
-
-  private async getDmDocument(chatId: string): Promise<any | null> {
     const dmRef = doc(this.firestore, `dms/${chatId}`);
     const dmSnap = await getDoc(dmRef);
-    if (!dmSnap.exists()) return null;
-    return dmSnap.data();
-  }
 
-  private getRecipientId(members: string[], currentUserId: string): string | null {
-    if (!members || members.length === 0) return null;
+    if (dmSnap.exists()) {
+      const dmData = dmSnap.data();
+      const members = dmData['members'] as string[];
+      const recipientId = members.find((id) => id !== user.uid);
 
-    const isPersonalDm = members.length === 2 && members[0] === members[1];
-    if (isPersonalDm) return members[0];
-
-    const recipient = members.find((id) => id !== currentUserId);
-    return recipient || null;
-  }
-
-  private async getUserData(userId: string): Promise<any | null> {
-    const userRef = doc(this.firestore, `users/${userId}`);
-    const userSnap = await getDoc(userRef);
-    return userSnap.exists() ? userSnap.data() : null;
+      if (recipientId) {
+        this.recipientData = await this.getUserData(recipientId);
+      } else if (this.isOwnDm) {
+        this.recipientData = await this.getUserData(user.uid);
+      } else {
+        this.recipientData = null;
+      }
+    } else {
+      this.recipientData = null;
+    }
   }
 }
