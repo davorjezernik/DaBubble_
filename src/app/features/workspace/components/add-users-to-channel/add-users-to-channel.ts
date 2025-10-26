@@ -36,6 +36,7 @@ export class AddUsersToChannel implements OnInit {
   allUsers: any[] = [];
   inputValue: string = '';
   selectedUsers: MentionUser[] = [];
+  currentUser: MentionUser | undefined;
 
   get showMention(): boolean {
     return this.inputValue.length > 0;
@@ -51,14 +52,27 @@ export class AddUsersToChannel implements OnInit {
   ) {}
 
   async ngOnInit() {
+    const currentUserData = await firstValueFrom(this.userService.currentUser$());
+    if (currentUserData) {
+    this.currentUser = {
+      uid: currentUserData.uid,
+      name: currentUserData.name,
+      avatar: currentUserData.avatar,
+      online: currentUserData.online,
+    };
+    this.selectedUsers.push(this.currentUser);
+  }
+
     const users = await firstValueFrom(this.userService.users$());
     this.allUsers = users;
-    this.mentionUsers = users.map((u) => ({
-      uid: u.uid,
-      name: u.name,
-      avatar: u.avatar,
-      online: u.online,
-    }));
+    this.mentionUsers = users
+      .map((u) => ({
+        uid: u.uid,
+        name: u.name,
+        avatar: u.avatar,
+        online: u.online,
+      }))
+      .filter((u) => u.uid !== this.currentUser?.uid);
   }
 
   onConfirm() {
@@ -81,7 +95,7 @@ export class AddUsersToChannel implements OnInit {
       })),
     });
   }
-  
+
   private createChannelForAllUsers() {
     this.dialogRef.close({
       channel: {
