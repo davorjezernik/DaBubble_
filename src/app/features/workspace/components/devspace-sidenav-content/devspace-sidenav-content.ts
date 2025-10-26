@@ -11,7 +11,9 @@ import {
   collection,
   collectionData,
   doc,
+  serverTimestamp,
   setDoc,
+  writeBatch,
 } from '@angular/fire/firestore';
 import { Router, RouterModule } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
@@ -23,6 +25,7 @@ import { AddUsersToChannel } from '../add-users-to-channel/add-users-to-channel'
 import { ChannelItem } from '../channel-item/channel-item';
 import { ChannelService } from '../../../../../services/channel-service';
 import { ContactItem } from '../contact-item/contact-item';
+import { user } from '@angular/fire/auth';
 
 @Component({
   selector: 'app-devspace-sidenav-content',
@@ -47,8 +50,6 @@ export class DevspaceSidenavContent implements OnInit, OnDestroy {
 
   dmsOpen = true;
   channelsOpen = true;
-
-  currentUser = localStorage.getItem('user');
   currentChatId: string = '';
 
   // Users//
@@ -64,6 +65,7 @@ export class DevspaceSidenavContent implements OnInit, OnDestroy {
   meUid: string | null = null;
 
   channels: any[] = [];
+  private currentUserSub?: Subscription;
 
   constructor(
     private usersService: UserService,
@@ -75,32 +77,60 @@ export class DevspaceSidenavContent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
+    this.subscribeToUsers();
+    this.subscribeToChannels();
+  }
+
+  private subscribeToUsers(): void {
     this.sub = combineLatest([
       this.usersService.users$(),
       this.usersService.currentUser$(),
     ]).subscribe(([list, me]) => {
       this.meUid = me?.uid ?? null;
-
-      if (this.meUid) {
-        const meUser = list.find((u) => u.uid === this.meUid);
-        const others = list.filter((u) => u.uid !== this.meUid);
-        // eigener Eintrag ganz oben
-        this.users = meUser ? [meUser, ...others] : list;
-      } else {
-        this.users = list;
-      }
-
-      this.maxVisible = Math.min(this.maxVisible, this.users.length);
+      this.updateUserList(list);
     });
+  }
 
-    this.channelsSub = this.channelService.getChannels().subscribe((channels: any) => {
-      this.channels = channels;
+  private updateUserList(list: any[]): void {
+    if (this.meUid) {
+      const meUser = list.find((u) => u.uid === this.meUid);
+      const others = list.filter((u) => u.uid !== this.meUid);
+      this.users = meUser ? [meUser, ...others] : list;
+    } else {
+      this.users = list;
+    }
+
+    this.maxVisible = Math.min(this.maxVisible, this.users.length);
+  }
+
+  private subscribeToChannels(): void {
+    this.channelsSub = combineLatest([
+      this.channelService.getChannels(),
+      this.authService.currentUser$,
+    ]).subscribe(([channels, user]) => {
+      const userChannels = this.filterUserChannels(channels, user?.uid);
+      this.channels = this.sortChannels(userChannels);
+    });
+  }
+
+  private filterUserChannels(channels: any[], userId: any): any[] {
+    return channels.filter(
+      (channel) => channel.members && channel.members.some((member: any) => member.uid === userId)
+    );
+  }
+
+  private sortChannels(channels: any[]): any[] {
+    return channels.sort((a: any, b: any) => {
+      if (a.name?.toLowerCase() === 'everyone') return -1;
+      if (b.name?.toLowerCase() === 'everyone') return 1;
+      return a.name.localeCompare(b.name);
     });
   }
 
   ngOnDestroy(): void {
     this.sub?.unsubscribe();
     this.channelsSub?.unsubscribe();
+    this.currentUserSub?.unsubscribe();
   }
 
   get visibleUsers(): User[] {
@@ -176,14 +206,32 @@ export class DevspaceSidenavContent implements OnInit, OnDestroy {
       minWidth: '300px',
       data: result,
     });
-    addUsersDialogRef.afterClosed().subscribe((usersResult) => {
-      if (usersResult) {
-        this.channelService.addChannel(usersResult);
+    addUsersDialogRef.afterClosed().subscribe((dialogResult) => {
+      if (dialogResult) {
+        this.saveChannelData(dialogResult);
       }
     });
   }
 
-  async saveChannel(channelData: any) {
-    await addDoc(collection(this.firestore, 'channels'), channelData);
+  async saveChannelData(dialogResult: any) {
+    const batch = writeBatch(this.firestore);
+    const { channel, users } = dialogResult;
+    const channelsRef = collection(this.firestore, 'channels');
+    const channelDoc = doc(channelsRef);
+
+    const currentUser = await firstValueFrom(this.authService.currentUser$);
+
+    batch.set(channelDoc, {
+      name: channel.channelName,
+      description: channel.description,
+      createdAt: serverTimestamp(),
+      createdBy: currentUser?.displayName,
+      members: users.map((user: any) => ({
+        uid: user.uid,
+        displayName: user.displayName,
+      })),
+    });
+
+    await batch.commit();
   }
 }
