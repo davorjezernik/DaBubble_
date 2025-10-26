@@ -1,29 +1,49 @@
-import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { CommonModule } from '@angular/common';
-import { Subscription, combineLatest } from 'rxjs';
+import { Observable, Subscription, combineLatest } from 'rxjs';
 import { UserService } from '../../../../../services/user.service';
 import { User } from '../../../../../models/user.class';
-import { Firestore, doc, setDoc } from '@angular/fire/firestore';
-import { Router } from '@angular/router';
+import {
+  Firestore,
+  addDoc,
+  collection,
+  collectionData,
+  doc,
+  setDoc,
+} from '@angular/fire/firestore';
+import { Router, RouterModule } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { AuthService } from '../../../../../services/auth-service';
 import { FormsModule } from '@angular/forms';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { AddChannel } from '../add-channel/add-channel';
 import { AddUsersToChannel } from '../add-users-to-channel/add-users-to-channel';
+import { ChannelItem } from '../channel-item/channel-item';
+import { ChannelService } from '../../../../../services/channel-service';
+import { ContactItem } from '../contact-item/contact-item';
 
 @Component({
   selector: 'app-devspace-sidenav-content',
   standalone: true,
-  imports: [MatButtonModule, MatSidenavModule, CommonModule, FormsModule, MatDialogModule],
+  imports: [
+    MatButtonModule,
+    MatSidenavModule,
+    CommonModule,
+    FormsModule,
+    MatDialogModule,
+    ChannelItem,
+    RouterModule,
+    ContactItem,
+  ],
   templateUrl: './devspace-sidenav-content.html',
   styleUrl: './devspace-sidenav-content.scss',
 })
 export class DevspaceSidenavContent implements OnInit, OnDestroy {
   users: User[] = [];
   private sub?: Subscription;
+  private channelsSub?: Subscription;
 
   dmsOpen = true;
   channelsOpen = true;
@@ -35,16 +55,23 @@ export class DevspaceSidenavContent implements OnInit, OnDestroy {
 
   pageSizeUsers = 4;
   maxVisible = this.pageSizeUsers;
+
+  pageSizeChannels = 5;
+  maxVisibleChannels = this.pageSizeChannels;
+
   activeIndex: number | null = null;
 
   meUid: string | null = null;
+
+  channels: any[] = [];
 
   constructor(
     private usersService: UserService,
     private firestore: Firestore,
     private router: Router,
     private authService: AuthService,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private channelService: ChannelService
   ) {}
 
   ngOnInit(): void {
@@ -65,27 +92,52 @@ export class DevspaceSidenavContent implements OnInit, OnDestroy {
 
       this.maxVisible = Math.min(this.maxVisible, this.users.length);
     });
+
+    this.channelsSub = this.channelService.getChannels().subscribe((channels: any) => {
+      this.channels = channels;
+    });
   }
 
   ngOnDestroy(): void {
     this.sub?.unsubscribe();
+    this.channelsSub?.unsubscribe();
   }
 
   get visibleUsers(): User[] {
     return this.users.slice(0, Math.min(this.maxVisible, this.users.length));
   }
 
+  get visibleChannels() {
+    return (this.channels ?? []).slice(0, Math.min(this.maxVisibleChannels, this.channels.length));
+  }
+
   get hiddenCount(): number {
     return Math.max(this.users.length - this.maxVisible, 0);
+  }
+
+  get hiddenChannelsCount() {
+    return Math.max((this.channels?.length ?? 0) - this.maxVisibleChannels, 0);
   }
 
   loadMore(): void {
     this.maxVisible = Math.min(this.maxVisible + this.pageSizeUsers, this.users.length);
   }
 
-  async openDirectMessages(i: number, otherUser: User) {
-    this.activeIndex = i;
+  loadMoreChannels() {
+    this.maxVisibleChannels = Math.min(
+      this.maxVisibleChannels + this.pageSizeChannels,
+      this.channels.length
+    );
+  }
 
+  calculateDmId(otherUser: User): string {
+    if (!this.meUid) return '';
+    const uid1 = this.meUid;
+    const uid2 = otherUser.uid;
+    return uid1 < uid2 ? `${uid1}-${uid2}` : `${uid2}-${uid1}`;
+  }
+
+  async ensureDmExists(otherUser: User) {
     const user: any = await firstValueFrom(this.authService.currentUser$);
     if (!user) return;
 
@@ -97,8 +149,6 @@ export class DevspaceSidenavContent implements OnInit, OnDestroy {
     const docRef = doc(this.firestore, 'dms', this.currentChatId);
 
     await setDoc(docRef, { members: [uid1, uid2] }, { merge: true });
-
-    this.router.navigate(['/workspace/dm', this.currentChatId]);
   }
 
   trackById = (_: number, u: User) => u.uid;
@@ -128,8 +178,12 @@ export class DevspaceSidenavContent implements OnInit, OnDestroy {
     });
     addUsersDialogRef.afterClosed().subscribe((usersResult) => {
       if (usersResult) {
-        console.log('Users added to channel:', usersResult);
+        this.channelService.addChannel(usersResult);
       }
     });
+  }
+
+  async saveChannel(channelData: any) {
+    await addDoc(collection(this.firestore, 'channels'), channelData);
   }
 }

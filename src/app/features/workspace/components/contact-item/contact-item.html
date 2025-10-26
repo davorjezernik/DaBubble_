@@ -1,0 +1,13 @@
+<li class="dm-item" (click)="onContactClick()">
+  <div class="avatar-wrap">
+    <img class="avatar" [src]="user.avatar" [alt]="user.name" />
+    <span class="status" [class.online]="user.online"></span>
+  </div>
+
+  <span class="name">
+    {{ user.name }}
+    @if (user.uid === meUid) {
+    <span class="you">(Du)</span>
+    }
+  </span>
+</li>

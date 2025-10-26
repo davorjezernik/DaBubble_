@@ -18,15 +18,16 @@ import { firstValueFrom, Observable, of } from 'rxjs';
 import { switchMap, map } from 'rxjs/operators';
 import { AuthService } from '../../../../../services/auth-service';
 import { MessageBubbleComponent } from '../../../../shared/components/message-bubble-component/message-bubble.component';
+import { BaseChatInterfaceComponent } from '../base-chat-interface-component/base-chat-interface-component';
 
 @Component({
   selector: 'app-chat-interface-component',
   standalone: true,
-  imports: [MessageAreaComponent, CommonModule, MessageBubbleComponent],
-  templateUrl: './chat-interface-content.html',
-  styleUrl: './chat-interface-component.scss',
+  imports: [MessageAreaComponent, CommonModule,MessageBubbleComponent],
+  templateUrl: './dm-interface-content.html',
+  styleUrl: './dm-interface-component.scss',
 })
-export class ChatInterfaceComponent implements OnInit {
+export class DmInterfaceContent extends BaseChatInterfaceComponent implements OnInit {
   messages$: Observable<any[]> = of([]);
   isOwnDm: boolean = false;
 
@@ -36,13 +37,14 @@ export class ChatInterfaceComponent implements OnInit {
 
   chatId: string | null = null;
 
-  lastMessageTimestamp: any | null = null;
 
   constructor(
     public firestore: Firestore,
     private route: ActivatedRoute,
     private authService: AuthService
-  ) {}
+  ) {
+    super();
+  }
 
   ngOnInit(): void {
     this.loadDmMetadataOnInit();
@@ -109,15 +111,13 @@ export class ChatInterfaceComponent implements OnInit {
     });
   }
 
-  resetLastMessageTimestamp() {
-    this.lastMessageTimestamp = null;
-  }
 
   async handleNewMessage(messageText: string) {
     if (!this.chatId) {
       console.error('No chat ID found in route parameters.');
       return;
     }
+
     const user: any = await firstValueFrom(this.authService.currentUser$);
     const messageData = {
       text: messageText,
@@ -190,37 +190,7 @@ export class ChatInterfaceComponent implements OnInit {
     const clean = raw.replace(/^\/+/, '');
     return clean.startsWith('assets/') ? clean : `assets/${clean}`;
   }
+  
 
-  shouldShowDateSeparator(messageTimestamp: Timestamp) {
-    if (!messageTimestamp) return false;
 
-    let showSeparator = false;
-    const currentDate = messageTimestamp.toDate();
-
-    if (!this.lastMessageTimestamp) {
-      showSeparator = true;
-    } else {
-      const lastDate = this.lastMessageTimestamp.toDate();
-
-      if (currentDate.toDateString() !== lastDate.toDateString()) {
-        showSeparator = true;
-      }
-    }
-    this.lastMessageTimestamp = messageTimestamp;
-    return showSeparator;
-  }
-
-  isTodaysMessage(messageTimestamp: Timestamp | null): boolean {
-    if (!messageTimestamp) {
-      return false;
-    }
-    const todayTimestamp = Timestamp.now();
-    const todayDate = todayTimestamp.toDate();
-
-    if (todayDate.toDateString() === messageTimestamp.toDate().toDateString()) {
-      return true;
-    } else {
-      return false;
-    }
-  }
 }

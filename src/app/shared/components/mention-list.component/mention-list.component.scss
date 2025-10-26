@@ -1,7 +1,7 @@
 .mention-panel {
   width: 350px;
-  max-height: 468px;
-  overflow: auto;
+  max-height: 400px;
+  overflow: hidden;
   background: #fff;
   border: 1px solid #ADB0D9;
   border-bottom-right-radius: 20px;
@@ -22,7 +22,21 @@
 .list {
   list-style: none;
   margin: 0;
-  padding: 0;
+  padding: 0px;
+  max-height: calc(4 * 86px);
+  overflow-y: auto;
+  scrollbar-gutter: stable both-edges;
+}
+
+.list::-webkit-scrollbar-thumb {
+  background: #dcdffc;
+  border-radius: 8px;
+  border: 3px solid transparent; 
+  background-clip: padding-box;   
+}
+
+.list::-webkit-scrollbar-track {
+  background: transparent;
 }
 
 .item {

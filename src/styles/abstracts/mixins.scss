@@ -64,3 +64,9 @@
     color: #ffffff;
   }
 }
+
+@mixin disabled-button {
+  background-color: #686868;
+  cursor: default;
+  pointer-events: none;
+}
