@@ -50,8 +50,6 @@ export class DevspaceSidenavContent implements OnInit, OnDestroy {
 
   dmsOpen = true;
   channelsOpen = true;
-
-  currentUser = localStorage.getItem('user');
   currentChatId: string = '';
 
   // Users//
@@ -63,6 +61,7 @@ export class DevspaceSidenavContent implements OnInit, OnDestroy {
   meUid: string | null = null;
 
   channels: any[] = [];
+  private currentUserSub?: Subscription;
 
   constructor(
     private usersService: UserService,
@@ -74,36 +73,60 @@ export class DevspaceSidenavContent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
+    this.subscribeToUsers();
+    this.subscribeToChannels();
+  }
+
+  private subscribeToUsers(): void {
     this.sub = combineLatest([
       this.usersService.users$(),
       this.usersService.currentUser$(),
     ]).subscribe(([list, me]) => {
       this.meUid = me?.uid ?? null;
-
-      if (this.meUid) {
-        const meUser = list.find((u) => u.uid === this.meUid);
-        const others = list.filter((u) => u.uid !== this.meUid);
-        // eigener Eintrag ganz oben
-        this.users = meUser ? [meUser, ...others] : list;
-      } else {
-        this.users = list;
-      }
-
-      this.maxVisible = Math.min(this.maxVisible, this.users.length);
+      this.updateUserList(list);
     });
+  }
 
-    this.channelsSub = this.channelService.getChannels().subscribe((channels: any) => {
-      this.channels = channels.sort((a: any, b: any) => {
-        if (a.name?.toLowerCase() === 'everyone') return -1;
-        if (b.name?.toLowerCase() === 'everyone') return 1;
-        return a.name.localeCompare(b.name);
-      });
+  private updateUserList(list: any[]): void {
+    if (this.meUid) {
+      const meUser = list.find((u) => u.uid === this.meUid);
+      const others = list.filter((u) => u.uid !== this.meUid);
+      this.users = meUser ? [meUser, ...others] : list;
+    } else {
+      this.users = list;
+    }
+
+    this.maxVisible = Math.min(this.maxVisible, this.users.length);
+  }
+
+  private subscribeToChannels(): void {
+    this.channelsSub = combineLatest([
+      this.channelService.getChannels(),
+      this.authService.currentUser$,
+    ]).subscribe(([channels, user]) => {
+      const userChannels = this.filterUserChannels(channels, user?.uid);
+      this.channels = this.sortChannels(userChannels);
+    });
+  }
+
+  private filterUserChannels(channels: any[], userId: any): any[] {
+    return channels.filter(
+      (channel) => channel.members && channel.members.some((member: any) => member.uid === userId)
+    );
+  }
+
+  private sortChannels(channels: any[]): any[] {
+    return channels.sort((a: any, b: any) => {
+      if (a.name?.toLowerCase() === 'everyone') return -1;
+      if (b.name?.toLowerCase() === 'everyone') return 1;
+      return a.name.localeCompare(b.name);
     });
   }
 
   ngOnDestroy(): void {
     this.sub?.unsubscribe();
     this.channelsSub?.unsubscribe();
+    this.currentUserSub?.unsubscribe();
   }
 
   get visibleUsers(): User[] {
@@ -171,23 +194,23 @@ export class DevspaceSidenavContent implements OnInit, OnDestroy {
     });
   }
 
-async saveChannelData(dialogResult: any) {
-  const batch = writeBatch(this.firestore);
-  const { channel, users } = dialogResult;
-  const channelsRef = collection(this.firestore, 'channels');
-  const channelDoc = doc(channelsRef);
+  async saveChannelData(dialogResult: any) {
+    const batch = writeBatch(this.firestore);
+    const { channel, users } = dialogResult;
+    const channelsRef = collection(this.firestore, 'channels');
+    const channelDoc = doc(channelsRef);
 
-  // Write the channel with users embedded as an array
-  batch.set(channelDoc, {
-    name: channel.channelName,
-    description: channel.description,
-    createdAt: serverTimestamp(),
-    members: users.map((user: any) => ({
-      uid: user.uid,
-      displayName: user.displayName,
-    })),
-  });
+    // Write the channel with users embedded as an array
+    batch.set(channelDoc, {
+      name: channel.channelName,
+      description: channel.description,
+      createdAt: serverTimestamp(),
+      members: users.map((user: any) => ({
+        uid: user.uid,
+        displayName: user.displayName,
+      })),
+    });
 
-  await batch.commit();
-}
+    await batch.commit();
+  }
 }
