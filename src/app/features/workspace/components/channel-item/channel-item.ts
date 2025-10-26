@@ -12,6 +12,5 @@ export class ChannelItem implements OnInit {
 
 
   ngOnInit(): void {
-    console.log(this.channel);
   }
 }

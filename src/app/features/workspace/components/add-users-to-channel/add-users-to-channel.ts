@@ -33,6 +33,7 @@ import { ContactChip } from '../../../../shared/components/contact-chip/contact-
 export class AddUsersToChannel implements OnInit {
   selectedOption: string = 'all';
   users: any[] = [];
+  allUsers: any[] = [];
   inputValue: string = '';
   selectedUsers: MentionUser[] = [];
 
@@ -51,6 +52,7 @@ export class AddUsersToChannel implements OnInit {
 
   async ngOnInit() {
     const users = await firstValueFrom(this.userService.users$());
+    this.allUsers = users;
     this.mentionUsers = users.map((u) => ({
       uid: u.uid,
       name: u.name,
@@ -60,12 +62,33 @@ export class AddUsersToChannel implements OnInit {
   }
 
   onConfirm() {
+    if (this.selectedOption === 'specific') {
+      this.createChannelWithSelectedUsers();
+    } else {
+      this.createChannelForAllUsers();
+    }
+  }
+
+  private createChannelWithSelectedUsers() {
     this.dialogRef.close({
       channel: {
         channelName: this.data.channelName.trim(),
         description: this.data.description.trim(),
       },
       users: this.selectedUsers.map((user) => ({
+        uid: user.uid,
+        displayName: user.name,
+      })),
+    });
+  }
+  
+  private createChannelForAllUsers() {
+    this.dialogRef.close({
+      channel: {
+        channelName: this.data.channelName.trim(),
+        description: this.data.description.trim(),
+      },
+      users: this.allUsers.map((user) => ({
         uid: user.uid,
         displayName: user.name,
       })),

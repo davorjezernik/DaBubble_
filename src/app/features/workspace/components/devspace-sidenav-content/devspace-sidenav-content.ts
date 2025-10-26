@@ -200,11 +200,13 @@ export class DevspaceSidenavContent implements OnInit, OnDestroy {
     const channelsRef = collection(this.firestore, 'channels');
     const channelDoc = doc(channelsRef);
 
-    // Write the channel with users embedded as an array
+    const currentUser = await firstValueFrom(this.authService.currentUser$);
+
     batch.set(channelDoc, {
       name: channel.channelName,
       description: channel.description,
       createdAt: serverTimestamp(),
+      createdBy: currentUser?.displayName,
       members: users.map((user: any) => ({
         uid: user.uid,
         displayName: user.displayName,
