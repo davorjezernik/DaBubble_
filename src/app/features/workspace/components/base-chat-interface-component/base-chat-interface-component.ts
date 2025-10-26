@@ -28,8 +28,10 @@ export class BaseChatInterfaceComponent {
     return showSeparator;
   }
 
-  isTodaysMessage(messageTimestamp: Timestamp) {
-    const todayTimestamp = Timestamp.now();
+  isTodaysMessage(messageTimestamp: Timestamp | null): boolean {
+    if (!messageTimestamp) {
+      return false;
+    }    const todayTimestamp = Timestamp.now();
     const todayDate = todayTimestamp.toDate();
 
     if (todayDate.toDateString() === messageTimestamp.toDate().toDateString()) {
