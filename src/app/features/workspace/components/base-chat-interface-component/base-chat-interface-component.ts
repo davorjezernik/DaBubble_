@@ -9,6 +9,7 @@ import {
   orderBy,
   query,
   serverTimestamp,
+  Timestamp,
 } from '@angular/fire/firestore';
 import { ActivatedRoute } from '@angular/router';
 import { map, Observable, of, Subscription, switchMap } from 'rxjs';
@@ -23,8 +24,10 @@ export abstract class BaseChatInterfaceComponent implements OnInit, OnDestroy {
   messages$: Observable<any[]> = of([]);
   chatId: string | null = null;
   currentUserId: string | null = null;
+  currentUserProfile: any | null = null;
 
   protected routeSub?: Subscription;
+  protected authSub?: Subscription;
 
   constructor(
     protected route: ActivatedRoute,
@@ -33,8 +36,17 @@ export abstract class BaseChatInterfaceComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    this.authService.currentUser$.subscribe((user: User | null) => {
+    this.authSub = this.authService.currentUser$.subscribe(async (user: User | null) => {
       this.currentUserId = user?.uid ?? null;
+      if (user?.uid) {
+        try {
+          this.currentUserProfile = await this.getUserData(user.uid);
+        } catch {
+          this.currentUserProfile = null;
+        }
+      } else {
+        this.currentUserProfile = null;
+      }
     });
 
     this.initializeMessagesStream();
@@ -43,6 +55,7 @@ export abstract class BaseChatInterfaceComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.routeSub?.unsubscribe();
+    this.authSub?.unsubscribe();
   }
 
   /**

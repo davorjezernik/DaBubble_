@@ -24,6 +24,7 @@ import { MessageBubbleComponent } from '../../../../shared/components/message-bu
 export class ChannelInterfaceContent extends BaseChatInterfaceComponent {
   override collectionName: 'channels' | 'dms' = 'channels';
   channelData: Channel | null = null;
+  memberProfiles: Record<string, any> = {};
 
   constructor(
     protected override route: ActivatedRoute,
@@ -38,8 +39,28 @@ export class ChannelInterfaceContent extends BaseChatInterfaceComponent {
     this.channelService.getChannel(chatId).subscribe({
       next: (data) => {
         this.channelData = data;
+        const members = data?.members ?? [];
+        if (Array.isArray(members) && members.length) {
+          this.preloadMemberProfiles(members);
+        }
       },
       error: (err) => console.error('Error fetching channel data:', err),
     });
+  }
+
+  private async preloadMemberProfiles(memberIds: string[]): Promise<void> {
+    const unique = Array.from(new Set(memberIds)).filter(Boolean);
+    for (const uid of unique) {
+      if (!this.memberProfiles[uid]) {
+        try {
+          const profile = await this.getUserData(uid);
+          if (profile) {
+            this.memberProfiles[uid] = profile;
+          }
+        } catch (e) {
+          // ignore individual failures
+        }
+      }
+    }
   }
 }

@@ -28,11 +28,7 @@
 
       <app-message-bubble
         [incoming]="message.authorId !== currentUserId"
-        [name]="
-          message.authorId !== currentUserId
-            ? recipientData?.name ?? ''
-            : currentUserProfile?.name ?? 'Du'
-        "
+        [name]="message.authorId !== currentUserId ? recipientData?.name ?? '' : 'Du'"
         [avatar]="
           message.authorId !== currentUserId
             ? recipientData?.avatar ?? 'assets/img-profile/profile.png'

@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { EmojiPickerComponent } from '../../components/emoji-picker-component/emoji-picker-component';
 import { Firestore, doc, updateDoc } from '@angular/fire/firestore';
 import { deleteField, increment } from 'firebase/firestore';
+import { ThreadPanelService } from '../../../../services/thread-panel.service';
 
 @Component({
   selector: 'app-message-bubble',
@@ -21,6 +22,8 @@ export class MessageBubbleComponent implements OnChanges {
   @Input() chatId?: string;
   @Input() messageId?: string;
   @Input() reactionsMap?: Record<string, number> | null;
+  // Collection context for reactions persistence (defaults to 'dms' for backward compatibility)
+  @Input() collectionName: 'channels' | 'dms' = 'dms';
 
   showEmojiPicker = false;
   reactionsExpanded = false;
@@ -196,11 +199,25 @@ export class MessageBubbleComponent implements OnChanges {
     });
   }
 
+  onCommentClick(event: MouseEvent) {
+    event.stopPropagation();
+    this.showMiniActions = false;
+    if (!this.chatId || !this.messageId) return;
+    this.threadPanel.openThread({
+      chatId: this.chatId,
+      messageId: this.messageId,
+      collectionName: this.collectionName,
+    });
+  }
+
   private async persistReactionDelta(emoji: string, delta: number, newCount: number) {
     // Only persist if we have identifiers
     if (!this.chatId || !this.messageId) return;
     try {
-      const ref = doc(this.firestore, `dms/${this.chatId}/messages/${this.messageId}`);
+      const ref = doc(
+        this.firestore,
+        `${this.collectionName}/${this.chatId}/messages/${this.messageId}`
+      );
       const fieldPath = `reactions.${emoji}`;
       if (newCount <= 0) {
         await updateDoc(ref, { [fieldPath]: deleteField() });
@@ -213,5 +230,5 @@ export class MessageBubbleComponent implements OnChanges {
     }
   }
 
-  constructor(private firestore: Firestore) {}
+  constructor(private firestore: Firestore, private threadPanel: ThreadPanelService) {}
 }

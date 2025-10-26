@@ -64,7 +64,11 @@
       </button>
     </section>
   </header>
-  <main class="chat-content" [class.empty]="messages.length === 0">
+  <main
+    class="chat-content"
+    *ngIf="messages$ | async as messages"
+    [class.empty]="messages.length === 0"
+  >
     @if (messages.length === 0) {
     <section>
       <button class="channel-info-btn" [class.basic-chat]="channelData?.name === 'everyone'">
@@ -105,8 +109,7 @@
         .
       </p>
     </section>
-    } @else { @for(message of messages; track message.id) { @if
-    (shouldShowDateSeparator(message.timestamp)) {
+    } @else { @for(message of messages; track message.id) { @if (message.showDateSeparator) {
     <section class="timestamp-block">
       <p class="timestamp-line"></p>
       <div class="timestamp-bubble">
@@ -119,11 +122,29 @@
       <p class="timestamp-line"></p>
     </section>
     }
-    <!-- Here you can pass data to your message-item component-->
-    <p>{{ message.text }}</p>
-    <p>I am just a placeholder for message-bubble-component.</p>
-    <h3>{{ message.authorName }}</h3>
-
+    <app-message-bubble
+      [incoming]="message.authorId !== currentUserId"
+      [name]="
+        message.authorId !== currentUserId ? memberProfiles[message.authorId]?.name || '' : 'Du'
+      "
+      [avatar]="
+        message.authorId !== currentUserId
+          ? memberProfiles[message.authorId]?.avatar || 'assets/img-profile/profile.png'
+          : currentUserProfile?.avatar ?? 'assets/img-profile/profile.png'
+      "
+      [time]="
+        message.time
+          ? message.time + ' Uhr'
+          : message.timestamp
+          ? (message.timestamp.toDate() | date : 'HH:mm') + ' Uhr'
+          : ''
+      "
+      [text]="message.text ?? ''"
+      [chatId]="chatId || ''"
+      [messageId]="message.id"
+      [reactionsMap]="message.reactions"
+      collectionName="channels"
+    ></app-message-bubble>
     } }
   </main>
   <footer class="footer">
