@@ -64,7 +64,7 @@
       </button>
     </section>
   </header>
-  <main
+  <main #messagesContainer
     class="chat-content"
     *ngIf="messages$ | async as messages"
     [class.empty]="messages.length === 0"

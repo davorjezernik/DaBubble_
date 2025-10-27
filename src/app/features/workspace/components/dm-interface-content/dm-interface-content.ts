@@ -13,7 +13,7 @@ import { BaseChatInterfaceComponent } from '../base-chat-interface-component/bas
   standalone: true,
   imports: [CommonModule, MessageAreaComponent, MessageBubbleComponent],
   templateUrl: './dm-interface-content.html',
-  styleUrl: './dm-interface-component.scss',
+  styleUrl: './dm-interface-content.scss',
 })
 export class DmInterfaceContent extends BaseChatInterfaceComponent {
   override collectionName: 'channels' | 'dms' = 'dms';

@@ -1,4 +1,4 @@
-import { Directive, OnDestroy, OnInit } from '@angular/core';
+import { Directive, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import {
   addDoc,
   collection,
@@ -21,6 +21,8 @@ export abstract class BaseChatInterfaceComponent implements OnInit, OnDestroy {
   // Abstract property to be implemented by child classes
   abstract collectionName: 'channels' | 'dms';
 
+  @ViewChild('messagesContainer') messagesContainer!: ElementRef;
+
   messages$: Observable<any[]> = of([]);
   chatId: string | null = null;
   currentUserId: string | null = null;
@@ -28,6 +30,7 @@ export abstract class BaseChatInterfaceComponent implements OnInit, OnDestroy {
 
   protected routeSub?: Subscription;
   protected authSub?: Subscription;
+  protected messagesSub?: Subscription;
 
   constructor(
     protected route: ActivatedRoute,
@@ -56,6 +59,7 @@ export abstract class BaseChatInterfaceComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.routeSub?.unsubscribe();
     this.authSub?.unsubscribe();
+    this.messagesSub?.unsubscribe();
   }
 
   /**
@@ -86,23 +90,30 @@ export abstract class BaseChatInterfaceComponent implements OnInit, OnDestroy {
 
         this.chatId = id;
         const messagesRef = collection(this.firestore, `${this.collectionName}/${id}/messages`);
-        const q = query(messagesRef, orderBy('timestamp', 'asc'));
+        const q = query(messagesRef, orderBy('timestamp', 'desc'));
 
         return collectionData(q, { idField: 'id' }).pipe(
           map((messages: any[]) => this.processMessages(messages))
         );
       })
     );
+    this.messagesSub = this.messages$.subscribe(() => {
+      setTimeout(() => this.scrollToBottom(), 50);
+    });
   }
 
   private processMessages(messages: any[]): any[] {
     let lastDate: string | null = null;
-    return messages.map((message) => {
+
+    const reversedMessages = [...messages].reverse();
+
+    const processedMessages = reversedMessages.map((message) => {
       const messageDate = message.timestamp?.toDate().toDateString();
       const showDateSeparator = messageDate !== lastDate;
       lastDate = messageDate;
       return { ...message, showDateSeparator };
     });
+    return processedMessages.reverse();
   }
 
   async handleNewMessage(messageText: string): Promise<void> {
@@ -161,7 +172,8 @@ export abstract class BaseChatInterfaceComponent implements OnInit, OnDestroy {
   isTodaysMessage(messageTimestamp: Timestamp | null): boolean {
     if (!messageTimestamp) {
       return false;
-    }    const todayTimestamp = Timestamp.now();
+    }
+    const todayTimestamp = Timestamp.now();
     const todayDate = todayTimestamp.toDate();
 
     if (todayDate.toDateString() === messageTimestamp.toDate().toDateString()) {
@@ -173,5 +185,13 @@ export abstract class BaseChatInterfaceComponent implements OnInit, OnDestroy {
 
   resetLastMessageTimestamp() {
     this.lastMessageTimestamp = null;
+  }
+
+  scrollToBottom() {
+    const el = this.messagesContainer.nativeElement;
+    el.scrollTo({
+      top: el.scrollHeight,
+      behavior: 'smooth',
+    });
   }
 }
