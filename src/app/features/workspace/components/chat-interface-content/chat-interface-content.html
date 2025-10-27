@@ -1,6 +1,6 @@
 <section class="chat-container">
   <header class="chat-header">
-    <button class="dm-info-button" (click)="openUserCard()">
+    <button class="dm-info-button">
       <figure class="header-avatar-figure">
         <div class="header-avatar-wrapper">
           <img [src]="recipientData?.avatar" alt="avatar" />
@@ -53,7 +53,7 @@
     </section>
     } @else {
     <section>
-      <button class="avatar-figure-button" (click)="openUserCard()">
+      <button class="avatar-figure-button">
         <figure class="avatar-figure">
           <div class="avatar-wrapper">
             <img [src]="recipientData?.avatar" alt="avatar" />
@@ -63,7 +63,7 @@
       </button>
       <p class="chat-info">
         Diese Unterhaltung findet nur zwischen
-        <button class="recipient-tag" (click)="openUserCard()">@{{ recipientData?.name }}</button> und dir statt.
+        <button class="recipient-tag">@{{ recipientData?.name }}</button> und dir statt.
       </p>
     </section>
     } } }
