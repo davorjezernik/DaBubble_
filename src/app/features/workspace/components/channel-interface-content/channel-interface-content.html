@@ -64,7 +64,8 @@
       </button>
     </section>
   </header>
-  <main #messagesContainer
+  <main
+    #messagesContainer
     class="chat-content"
     *ngIf="messages$ | async as messages"
     [class.empty]="messages.length === 0"
@@ -109,19 +110,7 @@
         .
       </p>
     </section>
-    } @else { @for(message of messages; track message.id) { @if (message.showDateSeparator) {
-    <section class="timestamp-block">
-      <p class="timestamp-line"></p>
-      <div class="timestamp-bubble">
-        <span class="message-timestamp">{{
-          isTodaysMessage(message.timestamp)
-            ? 'Heute'
-            : (message.timestamp?.toDate() | date : 'EEEE, d. MMMM')
-        }}</span>
-      </div>
-      <p class="timestamp-line"></p>
-    </section>
-    }
+    } @else { @for(message of messages; track message.id) {
     <app-message-bubble
       [incoming]="message.authorId !== currentUserId"
       [name]="
@@ -145,7 +134,19 @@
       [reactionsMap]="message.reactions"
       collectionName="channels"
     ></app-message-bubble>
-    } }
+    @if (message.showDateSeparator) {
+    <section class="timestamp-block">
+      <p class="timestamp-line"></p>
+      <div class="timestamp-bubble">
+        <span class="message-timestamp">{{
+          isTodaysMessage(message.timestamp)
+            ? 'Heute'
+            : (message.timestamp?.toDate() | date : 'EEEE, d. MMMM')
+        }}</span>
+      </div>
+      <p class="timestamp-line"></p>
+    </section>
+    } } }
   </main>
   <footer class="footer">
     <app-message-area-component (send)="handleNewMessage($event)"></app-message-area-component>
