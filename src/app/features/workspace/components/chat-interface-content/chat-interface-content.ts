@@ -17,6 +17,9 @@ import { ActivatedRoute } from '@angular/router';
 import { firstValueFrom, Observable, of } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 import { AuthService } from '../../../../../services/auth-service';
+import { MatDialog } from '@angular/material/dialog';
+import { DialogUserCardComponent } from '../../../../shared/components/dialog-user-card/dialog-user-card.component';
+
 
 @Component({
   selector: 'app-chat-interface-component',
@@ -26,6 +29,9 @@ import { AuthService } from '../../../../../services/auth-service';
   styleUrl: './chat-interface-component.scss',
 })
 export class ChatInterfaceComponent implements OnInit {
+
+  private recipientId: string | null = null;
+
   messages$: Observable<any[]> = of([]);
   isOwnDm: boolean = false;
 
@@ -38,7 +44,8 @@ export class ChatInterfaceComponent implements OnInit {
   constructor(
     public firestore: Firestore,
     private route: ActivatedRoute,
-    private authService: AuthService
+    private authService: AuthService,
+    private dialog: MatDialog
   ) {}
 
   ngOnInit(): void {
@@ -171,5 +178,28 @@ export class ChatInterfaceComponent implements OnInit {
     } else {
       return false;
     }
+  }
+
+  openUserCard() {
+    if (!this.recipientData) return;
+
+    const userForDialog = {
+      uid: this.recipientData.uid ?? this.recipientId ?? '',
+      name: this.recipientData.name ?? '',
+      email: this.recipientData.email ?? '',
+      avatar: this.recipientData.avatar ?? '',
+      online: !!this.recipientData.online,
+    };
+
+    this.dialog.open(DialogUserCardComponent, {
+      data: { user: userForDialog },
+      panelClass: 'user-card-dialog',
+      width: '500px',
+      height: '705px',
+      maxWidth: 'none',
+      maxHeight: 'none',
+      autoFocus: false,
+      restoreFocus: true,
+    });
   }
 }
