@@ -1,8 +1,10 @@
-<section class="msg-box" class="msg-box"
-         #root
-         (click)="onBoxClick($event)"
-         [class.focused]="focused"
-         [class.has-text]="!!text">
+<section
+  class="msg-box"
+  #root
+  (click)="onBoxClick($event)"
+  [class.focused]="focused"
+  [class.has-text]="!!text"
+>
   <textarea
     #ta
     [(ngModel)]="text"
@@ -51,6 +53,8 @@
       [users]="mentionUsers"
       [channels]="mentionChannels"
       (pick)="insertMention($event)"
+      (userSelected)="openDmFromMention($event)"
+      (channelSelected)="openChannelFromMention($event)"
     ></app-mention-list>
   </div>
 </section>
