@@ -7,6 +7,9 @@ import { firstValueFrom } from 'rxjs';
 import { AuthService } from '../../../../../services/auth-service';
 import { MessageBubbleComponent } from '../../../../shared/components/message-bubble-component/message-bubble.component';
 import { BaseChatInterfaceComponent } from '../base-chat-interface-component/base-chat-interface-component';
+import { MatDialog } from '@angular/material/dialog';
+import { DialogUserCardComponent } from '../../../../shared/components/dialog-user-card/dialog-user-card.component';
+
 
 @Component({
   selector: 'app-dm-interface-content',
@@ -23,7 +26,8 @@ export class DmInterfaceContent extends BaseChatInterfaceComponent {
   constructor(
     protected override route: ActivatedRoute,
     protected override firestore: Firestore,
-    protected override authService: AuthService
+    protected override authService: AuthService,
+    private dialog: MatDialog
   ) {
     super(route, firestore, authService);
   }
@@ -56,5 +60,20 @@ export class DmInterfaceContent extends BaseChatInterfaceComponent {
     } else {
       this.recipientData = null;
     }
+  }
+
+  openUserCard(): void {
+    if (!this.recipientData) return;
+
+    this.dialog.open(DialogUserCardComponent, {
+      data: { user: this.recipientData },
+      panelClass: 'user-card-dialog',
+      width: '500px',
+      height: '705px',
+      maxWidth: 'none',
+      maxHeight: 'none',
+      autoFocus: false,
+      restoreFocus: true,
+    });
   }
 }
