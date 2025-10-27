@@ -1,11 +1,12 @@
 import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router'; 
+import { Router, RouterLink } from '@angular/router'; 
 import { Auth, sendPasswordResetEmail } from '@angular/fire/auth';
 import { NgIf } from '@angular/common';
+import { Location } from '@angular/common';
 @Component({
   selector: 'app-password-reset',
-  imports: [FormsModule, NgIf],
+  imports: [FormsModule, NgIf, RouterLink],
   templateUrl: './password-reset.component.html',
   styleUrl: './password-reset.component.scss',
 })

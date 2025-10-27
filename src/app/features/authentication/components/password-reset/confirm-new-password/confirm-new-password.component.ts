@@ -1,11 +1,12 @@
 import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { Auth, confirmPasswordReset } from '@angular/fire/auth';
 import { NgIf, NgClass } from '@angular/common';
+
 @Component({
   selector: 'app-confirm-new-password',
-  imports: [FormsModule, NgIf, NgClass],
+  imports: [FormsModule, NgIf, NgClass, RouterLink],
   templateUrl: './confirm-new-password.component.html',
   styleUrl: './confirm-new-password.component.scss'
 })
