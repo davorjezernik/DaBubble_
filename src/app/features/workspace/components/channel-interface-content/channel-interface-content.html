@@ -64,7 +64,8 @@
       </button>
     </section>
   </header>
-  <main #messagesContainer
+  <main
+    #messagesContainer
     class="chat-content"
     *ngIf="messages$ | async as messages"
     [class.empty]="messages.length === 0"
@@ -144,6 +145,7 @@
       [messageId]="message.id"
       [reactionsMap]="message.reactions"
       collectionName="channels"
+      [lastReplyAt]="message.lastReplyAt"
     ></app-message-bubble>
     } }
   </main>

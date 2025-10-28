@@ -148,25 +148,12 @@ export abstract class BaseChatInterfaceComponent implements OnInit, OnDestroy {
     return clean.startsWith('assets/') ? clean : `assets/${clean}`;
   }
 
-  lastMessageTimestamp: any | null = null;
+  // Keep a reference to the last message timestamp rendered in the main list
+  // to support legacy/separate date-separator logic when needed.
+  lastMessageTimestamp: Timestamp | null = null;
 
-  shouldShowDateSeparator(messageTimestamp: Timestamp) {
-    if (!messageTimestamp) return false;
-
-    let showSeparator = false;
-    const currentDate = messageTimestamp.toDate();
-
-    if (!this.lastMessageTimestamp) {
-      showSeparator = true;
-    } else {
-      const lastDate = this.lastMessageTimestamp.toDate();
-
-      if (currentDate.toDateString() !== lastDate.toDateString()) {
-        showSeparator = true;
-      }
-    }
-    this.lastMessageTimestamp = messageTimestamp;
-    return showSeparator;
+  resetLastMessageTimestamp() {
+    this.lastMessageTimestamp = null;
   }
 
   isTodaysMessage(messageTimestamp: Timestamp | null): boolean {
@@ -183,9 +170,6 @@ export abstract class BaseChatInterfaceComponent implements OnInit, OnDestroy {
     }
   }
 
-  resetLastMessageTimestamp() {
-    this.lastMessageTimestamp = null;
-  }
 
   scrollToBottom() {
     const el = this.messagesContainer.nativeElement;

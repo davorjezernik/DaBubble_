@@ -1,9 +1,9 @@
-import { Component, HostListener, Input, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, HostListener, Input, Output, EventEmitter, OnChanges, SimpleChanges, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { EmojiPickerComponent } from '../../components/emoji-picker-component/emoji-picker-component';
-import { Firestore, doc, updateDoc } from '@angular/fire/firestore';
-import { deleteField, increment } from 'firebase/firestore';
+// ...
 import { ThreadPanelService } from '../../../../services/thread-panel.service';
+import { EmojiPickerComponent } from '../emoji-picker-component/emoji-picker-component';
+import { Firestore, doc, updateDoc, deleteDoc, deleteField, increment } from '@angular/fire/firestore';
 
 @Component({
   selector: 'app-message-bubble',
@@ -13,6 +13,10 @@ import { ThreadPanelService } from '../../../../services/thread-panel.service';
   styleUrl: './message-bubble.component.scss'
 })
 export class MessageBubbleComponent implements OnChanges {
+  @ViewChild('editEmojiPicker', { read: ElementRef }) editEmojiPickerRef?: ElementRef;
+  @ViewChild('editEmojiButton', { read: ElementRef }) editEmojiButtonRef?: ElementRef;
+  // Incoming alignment is provided by parent via [incoming]
+
   @Input() incoming: boolean = false; // when true, render as left-side/incoming message
   @Input() name: string = 'Frederik Beck';
   @Input() time: string = '15:06 Uhr';
@@ -24,6 +28,8 @@ export class MessageBubbleComponent implements OnChanges {
   @Input() reactionsMap?: Record<string, number> | null;
   // Collection context for reactions persistence (defaults to 'dms' for backward compatibility)
   @Input() collectionName: 'channels' | 'dms' = 'dms';
+  // Optional thread meta: pass last reply timestamp (Date | Firestore Timestamp | ISO string)
+  @Input() lastReplyAt?: unknown;
 
   showEmojiPicker = false;
   reactionsExpanded = false;
@@ -33,6 +39,12 @@ export class MessageBubbleComponent implements OnChanges {
 
   showMiniActions = false;
   private miniActionsHideTimer: any;
+  isEditing = false;
+  editText = '';
+  isSaving = false;
+  isDeleting = false;
+  // Edit mode emoji picker state
+  editEmojiPickerVisible = false;
 
   toggleEmojiPicker() {
     this.showEmojiPicker = !this.showEmojiPicker;
@@ -50,6 +62,23 @@ export class MessageBubbleComponent implements OnChanges {
 
   onClosePicker() {
     this.showEmojiPicker = false;
+  }
+
+  // Edit mode emoji picker handlers
+  toggleEditEmojiPicker(event?: MouseEvent) {
+    // Prevent the document click listener from closing the picker immediately
+    event?.stopPropagation();
+    this.editEmojiPickerVisible = !this.editEmojiPickerVisible;
+  }
+
+  closeEditEmojiPicker() {
+    this.editEmojiPickerVisible = false;
+  }
+
+  onEditEmojiSelected(emoji: string) {
+    // Append emoji to current edit text
+    this.editText = (this.editText || '') + emoji;
+    this.editEmojiPickerVisible = false;
   }
 
   reactions: { emoji: string; count: number }[] = [];
@@ -126,6 +155,21 @@ export class MessageBubbleComponent implements OnChanges {
     return this.isNarrow && this.visibleReactions.length >= 2;
   }
 
+  // Normalize various timestamp shapes (Date, Firestore Timestamp, ISO string)
+  get lastReplyDate(): Date | null {
+    const v: any = this.lastReplyAt as any;
+    if (!v) return null;
+    if (v instanceof Date) return v;
+    if (typeof v?.toDate === 'function') {
+      try { return v.toDate(); } catch { return null; }
+    }
+    if (typeof v === 'string' || typeof v === 'number') {
+      const d = new Date(v);
+      return isNaN(d.getTime()) ? null : d;
+    }
+    return null;
+  }
+
   toggleMoreMenu(event?: MouseEvent) {
     if (event) {
       event.stopPropagation();
@@ -136,13 +180,23 @@ export class MessageBubbleComponent implements OnChanges {
 
   onEditMessage() {
     this.isMoreMenuOpen = false;
-    this.editMessage.emit();
+    // Switch to inline edit mode
+    this.startEdit();
   }
 
-  @HostListener('document:click')
-  closeMenusOnOutsideClick() {
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: Event) {
     if (this.isMoreMenuOpen) {
       this.isMoreMenuOpen = false;
+    }
+
+    if (this.editEmojiPickerVisible) {
+      const clickedInsideButton = this.editEmojiButtonRef?.nativeElement.contains(event.target);
+      const clickedInsidePicker = this.editEmojiPickerRef?.nativeElement.contains(event.target);
+
+      if (!clickedInsideButton && !clickedInsidePicker) {
+        this.closeEditEmojiPicker();
+      }
     }
   }
 
@@ -152,6 +206,9 @@ export class MessageBubbleComponent implements OnChanges {
       this.isMoreMenuOpen = false;
       this.showEmojiPicker = false;
     }
+    if (this.editEmojiPickerVisible) {
+      this.editEmojiPickerVisible = false;
+    }
   }
 
   onSpeechBubbleEnter() {
@@ -160,7 +217,10 @@ export class MessageBubbleComponent implements OnChanges {
   }
 
   onSpeechBubbleLeave() {
+    // Hide mini actions and ensure the 3-dots menu is closed when leaving the bubble
     this.startMiniActionsHideTimer();
+    this.isMoreMenuOpen = false;
+    this.showEmojiPicker = false;
   }
 
   onMiniActionsEnter() {
@@ -169,7 +229,9 @@ export class MessageBubbleComponent implements OnChanges {
   }
 
   onMiniActionsLeave() {
+    // Also close the 3-dots menu when leaving the mini actions area
     this.startMiniActionsHideTimer();
+    this.isMoreMenuOpen = false;
   }
 
   private startMiniActionsHideTimer(delay = 180) {
@@ -183,6 +245,57 @@ export class MessageBubbleComponent implements OnChanges {
     if (this.miniActionsHideTimer) {
       clearTimeout(this.miniActionsHideTimer);
       this.miniActionsHideTimer = undefined;
+    }
+  }
+
+  startEdit() {
+    this.isEditing = true;
+    this.showMiniActions = false;
+    this.editText = this.text || '';
+  }
+
+  cancelEdit() {
+    this.isEditing = false;
+  }
+
+  async saveEdit() {
+    if (!this.chatId || !this.messageId) {
+      this.isEditing = false;
+      return;
+    }
+    const newText = (this.editText ?? '').trim();
+    if (!newText) {
+      // Leere Nachricht nicht speichern; optional könnte man hier löschen anbieten
+      this.isEditing = false;
+      return;
+    }
+    try {
+      this.isSaving = true;
+      const ref = doc(this.firestore, `${this.collectionName}/${this.chatId}/messages/${this.messageId}`);
+      await updateDoc(ref, { text: newText });
+      // Optimistische Aktualisierung bis der Stream aktualisiert
+      this.text = newText;
+      this.isEditing = false;
+    } catch (e) {
+      // console.warn('saveEdit failed', e);
+    } finally {
+      this.isSaving = false;
+    }
+  }
+
+  async deleteMessage() {
+    if (!this.chatId || !this.messageId) return;
+    // Simple confirm; could be replaced by a dialog component
+    const confirmed = typeof window !== 'undefined' ? window.confirm('Nachricht wirklich löschen?') : true;
+    if (!confirmed) return;
+    try {
+      this.isDeleting = true;
+      const ref = doc(this.firestore, `${this.collectionName}/${this.chatId}/messages/${this.messageId}`);
+      await deleteDoc(ref);
+    } catch (e) {
+      // noop
+    } finally {
+      this.isDeleting = false;
     }
   }
 
