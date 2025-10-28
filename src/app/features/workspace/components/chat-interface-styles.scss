@@ -1,15 +1,25 @@
 @use 'mixins';
 
 @mixin chat-interface-base {
+  // Shared outer container to enable proper flex scrolling in all chat screens
+  .chat-container {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    align-items: stretch;
+  }
+
   .chat-content {
     flex: 1;
     width: 100%;
     height: 100%;
+    min-height: 0;
     overflow-y: auto;
     display: flex;
     justify-content: flex-start;
     align-items: flex-start;
-    padding: 20px 20px 10px;
+    padding: 20px 0px 10px;
     box-sizing: border-box;
     flex-direction: column-reverse;
 

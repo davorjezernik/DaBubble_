@@ -6,9 +6,12 @@
     </div>
     <div
       class="speech-bubble"
+      [class.msg-box]="isEditing"
+      [class.editing]="isEditing"
       (mouseenter)="onSpeechBubbleEnter()"
       (mouseleave)="onSpeechBubbleLeave()"
     >
+      @if (!isEditing) {
       <div
         class="mini-actions"
         [class.visible]="showMiniActions"
@@ -46,6 +49,7 @@
         <span class="mini-hit" (click)="onCommentClick($event)">
           <img src="assets/icons/comment.svg" alt="Comment" class="mini-icon" />
         </span>
+        @if (!incoming) {
         <div class="more-menu" (click)="$event.stopPropagation()">
           <button
             class="mini-icon-btn"
@@ -70,12 +74,69 @@
             <button class="menu-item" role="menuitem" (click)="onEditMessage()">
               Nachricht bearbeiten
             </button>
+            <button
+              class="menu-item"
+              role="menuitem"
+              (click)="deleteMessage()"
+              [disabled]="isDeleting"
+            >
+              Nachricht löschen
+            </button>
           </div>
           }
         </div>
+        }
       </div>
+      } @if (isEditing) {
+      <div class="edit-container" (click)="$event.stopPropagation()">
+        <textarea
+          class="edit-textarea"
+          [value]="editText"
+          (input)="editText = $any($event.target).value"
+          rows="1"
+        ></textarea>
+        <div class="edit-actions">
+          <div class="edit-left-actions">
+            <button
+              #editEmojiButton
+              class="edit-icon-btn"
+              type="button"
+              aria-label="Insert emoji"
+              (click)="toggleEditEmojiPicker()"
+            >
+              <img src="assets/icons/sentiment_satisfied.svg" alt="Emoji" />
+            </button>
+            <app-emoji-picker-component
+              #editEmojiPicker
+              [showEmojiPicker]="editEmojiPickerVisible"
+              (emojiSelected)="onEditEmojiSelected($event)"
+              (closePicker)="closeEditEmojiPicker()"
+            ></app-emoji-picker-component>
+          </div>
+          <div class="edit-right-actions">
+            <button
+              class="btn btn--secondary"
+              (click)="cancelEdit()"
+              [disabled]="isSaving || isDeleting"
+            >
+              Abbrechen
+            </button>
+            <button
+              class="btn btn--primary"
+              (click)="saveEdit()"
+              [disabled]="isSaving || isDeleting"
+            >
+              Speichern
+            </button>
+          </div>
+        </div>
+      </div>
+      } @else {
       <p>{{ text }}</p>
+      }
     </div>
+
+    @if (!isEditing) {
     <div class="reactions" [class.center-narrow]="shouldCenterNarrow">
       <div class="reaction-list">
         @for (r of visibleReactions; track r.emoji) {
@@ -107,6 +168,9 @@
         </div>
       </div>
     </div>
+    @if (lastReplyDate) {
+    <div class="thread-meta">Letzte Antwort {{ lastReplyDate | date : 'HH:mm' }} Uhr</div>
+    } }
   </div>
   <div class="avatar-container">
     <img [src]="avatar" alt="User Avatar" class="avatar-img" />

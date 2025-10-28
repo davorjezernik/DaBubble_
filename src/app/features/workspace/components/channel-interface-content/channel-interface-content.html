@@ -133,6 +133,7 @@
       [messageId]="message.id"
       [reactionsMap]="message.reactions"
       collectionName="channels"
+      [lastReplyAt]="message.lastReplyAt"
     ></app-message-bubble>
     @if (message.showDateSeparator) {
     <section class="timestamp-block">
