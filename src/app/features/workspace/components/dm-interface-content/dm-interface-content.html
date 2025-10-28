@@ -1,6 +1,6 @@
 <section class="chat-container">
   <header class="chat-header">
-    <button class="dm-info-button">
+    <button class="dm-info-button" (click)="openUserCard()">
       <figure class="header-avatar-figure">
         <div class="header-avatar-wrapper">
           <img [src]="recipientData?.avatar" alt="avatar" />
@@ -51,7 +51,7 @@
     </div>
     } @empty { @if (isOwnDm) {
     <section>
-      <button class="avatar-figure-button">
+      <button class="avatar-figure-button" (click)="openUserCard()">
         <figure class="avatar-figure">
           <div class="avatar-wrapper">
             <img [src]="recipientData?.avatar" alt="avatar" />
@@ -67,7 +67,7 @@
     </section>
     } @else {
     <section>
-      <button class="avatar-figure-button">
+      <button class="avatar-figure-button" (click)="openUserCard()">
         <figure class="avatar-figure">
           <div class="avatar-wrapper">
             <img [src]="recipientData?.avatar" alt="avatar" />
@@ -77,12 +77,12 @@
       </button>
       <p class="chat-info">
         Diese Unterhaltung findet nur zwischen
-        <button class="recipient-tag">@{{ recipientData?.name }}</button> und dir statt.
+        <button class="recipient-tag" (click)="openUserCard()">@{{ recipientData?.name }}</button> und dir statt.
       </p>
     </section>
     } } }
   </main>
   <footer class="footer">
-    <app-message-area-component (send)="handleNewMessage($event)"></app-message-area-component>
+    <app-message-area-component [recipientName]="recipientData?.name || ''" (send)="handleNewMessage($event)"></app-message-area-component>
   </footer>
 </section>

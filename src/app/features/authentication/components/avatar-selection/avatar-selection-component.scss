@@ -6,6 +6,7 @@
   flex-direction: column;
   align-items: center;
   width: 608px;
+  height: 669px;
   margin-top: 60px;
   position: relative;
 }
@@ -124,6 +125,35 @@ mat-card-actions {
   background: rgba(255, 255, 255, 0.6);
   z-index: 2;
   border-radius: 30px;
+}
+
+@media (max-height: 1050px) {
+  .avatar-select-card {
+    width: 520px;
+    margin-top: 0px;
+    height: 640px;
+  }
+
+  .dialog-authentication-header {
+    height: 76px;
+    width: 218px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .dialog-authentication-title {
+    font-size: 36px;
+  }
+
+  .avatar-list-title {
+    margin-left: 40px;
+  }
+
+  .avatar-image {
+    width: 52px;
+    height: 52px;
+  }
 }
 
 @media (max-width: 750px) {

@@ -110,19 +110,7 @@
         .
       </p>
     </section>
-    } @else { @for(message of messages; track message.id) { @if (message.showDateSeparator) {
-    <section class="timestamp-block">
-      <p class="timestamp-line"></p>
-      <div class="timestamp-bubble">
-        <span class="message-timestamp">{{
-          isTodaysMessage(message.timestamp)
-            ? 'Heute'
-            : (message.timestamp?.toDate() | date : 'EEEE, d. MMMM')
-        }}</span>
-      </div>
-      <p class="timestamp-line"></p>
-    </section>
-    }
+    } @else { @for(message of messages; track message.id) {
     <app-message-bubble
       [incoming]="message.authorId !== currentUserId"
       [name]="
@@ -147,9 +135,21 @@
       collectionName="channels"
       [lastReplyAt]="message.lastReplyAt"
     ></app-message-bubble>
-    } }
+    @if (message.showDateSeparator) {
+    <section class="timestamp-block">
+      <p class="timestamp-line"></p>
+      <div class="timestamp-bubble">
+        <span class="message-timestamp">{{
+          isTodaysMessage(message.timestamp)
+            ? 'Heute'
+            : (message.timestamp?.toDate() | date : 'EEEE, d. MMMM')
+        }}</span>
+      </div>
+      <p class="timestamp-line"></p>
+    </section>
+    } } }
   </main>
   <footer class="footer">
-    <app-message-area-component (send)="handleNewMessage($event)"></app-message-area-component>
+    <app-message-area-component  [channelName]="channelData?.name || ''" (send)="handleNewMessage($event)"></app-message-area-component>
   </footer>
 </section>

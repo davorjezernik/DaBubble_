@@ -1,4 +1,4 @@
-import { Component, Inject } from '@angular/core';
+import { Component, Inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   MatDialog,
@@ -18,7 +18,9 @@ import { take } from 'rxjs/operators';
   templateUrl: './dialog-user-card.component.html',
   styleUrl: './dialog-user-card.component.scss',
 })
-export class DialogUserCardComponent {
+export class DialogUserCardComponent implements OnInit {
+  isSelf = false;
+
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: { user: User },
     public dialogRef: MatDialogRef<DialogUserCardComponent>,
@@ -26,7 +28,14 @@ export class DialogUserCardComponent {
     private userService: UserService
   ) {}
 
+   ngOnInit() {
+    this.userService.currentUser$()
+      .pipe(take(1))
+      .subscribe(me => this.isSelf = !!me && me.uid === this.data.user.uid);
+  }
+
   onEditUser() {
+    if (!this.isSelf) return;
     this.dialogRef.close();
     this.dialogRef
       .afterClosed()
@@ -45,7 +54,7 @@ export class DialogUserCardComponent {
           .afterClosed()
           .pipe(take(1))
           .subscribe(async (newName?: string) => {
-            if (!newName) return; // bei Abbrechen kommt undefined
+            if (!newName) return;
             await this.userService.updateUserName(this.data.user.uid, newName);
           });
       });

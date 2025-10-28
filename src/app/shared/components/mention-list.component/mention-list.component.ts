@@ -29,6 +29,7 @@ export class MentionListComponent {
   @Input() searchTerm: string = '';
   @Output() userSelected = new EventEmitter<MentionUser>();
   @Input() allSelectedUsers: MentionUser[] = [];
+  @Output() channelSelected = new EventEmitter<MentionChannel>();
 
   private userService = inject(UserService);
   currentUserId: string | null = null;
@@ -85,8 +86,9 @@ export class MentionListComponent {
 
   onPickChannel(c: MentionChannel) {
     this.pick.emit(`#${c.name} `);
+    this.channelSelected.emit(c);
   }
-
+  
   onUserSelected(u: MentionUser) {
     this.userSelected.emit(u);
   }

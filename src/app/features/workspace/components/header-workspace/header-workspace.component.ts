@@ -22,7 +22,7 @@ import { User } from '../../../../../models/user.class';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { take } from 'rxjs/operators';
 import { DialogUserCardComponent } from '../../../../shared/components/dialog-user-card/dialog-user-card.component';
-import { UserMenuDialogComponent } from '../user-menu-dialog.component/user-menu-dialog.component';
+import { UserMenuDialogComponent } from '../../../../shared/components/user-menu-dialog.component/user-menu-dialog.component';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 
 @Component({
