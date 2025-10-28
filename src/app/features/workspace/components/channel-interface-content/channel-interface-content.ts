@@ -45,7 +45,6 @@ export class ChannelInterfaceContent extends BaseChatInterfaceComponent {
    */
   override ngOnInit(): void {
     super.ngOnInit();
-    // Ensure we also load profiles for any authorIds found in the message stream
     this.localMessagesSub = this.messages$.subscribe((messages) => {
       const authorIds = new Set<string>();
       for (const m of messages || []) {
@@ -103,7 +102,6 @@ export class ChannelInterfaceContent extends BaseChatInterfaceComponent {
             this.loadedProfileIds.add(uid);
           }
         } catch (e) {
-          // ignore individual failures
         }
       }
     }

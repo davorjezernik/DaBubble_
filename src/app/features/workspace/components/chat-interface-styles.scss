@@ -6,7 +6,7 @@
     height: 100%;
     display: flex;
     flex-direction: column;
-    min-height: 0; // critical so the flex child (.chat-content) can actually shrink and scroll
+    min-height: 0;
     align-items: stretch;
   }
 
@@ -14,7 +14,7 @@
     flex: 1;
     width: 100%;
     height: 100%;
-    min-height: 0; // important in some layouts to allow overflow-y to take effect
+    min-height: 0;
     overflow-y: auto;
     display: flex;
     justify-content: flex-start;

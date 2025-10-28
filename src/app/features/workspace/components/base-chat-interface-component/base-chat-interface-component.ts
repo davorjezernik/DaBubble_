@@ -18,7 +18,6 @@ import { User } from '@angular/fire/auth';
 
 @Directive()
 export abstract class BaseChatInterfaceComponent implements OnInit, OnDestroy {
-  // Abstract property to be implemented by child classes
   abstract collectionName: 'channels' | 'dms';
 
   @ViewChild('messagesContainer') messagesContainer!: ElementRef;
@@ -27,7 +26,6 @@ export abstract class BaseChatInterfaceComponent implements OnInit, OnDestroy {
   chatId: string | null = null;
   currentUserId: string | null = null;
   currentUserProfile: any | null = null;
-
   protected routeSub?: Subscription;
   protected authSub?: Subscription;
   protected messagesSub?: Subscription;
@@ -38,6 +36,9 @@ export abstract class BaseChatInterfaceComponent implements OnInit, OnDestroy {
     protected authService: AuthService
   ) {}
 
+  /**
+   * Initialize auth-dependent state and set up the reactive message stream and metadata loading.
+   */
   ngOnInit(): void {
     this.authSub = this.authService.currentUser$.subscribe(async (user: User | null) => {
       this.currentUserId = user?.uid ?? null;
@@ -56,6 +57,7 @@ export abstract class BaseChatInterfaceComponent implements OnInit, OnDestroy {
     this.loadChatMetadata();
   }
 
+  /** Clean up subscriptions created by this base class. */
   ngOnDestroy(): void {
     this.routeSub?.unsubscribe();
     this.authSub?.unsubscribe();
@@ -63,7 +65,8 @@ export abstract class BaseChatInterfaceComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Hook for child components to load specific metadata (e.g., channel name or DM recipient).
+   * Subscribe to route param `id` to detect chat changes and forward to `onChatIdChanged`.
+   * Child components can override `onChatIdChanged` to load metadata.
    */
   protected loadChatMetadata(): void {
     this.routeSub = this.route.paramMap.subscribe((params) => {
@@ -75,13 +78,20 @@ export abstract class BaseChatInterfaceComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Can be overridden by child components to perform actions when the chat ID changes.
-   * @param chatId The new chat ID from the route.
+   * Hook: called whenever the route `id` changes.
+   * @param chatId New chat id (document id under the selected collection)
    */
   protected onChatIdChanged(chatId: string): void {
     // Default implementation does nothing.
   }
 
+  /**
+   * Build the reactive messages stream for the current chat.
+   * - Listens to route `id`
+   * - Queries Firestore messages ordered by timestamp desc
+   * - Maps into processed messages (e.g., insert date separators)
+   * - Auto-scrolls to bottom on updates
+   */
   private initializeMessagesStream(): void {
     this.messages$ = this.route.paramMap.pipe(
       switchMap((params) => {
@@ -102,6 +112,11 @@ export abstract class BaseChatInterfaceComponent implements OnInit, OnDestroy {
     });
   }
 
+  /**
+   * Post-process raw messages to annotate boundaries (e.g., show date separator when day changes).
+   * @param messages Raw messages from Firestore (descending order from query)
+   * @returns Messages array with `showDateSeparator` flags preserved in original order
+   */
   private processMessages(messages: any[]): any[] {
     let lastDate: string | null = null;
 
@@ -116,6 +131,10 @@ export abstract class BaseChatInterfaceComponent implements OnInit, OnDestroy {
     return processedMessages.reverse();
   }
 
+  /**
+   * Send a new message into the current chat.
+   * @param messageText Plain text content. Requires `chatId` and `currentUserId` to be set.
+   */
   async handleNewMessage(messageText: string): Promise<void> {
     if (!this.chatId || !this.currentUserId) return;
 
@@ -132,6 +151,11 @@ export abstract class BaseChatInterfaceComponent implements OnInit, OnDestroy {
     await addDoc(messagesCollectionRef, messageData);
   }
 
+  /**
+   * Fetch a user's document and normalize the avatar field for UI.
+   * @param userId User uid to load from `users/` collection.
+   * @returns The user data object or null if not found.
+   */
   protected async getUserData(userId: string): Promise<any | null> {
     const userRef = doc(this.firestore, `users/${userId}`);
     const userSnap = await getDoc(userRef);
@@ -141,6 +165,12 @@ export abstract class BaseChatInterfaceComponent implements OnInit, OnDestroy {
     return data;
   }
 
+  /**
+   * Normalize the avatar string for safe rendering:
+   * - If empty → default asset
+   * - If absolute URL → keep as is
+   * - If relative path → ensure it starts with `assets/`
+   */
   protected normalizeAvatar(raw?: string): string {
     if (!raw) return 'assets/img-profile/profile.png';
     if (/^https?:\/\//i.test(raw)) return raw;
@@ -152,10 +182,15 @@ export abstract class BaseChatInterfaceComponent implements OnInit, OnDestroy {
   // to support legacy/separate date-separator logic when needed.
   lastMessageTimestamp: Timestamp | null = null;
 
+  /** Reset the last rendered message timestamp reference. */
   resetLastMessageTimestamp() {
     this.lastMessageTimestamp = null;
   }
 
+  /**
+   * Check if a given message timestamp belongs to today.
+   * @param messageTimestamp Firestore Timestamp or null
+   */
   isTodaysMessage(messageTimestamp: Timestamp | null): boolean {
     if (!messageTimestamp) {
       return false;
@@ -170,7 +205,7 @@ export abstract class BaseChatInterfaceComponent implements OnInit, OnDestroy {
     }
   }
 
-
+  /** Smoothly scroll the messages container to the bottom. */
   scrollToBottom() {
     const el = this.messagesContainer.nativeElement;
     el.scrollTo({

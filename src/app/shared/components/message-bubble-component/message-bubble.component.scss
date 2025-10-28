@@ -389,7 +389,6 @@
   background: #ECEEFE;
 }
 
-/* On hover over the incoming row, turn the speech bubble itself white (unless editing) */
 .message-container.incoming:hover .speech-bubble:not(.editing) {
   background: #FFFFFF;
 }
@@ -431,7 +430,6 @@
   }
 }
 
-/* Inline edit styles */
 .edit-container {
   width: 100%;
   display: flex;
@@ -451,17 +449,13 @@
   color: #686868;
   background: #fff;
   box-sizing: border-box;
-  resize: none; /* remove bottom-right resize handle */
+  resize: none;
   overflow: auto;
-
-  /* Remove default focus outline/border when editing */
   &:focus,
   &:focus-visible {
     outline: none;
     box-shadow: none;
   }
-
-  /* additionally hide WebKit resizer marker if any */
   &::-webkit-resizer {
     display: none;
   }
@@ -515,8 +509,6 @@
   }
 }
 
-/* Position the emoji picker just above the left icon in edit mode */
-/* Anchor the edit-mode emoji picker to the left icon (common variant) */
 .edit-left-actions app-emoji-picker-component {
   position: absolute;
   bottom: 44px;
@@ -530,7 +522,6 @@
 }
 }
 
-/* Button utility classes local to this component */
 .btn {
   min-width: 141px;
   height: 49px;
@@ -559,7 +550,6 @@
   border: #ADB0D9 1px solid;
 }
 
-/* Align edit mode bubble with the shared msg-box visual language */
 .speech-bubble.msg-box {
   background: #ffffff;
   border: 1px solid #adb0d9;

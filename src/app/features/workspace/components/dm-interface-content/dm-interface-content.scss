@@ -189,8 +189,6 @@
   width: 100%;
 }
 
-/* Can be reused */
-
 .message-timestamp {
   @include mixins.text-style(
     $size: 18px,
