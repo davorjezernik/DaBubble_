@@ -1,0 +1,35 @@
+<section class="add-members-surface" (click)="stop($event)">
+  <header class="dlg-header">
+    <h3>Leute hinzufügen</h3>
+    <img
+      class="dlg-close"
+      src="/assets/icons/close.svg"
+      alt="Schließen"
+      (click)="close.emit()"
+    />
+  </header>
+
+  <div class="channel-line">
+    <img src="/assets/icons/hashtag.hovered.svg" alt="#" class="hash-icon" />
+    <button type="button" class="channel-link">{{ channelName }}</button>
+  </div>
+
+  <label class="input-wrap">
+    <input
+      type="text"
+      [(ngModel)]="name"
+      placeholder="Name eingeben"
+      (keydown.enter)="submit()"
+    />
+  </label>
+
+  <div class="actions">
+    <button
+      class="btn-primary"
+      [disabled]="!name.trim()"
+      (click)="submit()"
+    >
+      Hinzufügen
+    </button>
+  </div>
+</section>

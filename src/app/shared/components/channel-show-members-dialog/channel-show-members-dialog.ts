@@ -2,6 +2,7 @@ import { Component, EventEmitter, Input, Output, HostListener } from '@angular/c
 import { CommonModule } from '@angular/common';
 import { MatDialog } from '@angular/material/dialog';
 import { DialogUserCardComponent } from '../dialog-user-card/dialog-user-card.component';
+import { DialogIconAddMemberToChannel } from '../dialog-icon-add-member-to-channel/dialog-icon-add-member-to-channel';
 
 export interface ChannelMember {
   id: string;
@@ -20,6 +21,8 @@ export interface ChannelMember {
 export class ChannelShowMembersDialog {
   @Input() members: ChannelMember[] = [];
   @Input() currentUserId = '';
+  @Input() channelName = '';
+  @Input() addIconAnchor: HTMLElement | null = null;
 
   @Output() close = new EventEmitter<void>();
   @Output() addMembers = new EventEmitter<void>();
@@ -31,7 +34,7 @@ export class ChannelShowMembersDialog {
   }
 
   openUserCard(member: ChannelMember, e?: MouseEvent) {
-    e?.stopPropagation(); 
+    e?.stopPropagation();
     this.dialog.open(DialogUserCardComponent, {
       data: { user: member },
       panelClass: 'user-card-dialog',
@@ -42,7 +45,36 @@ export class ChannelShowMembersDialog {
       autoFocus: false,
       restoreFocus: true,
       hasBackdrop: true,
-      disableClose: false, 
+      disableClose: false,
     });
+  }
+
+  openAddMembersUnderIcon(ev: MouseEvent, anchor?: HTMLElement) {
+    ev.stopPropagation();
+
+    const anchorEl = this.addIconAnchor ?? anchor ?? (ev.currentTarget as HTMLElement);
+
+    const rect = anchorEl.getBoundingClientRect();
+    const GAP = 8;
+    const DLG_W = 514;
+    const DLG_H = 294;
+
+    const top = rect.bottom + window.scrollY + GAP;
+    const left = Math.max(8, rect.right + window.scrollX - DLG_W);
+
+    const ref = this.dialog.open(DialogIconAddMemberToChannel, {
+      panelClass: 'add-members-dialog-panel',
+      backdropClass: 'transparent-backdrop',
+      hasBackdrop: true,
+      autoFocus: false,
+      restoreFocus: true,
+      width: `${DLG_W}px`,
+      height: `${DLG_H}px`,
+      position: { top: `${top}px`, left: `${left}px` },
+    });
+
+    ref.componentInstance.channelName = this.channelName;
+    ref.componentInstance.close.subscribe(() => ref.close());
+    ref.componentInstance.add.subscribe(() => ref.close());
   }
 }

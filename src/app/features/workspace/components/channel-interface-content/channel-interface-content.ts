@@ -12,6 +12,8 @@ import { MatDialog } from '@angular/material/dialog';
 import { map, combineLatest, Observable, of } from 'rxjs';
 import { UserService } from '../../../../../services/user.service';
 import { ChannelMember } from '../../../../shared/components/channel-show-members-dialog/channel-show-members-dialog';
+import { DialogIconAddMemberToChannel } from
+  '../../../../shared/components/dialog-icon-add-member-to-channel/dialog-icon-add-member-to-channel';
 
 @Component({
   selector: 'app-channel-interface-content',
@@ -146,7 +148,7 @@ export class ChannelInterfaceContent extends BaseChatInterfaceComponent {
     this.memberCount$ = this.members$.pipe(map((ms) => ms.length));
   }
 
-  /** Öffnet ChannelShowMembersDialog*/
+  /* Öffnet ChannelShowMembersDialog */
   openMembersDialog(ev?: MouseEvent, anchor?: HTMLElement) {
   ev?.stopPropagation();
 
@@ -167,18 +169,52 @@ export class ChannelInterfaceContent extends BaseChatInterfaceComponent {
     position: { top: `${top}px`, left: `${left}px` },
   });
 
-  // Daten setzen
   const sub = this.members$.subscribe(ms => {
-    ref.componentInstance.members = ms;
-    ref.componentInstance.currentUserId = this.currentUserId ?? '';
-    sub.unsubscribe();
-  });
+  ref.componentInstance.members = ms;
+  ref.componentInstance.currentUserId = this.currentUserId ?? '';
+  ref.componentInstance.channelName = this.channelData?.name ?? '';
 
-  // Outputs verdrahten
+  const headerAddIcon = document.querySelector('.add-user-btn') as HTMLElement | null;
+  ref.componentInstance.addIconAnchor = headerAddIcon;
+
+  sub.unsubscribe();
+});
+
   ref.componentInstance.close.subscribe(() => ref.close());
   ref.componentInstance.addMembers.subscribe(() => {
     ref.close();
-    // TODO: Add-Members-Flow starten
+  });
+}
+
+/* Öffnet dialog-icon-add-member-to-channel*/
+openAddMembersUnderIcon(ev: MouseEvent, anchor: HTMLElement) {
+  ev.stopPropagation();
+
+  const rect = anchor.getBoundingClientRect();
+  const GAP = 8;
+  const DLG_W = 514;
+  const DLG_H = 294;
+
+  const top  = rect.bottom + window.scrollY + GAP;
+  const left = Math.max(8, rect.right + window.scrollX - DLG_W); 
+
+  const ref = this.dialog.open(DialogIconAddMemberToChannel, {
+    panelClass: 'add-members-dialog-panel',
+    backdropClass: 'transparent-backdrop',
+    hasBackdrop: true,
+    autoFocus: false,
+    restoreFocus: true,
+    width: `${DLG_W}px`,
+    height: `${DLG_H}px`,
+    position: { top: `${top}px`, left: `${left}px` },
+  });
+
+  const name = this.channelData?.name ?? '';
+  ref.componentInstance.channelName = name;
+
+  ref.componentInstance.close.subscribe(() => ref.close());
+  ref.componentInstance.add.subscribe((query: string) => {
+    ref.close();
   });
 }
 }

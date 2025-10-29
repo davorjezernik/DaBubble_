@@ -52,7 +52,7 @@
           />
         </ng-container>
       </button>
-      <button class="add-user-btn">
+      <button class="add-user-btn"  #headerAddIcon (click)="openAddMembersUnderIcon($event, headerAddIcon)">
         <svg
           width="40"
           height="40"

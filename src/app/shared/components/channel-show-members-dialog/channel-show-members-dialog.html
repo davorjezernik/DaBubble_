@@ -26,9 +26,9 @@
       </div>
     </li>
 
-    <li class="member-row add-members">
-      <div class="add-icon"></div>
-      <button class="add-members-btn" (click)="addMembers.emit()">Mitglieder hinzufügen</button>
+    <li class="member-row add-members" (click)="openAddMembersUnderIcon($event)">
+      <div class="add-icon" (click)="openAddMembersUnderIcon($event)"></div>
+      <button class="add-members-btn" (click)="openAddMembersUnderIcon($event)">Mitglieder hinzufügen</button>
     </li>
   </ul>
 </section>
