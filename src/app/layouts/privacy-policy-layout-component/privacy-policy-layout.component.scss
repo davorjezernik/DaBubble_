@@ -7,29 +7,6 @@ section {
     font-family: "nunito";
 }
 
-.nav-container {
-    position: absolute;
-    width: 1920px;
-    overflow: hidden;
-    img {
-        width: 243px;
-        height: 70px;
-    }
-}
-
-.nav-container-inner {
-    width: 100%;
-    display: flex;
-    align-items: center;
-    cursor: pointer;
-    transition: transform 125ms ease;
-    transform-origin: left center;
-}
-
-.nav-container-inner:hover {
-    transform: scale(1.1);
-}
-
 .main-container {
     width: 100%;
     height: 100%;
@@ -78,16 +55,19 @@ section {
     height: 80%;
     overflow-x: hidden;
     h2 {
-       font-size: 46px; 
-       margin: 32px 0px;
+        font-size: 46px; 
+        margin: 32px 0px;
         color: #444DF2;
         font-weight: 700;
+        word-break: break-word;
+        line-height: 1;
     }
     h3 {
         font-size: 32px;
         margin: 8px 0px;
         color: #444DF2;
         font-weight: 700;
+        line-height: 1;
     }
     p {
         font-size: 20px;
@@ -106,5 +86,16 @@ section {
     .inner-container {
         width: 90%;
         height: 90%;
+    }
+    .text-container {
+        h2 {
+            font-size: 32px; 
+        }
+        h3 {
+            font-size: 24px;
+        }
+        p {
+            font-size: 17px;
+        }
     }
 }
