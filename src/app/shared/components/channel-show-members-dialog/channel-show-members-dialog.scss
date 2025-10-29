@@ -33,12 +33,17 @@ $offline: #b7bcc5;
 }
 
 .dlg-close {
-  all: unset;
-  cursor: pointer;
+  width: 20px;
+  height: 20px;
   padding: 10px;
-  border-radius: 50px;
+  transition: background 125ms ease, transform 125ms ease;
+  border-radius: 50%;
+  background: transparent;
+  cursor: pointer;
+
   &:hover {
     background: $hover-bg;
+    content: url('/assets/icons/close-hover.svg');
   }
 }
 
@@ -50,6 +55,13 @@ $offline: #b7bcc5;
   display: flex;
   flex-direction: column;
   gap: 13px;
+
+  scrollbar-width: none; 
+  -ms-overflow-style: none; 
+
+  &::-webkit-scrollbar {
+    display: none; 
+  }
 }
 
 .member-row {
@@ -58,18 +70,15 @@ $offline: #b7bcc5;
   gap: 15px;
   padding: 3px 10px;
   border-radius: 30px;
-  transition: background 125ms ease, color 125ms ease;
   cursor: pointer;
+  transition: background 125ms ease, color 125ms ease;
+
+  width: fit-content;
+  max-width: 100%; 
 
   &:hover {
     background: $hover-bg;
-    .member-name {
-      color: $brand;
-      font-weight: 700;
-    }
-    .you {
-      font-weight: 700;
-    }
+
     .status-dot {
       border-color: $hover-bg;
     }
@@ -125,11 +134,21 @@ $offline: #b7bcc5;
 
 .add-members {
   margin-top: 8px;
+
   &:hover {
     background: $hover-bg;
+
     .add-members-btn {
       color: $brand;
       font-weight: 700;
+    }
+
+    .add-icon {
+      background-color: $hover-bg;
+      background-image: url('/assets/icons/add-person-to-channel-hover.svg');
+      background-size: 32px;          
+      background-position: center;    
+      background-repeat: no-repeat;
     }
   }
 }
@@ -138,11 +157,15 @@ $offline: #b7bcc5;
   width: 50px;
   height: 50px;
   border-radius: 50%;
-  background: $hover-bg;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 18px;
+  cursor: pointer;
+
+  background-color: transparent;
+  background-image: url('/assets/icons/add-person-to-channel.svg');
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 50px;
+
+  transition: background-color 125ms ease;
 }
 
 .add-members-btn {

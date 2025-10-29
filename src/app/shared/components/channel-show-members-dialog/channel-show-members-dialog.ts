@@ -1,5 +1,7 @@
 import { Component, EventEmitter, Input, Output, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { MatDialog } from '@angular/material/dialog';
+import { DialogUserCardComponent } from '../dialog-user-card/dialog-user-card.component';
 
 export interface ChannelMember {
   id: string;
@@ -10,10 +12,8 @@ export interface ChannelMember {
 
 @Component({
   selector: 'app-channel-show-members-dialog',
-  standalone: true, 
-  imports: [
-    CommonModule
-  ],
+  standalone: true,
+  imports: [CommonModule],
   templateUrl: './channel-show-members-dialog.html',
   styleUrl: './channel-show-members-dialog.scss',
 })
@@ -24,13 +24,25 @@ export class ChannelShowMembersDialog {
   @Output() close = new EventEmitter<void>();
   @Output() addMembers = new EventEmitter<void>();
 
-  // schließt den Dialog bei Klick außerhalb
-  @HostListener('document:click')
-  onDocClick() {
-    this.close.emit();
-  }
+  constructor(private dialog: MatDialog) {}
 
   stop(e: MouseEvent) {
     e.stopPropagation();
+  }
+
+  openUserCard(member: ChannelMember, e?: MouseEvent) {
+    e?.stopPropagation(); 
+    this.dialog.open(DialogUserCardComponent, {
+      data: { user: member },
+      panelClass: 'user-card-dialog',
+      width: '500px',
+      height: '705px',
+      maxWidth: 'none',
+      maxHeight: 'none',
+      autoFocus: false,
+      restoreFocus: true,
+      hasBackdrop: true,
+      disableClose: false, 
+    });
   }
 }

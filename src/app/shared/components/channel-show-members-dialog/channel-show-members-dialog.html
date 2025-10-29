@@ -5,7 +5,10 @@
   </header>
 
   <ul class="member-list">
-    <li class="member-row" *ngFor="let m of members" [class.is-online]="m.online">
+    <li class="member-row" 
+    (click)="openUserCard(m, $event)" 
+    *ngFor="let m of members" 
+    [class.is-online]="m.online">
       <span class="member-avatar-wrap">
         <img
           class="member-avatar"
@@ -24,7 +27,7 @@
     </li>
 
     <li class="member-row add-members">
-      <img class="add-icon" src="/assets/icons/add-person-to-channel.svg" alt="" />
+      <div class="add-icon"></div>
       <button class="add-members-btn" (click)="addMembers.emit()">Mitglieder hinzufügen</button>
     </li>
   </ul>
