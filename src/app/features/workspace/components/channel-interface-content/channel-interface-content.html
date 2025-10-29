@@ -33,7 +33,26 @@
     </section>
 
     <section class="users-and-add-users">
-      <div>users</div>
+      <button
+        class="avatar-stack"
+        #membersBtn
+        type="button"
+        (click)="openMembersDialog($event, membersBtn)"
+        aria-label="Mitglieder anzeigen"
+      >
+        <ng-container *ngIf="avatarPreview$ | async as preview">
+          <img
+            *ngFor="let m of preview; let i = index"
+            class="avatar"
+            [style.zIndex]="10 - i"
+            [src]="m.avatar || 'assets/img-profile/profile.png'"
+            [alt]="m.name || 'User'"
+            [title]="m.name || ''"
+          />
+        </ng-container>
+
+        <span class="member-count" *ngIf="memberCount$ | async as c">{{ c }}</span>
+      </button>
       <button class="add-user-btn">
         <svg
           width="40"
@@ -150,6 +169,9 @@
     } } }
   </main>
   <footer class="footer">
-    <app-message-area-component  [channelName]="channelData?.name || ''" (send)="handleNewMessage($event)"></app-message-area-component>
+    <app-message-area-component
+      [channelName]="channelData?.name || ''"
+      (send)="handleNewMessage($event)"
+    ></app-message-area-component>
   </footer>
 </section>
