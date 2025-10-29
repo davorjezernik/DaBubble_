@@ -1,3 +1,8 @@
+$brand: #535af1;
+$hover-bg: #eceefe;
+$online: #5cd65c;
+$offline: #b7bcc5;
+
 .members-dialog {
   width: 415px;
   height: 411px;
@@ -5,9 +10,9 @@
   border-top-left-radius: 30px !important;
   border-bottom-right-radius: 30px !important;
   border-bottom-left-radius: 30px !important;
-  border-top-right-radius: 0px !important;
-  background: #ffffff;
-  box-shadow: 0px 6px 10px 0px #00000033;
+  border-top-right-radius: 0 !important;
+  background: #fff;
+  box-shadow: 0 6px 10px #00000033;
   display: flex;
   flex-direction: column;
   gap: 20px;
@@ -22,17 +27,18 @@
 
 .dlg-header h3 {
   margin: 0;
-  font: 700 28px/1 'Nunito', sans-serif;
+  font-family: 'Nunito', sans-serif;
+  font-size: 24px;
+  font-weight: 700;
 }
 
 .dlg-close {
   all: unset;
   cursor: pointer;
-  font-size: 20px;
-  padding: 4px;
-  border-radius: 8px;
+  padding: 10px;
+  border-radius: 50px;
   &:hover {
-    background: #eceefe;
+    background: $hover-bg;
   }
 }
 
@@ -43,20 +49,62 @@
   overflow: auto;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 13px;
 }
 
 .member-row {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 15px;
+  padding: 3px 10px;
+  border-radius: 30px;
+  transition: background 125ms ease, color 125ms ease;
+  cursor: pointer;
+
+  &:hover {
+    background: $hover-bg;
+    .member-name {
+      color: $brand;
+      font-weight: 700;
+    }
+    .you {
+      font-weight: 700;
+    }
+    .status-dot {
+      border-color: $hover-bg;
+    }
+  }
+}
+
+.member-avatar-wrap {
+  position: relative;
+  width: 50px;
+  height: 50px;
+  display: inline-grid;
+  place-items: center;
 }
 
 .member-avatar {
-  width: 44px;
-  height: 44px;
+  width: 50px;
+  height: 50px;
   border-radius: 50%;
   object-fit: cover;
+}
+
+.status-dot {
+  position: absolute;
+  right: -2px;
+  bottom: 0px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: $offline;
+  border: 2px solid #fff;
+  transition: background 125ms ease, border-color 125ms ease;
+}
+
+.is-online .status-dot {
+  background: $online;
 }
 
 .member-main {
@@ -66,31 +114,31 @@
 }
 
 .member-name {
-  font: 600 18px/1.2 'Nunito', sans-serif;
+  font-family: 'Nunito', sans-serif;
+  font-size: 18px;
+  font-weight: 400;
 }
 
 .you {
   font-weight: 400;
-  opacity: 0.7;
-}
-
-.online-dot {
-  width: 10px;
-  height: 10px;
-  background: #5cd65c;
-  border: 2px solid #fff;
-  border-radius: 50%;
 }
 
 .add-members {
   margin-top: 8px;
+  &:hover {
+    background: $hover-bg;
+    .add-members-btn {
+      color: $brand;
+      font-weight: 700;
+    }
+  }
 }
 
 .add-icon {
-  width: 44px;
-  height: 44px;
+  width: 50px;
+  height: 50px;
   border-radius: 50%;
-  background: #eceefe;
+  background: $hover-bg;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -100,8 +148,7 @@
 .add-members-btn {
   all: unset;
   cursor: pointer;
-  font: 600 18px/1.2 'Nunito', sans-serif;
-  &:hover {
-    text-decoration: underline;
-  }
+  font-family: 'Nunito', sans-serif;
+  font-size: 18px;
+  font-weight: 400;
 }

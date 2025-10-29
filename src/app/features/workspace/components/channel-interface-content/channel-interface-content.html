@@ -41,6 +41,7 @@
         aria-label="Mitglieder anzeigen"
       >
         <ng-container *ngIf="avatarPreview$ | async as preview">
+          <span class="member-count" *ngIf="memberCount$ | async as c">{{ c }}</span>
           <img
             *ngFor="let m of preview; let i = index"
             class="avatar"
@@ -50,8 +51,6 @@
             [title]="m.name || ''"
           />
         </ng-container>
-
-        <span class="member-count" *ngIf="memberCount$ | async as c">{{ c }}</span>
       </button>
       <button class="add-user-btn">
         <svg

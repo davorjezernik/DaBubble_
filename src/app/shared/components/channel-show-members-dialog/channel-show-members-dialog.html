@@ -1,12 +1,20 @@
 <section class="members-dialog" (click)="stop($event)">
   <header class="dlg-header">
     <h3>Mitglieder</h3>
-    <button class="dlg-close" (click)="close.emit()">✕</button>
+    <img class="dlg-close" src="/assets/icons/close.svg" alt="close icon" (click)="close.emit()">
   </header>
 
   <ul class="member-list">
-    <li class="member-row" *ngFor="let m of members">
-      <img class="member-avatar" [src]="m.avatar || 'assets/img-profile/profile.png'" [alt]="m.name || 'User'" />
+    <li class="member-row" *ngFor="let m of members" [class.is-online]="m.online">
+      <span class="member-avatar-wrap">
+        <img
+          class="member-avatar"
+          [src]="m.avatar || 'assets/img-profile/profile.png'"
+          [alt]="m.name || 'User'"
+        />
+        <span class="status-dot"></span>
+      </span>
+
       <div class="member-main">
         <div class="member-name">
           {{ m.name || 'Unbekannt' }}
@@ -16,7 +24,7 @@
     </li>
 
     <li class="member-row add-members">
-      <img src="/assets/icons/add-person-to-channel.svg" alt="">
+      <img class="add-icon" src="/assets/icons/add-person-to-channel.svg" alt="" />
       <button class="add-members-btn" (click)="addMembers.emit()">Mitglieder hinzufügen</button>
     </li>
   </ul>
