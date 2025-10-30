@@ -11,8 +11,26 @@
     </div>
   </header>
   <main class="chat-content">
-    <p>Thread für Nachricht: {{ messageId }}</p>
-    <p>Chat: {{ chatId }} ({{ collectionName }})</p>
+    <section>
+      <app-message-bubble
+        [incoming]="senderId !== currentUserData.id"
+        [name]="senderId !== currentUserData.id ? currentUserData.displayName : 'Du'"
+        [avatar]="
+          senderId !== currentUserData.id
+            ? currentUserData.avatar ?? 'assets/img-profile/profile.png'
+            : currentUserData.avatar ?? 'assets/img-profile/profile.png'
+        "
+        [time]="messageTimestamp ? (messageTimestamp.toDate() | date : 'HH:mm') + ' Uhr' : ''
+        "
+        [text]="messageText ?? ''"
+        [chatId]="chatId || ''"
+        [messageId]="currentUserData.id"
+        [reactionsMap]="messageReactions"
+      ></app-message-bubble>
+    </section>
+    <section>
+
+    </section>
   </main>
   <footer class="footer">
     <app-message-area-component></app-message-area-component>
