@@ -8,7 +8,16 @@ import {
   Output,
 } from '@angular/core';
 import { MessageAreaComponent } from '../../../../shared/components/message-area-component/message-area-component';
-import { addDoc, collection, collectionData, doc, docData, Firestore, getDocs, serverTimestamp } from '@angular/fire/firestore';
+import {
+  addDoc,
+  collection,
+  collectionData,
+  doc,
+  docData,
+  Firestore,
+  getDocs,
+  serverTimestamp,
+} from '@angular/fire/firestore';
 import { Subscription } from 'rxjs';
 import { MessageBubbleComponent } from '../../../../shared/components/message-bubble-component/message-bubble.component';
 import { UserService } from '../../../../../services/user.service';
@@ -44,22 +53,25 @@ export class ThreadSidenavContent implements OnInit, OnDestroy, OnChanges {
   messageDataSub?: Subscription;
   userDataSub?: Subscription;
   answersAmountSub?: Subscription;
-  
+  answersDataSub?: Subscription;
+
+  messages: any[] = [];
 
   constructor(private firestore: Firestore, private userService: UserService) {}
 
-  ngOnInit(): void {
-  }
+  ngOnInit(): void {}
 
   ngOnChanges(): void {
     this.accessTriggerMessageData();
     this.getAnswersAmount();
+    this.getAllThreadMessages();
   }
 
   ngOnDestroy(): void {
     this.messageDataSub?.unsubscribe();
     this.userDataSub?.unsubscribe();
     this.answersAmountSub?.unsubscribe();
+    this.answersDataSub?.unsubscribe();
   }
 
   private async accessTriggerMessageData() {
@@ -90,7 +102,10 @@ export class ThreadSidenavContent implements OnInit, OnDestroy, OnChanges {
   }
 
   private async getAnswersAmount() {
-    const colRef = collection(this.firestore, `${this.collectionName}/${this.chatId}/messages/${this.messageId}/thread`);
+    const colRef = collection(
+      this.firestore,
+      `${this.collectionName}/${this.chatId}/messages/${this.messageId}/thread`
+    );
     collectionData(colRef).subscribe((data: any) => {
       this.answersAmount = data.length;
     });
@@ -99,11 +114,25 @@ export class ThreadSidenavContent implements OnInit, OnDestroy, OnChanges {
   public async handleNewMessage(textMessage: string) {
     if (!this.chatId || !this.messageId) return;
 
-    const docRef = collection(this.firestore, `${this.collectionName}/${this.chatId}/messages/${this.messageId}/thread/`);
+    const docRef = collection(
+      this.firestore,
+      `${this.collectionName}/${this.chatId}/messages/${this.messageId}/thread/`
+    );
     await addDoc(docRef, {
       user: this.currentUserData,
       text: textMessage,
       timestamp: serverTimestamp(),
+    });
+  }
+
+  private getAllThreadMessages() {
+    const messagesRef = collection(
+      this.firestore,
+      `${this.collectionName}/${this.chatId}/messages/${this.messageId}/thread/`
+    );
+    collectionData(messagesRef, { idField: 'id' }).subscribe((data: any) => {
+      this.messages = data;
+      console.log('Thread messages:', this.messages);
     });
   }
 

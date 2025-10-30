@@ -20,8 +20,7 @@
             ? currentUserData.avatar ?? 'assets/img-profile/profile.png'
             : currentUserData.avatar ?? 'assets/img-profile/profile.png'
         "
-        [time]="messageTimestamp ? (messageTimestamp.toDate() | date : 'HH:mm') + ' Uhr' : ''
-        "
+        [time]="messageTimestamp ? (messageTimestamp.toDate() | date : 'HH:mm') + ' Uhr' : ''"
         [text]="messageText ?? ''"
         [chatId]="chatId || ''"
         [messageId]="currentUserData.id"
@@ -30,9 +29,30 @@
     </section>
     <div class="separator-wrapper">
       <span>{{ answersAmount }} Antworten</span>
-      <hr class="separator-line">
+      <hr class="separator-line" />
     </div>
-    <section>
+    <section class="reaction-messages-box">
+      @if (messages.length !== 0) { @for (message of messages; track message.id) {
+      <app-message-bubble
+        [incoming]="message.user?.id !== currentUserData.id"
+        [name]="message.user?.id !== currentUserData.id ? message.user?.displayName || '' : 'Du'"
+        [avatar]="
+          message.user?.id !== currentUserData.id
+            ? message.user?.avatar || 'assets/img-profile/profile.png'
+            : message.user?.avatar ?? 'assets/img-profile/profile.png'
+        "
+        [time]="
+          message?.timestamp
+            ? (message.timestamp.toDate() | date : 'HH:mm') + ' Uhr'
+            : ''
+        "
+        [text]="message?.text ?? ''"
+        [chatId]="chatId || ''"
+        [messageId]="message?.id"
+        [reactionsMap]="message?.reactions"
+        collectionName="channels"
+      ></app-message-bubble>
+      } }
     </section>
   </main>
   <footer class="footer">
