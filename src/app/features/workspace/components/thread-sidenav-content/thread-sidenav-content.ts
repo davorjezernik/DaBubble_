@@ -48,15 +48,18 @@ export class ThreadSidenavContent implements OnInit, OnDestroy, OnChanges {
 
   constructor(private firestore: Firestore, private userService: UserService) {}
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+  }
 
   ngOnChanges(): void {
     this.accessTriggerMessageData();
+    this.getAnswersAmount();
   }
 
   ngOnDestroy(): void {
     this.messageDataSub?.unsubscribe();
     this.userDataSub?.unsubscribe();
+    this.answersAmountSub?.unsubscribe();
   }
 
   private async accessTriggerMessageData() {
