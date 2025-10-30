@@ -22,7 +22,8 @@ import { User } from '../../../../../models/user.class';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { take } from 'rxjs/operators';
 import { DialogUserCardComponent } from '../../../../shared/components/dialog-user-card/dialog-user-card.component';
-import { UserMenuDialogComponent } from '../user-menu-dialog.component/user-menu-dialog.component';
+import { UserMenuDialogComponent } from '../../../../shared/components/user-menu-dialog.component/user-menu-dialog.component';
+import { MatBottomSheet } from '@angular/material/bottom-sheet';
 
 @Component({
   selector: 'app-header-workspace',
@@ -35,7 +36,7 @@ import { UserMenuDialogComponent } from '../user-menu-dialog.component/user-menu
     MatIconModule,
     MatButtonModule,
     MatMenuModule,
-    MatDialogModule, 
+    MatDialogModule,
   ],
   templateUrl: './header-workspace.component.html',
   styleUrl: './header-workspace.component.scss',
@@ -45,6 +46,7 @@ export class HeaderWorkspaceComponent implements OnInit, OnDestroy {
   private router = inject(Router);
   private userService = inject(UserService);
   private dialog = inject(MatDialog);
+  private bottomSheet = inject(MatBottomSheet);
 
   // Profil des eingeloggten Users //
   user$: Observable<User | null> = this.userService.currentUser$();
@@ -65,35 +67,48 @@ export class HeaderWorkspaceComponent implements OnInit, OnDestroy {
     await this.userService.markOnline(true);
   }
 
+  // menü für oben und ab 400 px unten //
   openUserMenu(evt: MouseEvent) {
-    const trigger = evt.currentTarget as HTMLElement;
-    const avatar = (trigger.querySelector('.avatar-wrap') as HTMLElement) ?? trigger;
-    const r = avatar.getBoundingClientRect();
-    const MENU_W = 260,
-      GAP = 8,
-      MARGIN = 8;
+  const trigger = evt.currentTarget as HTMLElement;
+  const avatar  = (trigger.querySelector('.avatar-wrap') as HTMLElement) ?? trigger;
+  const r = avatar.getBoundingClientRect();
 
-    let left = r.right - MENU_W;
-    left = Math.max(MARGIN, Math.min(left, window.innerWidth - MENU_W - MARGIN));
-    const top = r.bottom + GAP;
+  const GAP = 8;
+  const MARGIN = 16;
+  const MENU_W = (window.innerWidth <= 880) ? 350 : 300;
 
-    const ref = this.dialog.open(UserMenuDialogComponent, {
-      data: {}, 
-      panelClass: 'user-menu-dialog',
-      hasBackdrop: true,
-      autoFocus: false,
-      restoreFocus: true,
-      position: { top: `${top}px`, left: `${left}px` },
+  // wenn kleiner als 400px //
+  if (window.innerWidth <= 400) {
+    const ref = this.bottomSheet.open(UserMenuDialogComponent, {
+      data: {},
+      panelClass: 'user-menu-bottom'
     });
-
-    ref
-      .afterClosed()
-      .pipe(take(1))
-      .subscribe((action) => {
-        if (action === 'profile') this.openProfil();
-        if (action === 'logout') this.logout();
-      });
+    ref.afterDismissed().pipe(take(1)).subscribe(action => {
+      if (action === 'profile') this.openProfil();
+      if (action === 'logout')  this.logout();
+    });
+    return;
   }
+
+  // normales Dialog-Menü //
+  let left = r.right - MENU_W;
+  left = Math.max(MARGIN, Math.min(left, window.innerWidth - MENU_W - MARGIN));
+  const top = r.bottom + GAP;
+
+  const ref = this.dialog.open(UserMenuDialogComponent, {
+    data: {},
+    panelClass: 'user-menu-dialog',
+    hasBackdrop: true,
+    autoFocus: false,
+    restoreFocus: true,
+    position: { top: `${top}px`, left: `${left}px` },
+  });
+
+  ref.afterClosed().pipe(take(1)).subscribe((action) => {
+    if (action === 'profile') this.openProfil();
+    if (action === 'logout') this.logout();
+  });
+}
 
   openProfil() {
     this.user$.pipe(take(1)).subscribe((user) => {

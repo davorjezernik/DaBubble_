@@ -12,7 +12,7 @@
     <section class="mat-typography">
       <div class="user-name-edit">
         <h3>{{ data.user.name }}</h3>
-        <button class="edit-btn" (click)="onEditUser()">Bearbeiten</button>
+        <button class="edit-btn" *ngIf="isSelf" (click)="onEditUser()">Bearbeiten</button>
       </div>
       <p class="user-status">
         <span
@@ -25,16 +25,16 @@
       </p>
 
       <div class="info-email-container">
-        <img src="assets/icons/mail.svg" alt="" />
+        <img src="assets/icons/mail.svg" alt="Mail Icon" />
         <h3>E-Mail-Adresse</h3>
       </div>
       <a [href]="'mailto:' + data.user.email">{{ data.user.email }}</a>
     </section>
   </main>
 
-  <mat-dialog-actions>
+  <mat-dialog-actions *ngIf="!isSelf">
     <button class="user-card-btn" matButton>
-      <img src="assets/icons/message-icon.svg" alt="" />Nachricht
+      <img src="assets/icons/message-icon.svg" alt="Message Icon" />Nachricht
     </button>
   </mat-dialog-actions>
 </div>

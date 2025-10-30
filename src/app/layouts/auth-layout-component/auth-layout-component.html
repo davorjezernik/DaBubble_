@@ -1,13 +1,15 @@
 <section class="auth-section">
   <header class="header">
     <figure class="logo">
-      <a [routerLink]="'/'"><img src="assets/icons/static-logo.svg" alt="Backdrop Image" /></a>
+      <a routerLink="/"><img src="assets/icons/static-logo.svg" alt="Backdrop Image" /></a>
     </figure>
+
+    <!-- Desktop -->
     @if (isLogin()) {
-    <hgroup class="signup-text">
-      <p>Neu bei DABubble?</p>
-      <a [routerLink]="'/signup'">Konto erstellen</a>
-    </hgroup>
+      <hgroup class="signup-text signup-text--desktop">
+        <p>Neu bei DABubble?</p>
+        <a routerLink="/signup" class="nav-link">Konto erstellen</a>
+      </hgroup>
     }
   </header>
 
@@ -15,10 +17,18 @@
     <router-outlet></router-outlet>
   </main>
 
+  <!-- Mobile -->
+  @if (isLogin()) {
+    <hgroup class="signup-text signup-text--mobile">
+      <p>Neu bei DABubble?</p>
+      <a routerLink="/signup" class="nav-link nav-link--primary">Konto erstellen</a>
+    </hgroup>
+  }
+
   <footer class="footer">
     @if (isAuth()) {
-    <a [routerLink]="'/imprint'">Impressum</a>
-    <a [routerLink]="'/privacy-policy'">Datenschutz</a>
+      <a routerLink="/imprint">Impressum</a>
+      <a routerLink="/privacy-policy">Datenschutz</a>
     }
   </footer>
 </section>

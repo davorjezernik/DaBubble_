@@ -5,25 +5,26 @@
 // custom components at https://material.angular.dev/guide/theming
 @use '@angular/material' as mat;
 
-
 :root {
   --purple-1: #444df2;
-  --purple-2: #797EF3;
+  --purple-2: #797ef3;
 }
 
 :root {
-  --purple-light: rgba(236,238,254,1);
+  --purple-light: rgba(236, 238, 254, 1);
 }
 
 html {
-  @include mat.theme((
-    color: (
-      primary: mat.$azure-palette,
-      tertiary: mat.$blue-palette,
-    ),
-    typography: Roboto,
-    density: 0,
-  ));
+  @include mat.theme(
+    (
+      color: (
+        primary: mat.$azure-palette,
+        tertiary: mat.$blue-palette,
+      ),
+      typography: Roboto,
+      density: 0,
+    )
+  );
 }
 
 body {
@@ -43,23 +44,30 @@ body {
   margin: 0;
 }
 
-body, html {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+body,
+html {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
 // intro //
 app-auth-layout-component .header .logo img {
   opacity: 1;
   transform: translateY(0);
-  transition: opacity .25s ease, transform .25s ease;
+  transition: opacity 0.25s ease, transform 0.25s ease;
 }
 
 body.intro-active app-auth-layout-component .header .logo img {
   opacity: 0;
   transform: translateY(-6px);
   pointer-events: none;
+}
+
+.dialog-panel {
+  background-color: #ffffff;
+  border-radius: 30px;
+  box-shadow: 0px 6px 10px 0px rgba(0, 0, 0, 0.2);
 }
 // intro //
 
@@ -130,21 +138,21 @@ body.intro-active app-auth-layout-component .header .logo img {
 }
 
 .top-right {
-    position: absolute;
-    top: 16px;
-    right: 16px;
+  position: absolute;
+  top: 16px;
+  right: 16px;
 }
 
 .column {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-align: left;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: left;
 }
 
 .full-width {
-    width: 100%;
+  width: 100%;
 }
 
 .mat-mdc-form-field-icon-prefix > .mat-icon,
@@ -162,7 +170,6 @@ body.intro-active app-auth-layout-component .header .logo img {
   padding-left: 16px !important;
   margin-right: 8px !important;
 }
-
 
 .mat-mdc-form-field-wrapper:focus-within .mat-mdc-form-field-flex,
 .mat-mdc-form-field:focus-within .mat-mdc-form-field-flex {
@@ -234,18 +241,31 @@ body.intro-active app-auth-layout-component .header .logo img {
   color: #6b6b6b;
   transition: color 120ms ease;
 }
-.custom-form-field input::-webkit-input-placeholder { color: #6b6b6b; }
-.custom-form-field input::-moz-placeholder { color: #6b6b6b; }
-.custom-form-field input:-ms-input-placeholder { color: #6b6b6b; }
-.custom-form-field:focus-within input::placeholder { color: transparent !important; }
-.custom-form-field:focus-within input::-webkit-input-placeholder { color: transparent !important; }
-.custom-form-field:focus-within input::-moz-placeholder { color: transparent !important; }
-.custom-form-field:focus-within input:-ms-input-placeholder { color: transparent !important; }
+.custom-form-field input::-webkit-input-placeholder {
+  color: #6b6b6b;
+}
+.custom-form-field input::-moz-placeholder {
+  color: #6b6b6b;
+}
+.custom-form-field input:-ms-input-placeholder {
+  color: #6b6b6b;
+}
+.custom-form-field:focus-within input::placeholder {
+  color: transparent !important;
+}
+.custom-form-field:focus-within input::-webkit-input-placeholder {
+  color: transparent !important;
+}
+.custom-form-field:focus-within input::-moz-placeholder {
+  color: transparent !important;
+}
+.custom-form-field:focus-within input:-ms-input-placeholder {
+  color: transparent !important;
+}
 
 ul {
   list-style: none;
 }
-
 
 .success-snackbar {
   position: fixed !important;
@@ -262,14 +282,16 @@ ul {
   width: 100%;
   height: 100%;
   background-color: var(--purple-1) !important;
-  border-radius: 30px 30px 0 30px !important; 
+  border-radius: 30px 30px 0 30px !important;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 50px !important;
 }
 
-.success-snackbar .mdc-snackbar__actions { display: none !important; }
+.success-snackbar .mdc-snackbar__actions {
+  display: none !important;
+}
 
 .success-snackbar .mdc-snackbar__label,
 .success-snackbar .mat-mdc-snack-bar-label {
@@ -317,7 +339,9 @@ ul {
   z-index: 3;
   transition: transform 0.1s ease-in-out;
 }
-.dialog-authentication-back-arrow:hover { transform: scale(1.1); }
+.dialog-authentication-back-arrow:hover {
+  transform: scale(1.1);
+}
 
 .dialog-authentication-actions {
   width: 100%;
@@ -328,11 +352,13 @@ ul {
 
 //user-menu-dialog.coponent //
 .user-menu-dialog .mat-mdc-dialog-container,
-.user-menu-dialog .mat-mdc-dialog-container .mdc-dialog__surface {
+.user-menu-dialog .mat-mdc-dialog-container .mdc-dialog__surface,
+.user-menu-bottom .mat-bottom-sheet-container {
   background: transparent !important;
   box-shadow: none !important;
   border-radius: 0 !important;
-  overflow: visible !important; 
+  padding: 0 !important;
+  overflow: visible !important;
 }
 //user-menu-dialog.coponent //
 
@@ -358,6 +384,7 @@ ul {
 }
 //dialog-user-card.component //
 
+//user-edit-dialog.component //
 .user-edit-dialog .mat-mdc-dialog-container,
 .user-edit-dialog .mat-mdc-dialog-container .mdc-dialog__surface {
   background: transparent !important;
@@ -371,10 +398,38 @@ ul {
   padding: 0 !important;
 }
 
-/* Falls du irgendwo <mat-dialog-content> benutzt: Scroll & Padding aus */
 .user-edit-dialog .mat-mdc-dialog-content,
 .user-edit-dialog .mdc-dialog__content {
   max-height: none !important;
   overflow: visible !important;
   padding: 0 !important;
+}
+
+// MAT-RADIO OVERRIDES //
+:root {
+  @include mat.radio-overrides(
+    (
+      checked-ripple-color: none,
+      ripple-color: none,
+    )
+  );
+}
+
+.mat-radio-button .mdc-radio__outer-circle {
+  border-color: #adb0d9 !important;
+  border-width: 1px !important;
+}
+
+.mat-radio-button .mdc-radio-checked .mdc-radio__outer-circle {
+  border-color: #adb0d9 !important;
+  border-width: 1px !important;
+}
+
+.mat-radio-button .mdc-radio {
+  padding: 0 !important;
+  margin-right: 20px;
+}
+
+.mat-radio-button:not(.mat-mdc-radio-checked):hover .mdc-radio__outer-circle {
+  border-color: #535af1 !important;
 }

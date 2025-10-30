@@ -4,27 +4,38 @@
   padding: 40px 50px;
   display: flex;
   flex-direction: column;
-  gap: 20px;
-  width: clamp(300px, 80vw, 600px);
+  align-items: center;
+  width: 608px;
+  height: 669px;
   margin-top: 60px;
   position: relative;
 }
 
 .dialog-authentication-header {
   display: flex;
+  justify-content: center;
   align-items: center;
-  gap: 25px;
-  position: relative;
 }
 
 .dialog-authentication-back-arrow {
+  position: absolute;
+  left: 32px;
+  top: 45px;
+  height: 40px;
+  width: 40px;
+  display: flex;
+  align-items: center;
   cursor: pointer;
 }
 
 .dialog-authentication-title {
-  font-size: 24px;
-  font-weight: bold;
-  margin: 20px 0 32px;
+  font-size: 46px;
+  font-weight: 700;
+  font-family: 'Nunito', sans-serif;
+
+  span {
+    display: inline-block;
+  }
 }
 
 mat-card-content {
@@ -33,15 +44,16 @@ mat-card-content {
   align-items: center;
   gap: 16px;
   padding: 0 !important;
+  width: 472px;
 }
 
 .profile-picture-container {
-  width: 128px;
-  height: 128px;
+  width: 168px;
+  height: 168px;
   border-radius: 50%;
   overflow: hidden;
+  margin-top: 56px;
   margin-bottom: 32px;
-
 }
 
 .profile-picture {
@@ -51,17 +63,23 @@ mat-card-content {
 }
 
 .user-name {
-  font-size: 24px;
-  font-weight: bold;
+  font-size: 32px;
+  font-weight: 700;
+  font-family: 'Nunito', sans-serif;
 }
 
 .avatar-list-title {
   align-self: flex-start;
+  font-size: 20px;
+  font-weight: 400;
+  font-family: 'Nunito', sans-serif;
+  margin: 0;
+  margin-top: 8px;
 }
 
 .avatar-list {
   display: flex;
-  gap: 10px;
+  gap: 8px;
   flex-wrap: wrap;
   justify-content: center;
 }
@@ -87,6 +105,15 @@ mat-card-actions {
   padding: 0 !important;
   display: flex;
   justify-content: flex-end;
+  margin-top: 62px;
+}
+
+.btn-weiter {
+  height: 49px;
+  width: 107px;
+  font-size: 18px;
+  font-family: 'Nunito', sans-serif;
+  font-weight: 700;
 }
 
 .loading-overlay {
@@ -99,3 +126,145 @@ mat-card-actions {
   z-index: 2;
   border-radius: 30px;
 }
+
+@media (max-height: 1050px) {
+  .avatar-select-card {
+    width: 520px;
+    margin-top: 0px;
+    height: 640px;
+  }
+
+  .dialog-authentication-header {
+    height: 76px;
+    width: 218px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .dialog-authentication-title {
+    font-size: 36px;
+  }
+
+  .avatar-list-title {
+    margin-left: 40px;
+  }
+
+  .avatar-image {
+    width: 52px;
+    height: 52px;
+  }
+}
+
+@media (max-width: 750px) {
+  .avatar-select-card {
+    width: 480px;
+  }
+
+  .dialog-authentication-header {
+    height: 76px;
+    width: 218px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .dialog-authentication-title {
+    font-size: 36px;
+  }
+
+  .avatar-list-title {
+    margin-left: 40px;
+  }
+
+  .avatar-image {
+    width: 52px;
+    height: 52px;
+  }
+}
+
+@media (max-width: 600px) {
+  .avatar-select-card {
+    width: 420px;
+  }
+
+  .dialog-authentication-header {
+    height: 76px;
+    width: 218px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  mat-card-content {
+    width: 400px;
+  }
+
+  .dialog-authentication-title {
+    font-size: 32px;
+
+    span {
+      display: block;
+    }
+  }
+
+  .avatar-list-title {
+    font-size: 20px;
+    margin-left: 20px;
+  }
+
+  .avatar-image {
+    width: 48px;
+    height: 48px;
+  }
+}
+
+@media (max-width: 440px) {
+  .avatar-select-card {
+    width: 380px;
+  }
+
+  mat-card-content {
+    width: 380px;
+  }
+
+  .avatar-image {
+    width: 42px;
+    height: 42px;
+  }
+}
+
+@media (max-width: 395px) {
+  .avatar-select-card {
+    width: 280px;
+  }
+
+  .dialog-authentication-header {
+  padding-top: 15px;
+}
+
+.dialog-authentication-back-arrow {
+  left: 20px;
+  top: 15px;
+}
+
+.profile-picture-container {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  overflow: hidden;
+  margin-top: 40px;
+  margin-bottom: 32px;
+}
+
+  mat-card-content {
+    width: 280px;
+  }
+
+  .avatar-image {
+    width: 42px;
+    height: 42px;
+  }
+}
+
+

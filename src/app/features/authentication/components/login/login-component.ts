@@ -17,7 +17,7 @@ import { Router, RouterLink } from '@angular/router';
 import { MatIcon } from '@angular/material/icon';
 import { merge } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { AuthService } from '../../../../services/auth-service';
+import { AuthService } from '../../../../../services/auth-service';
 import { firstValueFrom } from 'rxjs';
 @Component({
   selector: 'app-dialog-login',

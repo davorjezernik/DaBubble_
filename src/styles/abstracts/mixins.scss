@@ -28,7 +28,7 @@
 }
 
 @mixin primary-button($hover-bg-color: #797ef3, $bg-color: #444df2) {
-  @include text-style($size: 18px, $color: #ffffff, $font-weight: 700, $font-family: 'Figtree');
+  @include text-style($size: 18px, $color: #ffffff, $font-weight: 700, $font-family: 'Nunito');
   background-color: $bg-color;
   border-radius: 25px;
   padding: 12px 25px 12px;
@@ -63,4 +63,10 @@
     border: 1px solid $hover-bg-color;
     color: #ffffff;
   }
+}
+
+@mixin disabled-button {
+  background-color: #686868;
+  cursor: default;
+  pointer-events: none;
 }
