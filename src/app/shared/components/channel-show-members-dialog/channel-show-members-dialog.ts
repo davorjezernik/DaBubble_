@@ -35,8 +35,18 @@ export class ChannelShowMembersDialog {
 
   openUserCard(member: ChannelMember, e?: MouseEvent) {
     e?.stopPropagation();
-    this.dialog.open(DialogUserCardComponent, {
-      data: { user: member },
+
+    const isSelf = member.id === this.currentUserId;
+
+    const userLike: any = {
+      uid: member.id,
+      name: member.name,
+      avatar: member.avatar,
+      online: member.online,
+    };
+
+    const ref = this.dialog.open(DialogUserCardComponent, {
+      data: { user: userLike },
       panelClass: 'user-card-dialog',
       width: '500px',
       height: '705px',
@@ -44,8 +54,6 @@ export class ChannelShowMembersDialog {
       maxHeight: 'none',
       autoFocus: false,
       restoreFocus: true,
-      hasBackdrop: true,
-      disableClose: false,
     });
   }
 
