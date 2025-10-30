@@ -8,7 +8,7 @@ import {
   Output,
 } from '@angular/core';
 import { MessageAreaComponent } from '../../../../shared/components/message-area-component/message-area-component';
-import { collection, collectionData, doc, docData, Firestore, getDocs } from '@angular/fire/firestore';
+import { addDoc, collection, collectionData, doc, docData, Firestore, getDocs, serverTimestamp } from '@angular/fire/firestore';
 import { Subscription } from 'rxjs';
 import { MessageBubbleComponent } from '../../../../shared/components/message-bubble-component/message-bubble.component';
 import { UserService } from '../../../../../services/user.service';
@@ -90,11 +90,21 @@ export class ThreadSidenavContent implements OnInit, OnDestroy, OnChanges {
   }
 
   private async getAnswersAmount() {
-    const colRef = collection(this.firestore, `${this.collectionName}/${this.chatId}/messages/thread/answers`);
+    const colRef = collection(this.firestore, `${this.collectionName}/${this.chatId}/messages/${this.messageId}/thread`);
     collectionData(colRef).subscribe((data: any) => {
       this.answersAmount = data.length;
-    })
+    });
+  }
 
+  public async handleNewMessage(textMessage: string) {
+    if (!this.chatId || !this.messageId) return;
+
+    const docRef = collection(this.firestore, `${this.collectionName}/${this.chatId}/messages/${this.messageId}/thread/`);
+    await addDoc(docRef, {
+      user: this.currentUserData,
+      text: textMessage,
+      timestamp: serverTimestamp(),
+    });
   }
 
   public onClose() {
