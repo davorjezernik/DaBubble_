@@ -8,7 +8,7 @@ import {
   Output,
 } from '@angular/core';
 import { MessageAreaComponent } from '../../../../shared/components/message-area-component/message-area-component';
-import { doc, docData, Firestore } from '@angular/fire/firestore';
+import { collection, collectionData, doc, docData, Firestore, getDocs } from '@angular/fire/firestore';
 import { Subscription } from 'rxjs';
 import { MessageBubbleComponent } from '../../../../shared/components/message-bubble-component/message-bubble.component';
 import { UserService } from '../../../../../services/user.service';
@@ -39,8 +39,12 @@ export class ThreadSidenavContent implements OnInit, OnDestroy, OnChanges {
     displayName: '' as string,
   };
 
+  answersAmount: number = 0;
+
   messageDataSub?: Subscription;
   userDataSub?: Subscription;
+  answersAmountSub?: Subscription;
+  
 
   constructor(private firestore: Firestore, private userService: UserService) {}
 
@@ -82,7 +86,15 @@ export class ThreadSidenavContent implements OnInit, OnDestroy, OnChanges {
     });
   }
 
-  onClose() {
+  private async getAnswersAmount() {
+    const colRef = collection(this.firestore, `${this.collectionName}/${this.chatId}/messages/thread/answers`);
+    collectionData(colRef).subscribe((data: any) => {
+      this.answersAmount = data.length;
+    })
+
+  }
+
+  public onClose() {
     this.close.emit();
   }
 }
