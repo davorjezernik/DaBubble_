@@ -10,7 +10,31 @@
       </button>
     </div>
   </header>
-  <main class="chat-content">
+  <main class="chat-content" #chatContent>
+    <section class="reaction-messages-box">
+      @if (messages.length !== 0) { @for (message of messages; track message.id) {
+      <app-message-bubble
+        [incoming]="message.user?.id !== currentUserData.id"
+        [name]="message.user?.id !== currentUserData.id ? message.user?.displayName || '' : 'Du'"
+        [avatar]="
+          message.user?.id !== currentUserData.id
+            ? message.user?.avatar || 'assets/img-profile/profile.png'
+            : message.user?.avatar ?? 'assets/img-profile/profile.png'
+        "
+        [time]="message?.timestamp ? (message.timestamp.toDate() | date : 'HH:mm') + ' Uhr' : ''"
+        [text]="message?.text ?? ''"
+        [chatId]="chatId || ''"
+        [messageId]="message?.id"
+        [reactionsMap]="message?.reactions"
+        collectionName="channels"
+        [context]="'thread'"
+      ></app-message-bubble>
+      } }
+    </section>
+    <div class="separator-wrapper">
+      <span>{{ answersAmount }} Antworten</span>
+      <hr class="separator-line" />
+    </div>
     <section>
       <app-message-bubble
         [incoming]="senderId !== currentUserData.id"
@@ -26,34 +50,6 @@
         [messageId]="currentUserData.id"
         [reactionsMap]="messageReactions"
       ></app-message-bubble>
-    </section>
-    <div class="separator-wrapper">
-      <span>{{ answersAmount }} Antworten</span>
-      <hr class="separator-line" />
-    </div>
-    <section class="reaction-messages-box">
-      @if (messages.length !== 0) { @for (message of messages; track message.id) {
-      <app-message-bubble
-        [incoming]="message.user?.id !== currentUserData.id"
-        [name]="message.user?.id !== currentUserData.id ? message.user?.displayName || '' : 'Du'"
-        [avatar]="
-          message.user?.id !== currentUserData.id
-            ? message.user?.avatar || 'assets/img-profile/profile.png'
-            : message.user?.avatar ?? 'assets/img-profile/profile.png'
-        "
-        [time]="
-          message?.timestamp
-            ? (message.timestamp.toDate() | date : 'HH:mm') + ' Uhr'
-            : ''
-        "
-        [text]="message?.text ?? ''"
-        [chatId]="chatId || ''"
-        [messageId]="message?.id"
-        [reactionsMap]="message?.reactions"
-        collectionName="channels"
-        [context]="'thread'"
-      ></app-message-bubble>
-      } }
     </section>
   </main>
   <footer class="footer">

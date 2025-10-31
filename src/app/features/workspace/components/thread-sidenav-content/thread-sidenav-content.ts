@@ -1,11 +1,14 @@
 import {
+  AfterViewChecked,
   Component,
+  ElementRef,
   EventEmitter,
   Input,
   OnChanges,
   OnDestroy,
   OnInit,
   Output,
+  ViewChild,
 } from '@angular/core';
 import { MessageAreaComponent } from '../../../../shared/components/message-area-component/message-area-component';
 import {
@@ -16,6 +19,8 @@ import {
   docData,
   Firestore,
   getDocs,
+  orderBy,
+  query,
   serverTimestamp,
 } from '@angular/fire/firestore';
 import { Subscription } from 'rxjs';
@@ -30,7 +35,7 @@ import { DatePipe } from '@angular/common';
   templateUrl: './thread-sidenav-content.html',
   styleUrl: './thread-sidenav-content.scss',
 })
-export class ThreadSidenavContent implements OnInit, OnDestroy, OnChanges {
+export class ThreadSidenavContent implements OnInit, OnDestroy, OnChanges, AfterViewChecked {
   @Input() chatId?: string;
   @Input() messageId?: string;
   @Input() collectionName: 'channels' | 'dms' = 'dms';
@@ -59,9 +64,19 @@ export class ThreadSidenavContent implements OnInit, OnDestroy, OnChanges {
 
   messages: any[] = [];
 
+  @ViewChild('chatContent') private chatContent?: ElementRef<HTMLDivElement>;
+  private shouldScrollToBottom = true;
+
   constructor(private firestore: Firestore, private userService: UserService) {}
 
   ngOnInit(): void {}
+
+  ngAfterViewChecked(): void {
+    if (this.shouldScrollToBottom) {
+      this.scrollToBottom();
+      this.shouldScrollToBottom = false;
+    }
+  }
 
   ngOnChanges(): void {
     this.accessTriggerMessageData();
@@ -94,7 +109,6 @@ export class ThreadSidenavContent implements OnInit, OnDestroy, OnChanges {
       this.senderName = messageData.authorName;
       this.messageTimestamp = messageData.timestamp || null;
       this.messageReactions = messageData.reactions || [];
-
     });
   }
 
@@ -135,12 +149,27 @@ export class ThreadSidenavContent implements OnInit, OnDestroy, OnChanges {
       this.firestore,
       `${this.collectionName}/${this.chatId}/messages/${this.messageId}/thread/`
     );
-    collectionData(messagesRef, { idField: 'id' }).subscribe((data: any) => {
+    const q = query(messagesRef, orderBy('timestamp', 'asc'));
+
+    collectionData(q, { idField: 'id' }).subscribe((data: any) => {
+      if (data.length > this.messages.length) {
+        this.shouldScrollToBottom = true;
+      }
       this.messages = data;
     });
   }
 
   public onClose() {
     this.close.emit();
+  }
+
+  private scrollToBottom(): void {
+    if (this.chatContent) {
+      const element = this.chatContent.nativeElement;
+      element.scrollTo({
+        top: element.scrollHeight,
+        behavior: 'smooth',
+      });
+    }
   }
 }
