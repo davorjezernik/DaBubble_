@@ -43,6 +43,7 @@
     font-weight: 400;
     font-size: 14px;
     color: #686868;
+    white-space: nowrap;
   }
 }
 
@@ -52,7 +53,7 @@
   align-items: center;
   padding: 15px;
   gap: 8px;
-  background: #797EF3;
+  background: #797ef3;
   border-radius: 30px 0px 30px 30px;
   position: relative;
 
@@ -61,7 +62,7 @@
     font-weight: 400;
     font-size: 18px;
     line-height: 25px;
-    color: #FFFFFF;
+    color: #ffffff;
     margin: 0;
     width: 100%;
     overflow-wrap: anywhere;
@@ -82,7 +83,7 @@
   background: #ffffff;
   border: 1px solid #e0e0e0;
   border-radius: 25px 25px 0px 25px;
-  box-shadow: 0 6px 24px rgba(0,0,0,0.08);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.08);
   z-index: 2;
   overflow: visible;
 }
@@ -114,7 +115,7 @@
 
 .mini-actions .mini-hit::after,
 .mini-actions .mini-icon-btn::after {
-  content: "";
+  content: '';
   position: absolute;
   inset: -4px;
   border-radius: 50%;
@@ -156,7 +157,7 @@
   background: #ffffff;
   border: 1px solid #e5e7eb;
   border-radius: 10px;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
   z-index: 3;
   padding: 6px;
 }
@@ -234,7 +235,7 @@
       height: 16px;
       padding: 0 4px;
       border-radius: 999px;
-      background: #797EF3;
+      background: #797ef3;
       color: #fff;
       font-size: 10px;
       font-weight: 700;
@@ -242,7 +243,7 @@
       align-items: center;
       justify-content: center;
       border: 1px solid #fff;
-      box-shadow: 0 1px 2px rgba(0,0,0,0.08);
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
       pointer-events: none;
     }
   }
@@ -363,8 +364,12 @@
 }
 
 .message-container.incoming .message-header {
-  .user-name { order: 1; }
-  .timestamp { order: 2; }
+  .user-name {
+    order: 1;
+  }
+  .timestamp {
+    order: 2;
+  }
 }
 
 .message-container.incoming .speech-bubble {

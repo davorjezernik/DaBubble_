@@ -38,7 +38,9 @@ export class ThreadSidenavContent implements OnInit, OnDestroy, OnChanges {
   @Output() close = new EventEmitter<void>();
 
   messageText: string | null = '';
-  senderId: string = '';
+  senderId: string = 'assets/img-profile/profile.png';
+  senderAvatar: string = '';
+  senderName: string = 'Unknown User';
   messageTimestamp: any;
   messageReactions?: Record<string, number>;
 
@@ -88,8 +90,11 @@ export class ThreadSidenavContent implements OnInit, OnDestroy, OnChanges {
     this.messageDataSub = docData(messageDocRef).subscribe((messageData: any) => {
       this.messageText = messageData.text || '';
       this.senderId = messageData.authorId || '';
+      this.senderAvatar = messageData.authorAvatar || 'assets/img-profile/profile.png';
+      this.senderName = messageData.authorName;
       this.messageTimestamp = messageData.timestamp || null;
       this.messageReactions = messageData.reactions || [];
+
     });
   }
 
@@ -132,7 +137,6 @@ export class ThreadSidenavContent implements OnInit, OnDestroy, OnChanges {
     );
     collectionData(messagesRef, { idField: 'id' }).subscribe((data: any) => {
       this.messages = data;
-      console.log('Thread messages:', this.messages);
     });
   }
 

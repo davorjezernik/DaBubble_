@@ -14,10 +14,10 @@
     <section>
       <app-message-bubble
         [incoming]="senderId !== currentUserData.id"
-        [name]="senderId !== currentUserData.id ? currentUserData.displayName : 'Du'"
+        [name]="senderId !== currentUserData.id ? senderName : 'Du'"
         [avatar]="
           senderId !== currentUserData.id
-            ? currentUserData.avatar ?? 'assets/img-profile/profile.png'
+            ? senderAvatar
             : currentUserData.avatar ?? 'assets/img-profile/profile.png'
         "
         [time]="messageTimestamp ? (messageTimestamp.toDate() | date : 'HH:mm') + ' Uhr' : ''"
@@ -51,6 +51,7 @@
         [messageId]="message?.id"
         [reactionsMap]="message?.reactions"
         collectionName="channels"
+        [context]="'thread'"
       ></app-message-bubble>
       } }
     </section>

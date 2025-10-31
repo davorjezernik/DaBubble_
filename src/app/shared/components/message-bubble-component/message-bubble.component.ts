@@ -1,4 +1,13 @@
-import { Component, HostListener, Input, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
+import {
+  Component,
+  HostListener,
+  Input,
+  Output,
+  EventEmitter,
+  OnChanges,
+  SimpleChanges,
+  HostBinding,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { EmojiPickerComponent } from '../../components/emoji-picker-component/emoji-picker-component';
 import { Firestore, doc, updateDoc } from '@angular/fire/firestore';
@@ -17,13 +26,15 @@ export class MessageBubbleComponent implements OnChanges {
   @Input() name: string = 'Frederik Beck';
   @Input() time: string = '15:06 Uhr';
   @Input() avatar: string = 'assets/img-profile/frederik-beck.png';
-  @Input() text: string = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque blandit odio efficitur lectus vestibulum, quis accumsan ante vulputate. Quisque tristique iaculis erat, eu faucibus lacus iaculis ac.';
+  @Input() text: string =
+    'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque blandit odio efficitur lectus vestibulum, quis accumsan ante vulputate. Quisque tristique iaculis erat, eu faucibus lacus iaculis ac.';
   // Persistence wiring
   @Input() chatId?: string;
   @Input() messageId?: string;
   @Input() reactionsMap?: Record<string, number> | null;
   // Collection context for reactions persistence (defaults to 'dms' for backward compatibility)
   @Input() collectionName: 'channels' | 'dms' = 'dms';
+  @Input() context: 'chat' | 'thread' = 'chat';
 
   showEmojiPicker = false;
   reactionsExpanded = false;
@@ -74,7 +85,7 @@ export class MessageBubbleComponent implements OnChanges {
   }
 
   addOrIncrementReaction(emoji: string) {
-    const existing = this.reactions.find(r => r.emoji === emoji);
+    const existing = this.reactions.find((r) => r.emoji === emoji);
     if (existing) {
       existing.count += 1;
       this.persistReactionDelta(emoji, +1, existing.count);
@@ -88,7 +99,7 @@ export class MessageBubbleComponent implements OnChanges {
   }
 
   onClickReaction(emoji: string) {
-    const idx = this.reactions.findIndex(r => r.emoji === emoji);
+    const idx = this.reactions.findIndex((r) => r.emoji === emoji);
     if (idx > -1) {
       const r = this.reactions[idx];
       if (r.count > 1) {
@@ -112,11 +123,18 @@ export class MessageBubbleComponent implements OnChanges {
   }
 
   get moreCount() {
-    return Math.max(0, Math.min(this.reactions.length, this.MAX_UNIQUE_REACTIONS) - this.getCollapseThreshold());
+    return Math.max(
+      0,
+      Math.min(this.reactions.length, this.MAX_UNIQUE_REACTIONS) - this.getCollapseThreshold()
+    );
   }
 
-  showMore() { this.reactionsExpanded = true; }
-  showLess() { this.reactionsExpanded = false; }
+  showMore() {
+    this.reactionsExpanded = true;
+  }
+  showLess() {
+    this.reactionsExpanded = false;
+  }
 
   private getCollapseThreshold(): number {
     return this.isNarrow ? this.NARROW_COLLAPSE_THRESHOLD : this.DEFAULT_COLLAPSE_THRESHOLD;
