@@ -1,12 +1,7 @@
 <section class="add-members-surface" (click)="stop($event)">
   <header class="dlg-header">
     <h3>Leute hinzufügen</h3>
-    <img
-      class="dlg-close"
-      src="/assets/icons/close.svg"
-      alt="Schließen"
-      (click)="close.emit()"
-    />
+    <img class="dlg-close" src="/assets/icons/close.svg" alt="Schließen" (click)="close.emit()" />
   </header>
 
   <div class="channel-line">
@@ -14,19 +9,49 @@
     <button type="button" class="channel-link">{{ channelName }}</button>
   </div>
 
-  <label class="input-wrap">
-    <input
-      type="text"
-      [(ngModel)]="name"
-      placeholder="Name eingeben"
-      (keydown.enter)="submit()"
-    />
-  </label>
+  <div class="input-wrap suggestions-parent">
+    <div class="input-shell">
+      <div class="user-chip" *ngFor="let s of selectedUsers">
+        <img
+          class="chip-avatar"
+          [src]="s.avatar || 'assets/img-profile/profile.png'"
+          [alt]="s.name"
+        />
+        <span class="chip-name">{{ s.name }}</span>
+        <button class="chip-remove" type="button" (click)="removeChip(s, $event)">✕</button>
+      </div>
+
+      <input
+        #userInput
+        class="user-input"
+        type="text"
+        [placeholder]="selectedUsers.length ? '' : 'Name eingeben'"
+        [value]="query"
+        (input)="onInput($any($event.target).value)"
+        (keydown.enter)="submitFromEnter()"
+      />
+    </div>
+
+    <div class="suggestions" *ngIf="filtered.length > 0 && query.length > 0">
+      <button
+        type="button"
+        class="suggestion-row"
+        *ngFor="let u of filtered"
+        (click)="selectCandidate(u)"
+      >
+        <span class="avatar-wrap">
+          <img [src]="u.avatar || 'assets/img-profile/profile.png'" [alt]="u.name" />
+          <span class="status-dot" [class.online]="u.online"></span>
+        </span>
+        <span class="user-name">{{ u.name }}</span>
+      </button>
+    </div>
+  </div>
 
   <div class="actions">
     <button
       class="btn-primary"
-      [disabled]="!name.trim()"
+      [disabled]="selectedUsers.length === 0 && !query.trim()"
       (click)="submit()"
     >
       Hinzufügen
