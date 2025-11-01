@@ -147,3 +147,40 @@ button {
   width: 14px;
   height: 14px;
 }
+
+.avatar-stack {
+  all: unset;
+  cursor: pointer;
+  display: inline-flex;
+  flex-direction: row-reverse;
+  align-items: center;
+  padding: 6px 10px 6px 18px;
+  border-radius: 50px;
+  transition: all 125ms ease-in-out;
+
+  &:hover {
+    background: #eceefe;
+
+    .member-count {
+      color: #535af1;
+    }
+  }
+}
+
+.avatar-stack .avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #fff;
+  margin-left: -10px; 
+}
+.avatar-stack .avatar:first-child { margin-right: 0; }
+
+.member-count {
+  margin-left: 10px;
+  font-family:'Nunito', sans-serif;
+  font-weight: 700;
+  font-size: 20px;
+  color: #000; 
+}

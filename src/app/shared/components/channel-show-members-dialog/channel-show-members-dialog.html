@@ -1,0 +1,34 @@
+<section class="members-dialog" (click)="stop($event)">
+  <header class="dlg-header">
+    <h3>Mitglieder</h3>
+    <img class="dlg-close" src="/assets/icons/close.svg" alt="close icon" (click)="close.emit()">
+  </header>
+
+  <ul class="member-list">
+    <li class="member-row" 
+    (click)="openUserCard(m, $event)" 
+    *ngFor="let m of members" 
+    [class.is-online]="m.online">
+      <span class="member-avatar-wrap">
+        <img
+          class="member-avatar"
+          [src]="m.avatar || 'assets/img-profile/profile.png'"
+          [alt]="m.name || 'User'"
+        />
+        <span class="status-dot"></span>
+      </span>
+
+      <div class="member-main">
+        <div class="member-name">
+          {{ m.name || 'Unbekannt' }}
+          <span class="you" *ngIf="m.id === currentUserId">(Du)</span>
+        </div>
+      </div>
+    </li>
+
+    <li class="member-row add-members" (click)="openAddMembersUnderIcon($event)">
+      <div class="add-icon" (click)="openAddMembersUnderIcon($event)"></div>
+      <button class="add-members-btn" (click)="openAddMembersUnderIcon($event)">Mitglieder hinzufügen</button>
+    </li>
+  </ul>
+</section>
