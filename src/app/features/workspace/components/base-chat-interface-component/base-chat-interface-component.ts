@@ -25,6 +25,8 @@ export abstract class BaseChatInterfaceComponent implements OnInit, OnDestroy {
   messages$: Observable<any[]> = of([]);
   chatId: string | null = null;
   currentUserId: string | null = null;
+  currentUserAvatar: string = 'assets/img-profile/profile.png';
+  currentUserDisplayName: string = 'Unknown User';
   currentUserProfile: any | null = null;
   protected routeSub?: Subscription;
   protected authSub?: Subscription;
@@ -45,6 +47,9 @@ export abstract class BaseChatInterfaceComponent implements OnInit, OnDestroy {
       if (user?.uid) {
         try {
           this.currentUserProfile = await this.getUserData(user.uid);
+          this.currentUserAvatar =
+          this.currentUserProfile?.avatar || 'assets/img-profile/profile.png';
+          this.currentUserDisplayName = this.currentUserProfile?.name || 'Unknown User';
         } catch {
           this.currentUserProfile = null;
         }
@@ -142,6 +147,8 @@ export abstract class BaseChatInterfaceComponent implements OnInit, OnDestroy {
       text: messageText,
       timestamp: serverTimestamp(),
       authorId: this.currentUserId,
+      authorAvatar: this.currentUserAvatar,
+      authorName: this.currentUserDisplayName,
     };
 
     const messagesCollectionRef = collection(

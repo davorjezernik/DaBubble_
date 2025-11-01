@@ -1,30 +1,51 @@
-import { Component, HostListener, Input, Output, EventEmitter, OnChanges, SimpleChanges, ViewChild, ElementRef } from '@angular/core';
+import {
+  Component,
+  HostListener,
+  Input,
+  Output,
+  EventEmitter,
+  OnChanges,
+  SimpleChanges,
+  ViewChild,
+  ElementRef,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ThreadPanelService } from '../../../../services/thread-panel.service';
 import { EmojiPickerComponent } from '../emoji-picker-component/emoji-picker-component';
-import { Firestore, doc, updateDoc, deleteDoc, deleteField, increment } from '@angular/fire/firestore';
+import {
+  Firestore,
+  doc,
+  updateDoc,
+  deleteDoc,
+  deleteField,
+  increment,
+} from '@angular/fire/firestore';
 
 @Component({
   selector: 'app-message-bubble',
   standalone: true,
   imports: [CommonModule, EmojiPickerComponent],
   templateUrl: './message-bubble.component.html',
-  styleUrl: './message-bubble.component.scss'
+  styleUrl: './message-bubble.component.scss',
 })
 export class MessageBubbleComponent implements OnChanges {
   @ViewChild('editEmojiPicker', { read: ElementRef }) editEmojiPickerRef?: ElementRef;
   @ViewChild('editEmojiButton', { read: ElementRef }) editEmojiButtonRef?: ElementRef;
 
-  @Input() incoming: boolean = false;
+  @Input() incoming: boolean = false; // when true, render as left-side/incoming message
   @Input() name: string = 'Frederik Beck';
   @Input() time: string = '15:06 Uhr';
   @Input() avatar: string = 'assets/img-profile/frederik-beck.png';
-  @Input() text: string = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque blandit odio efficitur lectus vestibulum, quis accumsan ante vulputate. Quisque tristique iaculis erat, eu faucibus lacus iaculis ac.';
+  @Input() text: string =
+    'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque blandit odio efficitur lectus vestibulum, quis accumsan ante vulputate. Quisque tristique iaculis erat, eu faucibus lacus iaculis ac.';
+  // Persistence wiring
   @Input() chatId?: string;
   @Input() messageId?: string;
   @Input() reactionsMap?: Record<string, number> | null;
   @Input() collectionName: 'channels' | 'dms' = 'dms';
   @Input() lastReplyAt?: unknown;
+  @Input() context: 'chat' | 'thread' = 'chat';
+  @Input() isThreadView: boolean = false;
 
   showEmojiPicker = false;
   reactionsExpanded = false;
@@ -117,6 +138,11 @@ export class MessageBubbleComponent implements OnChanges {
    * Currently maps reactionsMap (Record<emoji, count>) into reactions array for rendering.
    * @param changes Angular SimpleChanges for this component.
    */
+
+  ngOnInit(): void {
+    console.log('isThreadView:', this.isThreadView);
+  }
+
   ngOnChanges(changes: SimpleChanges) {
     if ('reactionsMap' in changes) {
       const map = this.reactionsMap || {};
@@ -132,7 +158,7 @@ export class MessageBubbleComponent implements OnChanges {
    * Uses: reactions (local array), MAX_UNIQUE_REACTIONS, persistReactionDelta(...) for Firestore sync.
    */
   addOrIncrementReaction(emoji: string) {
-    const existing = this.reactions.find(r => r.emoji === emoji);
+    const existing = this.reactions.find((r) => r.emoji === emoji);
     if (existing) {
       existing.count += 1;
       this.persistReactionDelta(emoji, +1, existing.count);
@@ -150,7 +176,7 @@ export class MessageBubbleComponent implements OnChanges {
    * @param emoji The emoji key to decrement/remove.
    */
   onClickReaction(emoji: string) {
-    const idx = this.reactions.findIndex(r => r.emoji === emoji);
+    const idx = this.reactions.findIndex((r) => r.emoji === emoji);
     if (idx > -1) {
       const r = this.reactions[idx];
       if (r.count > 1) {
@@ -183,13 +209,20 @@ export class MessageBubbleComponent implements OnChanges {
    * Count of hidden reactions when collapsed (used in "+ n more").
    */
   get moreCount() {
-    return Math.max(0, Math.min(this.reactions.length, this.MAX_UNIQUE_REACTIONS) - this.getCollapseThreshold());
+    return Math.max(
+      0,
+      Math.min(this.reactions.length, this.MAX_UNIQUE_REACTIONS) - this.getCollapseThreshold()
+    );
   }
 
   /** Expand the reactions list. */
-  showMore() { this.reactionsExpanded = true; }
+  showMore() {
+    this.reactionsExpanded = true;
+  }
   /** Collapse the reactions list. */
-  showLess() { this.reactionsExpanded = false; }
+  showLess() {
+    this.reactionsExpanded = false;
+  }
 
   /**
    * Compute the collapse threshold depending on viewport width.
@@ -214,7 +247,11 @@ export class MessageBubbleComponent implements OnChanges {
     if (!v) return null;
     if (v instanceof Date) return v;
     if (typeof v?.toDate === 'function') {
-      try { return v.toDate(); } catch { return null; }
+      try {
+        return v.toDate();
+      } catch {
+        return null;
+      }
     }
     if (typeof v === 'string' || typeof v === 'number') {
       const d = new Date(v);
@@ -357,7 +394,10 @@ export class MessageBubbleComponent implements OnChanges {
     }
     try {
       this.isSaving = true;
-      const ref = doc(this.firestore, `${this.collectionName}/${this.chatId}/messages/${this.messageId}`);
+      const ref = doc(
+        this.firestore,
+        `${this.collectionName}/${this.chatId}/messages/${this.messageId}`
+      );
       await updateDoc(ref, { text: newText });
       this.text = newText;
       this.isEditing = false;
@@ -373,11 +413,15 @@ export class MessageBubbleComponent implements OnChanges {
    */
   async deleteMessage() {
     if (!this.chatId || !this.messageId) return;
-    const confirmed = typeof window !== 'undefined' ? window.confirm('Nachricht wirklich löschen?') : true;
+    const confirmed =
+      typeof window !== 'undefined' ? window.confirm('Nachricht wirklich löschen?') : true;
     if (!confirmed) return;
     try {
       this.isDeleting = true;
-      const ref = doc(this.firestore, `${this.collectionName}/${this.chatId}/messages/${this.messageId}`);
+      const ref = doc(
+        this.firestore,
+        `${this.collectionName}/${this.chatId}/messages/${this.messageId}`
+      );
       await deleteDoc(ref);
     } catch (e) {
       // noop
@@ -440,8 +484,7 @@ export class MessageBubbleComponent implements OnChanges {
       } else {
         await updateDoc(ref, { [fieldPath]: increment(delta) });
       }
-    } catch (e) {
-    }
+    } catch (e) {}
   }
 
   /**

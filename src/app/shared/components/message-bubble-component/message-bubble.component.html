@@ -1,16 +1,15 @@
-<div class="message-container" [class.incoming]="incoming">
+<div
+  class="message-container"
+  [class.incoming]="incoming"
+  (mouseenter)="onSpeechBubbleEnter()"
+  (mouseleave)="onSpeechBubbleLeave()"
+>
   <div class="message-content">
     <div class="message-header">
       <span class="timestamp">{{ time }}</span>
       <span class="user-name">{{ name }}</span>
     </div>
-    <div
-      class="speech-bubble"
-      [class.msg-box]="isEditing"
-      [class.editing]="isEditing"
-      (mouseenter)="onSpeechBubbleEnter()"
-      (mouseleave)="onSpeechBubbleLeave()"
-    >
+    <div class="speech-bubble" [class.msg-box]="isEditing" [class.editing]="isEditing">
       @if (!isEditing) {
       <div
         class="mini-actions"
@@ -19,7 +18,7 @@
         (mouseleave)="onMiniActionsLeave()"
         (click)="$event.stopPropagation()"
       >
-        <span class="mini-hit" (click)="onQuickReact('✅')">
+        <span [class.hidden]="isThreadView" class="mini-hit" (click)="onQuickReact('✅')">
           <svg
             class="mini-icon"
             width="18"
@@ -40,13 +39,18 @@
             />
           </svg>
         </span>
-        <span class="mini-hit" title="Daumen hoch" (click)="onQuickReact('👍')">
+        <span
+          [class.hidden]="isThreadView"
+          class="mini-hit"
+          title="Daumen hoch"
+          (click)="onQuickReact('👍')"
+        >
           <span class="mini-emoji">👍</span>
         </span>
         <span class="mini-hit" (click)="onMiniAddReactionClick($event)">
           <img src="assets/icons/add_reaction.svg" alt="Add reaction" class="mini-icon" />
         </span>
-        <span class="mini-hit" (click)="onCommentClick($event)">
+        <span [class.hidden]="isThreadView" class="mini-hit" (click)="onCommentClick($event)">
           <img src="assets/icons/comment.svg" alt="Comment" class="mini-icon" />
         </span>
         @if (!incoming) {
