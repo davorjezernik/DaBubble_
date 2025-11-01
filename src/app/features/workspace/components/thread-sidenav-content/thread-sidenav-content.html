@@ -13,7 +13,7 @@
   <main class="chat-content" #chatContent>
     <section class="reaction-messages-box">
       @if (messages.length !== 0) { @for (message of messages; track message.id) {
-      <app-message-bubble
+      <app-message-bubble [isThreadView]="true"
         [incoming]="message.user?.id !== currentUserData.id"
         [name]="message.user?.id !== currentUserData.id ? message.user?.displayName || '' : 'Du'"
         [avatar]="
@@ -36,7 +36,7 @@
       <hr class="separator-line" />
     </div>
     <section class="trigger-message-container">
-      <app-message-bubble
+      <app-message-bubble [isThreadView]="true"
         [incoming]="senderId !== currentUserData.id"
         [name]="senderId !== currentUserData.id ? senderName : 'Du'"
         [avatar]="

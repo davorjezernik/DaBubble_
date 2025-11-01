@@ -7,6 +7,7 @@ import {
   OnChanges,
   SimpleChanges,
   HostBinding,
+  OnInit,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { EmojiPickerComponent } from '../../components/emoji-picker-component/emoji-picker-component';
@@ -21,7 +22,7 @@ import { ThreadPanelService } from '../../../../services/thread-panel.service';
   templateUrl: './message-bubble.component.html',
   styleUrl: './message-bubble.component.scss'
 })
-export class MessageBubbleComponent implements OnChanges {
+export class MessageBubbleComponent implements OnChanges, OnInit {
   @Input() incoming: boolean = false; // when true, render as left-side/incoming message
   @Input() name: string = 'Frederik Beck';
   @Input() time: string = '15:06 Uhr';
@@ -35,6 +36,7 @@ export class MessageBubbleComponent implements OnChanges {
   // Collection context for reactions persistence (defaults to 'dms' for backward compatibility)
   @Input() collectionName: 'channels' | 'dms' = 'dms';
   @Input() context: 'chat' | 'thread' = 'chat';
+  @Input() isThreadView: boolean = false;
 
   showEmojiPicker = false;
   reactionsExpanded = false;
@@ -73,6 +75,10 @@ export class MessageBubbleComponent implements OnChanges {
   @HostListener('window:resize')
   onWindowResize() {
     this.isNarrow = typeof window !== 'undefined' ? window.innerWidth <= 450 : this.isNarrow;
+  }
+
+  ngOnInit(): void {
+    console.log('isThreadView:', this.isThreadView);
   }
 
   ngOnChanges(changes: SimpleChanges) {
