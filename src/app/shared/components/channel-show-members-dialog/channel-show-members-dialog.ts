@@ -2,7 +2,7 @@ import { Component, EventEmitter, Input, Output, HostListener } from '@angular/c
 import { CommonModule } from '@angular/common';
 import { MatDialog } from '@angular/material/dialog';
 import { DialogUserCardComponent } from '../dialog-user-card/dialog-user-card.component';
-import { DialogIconAddMemberToChannel } from '../dialog-icon-add-member-to-channel/dialog-icon-add-member-to-channel';
+import { DialogIconAddMemberToChannel, AddableUser  } from '../dialog-icon-add-member-to-channel/dialog-icon-add-member-to-channel';
 
 export interface ChannelMember {
   id: string;
@@ -19,13 +19,14 @@ export interface ChannelMember {
   styleUrl: './channel-show-members-dialog.scss',
 })
 export class ChannelShowMembersDialog {
-  @Input() members: ChannelMember[] = [];
+  @Input() members: any[] = [];
   @Input() currentUserId = '';
   @Input() channelName = '';
   @Input() addIconAnchor: HTMLElement | null = null;
 
   @Output() close = new EventEmitter<void>();
-  @Output() addMembers = new EventEmitter<void>();
+
+  @Output() addMembersClick = new EventEmitter<{ ev: MouseEvent; anchor?: HTMLElement }>();
 
   constructor(private dialog: MatDialog) {}
 
@@ -33,20 +34,10 @@ export class ChannelShowMembersDialog {
     e.stopPropagation();
   }
 
-  openUserCard(member: ChannelMember, e?: MouseEvent) {
+  openUserCard(member: any, e?: MouseEvent) {
     e?.stopPropagation();
-
-    const isSelf = member.id === this.currentUserId;
-
-    const userLike: any = {
-      uid: member.id,
-      name: member.name,
-      avatar: member.avatar,
-      online: member.online,
-    };
-
-    const ref = this.dialog.open(DialogUserCardComponent, {
-      data: { user: userLike },
+    this.dialog.open(DialogUserCardComponent, {
+      data: { user: member },
       panelClass: 'user-card-dialog',
       width: '500px',
       height: '705px',
@@ -59,30 +50,9 @@ export class ChannelShowMembersDialog {
 
   openAddMembersUnderIcon(ev: MouseEvent, anchor?: HTMLElement) {
     ev.stopPropagation();
-
-    const anchorEl = this.addIconAnchor ?? anchor ?? (ev.currentTarget as HTMLElement);
-
-    const rect = anchorEl.getBoundingClientRect();
-    const GAP = 8;
-    const DLG_W = 514;
-    const DLG_H = 294;
-
-    const top = rect.bottom + window.scrollY + GAP;
-    const left = Math.max(8, rect.right + window.scrollX - DLG_W);
-
-    const ref = this.dialog.open(DialogIconAddMemberToChannel, {
-      panelClass: 'add-members-dialog-panel',
-      backdropClass: 'transparent-backdrop',
-      hasBackdrop: true,
-      autoFocus: false,
-      restoreFocus: true,
-      width: `${DLG_W}px`,
-      height: `${DLG_H}px`,
-      position: { top: `${top}px`, left: `${left}px` },
+    this.addMembersClick.emit({
+      ev,
+      anchor: this.addIconAnchor ?? anchor ?? (ev.currentTarget as HTMLElement),
     });
-
-    ref.componentInstance.channelName = this.channelName;
-    ref.componentInstance.close.subscribe(() => ref.close());
-    ref.componentInstance.add.subscribe(() => ref.close());
   }
 }
