@@ -35,7 +35,7 @@
       <span>{{ answersAmount }} Antworten</span>
       <hr class="separator-line" />
     </div>
-    <section>
+    <section class="trigger-message-container">
       <app-message-bubble
         [incoming]="senderId !== currentUserData.id"
         [name]="senderId !== currentUserData.id ? senderName : 'Du'"
