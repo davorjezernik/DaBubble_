@@ -1,4 +1,12 @@
-import { Component, EventEmitter, Output, OnDestroy, OnInit, HostListener, inject } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  Output,
+  OnDestroy,
+  OnInit,
+  HostListener,
+  inject,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -11,11 +19,11 @@ import { Auth, signOut } from '@angular/fire/auth';
 import { debounceTime, distinctUntilChanged, Subscription, Observable } from 'rxjs';
 import { UserService } from '../../../../../services/user.service';
 import { User } from '../../../../../models/user.class';
-import { MatDialog } from '@angular/material/dialog'; 
-import { take } from 'rxjs/operators';  
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { take } from 'rxjs/operators';
 import { DialogUserCardComponent } from '../../../../shared/components/dialog-user-card/dialog-user-card.component';
-import { UserMenuDialogComponent } from '../user-menu-dialog.component/user-menu-dialog.component';
-
+import { UserMenuDialogComponent } from '../../../../shared/components/user-menu-dialog.component/user-menu-dialog.component';
+import { MatBottomSheet } from '@angular/material/bottom-sheet';
 
 @Component({
   selector: 'app-header-workspace',
@@ -28,6 +36,7 @@ import { UserMenuDialogComponent } from '../user-menu-dialog.component/user-menu
     MatIconModule,
     MatButtonModule,
     MatMenuModule,
+    MatDialogModule,
   ],
   templateUrl: './header-workspace.component.html',
   styleUrl: './header-workspace.component.scss',
@@ -36,7 +45,8 @@ export class HeaderWorkspaceComponent implements OnInit, OnDestroy {
   private auth = inject(Auth);
   private router = inject(Router);
   private userService = inject(UserService);
-  private dialog = inject(MatDialog); 
+  private dialog = inject(MatDialog);
+  private bottomSheet = inject(MatBottomSheet);
 
   // Profil des eingeloggten Users //
   user$: Observable<User | null> = this.userService.currentUser$();
@@ -49,7 +59,7 @@ export class HeaderWorkspaceComponent implements OnInit, OnDestroy {
   constructor() {
     this.sub = this.searchCtrl.valueChanges
       .pipe(debounceTime(250), distinctUntilChanged())
-      .subscribe(q => this.searchChange.emit(q.trim()));
+      .subscribe((q) => this.searchChange.emit(q.trim()));
   }
 
   // Beim Einloggen online markieren //
@@ -57,47 +67,64 @@ export class HeaderWorkspaceComponent implements OnInit, OnDestroy {
     await this.userService.markOnline(true);
   }
 
+  // menü für oben und ab 400 px unten //
   openUserMenu(evt: MouseEvent) {
   const trigger = evt.currentTarget as HTMLElement;
-
-  const avatar = trigger.querySelector('.avatar-wrap') as HTMLElement ?? trigger;
-
+  const avatar  = (trigger.querySelector('.avatar-wrap') as HTMLElement) ?? trigger;
   const r = avatar.getBoundingClientRect();
-  const MENU_W = 260;  
-  const GAP    = 8;     
-  const MARGIN = 8;    
 
+  const GAP = 8;
+  const MARGIN = 16;
+  const MENU_W = (window.innerWidth <= 880) ? 350 : 300;
+
+  // wenn kleiner als 400px //
+  if (window.innerWidth <= 400) {
+    const ref = this.bottomSheet.open(UserMenuDialogComponent, {
+      data: {},
+      panelClass: 'user-menu-bottom'
+    });
+    ref.afterDismissed().pipe(take(1)).subscribe(action => {
+      if (action === 'profile') this.openProfil();
+      if (action === 'logout')  this.logout();
+    });
+    return;
+  }
+
+  // normales Dialog-Menü //
   let left = r.right - MENU_W;
-  
   left = Math.max(MARGIN, Math.min(left, window.innerWidth - MENU_W - MARGIN));
-
   const top = r.bottom + GAP;
 
-  this.dialog.open(UserMenuDialogComponent, {
+  const ref = this.dialog.open(UserMenuDialogComponent, {
     data: {},
     panelClass: 'user-menu-dialog',
     hasBackdrop: true,
     autoFocus: false,
     restoreFocus: true,
     position: { top: `${top}px`, left: `${left}px` },
-  }).afterClosed().subscribe();
-}
+  });
 
-openProfil() {
-  this.user$.pipe(take(1)).subscribe(user => {
-    if (!user) return;
-    this.dialog.open(DialogUserCardComponent, {
-      data: { user },
-      panelClass: 'user-card-dialog',   
-      width: '500px',                   
-      height: '705px',                 
-      maxWidth: 'none',                 
-      maxHeight: 'none',               
-      autoFocus: false,              
-      restoreFocus: true
-    });
+  ref.afterClosed().pipe(take(1)).subscribe((action) => {
+    if (action === 'profile') this.openProfil();
+    if (action === 'logout') this.logout();
   });
 }
+
+  openProfil() {
+    this.user$.pipe(take(1)).subscribe((user) => {
+      if (!user) return;
+      this.dialog.open(DialogUserCardComponent, {
+        data: { user },
+        panelClass: 'user-card-dialog',
+        width: '500px',
+        height: '705px',
+        maxWidth: 'none',
+        maxHeight: 'none',
+        autoFocus: false,
+        restoreFocus: true,
+      });
+    });
+  }
 
   async logout() {
     await this.userService.markOnline(false);

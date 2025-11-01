@@ -1,6 +1,6 @@
 <div class="mention-panel" *ngIf="visible">
   <ul class="list" *ngIf="mode === 'users'; else channelList">
-    <li class="item" *ngFor="let u of users" (click)="onPickUser(u)">
+    <li class="item" *ngFor="let u of users" (click)="onPickUser(u); onUserSelected(u)">
       <div class="avatar-wrap">
         <img class="avatar" [src]="u.avatar" [alt]="u.name" />
         <span class="status" [class.online]="u.online"></span>

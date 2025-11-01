@@ -1,4 +1,10 @@
-<section class="msg-box" #root [class.focused]="focused" [class.has-text]="!!text">
+<section
+  class="msg-box"
+  #root
+  (click)="onBoxClick($event)"
+  [class.focused]="focused"
+  [class.has-text]="!!text"
+>
   <textarea
     #ta
     [(ngModel)]="text"
@@ -6,9 +12,10 @@
     (input)="autoResize(ta)"
     (focus)="focused = true"
     (blur)="focused = false"
+    (click)="onTextareaClick()"
     [attr.placeholder]="hintText"
     rows="1"
-    (keydown)="onEnter($event)"
+    (keydown)="onKeyDown($event)"
   ></textarea>
 
   <div class="bottom-row" aria-hidden="false">
@@ -40,11 +47,14 @@
 
   <div class="mention-anchor">
     <app-mention-list
+      [searchTerm]="text"
       [visible]="showMention"
       [mode]="mentionMode"
       [users]="mentionUsers"
       [channels]="mentionChannels"
       (pick)="insertMention($event)"
+      (userSelected)="openDmFromMention($event)"
+      (channelSelected)="openChannelFromMention($event)"
     ></app-mention-list>
   </div>
 </section>

@@ -15,14 +15,14 @@
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: stretch;
 }
 
 .header {
   display: flex;
   justify-content: space-between;
   width: 100%;
-  margin-top: 50px;
+  margin-top: 75px;
 }
 
 .logo {
@@ -30,11 +30,16 @@
   padding-left: 75px;
   display: flex;
   align-items: center;
-}
 
-.signup-text {
-  margin: 0px;
-  padding-right: 75px;
+  img {
+    width: 242px;
+    height: 70px;
+    cursor: pointer;
+    transition: transform 0.125s ease;
+    &:hover {
+      transform: scale(1.1);
+    }
+  }
 }
 
 .footer {
@@ -42,21 +47,10 @@
   justify-content: center;
   width: 100%;
   gap: 16px;
-  margin-bottom: 40px;
+  margin-top: 65px;
 
   > a {
     @include mixins.nav-link();
-  }
-}
-
-.logo {
-  img {
-    cursor: pointer;
-    transition: transform 125ms ease;
-
-    &:hover {
-      transform: scale(1.1);
-    }
   }
 }
 
@@ -64,23 +58,109 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-right: 40px;
+  padding-right: 75px;
 
   > p {
+    margin: 0;
+    margin-right: 30px;
+    margin-bottom: 10px;
     @include mixins.text-style(
       $size: 18px,
-      $color: #000000,
+      $color: #000,
       $font-weight: 400,
       $font-family: 'Nunito',
       $line-height: 100%
     );
   }
 
-  > a {
+  .nav-link {
     @include mixins.nav-link();
   }
+  .nav-link--primary {
+    color: #444df2;
+    border-color: var(--purple-1);
+    &:hover {
+      filter: brightness(0.95);
+    }
+  }
+}
+
+.signup-text--mobile {
+  display: none;
+}
+
+.content {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 11px;
+  height: 769px;
 }
 
 .content {
   flex-grow: 1;
+}
+
+@media (max-height: 1050px) {
+  .footer {
+    margin-top: 30px;
+    margin-bottom: 25px;
+  }
+}
+
+@media (max-width: 1090px) {
+  .signup-text {
+    padding-right: 35px;
+    padding-bottom: 5px;
+  }
+}
+
+@media (max-width: 750px) {
+  .header {
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px;
+  }
+
+  .logo {
+    padding-left: 0;
+
+    img {
+      width: 204;
+      height: 56px;
+    }
+  }
+
+  .signup-text--desktop {
+    display: none;
+  }
+
+  .content {
+    height: 552px;
+    margin: 0px;
+  }
+
+  .signup-text--mobile {
+    display: flex;
+    gap: 8px;
+    padding: 0 20px 12px;
+    align-items: center;
+
+    p {
+      margin-right: 0px;
+    }
+  }
+
+  .footer {
+    display: none;
+  }
+}
+
+@media (max-width: 750px) {
+  .header {
+    justify-content: center;
+    margin-top: 72px;
+    height: 56px;
+  }
 }

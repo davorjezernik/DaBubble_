@@ -28,21 +28,5 @@
 
       <mat-icon class="expand-icon">expand_more</mat-icon>
     </section>
-
-    <mat-menu
-      #userMenu="matMenu"
-      xPosition="after"
-      yPosition="below"
-      [overlapTrigger]="false"
-      panelClass="user-menu-panel"
-    >
-      <button mat-menu-item class="menu-item" disableRipple (click)="openProfil()">
-        <span class="pill">Profil</span>
-      </button>
-
-      <button mat-menu-item class="menu-item" disableRipple (click)="logout()">
-        <span class="pill">Log out</span>
-      </button>
-    </mat-menu>
   </section>
 </header>

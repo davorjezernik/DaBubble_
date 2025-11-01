@@ -1,0 +1,39 @@
+@use 'mixins';
+
+.wrapper {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  border-radius: 35px;
+  background-color: #eceefe;
+  padding: 3px 20px;
+}
+
+.user-name {
+  @include mixins.text-style(
+    $size: 18px,
+    $color: #000000,
+    $font-weight: 400,
+    $font-family: 'Nunito',
+    $line-height: 1
+  );
+  white-space: nowrap;
+}
+
+.avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 30px;
+}
+
+.del-btn {
+  cursor: pointer;
+  background-color: transparent;
+  border: none;
+  &:hover .del-icon path {
+    transition: fill 125ms ease-in-out;
+    fill: #444df2;
+  }
+}
+
+
