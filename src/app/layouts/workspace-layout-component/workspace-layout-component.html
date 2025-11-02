@@ -1,4 +1,34 @@
 <app-header-workspace></app-header-workspace>
+
+@if (isMobileView) {
+<main class="main-content">
+  <section class="main-and-thread-wrapper">
+    <mat-drawer-container class="main-container" autosize>
+      @if (currentView === 'devspace') {
+      <mat-drawer #devspaceDrawer class="devspace-sidenav" mode="side">
+        <app-devspace-sidenav-content></app-devspace-sidenav-content>
+      </mat-drawer>
+      } @else if (currentView === 'thread'){
+      <mat-drawer #threadDrawer class="thread-sidenav" mode="side" position="end">
+        <app-thread-sidenav-content
+          [chatId]="threadContext?.chatId"
+          [messageId]="threadContext?.messageId"
+          [collectionName]="threadContext?.collectionName || 'dms'"
+          (close)="threadDrawer.close()"
+        ></app-thread-sidenav-content>
+      </mat-drawer>
+      } @else if (currentView === 'chat') {
+      <div class="main-content-wrapper">
+        <div class="main-content-area">
+          <router-outlet></router-outlet>
+        </div>
+      </div>
+
+      }
+    </mat-drawer-container>
+  </section>
+</main>
+} @else {
 <main class="main-content">
   @if (devspaceDrawer.opened) {
   <button class="devspace-sidenav-button" type="button" matButton (click)="devspaceDrawer.toggle()">
@@ -53,3 +83,4 @@
     </mat-drawer-container>
   </section>
 </main>
+}

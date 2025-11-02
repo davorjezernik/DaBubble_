@@ -140,7 +140,6 @@ export class MessageBubbleComponent implements OnChanges {
    */
 
   ngOnInit(): void {
-    console.log('isThreadView:', this.isThreadView);
   }
 
   ngOnChanges(changes: SimpleChanges) {
