@@ -13,14 +13,14 @@
   />
 
   <section>
-    <section class="user" (click)="openUserMenu($event)">
+    <section class="user" (click)="this.userMenuService.openUserMenu($event, user$)">
       <span class="name">{{ (user$ | async)?.name }}</span>
 
       <div class="avatar-wrap">
         <img
           class="avatar"
           [src]="(user$ | async)?.avatar"
-          (error)="fallbackAvatar($event)"
+          (error)="this.userMenuService.fallbackAvatar($event)"
           [alt]="(user$ | async)?.name || 'Avatar'"
         />
         <span class="status" [class.online]="(user$ | async)?.online"></span>

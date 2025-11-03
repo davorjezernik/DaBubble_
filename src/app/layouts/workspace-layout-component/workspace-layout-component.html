@@ -1,6 +1,24 @@
-<app-header-workspace></app-header-workspace>
-
 @if (isMobileView) {
+<header class="mobile-header">
+  <section class="brand">
+    <img src="assets/img/14. Home-Workspaces.svg" alt="DABubble" class="logo" />
+  </section>
+  <section>
+    <div class="avatar-wrap">
+      <img
+        class="avatar"
+        [src]="user?.avatar"
+        (error)="this.userMenuService.fallbackAvatar($event)"
+        [alt]="(user$ | async)?.name || 'Avatar'"
+      />
+      <span class="status" [class.online]="(user$ | async)?.online"></span>
+    </div>
+  </section>
+</header>
+} @else {
+
+<app-header-workspace></app-header-workspace>
+} @if (isMobileView) {
 <main class="main-content">
   <section class="main-and-thread-wrapper">
     <mat-drawer-container class="main-container" autosize>
