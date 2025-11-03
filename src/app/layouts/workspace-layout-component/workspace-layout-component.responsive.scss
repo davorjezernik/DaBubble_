@@ -5,11 +5,41 @@
 }
 
 @media (max-width: 1300px) {
+  :host {
+    padding: 0;
+    height: 100vh;
+  }
+
+  .main-content {
+    height: 100%;
+  }
+
+  .main-and-thread-wrapper {
+    height: 100%;
+  }
+
   .thread-sidenav {
     width: 100vw;
   }
 
   .devspace-sidenav {
     width: 100%;
+  }
+
+  .mobile-header {
+    padding: 15px 16px;
+  }
+
+  .brand {
+    > img {
+      height: 56px;
+      width: auto;
+    }
+  }
+
+  .avatar-wrap {
+    cursor: pointer;
+    height: 56px;
+    width: 56px;
   }
 }

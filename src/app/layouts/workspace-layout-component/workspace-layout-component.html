@@ -1,27 +1,33 @@
 @if (isMobileView) {
 <header class="mobile-header">
+  @if (this.viewStateService.currentView === 'devspace') {
   <section class="brand">
     <img src="assets/img/14. Home-Workspaces.svg" alt="DABubble" class="logo" />
   </section>
+} @else {
+  <button class="go-to-devspace" (click)="this.viewStateService.currentView = 'devspace'">
+    <img src="assets/icons/mobile-devspace-arrow.svg" alt="arrow">
+    <img src="assets/icons/devspace-logo.svg" alt="devspace logo">
+    <span>Devspace</span>
+  </button>
+}
   <section>
-    <div class="avatar-wrap">
+    <div class="avatar-wrap" (click)="this.userMenuService.openUserMenu($event, user$)">
       <img
         class="avatar"
-        [src]="user?.avatar"
+        [src]="(user$ | async)?.avatar"
         (error)="this.userMenuService.fallbackAvatar($event)"
         [alt]="(user$ | async)?.name || 'Avatar'"
       />
-      <span class="status" [class.online]="(user$ | async)?.online"></span>
     </div>
   </section>
 </header>
 } @else {
-
 <app-header-workspace></app-header-workspace>
 } @if (isMobileView) {
 <main class="main-content">
   <section class="main-and-thread-wrapper">
-    <mat-drawer-container class="main-container" autosize>
+
       @if (viewStateService.currentView === 'devspace') {
       <mat-drawer #devspaceDrawer class="devspace-sidenav" mode="side" [opened]="true">
         <app-devspace-sidenav-content></app-devspace-sidenav-content>
@@ -43,7 +49,6 @@
       </div>
 
       }
-    </mat-drawer-container>
   </section>
 </main>
 } @else {

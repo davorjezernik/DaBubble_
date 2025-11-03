@@ -5,8 +5,6 @@ type ViewState = 'devspace' | 'chat' | 'thread';
 @Injectable({
   providedIn: 'root',
 })
-
-
 export class ViewStateService {
   currentView: ViewState = 'devspace';
 }

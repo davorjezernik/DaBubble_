@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { Component, OnChanges, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { MatDrawer, MatSidenavModule } from '@angular/material/sidenav';
 import { DevspaceSidenavContent } from '../../features/workspace/components/devspace-sidenav-content/devspace-sidenav-content';
 import { ThreadSidenavContent } from '../../features/workspace/components/thread-sidenav-content/thread-sidenav-content';
@@ -23,12 +23,12 @@ import { AsyncPipe } from '@angular/common';
     ThreadSidenavContent,
     HeaderWorkspaceComponent,
     MatIconModule,
-    AsyncPipe
+    AsyncPipe,
   ],
   templateUrl: './workspace-layout-component.html',
   styleUrls: ['./workspace-layout-component.scss', './workspace-layout-component.responsive.scss'],
 })
-export class WorkspaceLayoutComponent implements OnInit, OnDestroy {
+export class WorkspaceLayoutComponent implements OnInit, OnDestroy, OnChanges {
   @ViewChild('threadDrawer') threadDrawer?: MatDrawer;
   @ViewChild('devspaceDrawer') devspaceDrawer?: MatDrawer;
 
@@ -52,21 +52,34 @@ export class WorkspaceLayoutComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    this.subscribeUserService();
+    this.initializeBreakpointObserver();
+    this.initializeThreadPanelSubscription();
+  }
+
+  ngOnChanges(): void {
+    this.subscribeUserService();
+  }
+
+  ngOnDestroy(): void {
+    this.userSub?.unsubscribe();
+    this.breakpointSub?.unsubscribe();
+  }
+
+  private initializeBreakpointObserver(): void {
     this.breakpointSub = this.breakpointObserver
       .observe(['(max-width: 1300px)'])
       .subscribe((result) => {
         this.isMobileView = result.matches;
       });
+  }
 
+  private initializeThreadPanelSubscription(): void {
     this.threadPanel.open$.subscribe((req: ThreadOpenRequest) => {
       this.threadContext = req;
       // Defer to ensure the drawer ViewChild is available
       setTimeout(() => this.threadDrawer?.open());
     });
-  }
-
-  ngOnDestroy(): void {
-    this.breakpointSub?.unsubscribe();
   }
 
   subscribeUserService() {

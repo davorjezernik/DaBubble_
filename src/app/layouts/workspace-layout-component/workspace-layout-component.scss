@@ -125,37 +125,6 @@
   flex: 1;
 }
 
-.user {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-  background: transparent;
-  border: 0;
-  padding: 0;
-  min-width: 0;
-  cursor: pointer;
-}
-
-.user:hover .name,
-.user:hover .expand-icon {
-  color: #797ef3;
-}
-
-.name {
-  height: 32px;
-  display: flex;
-  align-items: center;
-  font-family: 'Nunito', sans-serif;
-  font-weight: 700;
-  font-size: 32px;
-  color: #000;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  min-width: 0;
-  transition: color 0.1s ease;
-}
-
 .avatar-wrap {
   position: relative;
   width: 70px;
@@ -194,4 +163,26 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+}
+
+.go-to-devspace {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  background: none;
+  border: none;
+  cursor: pointer;
+
+  > img {
+    margin-right: 8px;
+  }
+  > span {
+    @include mixins.text-style(
+      $size: 24px,
+      $color: #000000,
+      $font-weight: 700,
+      $font-family: 'Nunito',
+      $line-height: 1
+    );
+  }
 }
