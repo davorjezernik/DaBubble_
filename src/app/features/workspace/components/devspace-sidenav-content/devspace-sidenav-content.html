@@ -144,7 +144,7 @@
     <div class="section-content-wrapper">
       <ul class="channel-list" role="list">
         @for (channel of visibleChannels; track channel.id) {
-        <app-channel-item [channel]="channel"></app-channel-item>
+        <app-channel-item (click)="viewStateService.currentView = 'chat'" [channel]="channel"></app-channel-item>
         }
       </ul>
 
@@ -258,7 +258,7 @@
         [routerLink]="['/workspace/dm', calculateDmId(u)]"
         routerLinkActive="is-active"
       >
-        <app-contact-item
+        <app-contact-item (click)="viewStateService.currentView = 'chat'"
           [meUid]="meUid"
           [user]="u"
           (contactClick)="ensureDmExists($event)"

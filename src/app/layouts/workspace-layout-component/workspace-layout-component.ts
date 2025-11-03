@@ -5,10 +5,10 @@ import { ThreadSidenavContent } from '../../features/workspace/components/thread
 import { HeaderWorkspaceComponent } from '../../features/workspace/components/header-workspace/header-workspace.component';
 import { RouterModule } from '@angular/router';
 import { ThreadPanelService, ThreadOpenRequest } from '../../../services/thread-panel.service';
-import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
+import { BreakpointObserver } from '@angular/cdk/layout';
 import { Subscription } from 'rxjs';
+import { ViewStateService } from '../../../services/view-state.service';
 
-type ViewState = 'devspace' | 'chat' | 'thread';
 @Component({
   selector: 'app-workspace-layout-component',
   imports: [
@@ -26,15 +26,14 @@ export class WorkspaceLayoutComponent implements OnInit, OnDestroy {
   @ViewChild('devspaceDrawer') devspaceDrawer?: MatDrawer;
 
   threadContext?: ThreadOpenRequest;
-
-  currentView: ViewState = 'devspace';
   isMobileView: boolean = false;
 
   breakpointSub?: Subscription;
 
   constructor(
     private threadPanel: ThreadPanelService,
-    private breakpointObserver: BreakpointObserver
+    private breakpointObserver: BreakpointObserver,
+    public viewStateService: ViewStateService
   ) {}
 
   ngOnInit(): void {
@@ -42,7 +41,6 @@ export class WorkspaceLayoutComponent implements OnInit, OnDestroy {
       .observe(['(max-width: 1300px)'])
       .subscribe((result) => {
         this.isMobileView = result.matches;
-        console.log('isMobileView', this.isMobileView);
       });
 
     this.threadPanel.open$.subscribe((req: ThreadOpenRequest) => {

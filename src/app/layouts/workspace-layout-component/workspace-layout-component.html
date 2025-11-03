@@ -4,11 +4,11 @@
 <main class="main-content">
   <section class="main-and-thread-wrapper">
     <mat-drawer-container class="main-container" autosize>
-      @if (currentView === 'devspace') {
-      <mat-drawer #devspaceDrawer class="devspace-sidenav" mode="side">
+      @if (viewStateService.currentView === 'devspace') {
+      <mat-drawer #devspaceDrawer class="devspace-sidenav" mode="side" [opened]="true">
         <app-devspace-sidenav-content></app-devspace-sidenav-content>
       </mat-drawer>
-      } @else if (currentView === 'thread'){
+      } @else if (viewStateService.currentView === 'thread') {
       <mat-drawer #threadDrawer class="thread-sidenav" mode="side" position="end">
         <app-thread-sidenav-content
           [chatId]="threadContext?.chatId"
@@ -17,7 +17,7 @@
           (close)="threadDrawer.close()"
         ></app-thread-sidenav-content>
       </mat-drawer>
-      } @else if (currentView === 'chat') {
+      } @else if (viewStateService.currentView === 'chat') {
       <div class="main-content-wrapper">
         <div class="main-content-area">
           <router-outlet></router-outlet>

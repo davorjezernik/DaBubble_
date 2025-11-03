@@ -25,7 +25,7 @@ import { AddUsersToChannel } from '../add-users-to-channel/add-users-to-channel'
 import { ChannelItem } from '../channel-item/channel-item';
 import { ChannelService } from '../../../../../services/channel-service';
 import { ContactItem } from '../contact-item/contact-item';
-import { user } from '@angular/fire/auth';
+import { ViewStateService } from '../../../../../services/view-state.service';
 
 @Component({
   selector: 'app-devspace-sidenav-content',
@@ -41,7 +41,7 @@ import { user } from '@angular/fire/auth';
     ContactItem,
   ],
   templateUrl: './devspace-sidenav-content.html',
-  styleUrl: './devspace-sidenav-content.scss',
+  styleUrls: ['./devspace-sidenav-content.scss', './devspace-sidenav-content.responsive.scss'],
 })
 export class DevspaceSidenavContent implements OnInit, OnDestroy {
   users: User[] = [];
@@ -70,10 +70,10 @@ export class DevspaceSidenavContent implements OnInit, OnDestroy {
   constructor(
     private usersService: UserService,
     private firestore: Firestore,
-    private router: Router,
     private authService: AuthService,
     private dialog: MatDialog,
-    private channelService: ChannelService
+    private channelService: ChannelService,
+    public viewStateService: ViewStateService,
   ) {}
 
   ngOnInit(): void {
