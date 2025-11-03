@@ -18,11 +18,11 @@
     (keydown)="onKeyDown($event)"
   ></textarea>
 
-  <div class="bottom-row" aria-hidden="false">
+  <section class="bottom-row" aria-hidden="false">
     <div class="left-icons">
       <div class="emoji-container">
         <button type="button" class="icon-btn" (click)="toggleEmojiPicker()">
-          <img src="assets/icons/sentiment_satisfied.svg" alt="" />
+          <img src="assets/icons/sentiment_satisfied.svg" alt="Emoji-picker-icon" />
         </button>
         <app-emoji-picker-component
           [showEmojiPicker]="showEmojiPicker"
@@ -43,9 +43,9 @@
       (click)="triggerSend()"
       aria-label="Nachricht senden"
     ></button>
-  </div>
+  </section>
 
-  <div class="mention-anchor">
+  <section class="mention-anchor">
     <app-mention-list
       [searchTerm]="text"
       [visible]="showMention"
@@ -56,5 +56,5 @@
       (userSelected)="openDmFromMention($event)"
       (channelSelected)="openChannelFromMention($event)"
     ></app-mention-list>
-  </div>
+  </section>
 </section>
