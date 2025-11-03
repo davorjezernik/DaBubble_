@@ -10,10 +10,10 @@
 
   <main class="main-container-user-dialog">
     <section class="mat-typography">
-      <div class="user-name-edit">
+      <section class="user-name-edit">
         <h3>{{ data.user.name }}</h3>
         <button class="edit-btn" *ngIf="isSelf" (click)="onEditUser()">Bearbeiten</button>
-      </div>
+      </section>
       <p class="user-status">
         <span
           class="status-dot"
@@ -24,10 +24,10 @@
         {{ data.user.online ? 'Aktiv' : 'Abwesend' }}
       </p>
 
-      <div class="info-email-container">
+      <section class="info-email-container">
         <img src="assets/icons/mail.svg" alt="Mail Icon" />
         <h3>E-Mail-Adresse</h3>
-      </div>
+      </section>
       <a [href]="'mailto:' + data.user.email">{{ data.user.email }}</a>
     </section>
   </main>

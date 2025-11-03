@@ -4,14 +4,14 @@
     <img class="dlg-close" src="/assets/icons/close.svg" alt="Schließen" (click)="close.emit()" />
   </header>
 
-  <div class="channel-line">
-    <img src="/assets/icons/hashtag.hovered.svg" alt="#" class="hash-icon" />
+  <article class="channel-line">
+    <img src="/assets/icons/hashtag.hovered.svg" alt="hashtag img" class="hash-icon" />
     <button type="button" class="channel-link">{{ channelName }}</button>
-  </div>
+  </article>
 
-  <div class="input-wrap suggestions-parent">
-    <div class="input-shell">
-      <div class="user-chip" *ngFor="let s of selectedUsers">
+  <main class="input-wrap suggestions-parent">
+    <section class="input-shell">
+      <figure class="user-chip" *ngFor="let s of selectedUsers">
         <img
           class="chip-avatar"
           [src]="s.avatar || 'assets/img-profile/profile.png'"
@@ -19,7 +19,7 @@
         />
         <span class="chip-name">{{ s.name }}</span>
         <button class="chip-remove" type="button" (click)="removeChip(s, $event)">✕</button>
-      </div>
+      </figure>
 
       <input
         #userInput
@@ -30,9 +30,9 @@
         (input)="onInput($any($event.target).value)"
         (keydown.enter)="submitFromEnter()"
       />
-    </div>
+    </section>
 
-    <div class="suggestions" *ngIf="filtered.length > 0 && query.length > 0">
+    <section class="suggestions" *ngIf="filtered.length > 0 && query.length > 0">
       <button
         type="button"
         class="suggestion-row"
@@ -45,10 +45,10 @@
         </span>
         <span class="user-name">{{ u.name }}</span>
       </button>
-    </div>
-  </div>
+    </section>
+</main>
 
-  <div class="actions">
+  <footer class="actions">
     <button
       class="btn-primary"
       [disabled]="selectedUsers.length === 0 && !query.trim()"
@@ -56,5 +56,5 @@
     >
       Hinzufügen
     </button>
-  </div>
+  </footer>
 </section>

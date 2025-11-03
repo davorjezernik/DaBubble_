@@ -212,7 +212,6 @@ export class ChannelInterfaceContent extends BaseChatInterfaceComponent {
 
         const ref = this.dialog.open(DialogIconAddMemberToChannel, {
           panelClass: 'add-members-dialog-panel',
-          backdropClass: 'transparent-backdrop',
           hasBackdrop: true,
           autoFocus: false,
           restoreFocus: true,
