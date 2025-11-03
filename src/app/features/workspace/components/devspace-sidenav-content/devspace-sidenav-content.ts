@@ -15,7 +15,7 @@ import {
   setDoc,
   writeBatch,
 } from '@angular/fire/firestore';
-import { Router, RouterModule } from '@angular/router';
+import { RouterModule } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { AuthService } from '../../../../../services/auth-service';
 import { FormsModule } from '@angular/forms';
@@ -26,6 +26,9 @@ import { ChannelItem } from '../channel-item/channel-item';
 import { ChannelService } from '../../../../../services/channel-service';
 import { ContactItem } from '../contact-item/contact-item';
 import { ViewStateService } from '../../../../../services/view-state.service';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
 
 @Component({
   selector: 'app-devspace-sidenav-content',
@@ -39,6 +42,10 @@ import { ViewStateService } from '../../../../../services/view-state.service';
     ChannelItem,
     RouterModule,
     ContactItem,
+    FormsModule,
+    MatFormFieldModule,
+    MatIconModule,
+    MatInputModule
   ],
   templateUrl: './devspace-sidenav-content.html',
   styleUrls: ['./devspace-sidenav-content.scss', './devspace-sidenav-content.responsive.scss'],

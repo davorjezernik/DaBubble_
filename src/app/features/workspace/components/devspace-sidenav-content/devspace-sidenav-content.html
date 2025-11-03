@@ -1,7 +1,17 @@
 <!-- Primary Sidebar Navigation -->
 <nav class="sidenav" aria-label="Main navigation">
+  @if (this.viewStateService.currentView === 'devspace') {
+  <form role="search" class="search-form">
+    <div class="search-container">
+      <input placeholder="Gehe zu…" type="search" id="searchInput" />
+      <button type="submit" class="search-button" aria-label="Search">
+        <mat-icon>search</mat-icon>
+      </button>
+    </div>
+  </form>
+  }
   <!-- Brand / Workspace -->
-  <header class="sidenav-brand">
+  <header class="sidenav-brand" [class.hidden]="this.viewStateService.isMobileView">
     <a class="brand-link" href="#" aria-label="Devspace Home">
       <img class="brand-logo" src="assets/icons/devspace-logo.svg" alt="Devspace Logo" />
       <h2 class="brand-name">Devspace</h2>
@@ -144,7 +154,10 @@
     <div class="section-content-wrapper">
       <ul class="channel-list" role="list">
         @for (channel of visibleChannels; track channel.id) {
-        <app-channel-item (click)="viewStateService.currentView = 'chat'" [channel]="channel"></app-channel-item>
+        <app-channel-item
+          (click)="viewStateService.currentView = 'chat'"
+          [channel]="channel"
+        ></app-channel-item>
         }
       </ul>
 
@@ -258,7 +271,8 @@
         [routerLink]="['/workspace/dm', calculateDmId(u)]"
         routerLinkActive="is-active"
       >
-        <app-contact-item (click)="viewStateService.currentView = 'chat'"
+        <app-contact-item
+          (click)="viewStateService.currentView = 'chat'"
           [meUid]="meUid"
           [user]="u"
           (contactClick)="ensureDmExists($event)"

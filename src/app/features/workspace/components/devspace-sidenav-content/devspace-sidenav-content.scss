@@ -396,3 +396,57 @@ $radius-pill: 999px;
     background-color: #eceefe;
   }
 }
+
+/* MOBILE SEARCH INPUT */
+
+.search-form {
+  width: 100%;
+  max-width: 400px;
+}
+
+.search-container {
+  display: flex;
+  align-items: center;
+  border: 1px solid #ADB0D9;
+  border-radius: 30px;
+  background-color: transparent;
+  padding: 0.25rem 0.75rem;
+  transition: border-color 0.2s ease;
+
+  &:focus-within {
+    border-color: #535AF1;
+  }
+}
+
+.search-container input[type="search"] {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: inherit;
+  font-size: 1rem;
+  padding: 0.5rem;
+
+  &::placeholder {
+    color: #aaa;
+  }
+}
+
+.search-button {
+  background: none;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0.25rem;
+  color: inherit;
+
+  &:hover .search-icon {
+    color: red;
+  }
+}
+
+.search-icon {
+  font-size: 1.25rem;
+}

@@ -1,4 +1,4 @@
-@if (isMobileView) {
+@if (this.viewStateService.isMobileView) {
 <header class="mobile-header">
   @if (this.viewStateService.currentView === 'devspace') {
   <section class="brand">
@@ -24,7 +24,7 @@
 </header>
 } @else {
 <app-header-workspace></app-header-workspace>
-} @if (isMobileView) {
+} @if (this.viewStateService.isMobileView) {
 <main class="main-content">
   <section class="main-and-thread-wrapper">
 

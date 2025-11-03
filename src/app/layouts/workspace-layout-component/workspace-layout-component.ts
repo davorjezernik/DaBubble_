@@ -36,7 +36,6 @@ export class WorkspaceLayoutComponent implements OnInit, OnDestroy, OnChanges {
   user$: Observable<User | null>;
 
   threadContext?: ThreadOpenRequest;
-  isMobileView: boolean = false;
 
   breakpointSub?: Subscription;
   userSub?: Subscription;
@@ -70,7 +69,7 @@ export class WorkspaceLayoutComponent implements OnInit, OnDestroy, OnChanges {
     this.breakpointSub = this.breakpointObserver
       .observe(['(max-width: 1300px)'])
       .subscribe((result) => {
-        this.isMobileView = result.matches;
+        this.viewStateService.isMobileView = result.matches;
       });
   }
 

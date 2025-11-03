@@ -7,4 +7,5 @@ type ViewState = 'devspace' | 'chat' | 'thread';
 })
 export class ViewStateService {
   currentView: ViewState = 'devspace';
+  isMobileView: boolean = false;
 }
