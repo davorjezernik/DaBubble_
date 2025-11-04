@@ -67,7 +67,7 @@ export class WorkspaceLayoutComponent implements OnInit, OnDestroy, OnChanges {
 
   private initializeBreakpointObserver(): void {
     this.breakpointSub = this.breakpointObserver
-      .observe(['(max-width: 1300px)'])
+      .observe(['(max-width: 900px)'])
       .subscribe((result) => {
         this.viewStateService.isMobileView = result.matches;
       });

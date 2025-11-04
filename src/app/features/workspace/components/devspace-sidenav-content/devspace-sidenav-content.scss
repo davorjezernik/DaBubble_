@@ -84,10 +84,10 @@ $radius-pill: 999px;
 }
 
 .section-header {
-  display: grid;
-  grid-template-columns: 1fr auto;
+  display: flex;
+  justify-content: space-between;
   align-items: center;
-  margin-bottom: 16px;
+  margin: 16px 0 12px;
 }
 
 .channels-title {
@@ -209,6 +209,11 @@ $radius-pill: 999px;
     margin: 0;
     transition: color 140ms ease-out;
   }
+}
+
+.channels-title-text {
+  margin: 0;
+  line-height: 1;
 }
 
 .section-addon {
@@ -425,7 +430,7 @@ $radius-pill: 999px;
   background: transparent;
   color: inherit;
   font-size: 1rem;
-  padding: 0.5rem;
+  padding: 8px;
 
   &::placeholder {
     color: #aaa;
