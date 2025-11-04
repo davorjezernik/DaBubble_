@@ -13,7 +13,7 @@ import {
   debounceTime,
   startWith,
   distinctUntilChanged,
-  firstValueFrom 
+  firstValueFrom,
 } from 'rxjs';
 import { UserService } from '../../../../../services/user.service';
 import { User } from '../../../../../models/user.class';
@@ -88,7 +88,7 @@ export class DevspaceSidenavContent implements OnInit, OnDestroy {
     private authService: AuthService,
     private dialog: MatDialog,
     private channelService: ChannelService,
-    private unread: UnreadService
+    private unread: UnreadService,
   ) {}
 
   ngOnInit(): void {
@@ -144,9 +144,7 @@ export class DevspaceSidenavContent implements OnInit, OnDestroy {
       startWith(''),
       map((dmId) => this.otherUidFromDmId(dmId, this.meUid!)),
       switchMap((activeOtherUid) => {
-        const streams = entries
-          .filter(([uid]) => uid !== activeOtherUid) 
-          .map(([, obs$]) => obs$);
+        const streams = entries.filter(([uid]) => uid !== activeOtherUid).map(([, obs$]) => obs$);
 
         return streams.length
           ? combineLatest(streams).pipe(map((arr) => arr.reduce((sum, n) => sum + (n || 0), 0)))
