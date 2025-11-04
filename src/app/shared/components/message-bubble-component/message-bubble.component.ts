@@ -458,6 +458,8 @@ export class MessageBubbleComponent implements OnChanges {
     event.stopPropagation();
     this.showMiniActions = false;
     if (!this.chatId || !this.messageId) return;
+    this.viewStateService.requestCloseDevspaceDrawer();
+    this.viewStateService.currentView = 'thread';
     this.threadPanel.openThread({
       chatId: this.chatId,
       messageId: this.messageId,

@@ -15,6 +15,14 @@
     height: 100%;
   }
 
+  .main-content-area {
+    border-radius: 0;
+  }
+
+  .main-content-wrapper {
+    margin: 0;
+  }
+
   .main-and-thread-wrapper {
     height: 100%;
   }
@@ -28,6 +36,7 @@
     display: flex;
     flex-direction: column;
     align-items: center;
+    border-radius: 0;
   }
 
   .devspace-sidenav-button {
