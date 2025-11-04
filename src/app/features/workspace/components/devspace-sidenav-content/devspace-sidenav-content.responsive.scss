@@ -1,3 +1,62 @@
-@media (max-width: 800px) {
+@media (max-width: 950px) {
+  .sidenav {
+    width: 100vw !important;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
 
+  .sidenav-section {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .section-header {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .section-title {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 0;
+  }
+
+  .section-addon {
+    margin-left: auto;
+  }
+
+  .channels-and-contacts {
+    width: 80%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .section-content-wrapper {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .section-content-wrapper {
+  padding-left: 0;
+}
+
+.dm-list, .section-content-wrapper {
+  padding-left: 32px;
+}
+
+.dm-list {
+    width: 100%;
+    display: flex;
+    align-items: center;
+}
 }

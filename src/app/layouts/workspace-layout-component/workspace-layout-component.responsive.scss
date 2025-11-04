@@ -4,11 +4,12 @@
   }
 }
 
-@media (max-width: 1000px) {
+@media (max-width: 950px) {
   :host {
-    padding: 0;
     height: 100vh;
+    padding: 0;
   }
+
 
   .main-content {
     height: 100%;
@@ -24,6 +25,13 @@
 
   .devspace-sidenav {
     width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .devspace-sidenav-button {
+    display: none;
   }
 
   .mobile-header {
