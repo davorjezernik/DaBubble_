@@ -9,11 +9,12 @@ import { CommonModule, DatePipe } from '@angular/common';
 import { MessageBubbleComponent } from '../../../../shared/components/message-bubble-component/message-bubble.component';
 import { ChannelShowMembersDialog } from '../../../../shared/components/channel-show-members-dialog/channel-show-members-dialog';
 import { MatDialog } from '@angular/material/dialog';
+import { take } from 'rxjs/operators';
+import { EditChannel } from '../edit-channel/edit-channel';
 import { map, combineLatest, Observable, of } from 'rxjs';
 import { UserService } from '../../../../../services/user.service';
 import { ChannelMember } from '../../../../shared/components/channel-show-members-dialog/channel-show-members-dialog';
 import { DialogIconAddMemberToChannel } from '../../../../shared/components/dialog-icon-add-member-to-channel/dialog-icon-add-member-to-channel';
-import { take } from 'rxjs/operators';
 import { AddableUser } from '../../../../shared/components/dialog-icon-add-member-to-channel/dialog-icon-add-member-to-channel';
 
 @Component({
@@ -236,6 +237,24 @@ export class ChannelInterfaceContent extends BaseChatInterfaceComponent {
         });
 
         ref.componentInstance.close.subscribe(() => ref.close());
+      });
+  }
+
+  // Öffnet EditChannel als Modal
+  openEditChannel(ev?: MouseEvent) {
+    ev?.stopPropagation();
+
+    if (!this.channelData) return;
+
+    const ref = this.dialog.open(EditChannel, {
+      data: { channel: this.channelData },
+      autoFocus: false,
+    });
+
+    ref
+      .afterClosed()
+      .pipe(take(1))
+      .subscribe((res) => {
       });
   }
 }

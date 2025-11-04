@@ -1,18 +1,16 @@
-<button (click)="openModal()">Edit Chanel</button>
-
-<div class="modal" *ngIf="isModalOpen">
+<div class="modal">
     <div class="modal-content">
         <div class="modal-header">
-            <h2># Chanel Name</h2>
+            <h2># {{ data?.channel?.name || 'Channel' }}</h2>
             <h3 class="close" (click)="closeModal()">&times;</h3>
         </div>
         <div class="modal-containers margin-bottom">
             <div class="modal-edit-header">
-                <h3>Chanel-Name</h3>
+                <h3>Channel-Name</h3>
                 <a>Edit</a>
             </div>
             <div class="modal-edit-name-content">
-                <p># <span>Chanel Name</span></p>
+                <p># <span>{{ data?.channel?.name || '' }}</span></p>
             </div>
         </div>
         <div class="modal-containers">
@@ -21,18 +19,18 @@
                 <a>Edit</a>
             </div>
             <div class="modal-edit-description-content">
-                <p>Your text here</p>
+                <p>{{ data?.channel?.description || 'Keine Beschreibung' }}</p>
             </div>
             <div class="modal-seperator">
                 <div class="seperator"></div>
             </div>
             <div class="modal-info">
                 <p>Made from</p>
-                <b>Username</b>
+                <b>{{ data?.channel?.createdBy || 'Unknown' }}</b>
             </div>
         </div>
         <div class="button-container">
-            <button>t</button>
+            <button (click)="closeModal()">Schließen</button>
         </div>
     </div>
 </div>
