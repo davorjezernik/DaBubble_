@@ -144,6 +144,8 @@ export abstract class BaseChatInterfaceComponent implements OnInit, OnDestroy {
   async handleNewMessage(messageText: string): Promise<void> {
     if (!this.chatId || !this.currentUserId) return;
 
+    await this.markThreadAsReadLocalNow(this.chatId);
+
     const messageData = {
       text: messageText,
       timestamp: serverTimestamp(),
@@ -157,6 +159,8 @@ export abstract class BaseChatInterfaceComponent implements OnInit, OnDestroy {
       `${this.collectionName}/${this.chatId}/messages`
     );
     await addDoc(messagesCollectionRef, messageData);
+
+    this.markThreadAsRead(this.chatId).catch(() => {});
   }
 
   /**
@@ -214,6 +218,13 @@ export abstract class BaseChatInterfaceComponent implements OnInit, OnDestroy {
   }
 
   // for message count //
+  protected async markThreadAsReadLocalNow(chatId: string) {
+    if (!this.currentUserId) return;
+    const ref = doc(this.firestore, `${this.collectionName}/${chatId}`);
+    const fieldPath = `lastReads.${this.currentUserId}`;
+    await updateDoc(ref, { [fieldPath]: Timestamp.now() });
+  }
+
   protected async markThreadAsRead(chatId: string) {
     if (!this.currentUserId) return;
     const ref = doc(this.firestore, `${this.collectionName}/${chatId}`);

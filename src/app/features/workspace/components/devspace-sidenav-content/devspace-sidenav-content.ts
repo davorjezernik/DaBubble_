@@ -2,7 +2,19 @@ import { Component, OnDestroy, OnInit, Injectable, inject } from '@angular/core'
 import { MatButtonModule } from '@angular/material/button';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { CommonModule } from '@angular/common';
-import { Observable, Subscription, combineLatest, of, map } from 'rxjs';
+import {
+  Observable,
+  Subscription,
+  combineLatest,
+  of,
+  map,
+  switchMap,
+  filter,
+  debounceTime,
+  startWith,
+  distinctUntilChanged,
+  firstValueFrom 
+} from 'rxjs';
 import { UserService } from '../../../../../services/user.service';
 import { User } from '../../../../../models/user.class';
 import {
@@ -15,8 +27,7 @@ import {
   setDoc,
   writeBatch,
 } from '@angular/fire/firestore';
-import { Router, RouterModule } from '@angular/router';
-import { firstValueFrom } from 'rxjs';
+import { Router, RouterModule, ActivatedRoute, NavigationEnd } from '@angular/router';
 import { AuthService } from '../../../../../services/auth-service';
 import { FormsModule } from '@angular/forms';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
@@ -53,6 +64,7 @@ export class DevspaceSidenavContent implements OnInit, OnDestroy {
   currentChatId: string = '';
   unreadByUid: Record<string, Observable<number>> = {};
   totalDmUnread$: Observable<number> = of(0);
+  activeDmId$: Observable<string> = of('');
 
   // Users//
 
@@ -82,6 +94,14 @@ export class DevspaceSidenavContent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.subscribeToUsers();
     this.subscribeToChannels();
+    this.activeDmId$ = this.router.events.pipe(
+      filter((e) => e instanceof NavigationEnd),
+      startWith(null),
+      map(() => {
+        const m = this.router.url.match(/\/workspace\/dm\/([^\/\?]+)/i);
+        return m ? decodeURIComponent(m[1]) : '';
+      })
+    );
   }
 
   private subscribeToUsers(): void {
@@ -94,23 +114,60 @@ export class DevspaceSidenavContent implements OnInit, OnDestroy {
     });
   }
 
-  private buildUnreadMap() {
-  this.unreadByUid = {};
-  if (!this.meUid) { this.totalDmUnread$ = of(0); return; }
+  // Unread count //
+  private buildPerUserUnreadStreams(): void {
+    this.unreadByUid = {};
+    if (!this.meUid) return;
 
-  for (const u of this.users) {
-    if (!u?.uid || u.uid === this.meUid) continue;  
-    const dmId = this.calculateDmId(u);
-    if (!dmId) continue;
-   this.unreadByUid[u.uid] = this.unread.unreadCount$('dms', dmId, this.meUid!);
+    for (const u of this.users) {
+      if (!u?.uid || u.uid === this.meUid) continue;
+      const dmId = this.calculateDmId(u);
+      if (!dmId) continue;
+
+      const base$ = this.unread.unreadCount$('dms', dmId, this.meUid!);
+      this.unreadByUid[u.uid] = combineLatest([base$, this.activeDmId$.pipe(startWith(''))]).pipe(
+        map(([n, activeId]) => (activeId === dmId ? 0 : n || 0)),
+        distinctUntilChanged()
+      );
+    }
   }
 
-  const streams = Object.values(this.unreadByUid);
-  this.totalDmUnread$ = streams.length
-    ? combineLatest(streams).pipe(map(arr => arr.reduce((sum, n) => sum + (n || 0), 0)))
-    : of(0);
-}
+  private buildTotalUnreadStream(): void {
+    if (!this.meUid) {
+      this.totalDmUnread$ = of(0);
+      return;
+    }
 
+    const entries = Object.entries(this.unreadByUid);
+
+    this.totalDmUnread$ = this.activeDmId$.pipe(
+      startWith(''),
+      map((dmId) => this.otherUidFromDmId(dmId, this.meUid!)),
+      switchMap((activeOtherUid) => {
+        const streams = entries
+          .filter(([uid]) => uid !== activeOtherUid) 
+          .map(([, obs$]) => obs$);
+
+        return streams.length
+          ? combineLatest(streams).pipe(map((arr) => arr.reduce((sum, n) => sum + (n || 0), 0)))
+          : of(0);
+      }),
+      debounceTime(30),
+      distinctUntilChanged()
+    );
+  }
+
+  private buildUnreadMap(): void {
+    this.buildPerUserUnreadStreams();
+    this.buildTotalUnreadStream();
+  }
+  // Unread count //
+
+  private otherUidFromDmId(dmId: string, meUid: string): string | null {
+    const [a, b] = dmId.split('-');
+    if (!a || !b) return null;
+    return a === meUid ? b : b === meUid ? a : null;
+  }
 
   private updateUserList(list: any[]): void {
     if (this.meUid) {

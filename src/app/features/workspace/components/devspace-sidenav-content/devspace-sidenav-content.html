@@ -252,9 +252,8 @@
           class="heading-badge"
           *ngIf="totalDmUnread$ | async as total"
           [hidden]="!total || total === 0"
+          >{{ total }}</span
         >
-          {{ total }}
-        </span>
       </div>
     </header>
     @if (dmsOpen) {
@@ -264,6 +263,7 @@
         class="contact-item-anker badge-wrap"
         [routerLink]="['/workspace/dm', calculateDmId(u)]"
         routerLinkActive="is-active"
+        #rla="routerLinkActive"
       >
         <app-contact-item
           [meUid]="meUid"
@@ -273,7 +273,7 @@
         <span
           class="contact-badge"
           *ngIf="unreadByUid[u.uid] | async as n"
-          [hidden]="!n || n === 0"
+          [hidden]="!n || n === 0 || rla.isActive"
           >{{ n }}</span
         ></a
       >
