@@ -32,7 +32,7 @@ import { UserMenuService } from '../../../../../services/user-menu.service';
     MatDialogModule,
   ],
   templateUrl: './header-workspace.component.html',
-  styleUrl: './header-workspace.component.scss',
+  styleUrls: ['./header-workspace.component.scss', './header-workspace-component.responsive.scss'],
 })
 export class HeaderWorkspaceComponent implements OnInit, OnDestroy {
   private userService = inject(UserService);

@@ -50,7 +50,7 @@
         <span class="mini-hit" (click)="onMiniAddReactionClick($event)">
           <img src="assets/icons/add_reaction.svg" alt="Add reaction" class="mini-icon" />
         </span>
-        <span [class.hidden]="isThreadView" class="mini-hit" (click)="onCommentClick($event)">
+        <span [class.hidden]="isThreadView" class="mini-hit" (click)="onCommentClick($event); this.viewStateService.requestCloseDevspaceDrawer();">
           <img src="assets/icons/comment.svg" alt="Comment" class="mini-icon" />
         </span>
         @if (!incoming) {

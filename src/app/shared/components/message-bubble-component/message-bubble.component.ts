@@ -20,6 +20,7 @@ import {
   deleteField,
   increment,
 } from '@angular/fire/firestore';
+import { ViewStateService } from '../../../../services/view-state.service';
 
 @Component({
   selector: 'app-message-bubble',
@@ -491,5 +492,5 @@ export class MessageBubbleComponent implements OnChanges {
    * @param firestore AngularFire Firestore instance used for message updates/deletes and reactions.
    * @param threadPanel Service to open the thread side panel for a given message.
    */
-  constructor(private firestore: Firestore, private threadPanel: ThreadPanelService) {}
+  constructor(private firestore: Firestore, private threadPanel: ThreadPanelService, public viewStateService: ViewStateService) {}
 }

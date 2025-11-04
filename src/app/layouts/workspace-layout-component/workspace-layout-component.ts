@@ -39,6 +39,7 @@ export class WorkspaceLayoutComponent implements OnInit, OnDestroy, OnChanges {
 
   breakpointSub?: Subscription;
   userSub?: Subscription;
+  private drawerSubscriptions = new Subscription();
 
   constructor(
     private threadPanel: ThreadPanelService,
@@ -54,6 +55,7 @@ export class WorkspaceLayoutComponent implements OnInit, OnDestroy, OnChanges {
     this.subscribeUserService();
     this.initializeBreakpointObserver();
     this.initializeThreadPanelSubscription();
+    this.initializeDrawerListeners();
   }
 
   ngOnChanges(): void {
@@ -63,13 +65,19 @@ export class WorkspaceLayoutComponent implements OnInit, OnDestroy, OnChanges {
   ngOnDestroy(): void {
     this.userSub?.unsubscribe();
     this.breakpointSub?.unsubscribe();
+    this.drawerSubscriptions.unsubscribe();
   }
 
   private initializeBreakpointObserver(): void {
     this.breakpointSub = this.breakpointObserver
-      .observe(['(max-width: 900px)'])
+      .observe(['(max-width: 1000px)', '(max-width: 1320px)'])
       .subscribe((result) => {
-        this.viewStateService.isMobileView = result.matches;
+        this.viewStateService.isMobileView = result.breakpoints['(max-width: 1000px)'];
+
+        if (result.breakpoints['(max-width: 1320px)']) {
+          this.threadDrawer?.close();
+          this.devspaceDrawer?.close();
+        }
       });
   }
 
@@ -86,4 +94,20 @@ export class WorkspaceLayoutComponent implements OnInit, OnDestroy, OnChanges {
       this.user = user;
     });
   }
+
+  private initializeDrawerListeners(): void {
+    const threadSub = this.viewStateService.closeThreadDrawer$.subscribe(() => {
+      this.threadDrawer?.close();
+    });
+
+    const devspaceSub = this.viewStateService.closeDevspaceDrawer$.subscribe(() => {
+      this.devspaceDrawer?.close();
+    });
+
+    // Add our new subscriptions to the main subscription object for easy cleanup
+    this.drawerSubscriptions.add(threadSub);
+    this.drawerSubscriptions.add(devspaceSub);
+  }
 }
+
+// decide which sidenav to close

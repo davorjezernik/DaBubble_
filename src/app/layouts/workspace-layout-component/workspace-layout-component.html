@@ -54,7 +54,7 @@
 } @else {
 <main class="main-content">
   @if (devspaceDrawer.opened) {
-  <button class="devspace-sidenav-button" type="button" matButton (click)="devspaceDrawer.toggle()">
+  <button class="devspace-sidenav-button" type="button" matButton (click)="devspaceDrawer.toggle(); this.viewStateService.requestCloseThreadDrawer();">
     <p>Workspace-Menu-Schließen</p>
     <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
       <rect x="8" y="8" width="16" height="16" rx="1" stroke="black" stroke-width="2" />
@@ -68,7 +68,7 @@
     </svg>
   </button>
   } @else {
-  <button class="devspace-sidenav-button" type="button" matButton (click)="devspaceDrawer.toggle()">
+  <button class="devspace-sidenav-button" type="button" matButton (click)="devspaceDrawer.toggle(); this.viewStateService.requestCloseThreadDrawer();">
     <p>Workspace-Menu-Öffnen</p>
     <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
       <rect x="8" y="8" width="16" height="16" rx="1" stroke="black" stroke-width="2" />
