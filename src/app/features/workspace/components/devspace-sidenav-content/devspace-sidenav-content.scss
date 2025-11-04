@@ -319,7 +319,6 @@ $radius-pill: 999px;
   }
 
   &:hover {
-    /* apply background + rounding to whole icon */
     background-color: #eceefe;
 
     path {
@@ -395,4 +394,48 @@ $radius-pill: 999px;
   &.is-active ::ng-deep .dm-item {
     background-color: #eceefe;
   }
+}
+
+.badge-wrap {
+  position: relative;
+  display: block; 
+}
+
+.contact-badge {
+  position: absolute;
+  top: 5px;     
+  right: 5px;   
+  min-width: 18px;
+  height: 18px;
+  padding: 0 6px;
+  border-radius: 9999px;
+  background: #e53935;  
+  color: #fff;
+  font-size: 12px;
+  line-height: 18px;
+  font-weight: 700;
+  font-family: 'Nunito', sans-serif;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;  
+  box-shadow: 0 0 0 2px #fff;
+}
+
+.heading-badge {
+  display: inline-flex;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 6px;
+  border-radius: 50px;
+  margin-left: 20px;
+  background: #e53935;
+  color: #fff;
+  font-size: 12px;
+  line-height: 18px;
+  font-weight: 700;
+  font-family: 'Nunito', sans-serif;
+  align-items: center;
+  justify-content: center;
+  vertical-align: middle;
 }

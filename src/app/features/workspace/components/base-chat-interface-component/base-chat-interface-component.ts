@@ -6,6 +6,7 @@ import {
   doc,
   Firestore,
   getDoc,
+  updateDoc,
   orderBy,
   query,
   serverTimestamp,
@@ -48,7 +49,7 @@ export abstract class BaseChatInterfaceComponent implements OnInit, OnDestroy {
         try {
           this.currentUserProfile = await this.getUserData(user.uid);
           this.currentUserAvatar =
-          this.currentUserProfile?.avatar || 'assets/img-profile/profile.png';
+            this.currentUserProfile?.avatar || 'assets/img-profile/profile.png';
           this.currentUserDisplayName = this.currentUserProfile?.name || 'Unknown User';
         } catch {
           this.currentUserProfile = null;
@@ -82,12 +83,9 @@ export abstract class BaseChatInterfaceComponent implements OnInit, OnDestroy {
     });
   }
 
-  /**
-   * Hook: called whenever the route `id` changes.
-   * @param chatId New chat id (document id under the selected collection)
-   */
+  // for message county //
   protected onChatIdChanged(chatId: string): void {
-    // Default implementation does nothing.
+    this.markThreadAsRead(chatId).catch(() => {});
   }
 
   /**
@@ -113,7 +111,10 @@ export abstract class BaseChatInterfaceComponent implements OnInit, OnDestroy {
       })
     );
     this.messagesSub = this.messages$.subscribe(() => {
-      setTimeout(() => this.scrollToBottom(), 50);
+      setTimeout(() => {
+        this.scrollToBottom();
+        if (this.chatId) this.markThreadAsRead(this.chatId).catch(() => {});
+      }, 50);
     });
   }
 
@@ -210,6 +211,14 @@ export abstract class BaseChatInterfaceComponent implements OnInit, OnDestroy {
     } else {
       return false;
     }
+  }
+
+  // for message count //
+  protected async markThreadAsRead(chatId: string) {
+    if (!this.currentUserId) return;
+    const ref = doc(this.firestore, `${this.collectionName}/${chatId}`);
+    const fieldPath = `lastReads.${this.currentUserId}`;
+    await updateDoc(ref, { [fieldPath]: serverTimestamp() });
   }
 
   /** Smoothly scroll the messages container to the bottom. */

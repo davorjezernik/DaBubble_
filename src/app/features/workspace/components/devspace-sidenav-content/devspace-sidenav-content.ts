@@ -1,8 +1,8 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, Injectable, inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { CommonModule } from '@angular/common';
-import { Observable, Subscription, combineLatest } from 'rxjs';
+import { Observable, Subscription, combineLatest, of, map } from 'rxjs';
 import { UserService } from '../../../../../services/user.service';
 import { User } from '../../../../../models/user.class';
 import {
@@ -25,7 +25,7 @@ import { AddUsersToChannel } from '../add-users-to-channel/add-users-to-channel'
 import { ChannelItem } from '../channel-item/channel-item';
 import { ChannelService } from '../../../../../services/channel-service';
 import { ContactItem } from '../contact-item/contact-item';
-import { user } from '@angular/fire/auth';
+import { UnreadService } from '../../../../../services/unread.service';
 
 @Component({
   selector: 'app-devspace-sidenav-content',
@@ -51,6 +51,8 @@ export class DevspaceSidenavContent implements OnInit, OnDestroy {
   dmsOpen = true;
   channelsOpen = true;
   currentChatId: string = '';
+  unreadByUid: Record<string, Observable<number>> = {};
+  totalDmUnread$: Observable<number> = of(0);
 
   // Users//
 
@@ -73,7 +75,8 @@ export class DevspaceSidenavContent implements OnInit, OnDestroy {
     private router: Router,
     private authService: AuthService,
     private dialog: MatDialog,
-    private channelService: ChannelService
+    private channelService: ChannelService,
+    private unread: UnreadService
   ) {}
 
   ngOnInit(): void {
@@ -91,6 +94,24 @@ export class DevspaceSidenavContent implements OnInit, OnDestroy {
     });
   }
 
+  private buildUnreadMap() {
+  this.unreadByUid = {};
+  if (!this.meUid) { this.totalDmUnread$ = of(0); return; }
+
+  for (const u of this.users) {
+    if (!u?.uid || u.uid === this.meUid) continue;  
+    const dmId = this.calculateDmId(u);
+    if (!dmId) continue;
+   this.unreadByUid[u.uid] = this.unread.unreadCount$('dms', dmId, this.meUid!);
+  }
+
+  const streams = Object.values(this.unreadByUid);
+  this.totalDmUnread$ = streams.length
+    ? combineLatest(streams).pipe(map(arr => arr.reduce((sum, n) => sum + (n || 0), 0)))
+    : of(0);
+}
+
+
   private updateUserList(list: any[]): void {
     if (this.meUid) {
       const meUser = list.find((u) => u.uid === this.meUid);
@@ -99,6 +120,8 @@ export class DevspaceSidenavContent implements OnInit, OnDestroy {
     } else {
       this.users = list;
     }
+
+    this.buildUnreadMap();
 
     this.maxVisible = Math.min(this.maxVisible, this.users.length);
   }

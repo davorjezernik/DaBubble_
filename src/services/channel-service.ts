@@ -61,20 +61,14 @@ export class ChannelService {
     users: Array<{ uid: string; name?: string }>
   ): Promise<void> {
     const ref = doc(this.firestore, `channels/${channelId}`);
-
-    // 1. aktuelles Doc holen
     const snap = await getDoc(ref);
     if (!snap.exists()) return;
 
     const data = snap.data() as Channel;
     const current = data.members ?? [];
-
-    // 2. vorhandene uids rausziehen (egal ob string oder object)
     const existingUids = new Set(
       current.map((m) => (typeof m === 'string' ? m : m.uid)).filter(Boolean)
     );
-
-    // 3. neue Member-Objekte bauen (nur die, die noch nicht drin sind)
     const newMemberObjs = users
       .filter((u) => !!u.uid && !existingUids.has(u.uid))
       .map((u) => ({
@@ -83,11 +77,7 @@ export class ChannelService {
       }));
 
     if (!newMemberObjs.length) return;
-
-    // 4. bestehende behalten, neue hinten dranhängen
     const updatedMembers = [...current, ...newMemberObjs];
-
-    // 5. zurückschreiben
     await updateDoc(ref, {
       members: updatedMembers,
     });

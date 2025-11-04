@@ -248,13 +248,20 @@
         </svg>
 
         <h3 id="dms-heading" class="section-heading">Direktnachrichten</h3>
+        <span
+          class="heading-badge"
+          *ngIf="totalDmUnread$ | async as total"
+          [hidden]="!total || total === 0"
+        >
+          {{ total }}
+        </span>
       </div>
     </header>
     @if (dmsOpen) {
     <ul class="dm-list">
       @for(u of visibleUsers; track u.uid) {
       <a
-        class="contact-item-anker"
+        class="contact-item-anker badge-wrap"
         [routerLink]="['/workspace/dm', calculateDmId(u)]"
         routerLinkActive="is-active"
       >
@@ -262,8 +269,14 @@
           [meUid]="meUid"
           [user]="u"
           (contactClick)="ensureDmExists($event)"
-        ></app-contact-item
-      ></a>
+        ></app-contact-item>
+        <span
+          class="contact-badge"
+          *ngIf="unreadByUid[u.uid] | async as n"
+          [hidden]="!n || n === 0"
+          >{{ n }}</span
+        ></a
+      >
       }
 
       <li class="dm-item-more" *ngIf="hiddenCount > 0" (click)="loadMore()">

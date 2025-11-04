@@ -50,6 +50,7 @@ export class DmInterfaceContent extends BaseChatInterfaceComponent {
    */
   override onChatIdChanged(chatId: string): void {
     this.loadRecipientData(chatId);
+    super.onChatIdChanged(chatId);
   }
 
   /**
