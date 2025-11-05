@@ -68,4 +68,27 @@
       transition: color 0.2s ease;
     }
   }
+  .badge {
+    margin-left: auto;
+    min-width: 22px;
+    height: 22px;
+    border-radius: 50px;
+    background: #e53935; 
+    color: #fff;
+    font-family: 'Nunito', sans-serif;
+    font-size: 12px;
+    line-height: 22px;
+    text-align: center;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0; 
+    box-shadow: 0 1px 0 rgba(0, 0, 0, 0.08);
+  }
+
+  &:hover .badge {
+    transform: translateY(-1px);
+    transition: transform 0.15s ease;
+  }
 }
