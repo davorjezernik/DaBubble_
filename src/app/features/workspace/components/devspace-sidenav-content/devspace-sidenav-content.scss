@@ -14,6 +14,17 @@ $radius-pill: 999px;
   box-sizing: border-box;
 }
 
+button {
+  background-color: transparent;
+  border: none;
+  outline: none;
+  cursor: pointer;
+}
+
+a {
+  text-decoration: none;
+}
+
 .sidenav {
   width: 100%;
   height: 100%;
@@ -78,64 +89,153 @@ $radius-pill: 999px;
   }
 }
 
-/* Section skeleton */
-.sidenav-section + .sidenav-section {
-  margin-top: 24px;
-}
-
-.section-header {
+.channels-and-contacts {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin: 16px 0 12px;
+  flex-direction: column;
+  gap: 20px;
 }
 
-.channels-title {
-  cursor: pointer;
+.section-toggle-button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
   transition: all 125ms ease-in-out;
+
   &:hover {
-    .channels-title-arrow {
+    .section-toggle-arrow,
+    .section-title-icon {
       path {
         fill: $color-brand;
       }
     }
 
-    .channels-title-logo {
-      path {
-        fill: $color-brand;
-      }
-    }
-
-    .channels-title-text {
+    .section-title-text {
       color: $color-brand;
     }
   }
 
-  &.open {
-    .channels-title-arrow {
+  &[aria-expanded='true'] {
+    .section-toggle-arrow {
       transition: transform 125ms ease-in-out;
       transform: rotate(-90deg);
     }
   }
 }
 
-.channel-item-more {
+.section-title-text {
+  margin: 0;
+  @include mixins.text-style(
+    $size: 20px,
+    $color: #000000,
+    $font-weight: 700,
+    $font-family: 'Nunito',
+    $line-height: 1
+  );
+}
+
+.item-list {
+  gap: 10px;
+  display: flex;
+  flex-direction: column;
+}
+
+.contacts-list {
+  padding-left: 20px;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.section-addon-button {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 125ms ease-in-out;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+
+  > svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  &:hover {
+    background-color: $color-dm-hover;
+    svg > path {
+      fill: $color-brand;
+    }
+  }
+}
+
+.trigger-message-btn {
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  background-color: transparent;
+  transition: all 125ms ease-in-out;
+
+  &:hover {
+    background-color: $color-dm-hover;
+
+    svg > g > path {
+      fill: $color-brand;
+      stroke: $color-brand;
+      stroke-width: 0.6;
+    }
+  }
+}
+
+.add-item-button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-left: 40px;
+  margin-top: 20px;
+  @include mixins.text-style(
+    $size: 18px,
+    $color: #000000,
+    $font-weight: 400,
+    $font-family: 'Nunito',
+    $line-height: 1
+  );
+
+  &:hover {
+    transition: all 125ms ease-in-out;
+    color: $color-brand;
+
+    > svg > path {
+      stroke-width: 0.5;
+    }
+  }
+}
+
+.load-more-button {
   display: flex;
   align-items: center;
   gap: 15px;
-  padding: 4px 20px;
+  padding: 4px 40px;
   border-radius: 30px;
   min-height: 58px;
   cursor: pointer;
-  transition: background 0.2s ease, color 0.2s ease;
-  
+  transition: background 125ms ease, color 125ms ease-in-out;
+  background-color: transparent;
+  border: none;
+  width: 100%;
+  text-align: left;
 
   &:hover {
     background: #eceefe;
     .name {
       color: #535af1;
       font-weight: 700;
-      font-size: 18px;
     }
   }
 
@@ -149,256 +249,14 @@ $radius-pill: 999px;
     font-weight: 700;
     font-size: 18px;
     color: #535af1;
+    flex-shrink: 0;
   }
 
   .name {
     color: #535af1;
     font-size: 18px;
     font-weight: 500;
-  }
-}
-
-.dms-title {
-  cursor: pointer;
-  transition: all 125ms ease-in-out;
-  &:hover {
-    .section-heading {
-      color: $color-brand;
-    }
-
-    .arrow-dropdown-icon {
-      path {
-        fill: $color-brand;
-      }
-    }
-
-    .section-icon {
-      path {
-        fill: $color-brand;
-      }
-    }
-  }
-
-  &.open {
-    .arrow-dropdown-icon {
-      transition: transform 125ms ease-in-out;
-      transform: rotate(-90deg);
-    }
-  }
-}
-
-.dms-title,
-.channels-title-text {
-  @include mixins.text-style(
-    $size: 20px,
-    $color: #000000,
-    $font-weight: 700,
-    $font-family: 'Nunito',
-    $line-height: 1
-  );
-}
-
-.section-title {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-
-  .section-heading {
-    font-size: 18px;
-    font-weight: 700;
-    margin: 0;
-    transition: color 140ms ease-out;
-  }
-}
-
-.channels-title-text {
-  margin: 0;
-  line-height: 1;
-}
-
-.section-addon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  width: 35px;
-  height: 35px;
-  border: none;
-  background: transparent;
-  cursor: pointer;
-  transition: background-color 125ms ease-in-out, transform 125ms ease-in-out;
-
-  &:hover {
-    background-color: #eceefe;
-
-    svg {
-      path {
-        fill: $color-brand;
-      }
-    }
-  }
-}
-
-.section-content-wrapper {
-  padding-left: 38px;
-}
-
-/* Channel list */
-.channel-list {
-  list-style: none;
-  margin-bottom: 16px;
-  padding: 0;
-  gap: 13px;
-  display: flex;
-  flex-direction: column;
-}
-
-/* "Channel hinzufügen" button — text changes to brand color on hover */
-.section-footer {
-  padding: 6px 0 0 0;
-}
-
-.add-channel {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  padding: 6px 0;
-  border: none;
-  background: transparent;
-  color: inherit;
-  cursor: pointer;
-  border-radius: 8px;
-  transition: color 125ms ease-in-out;
-
-  &:hover {
-    color: $color-brand;
-
-    .add-channel-icon path {
-      stroke: $color-brand;
-      stroke-width: 0.5;
-    }
-
-    .add-channel-label {
-      color: $color-brand;
-    }
-  }
-
-  .add-channel-icon {
-    transition: fill 125ms ease-out;
-
-    path {
-      fill: currentColor;
-      transition: fill 125ms ease-out;
-    }
-  }
-
-  .add-channel-label {
-    @include mixins.text-style(
-      $size: 18px,
-      $color: #000000,
-      $font-weight: 400,
-      $font-family: 'Nunito',
-      $line-height: 1
-    );
-  }
-}
-
-/* Direktnachrichten */
-.dm-list {
-  list-style: none;
-  padding: 0;
-
-  .dm-list-item + .dm-list-item {
-    margin-top: 2px;
-  }
-}
-.message-trigger-icon {
-  cursor: pointer;
-  border-radius: 20px;
-  background-color: transparent;
-  transition: all 125ms ease-in-out;
-
-  path {
-    fill: black;
-    transition: fill 125ms ease-in-out;
-  }
-
-  &:hover {
-    /* apply background + rounding to whole icon */
-    background-color: #eceefe;
-
-    path {
-      fill: #444df2;
-    }
-  }
-}
-
-// users //
-
-.dm-list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 13px;
-  margin-left: 10px;
-}
-
-.dm-item-more {
-  display: flex;
-  justify-content: flex-start;
-  align-items: center;
-  gap: 10px;
-  cursor: pointer;
-  min-width: 205px;
-  width: auto;
-  height: 58px;
-  display: flex;
-  align-items: center;
-  gap: 15px;
-  padding: 4px 20px;
-  margin-bottom: 20px;
-  border-radius: 30px;
-  cursor: pointer;
-  transition: background 0.2s ease, color 0.2s ease;
-
-  &:hover {
-    background: #eceefe;
-
-    .name {
-      color: #535af1;
-      font-weight: 700;
-      font-size: 18px;
-    }
-  }
-
-  .more-avatar {
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    background: #eceefe;
-    display: grid;
-    place-items: center;
-    font-weight: 700;
-    font-size: 18px;
-    color: #535af1;
-  }
-
-  .name {
-    color: #535af1;
-    font-size: 18px;
-    font-weight: 500;
-  }
-}
-
-.contact-item-anker {
-  text-decoration: none;
-  padding: 0;
-
-  &.is-active ::ng-deep .dm-item {
-    background-color: #eceefe;
+    font-family: 'Nunito', sans-serif;
   }
 }
 
@@ -412,18 +270,18 @@ $radius-pill: 999px;
 .search-container {
   display: flex;
   align-items: center;
-  border: 1px solid #ADB0D9;
+  border: 1px solid #adb0d9;
   border-radius: 30px;
   background-color: transparent;
   padding: 10px 15px;
   transition: border-color 0.2s ease;
 
   &:focus-within {
-    border-color: #535AF1;
+    border-color: #535af1;
   }
 }
 
-.search-container input[type="search"] {
+.search-container input[type='search'] {
   flex: 1;
   border: none;
   outline: none;
