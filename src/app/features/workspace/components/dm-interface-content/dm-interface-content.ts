@@ -9,7 +9,7 @@ import { MessageBubbleComponent } from '../../../../shared/components/message-bu
 import { BaseChatInterfaceComponent } from '../base-chat-interface-component/base-chat-interface-component';
 import { MatDialog } from '@angular/material/dialog';
 import { DialogUserCardComponent } from '../../../../shared/components/dialog-user-card/dialog-user-card.component';
-
+import { ReadStateService } from '../../../../../services/read-state.service';
 
 @Component({
   selector: 'app-dm-interface-content',
@@ -39,19 +39,41 @@ export class DmInterfaceContent extends BaseChatInterfaceComponent {
     protected override route: ActivatedRoute,
     protected override firestore: Firestore,
     protected override authService: AuthService,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private read: ReadStateService
   ) {
     super(route, firestore, authService);
   }
 
-  /**
-   * React to route changes: when the DM chatId changes, (re)load the recipient's profile.
-   * @param chatId The current DM document id (usually composed of two user ids, e.g. "uidA-uidB").
-   */
   override onChatIdChanged(chatId: string): void {
     this.loadRecipientData(chatId);
+
+    if (this.currentUserId) {
+      this.read.markDmRead(chatId, this.currentUserId);
+    } else {
+      const sub = this.authService.currentUser$.subscribe((u) => {
+        if (u?.uid) {
+          this.read.markDmRead(chatId, u.uid);
+          sub.unsubscribe();
+        }
+      });
+    }
   }
 
+  // for the message count //
+  override async handleNewMessage(text: string) {
+    if (!this.chatId) return;
+
+    this.read.bumpLastMessage(this.chatId);
+
+    await super.handleNewMessage(text);
+
+    if (this.currentUserId) {
+      await this.read.markDmRead(this.chatId, this.currentUserId);
+    }
+  }
+  // for the message count //
+  
   /**
    * Load the DM recipient's profile for the given chat.
    * - Determines if this is a self-DM (user messages themselves).

@@ -7,7 +7,9 @@
   <span class="name">
     {{ user.name }}
     @if (user.uid === meUid) {
-    <span class="you">(Du)</span>
+      <span class="you">(Du)</span>
     }
   </span>
+
+  <span class="badge" *ngIf="unread > 0">{{ unread }}</span>
 </li>

@@ -146,6 +146,7 @@ export abstract class BaseChatInterfaceComponent implements OnInit, OnDestroy {
     const messageData = {
       text: messageText,
       timestamp: serverTimestamp(),
+      sortAt: Timestamp.now(),
       authorId: this.currentUserId,
       authorAvatar: this.currentUserAvatar,
       authorName: this.currentUserDisplayName,
