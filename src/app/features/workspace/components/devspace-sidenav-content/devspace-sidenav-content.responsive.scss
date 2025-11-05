@@ -1,11 +1,38 @@
+@use 'mixins';
+
+// Theme tokens
+$color-text: #0f0f10;
+$color-muted: #6b6f76;
+$color-brand: #535af1; // hover color for headings and 'Channel hinzufügen'
+$color-dm-hover: #eceefe; // hover bg for user rows + active channel pill
+$color-surface: #ffffff;
+$radius-pill: 999px;
+
 @media (max-width: 950px) {
+  .add-item-button {
+    @include mixins.text-style(
+      $size: 18px,
+      $color: $color-brand,
+      $font-weight: 400,
+      $font-family: 'Nunito',
+      $line-height: 1
+    );
 
-  .contact-item-anker {
-    text-decoration: none;
-    padding: 0;
-
-    &.is-active ::ng-deep .dm-item {
-      background-color: transparent;
+    > svg > path {
+      stroke-width: 0.6;
     }
+
+    &:hover {
+      transition: all 125ms ease-in-out;
+      color: $color-brand;
+
+      > svg > path {
+        stroke-width: 0.6;
+      }
+    }
+  }
+
+  .mobile-edit-btn {
+    display: flex;
   }
 }

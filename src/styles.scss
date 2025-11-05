@@ -440,7 +440,7 @@ ul {
 
 /* Channel-show-user-dialog */
 .members-dialog-panel .mat-mdc-dialog-container {
-  padding: 0; 
+  padding: 0;
   --mdc-dialog-container-color: transparent;
 }
 
@@ -452,7 +452,7 @@ ul {
   box-sizing: border-box;
   box-shadow: 0px 6px 10px 0px #00000033;
   border-top-left-radius: 30px;
-  border-top-right-radius: 0;     
+  border-top-right-radius: 0;
   border-bottom-right-radius: 30px;
   border-bottom-left-radius: 30px;
   transform: none;
@@ -460,12 +460,16 @@ ul {
 }
 /* dialog-icon-add-member-to-channel */
 
-.transparent-backdrop { background: transparent; }
+.transparent-backdrop {
+  background: transparent;
+}
 
-.add-members-dialog-panel .mat-mdc-dialog-container { padding: 0; }
+.add-members-dialog-panel .mat-mdc-dialog-container {
+  padding: 0;
+}
 .add-members-dialog-panel .mdc-dialog__surface {
   width: 514px !important;
-  padding: 0;        
+  padding: 0;
   background: #ffffff;
   box-shadow: 0px 6px 10px 0px #00000033;
   border-top-left-radius: 30px;
@@ -473,7 +477,7 @@ ul {
   border-bottom-right-radius: 30px;
   border-bottom-left-radius: 30px;
   opacity: 1;
-  transform: none; 
+  transform: none;
   overflow: visible;
 }
 

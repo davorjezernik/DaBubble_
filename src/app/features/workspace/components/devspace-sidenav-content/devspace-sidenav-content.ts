@@ -45,7 +45,8 @@ import { MatInputModule } from '@angular/material/input';
     FormsModule,
     MatFormFieldModule,
     MatIconModule,
-    MatInputModule
+    MatInputModule,
+    MatButtonModule
   ],
   templateUrl: './devspace-sidenav-content.html',
   styleUrls: ['./devspace-sidenav-content.scss', './devspace-sidenav-content.responsive.scss'],

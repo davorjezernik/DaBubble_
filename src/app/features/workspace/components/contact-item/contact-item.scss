@@ -1,6 +1,6 @@
 .dm-item {
   min-width: 205px;
-  width: auto;
+  width: 90%;
   height: 58px;
   display: flex;
   align-items: center;
@@ -60,6 +60,10 @@
     color: #000;
     white-space: nowrap;
     transition: color 0.2s ease;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 200px;
 
     .you {
       margin-left: 4px;
@@ -67,5 +71,20 @@
       color: #000;
       transition: color 0.2s ease;
     }
+  }
+}
+
+@media (max-width: 950px) {
+    .contact-item-anker {
+    text-decoration: none;
+    padding: 0;
+
+    &.is-active .dm-item {
+      background-color: transparent;
+    }
+  }
+
+  .dm-item > .name {
+    max-width: 157px;
   }
 }
