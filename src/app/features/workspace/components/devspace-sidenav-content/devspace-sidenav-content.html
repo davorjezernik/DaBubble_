@@ -96,6 +96,7 @@
           </g>
         </svg>
         <h3 id="channels-title-text" class="channels-title-text">Channels</h3>
+        <span class="dm-total-badge" *ngIf="totalUnreadChannels > 0">{{ totalUnreadChannels }}</span>
       </div>
 
       <button
@@ -144,7 +145,7 @@
     <div class="section-content-wrapper">
       <ul class="channel-list" role="list">
         @for (channel of visibleChannels; track channel.id) {
-        <app-channel-item [channel]="channel"></app-channel-item>
+        <app-channel-item [channel]="channel" [meUid]="meUid"></app-channel-item>
         }
       </ul>
 
@@ -248,6 +249,7 @@
         </svg>
 
         <h3 id="dms-heading" class="section-heading">Direktnachrichten</h3>
+         <span class="dm-total-badge" *ngIf="totalUnread > 0">{{ totalUnread }}</span>
       </div>
     </header>
     @if (dmsOpen) {
