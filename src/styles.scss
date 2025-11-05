@@ -137,6 +137,10 @@ body.intro-active app-auth-layout-component .header .logo img {
   src: url('./assets/fonts/figtree-v9-latin-700.woff2') format('woff2'); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
 }
 
+.hidden {
+  display: none !important;
+}
+
 .top-right {
   position: absolute;
   top: 16px;
@@ -358,6 +362,7 @@ ul {
   box-shadow: none !important;
   border-radius: 0 !important;
   padding: 0 !important;
+  overflow: visible !important;
 }
 //user-menu-dialog.coponent //
 
@@ -403,15 +408,73 @@ ul {
   overflow: visible !important;
   padding: 0 !important;
 }
-.mdc-radio .mdc-radioripple,
-.mdc-radio .mdc-radioripple::before,
-.mdc-radio .mdc-radioripple::after {
-  display: none !important;
-  background: transparent !important;
+
+// MAT-RADIO OVERRIDES //
+:root {
+  @include mat.radio-overrides(
+    (
+      checked-ripple-color: none,
+      ripple-color: none,
+    )
+  );
 }
 
-.mdc-radio .mdc-radiobackground::before,
-.mdc-radio .mdc-radio__background::after {
-  display: none !important;
-  box-shadow: none !important;
+.mat-radio-button .mdc-radio__outer-circle {
+  border-color: #adb0d9 !important;
+  border-width: 1px !important;
 }
+
+.mat-radio-button .mdc-radio-checked .mdc-radio__outer-circle {
+  border-color: #adb0d9 !important;
+  border-width: 1px !important;
+}
+
+.mat-radio-button .mdc-radio {
+  padding: 0 !important;
+  margin-right: 20px;
+}
+
+.mat-radio-button:not(.mat-mdc-radio-checked):hover .mdc-radio__outer-circle {
+  border-color: #535af1 !important;
+}
+
+/* Channel-show-user-dialog */
+.members-dialog-panel .mat-mdc-dialog-container {
+  padding: 0; 
+  --mdc-dialog-container-color: transparent;
+}
+
+.members-dialog-panel .mdc-dialog__surface {
+  width: 415px !important;
+  height: 411px !important;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  box-shadow: 0px 6px 10px 0px #00000033;
+  border-top-left-radius: 30px;
+  border-top-right-radius: 0;     
+  border-bottom-right-radius: 30px;
+  border-bottom-left-radius: 30px;
+  transform: none;
+  opacity: 1;
+}
+/* dialog-icon-add-member-to-channel */
+
+.transparent-backdrop { background: transparent; }
+
+.add-members-dialog-panel .mat-mdc-dialog-container { padding: 0; }
+.add-members-dialog-panel .mdc-dialog__surface {
+  width: 514px !important;
+  padding: 0;        
+  background: #ffffff;
+  box-shadow: 0px 6px 10px 0px #00000033;
+  border-top-left-radius: 30px;
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 30px;
+  border-bottom-left-radius: 30px;
+  opacity: 1;
+  transform: none; 
+  overflow: visible;
+}
+
+/* dialog-icon-add-member-to-channel */

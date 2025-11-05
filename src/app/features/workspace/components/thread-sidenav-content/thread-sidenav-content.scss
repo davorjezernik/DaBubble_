@@ -17,8 +17,13 @@
   flex: 1;
   width: 100%;
   display: flex;
-  flex-direction: column;
+  flex-direction: column-reverse;
   align-items: center;
+  overflow-y: auto;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 .chat-header {
@@ -61,10 +66,10 @@
   }
 }
 
-.channel-info-thread-container{
-    display: flex;
-    align-items: center;
-    gap: 8px;
+.channel-info-thread-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .thread-name {
@@ -78,12 +83,12 @@
   );
 }
 
-.channel-name{
-    margin: 0;
-    color: #797EF3;
-    font-family:'Nunito', sans-serif;
-    font-weight: 400;
-    font-size: 14px;
+.channel-name {
+  margin: 0;
+  color: #797ef3;
+  font-family: 'Nunito', sans-serif;
+  font-weight: 400;
+  font-size: 14px;
 }
 
 .footer {
@@ -92,4 +97,43 @@
   box-sizing: border-box;
   border-bottom-left-radius: 30px;
   border-bottom-right-radius: 30px;
+}
+
+.separator-wrapper {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  gap: 10px;
+  padding: 0 20px;
+  margin: 0 0 32px;
+  box-sizing: border-box;
+
+  > hr {
+    width: 100%;
+    border: 0.8px solid #adb0d9;
+    margin: 0;
+  }
+
+  > span {
+    white-space: nowrap;
+    color: #adb0d9;
+    @include mixins.text-style(
+      $size: 18px,
+      $color: #adb0d9,
+      $font-weight: 400,
+      $font-family: 'Nunito',
+      $line-height: 1
+    );
+  }
+}
+
+.trigger-message-container {
+  width: 100%;
+  box-sizing: border-box;
+  margin: 20px 0 20px;
+}
+
+.reaction-messages-box {
+  width: 100%;
+  box-sizing: border-box;
 }

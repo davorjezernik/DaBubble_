@@ -5,6 +5,7 @@ import { PasswordResetComponent } from '../components/password-reset/password-re
 import { AvatarSelectComponent } from '../components/avatar-selection/avatar-selection-component';
 import { SignupComponent } from '../components/signup/signup-component';
 import { LoginComponent } from '../components/login/login-component';
+import { ConfirmNewPasswordComponent } from '../components/password-reset/confirm-new-password/confirm-new-password.component';
 
 const routes: Routes = [
   {
@@ -14,6 +15,7 @@ const routes: Routes = [
       { path: 'signup', component: SignupComponent },
       { path: 'select-avatar', component: AvatarSelectComponent },
       { path: 'password-reset', component: PasswordResetComponent },
+      { path: 'confirm-new-password', component: ConfirmNewPasswordComponent },
       { path: '', redirectTo: 'login', pathMatch: 'full' }, // default route
     ],
   },

@@ -26,21 +26,56 @@ export class MentionListComponent {
   @Input() channels: MentionChannel[] = [];
   @Input() visible = false;
   @Output() pick = new EventEmitter<string>();
+  @Input() searchTerm: string = '';
+  @Output() userSelected = new EventEmitter<MentionUser>();
+  @Input() allSelectedUsers: MentionUser[] = [];
+  @Output() channelSelected = new EventEmitter<MentionChannel>();
 
   private userService = inject(UserService);
   currentUserId: string | null = null;
 
   private _users: MentionUser[] = [];
   get users(): MentionUser[] {
-    if (!this.currentUserId) return this._users;
-    return [...this._users].sort((a, b) => (a.uid === this.currentUserId ? -1 : b.uid === this.currentUserId ? 1 : 0));
+    this.sanitizeSearchTerm();
+    const filteredUsers = this.filterByInputValue();
+    const alreadySelectedUsers = this.filterAlreadyChosen(filteredUsers);
+    if (!this.currentUserId) return alreadySelectedUsers;
+    return this.returnSortedUsers(alreadySelectedUsers);
   }
+
+  private sanitizeSearchTerm() {
+    if (this.searchTerm) {
+      const trimmed = (this.searchTerm = this.searchTerm.trim());
+      const isMention = trimmed.startsWith('@');
+      const isChannel = trimmed.startsWith('#');
+      if (isMention || isChannel) {
+        this.searchTerm = trimmed.substring(1);
+      }
+    }
+  }
+
+  private filterByInputValue() {
+    return this._users.filter((u) => u.name.toLowerCase().includes(this.searchTerm.toLowerCase()));
+  }
+
+  private filterAlreadyChosen(filteredUsers: MentionUser[]) {
+    return filteredUsers.filter(
+      (u) => u.uid !== this.allSelectedUsers.find((su) => su.uid === u.uid)?.uid
+    );
+  }
+
+  returnSortedUsers(filteredUsers: MentionUser[]) {
+    return [...filteredUsers].sort((a, b) =>
+      a.uid === this.currentUserId ? -1 : b.uid === this.currentUserId ? 1 : 0
+    );
+  }
+
   @Input() set users(value: MentionUser[]) {
     this._users = value ?? [];
   }
 
   constructor() {
-    this.userService.currentUser$().subscribe(u => {
+    this.userService.currentUser$().subscribe((u) => {
       this.currentUserId = u?.uid ?? null;
     });
   }
@@ -51,5 +86,10 @@ export class MentionListComponent {
 
   onPickChannel(c: MentionChannel) {
     this.pick.emit(`#${c.name} `);
+    this.channelSelected.emit(c);
+  }
+  
+  onUserSelected(u: MentionUser) {
+    this.userSelected.emit(u);
   }
 }

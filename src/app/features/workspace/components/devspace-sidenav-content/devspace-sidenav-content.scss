@@ -22,6 +22,11 @@ $radius-pill: 999px;
     'Segoe UI Emoji';
   color: $color-text;
   background: $color-surface;
+  overflow-y: auto;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 .sidenav-brand {
@@ -114,6 +119,45 @@ $radius-pill: 999px;
   }
 }
 
+.channel-item-more {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 4px 20px;
+  border-radius: 30px;
+  min-height: 58px;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+  
+
+  &:hover {
+    background: #eceefe;
+    .name {
+      color: #535af1;
+      font-weight: 700;
+      font-size: 18px;
+    }
+  }
+
+  .more-pill {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: #eceefe;
+    display: grid;
+    place-items: center;
+    font-weight: 700;
+    font-size: 18px;
+    color: #535af1;
+  }
+
+  .name {
+    color: #535af1;
+    font-size: 18px;
+    font-weight: 500;
+  }
+}
+
 .dms-title {
   cursor: pointer;
   transition: all 125ms ease-in-out;
@@ -199,50 +243,9 @@ $radius-pill: 999px;
   list-style: none;
   margin-bottom: 16px;
   padding: 0;
-
-  .channel-list-item + .channel-list-item {
-    margin-top: 4px;
-  }
-
-  .channel {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 4px 20px 4px;
-    border-radius: 20px;
-    margin-left: -19px;
-    text-decoration: none;
-    color: inherit;
-    transition: background-color 125ms ease-in-out, color 125ms ease-in-out;
-
-    .channel-icon {
-      flex-shrink: 0;
-
-      path {
-        fill: currentColor;
-        transition: fill 125ms ease-in-out;
-      }
-    }
-
-    .channel-name {
-      @include mixins.text-style(
-        $size: 18px,
-        $color: #000000,
-        $font-weight: 400,
-        $font-family: 'Nunito',
-        $line-height: 1
-      );
-    }
-
-    &:hover {
-      background-color: #eceefe;
-      color: #444df2;
-
-      .channel-icon path {
-        fill: #444df2;
-      }
-    }
-  }
+  gap: 13px;
+  display: flex;
+  flex-direction: column;
 }
 
 /* "Channel hinzufügen" button — text changes to brand color on hover */
@@ -279,7 +282,7 @@ $radius-pill: 999px;
     transition: fill 125ms ease-out;
 
     path {
-      fill: currentColor; // inherit from button color
+      fill: currentColor;
       transition: fill 125ms ease-out;
     }
   }
@@ -327,110 +330,69 @@ $radius-pill: 999px;
 
 // users //
 
-.dm-list{
-  list-style:none;
-  margin:0;
-  padding:0;
-  display:flex;
-  flex-direction:column;
-  align-items:flex-start; 
-  gap:13px;
+.dm-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 13px;
   margin-left: 25px;
 }
 
-.dm-item {
-  min-width:205px; 
-  width:auto;             
-  height:58px;
-  display:flex;
-  align-items:center;
-  gap:15px;
-  padding:4px 20px;
-  border-radius: 30px; 
-  cursor:pointer;
+.dm-item-more {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  min-width: 205px;
+  width: auto;
+  height: 58px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 4px 20px;
+  margin-bottom: 20px;
+  border-radius: 30px;
+  cursor: pointer;
   transition: background 0.2s ease, color 0.2s ease;
 
   &:hover {
-    background:#ECEEFE;
+    background: #eceefe;
 
     .name {
-      color:#535af1;
-      font-weight:700;
-
-      .you {
-        color:#535af1;
-        font-weight:700;
-      }
+      color: #535af1;
+      font-weight: 700;
+      font-size: 18px;
     }
   }
 
-  &.is-active{ 
-    background:#ECEEFE; 
+  .more-avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: #eceefe;
+    display: grid;
+    place-items: center;
+    font-weight: 700;
+    font-size: 18px;
+    color: #535af1;
   }
 
-  .avatar-wrap{
-    position:relative;
-    width:50px; 
-    height:50px;
-
-    .avatar{
-      width:100%; 
-      height:100%;
-      border-radius:50%;
-      object-fit:cover;
-      display:block;
-    }
-
-    .status{
-      position:absolute;
-      right:0; 
-      bottom:0;
-      width:14px; 
-      height:14px;
-      border-radius:50%;
-      border:2px solid #fff;
-      background:#686868;  
-
-      &.online{ 
-        background:#92C83E; 
-      }
-    }
-  }
-
-  .name{
-    font-family:'Nunito', sans-serif;
-    font-size:18px;
-    font-weight:400;
-    color:#000;
-    white-space:nowrap;
-    transition: color 0.2s ease;
-
-    .you {
-      margin-left: 4px;
-      font-weight: 400;
-      color:#000;
-      transition: color 0.2s ease;
-    }
+  .name {
+    color: #535af1;
+    font-size: 18px;
+    font-weight: 500;
   }
 }
 
-.dm-item.more{
-  justify-content:flex-start;
+.contact-item-anker {
+  text-decoration: none;
+  padding: 0;
 
-  .more-avatar{
-    width:50px; 
-    height:50px;
-    border-radius:50%;
-    background:#ECEEFE;
-    display:grid; 
-    place-items:center;
-    font-weight:700; 
-    color:#535af1;
-  }
-
-  .name{ 
-    color:#535af1; 
+  &.is-active ::ng-deep .dm-item {
+    background-color: #eceefe;
   }
 }
-
-// users //

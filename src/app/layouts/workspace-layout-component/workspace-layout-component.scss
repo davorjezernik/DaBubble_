@@ -29,7 +29,9 @@
 
 .thread-sidenav {
   background-color: #ffffff;
-  border-radius: 30px;
+  border-radius: 30px !important;
+  width: 450px;
+  border: none !important;
 }
 
 .thread-sidenav-button {

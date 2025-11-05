@@ -48,7 +48,6 @@
   width: 100%;
   gap: 16px;
   margin-top: 65px;
-  margin-bottom: 48px;
 
   > a {
     @include mixins.nav-link();
@@ -103,6 +102,13 @@
   flex-grow: 1;
 }
 
+@media (max-height: 1050px) {
+  .footer {
+    margin-top: 30px;
+    margin-bottom: 25px;
+  }
+}
+
 @media (max-width: 1090px) {
   .signup-text {
     padding-right: 35px;
@@ -141,7 +147,7 @@
     padding: 0 20px 12px;
     align-items: center;
 
-    p{
+    p {
       margin-right: 0px;
     }
   }

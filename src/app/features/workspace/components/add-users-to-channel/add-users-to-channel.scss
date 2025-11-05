@@ -20,6 +20,7 @@
 .dialog-content {
   padding-left: 0;
   margin-bottom: 16px;
+  overflow: hidden;
 }
 
 .dialog-actions {
@@ -90,25 +91,36 @@
   text-decoration: none;
 }
 
-// --- Radio Button Customization ---
-
-::ng-deep .option-item .mdc-radio__outer-circle {
-  border-color: #adb0d9 !important;
-  border-width: 1px !important;
-}
-
-::ng-deep .option-item.mdc-radio-checked .mdc-radio__outer-circle {
-  border-color: #adb0d9 !important; /* checked state */
-  border-width: 1px !important;
-}
-
-::ng-deep .option-item .mdc-radio {
-  padding: 0 !important;
-  margin-right: 20px;
-}
-
 // --- Action Button Styling ---
 .dialog-action-button {
   border: none;
   @include mixins.primary-button($hover-bg-color: #797ef3, $bg-color: #444df2);
+
+  &.disabled {
+    @include mixins.disabled-button();
+  }
+}
+
+// This is the main container for chips and the input
+.input-wrapper {
+  display: flex;
+  flex-direction: row-reverse;
+  white-space: nowrap;
+  align-items: center;
+  overflow-x: auto;
+  gap: 8px;
+  width: 100%;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.user-input-field {
+  flex-grow: 1;
+  min-width: 50px;
+  border: none;
+  outline: none;
+  background: transparent;
+  height: 55px;
 }

@@ -16,7 +16,7 @@
     <section class="user" (click)="openUserMenu($event)">
       <span class="name">{{ (user$ | async)?.name }}</span>
 
-      <div class="avatar-wrap">
+      <figure class="avatar-wrap">
         <img
           class="avatar"
           [src]="(user$ | async)?.avatar"
@@ -24,7 +24,7 @@
           [alt]="(user$ | async)?.name || 'Avatar'"
         />
         <span class="status" [class.online]="(user$ | async)?.online"></span>
-      </div>
+      </figure>
 
       <mat-icon class="expand-icon">expand_more</mat-icon>
     </section>

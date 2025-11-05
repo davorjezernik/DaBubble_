@@ -1,17 +1,58 @@
 <section class="chat-container">
   <header class="chat-header">
     <div class="channel-info-thread-container">
-        <h2 class="thread-name">Thread</h2>
-        <span class="channel-name"># Entwicklerteam</span>
+      <h2 class="thread-name">Thread</h2>
+      <span class="channel-name"># Entwicklerteam</span>
     </div>
-    <div>    
-        <button type="button" class="icon-btn" aria-label="close button">
+    <div>
+      <button type="button" class="icon-btn" aria-label="close button" (click)="onClose()">
         <img src="assets/icons/close.svg" alt="" />
       </button>
-    </div>    
+    </div>
   </header>
-  <main class="chat-content">main</main>
+  <main class="chat-content" #chatContent>
+    <section class="reaction-messages-box">
+      @if (messages.length !== 0) { @for (message of messages; track message.id) {
+      <app-message-bubble [isThreadView]="true"
+        [incoming]="message.user?.id !== currentUserData.id"
+        [name]="message.user?.id !== currentUserData.id ? message.user?.displayName || '' : 'Du'"
+        [avatar]="
+          message.user?.id !== currentUserData.id
+            ? message.user?.avatar || 'assets/img-profile/profile.png'
+            : message.user?.avatar ?? 'assets/img-profile/profile.png'
+        "
+        [time]="message?.timestamp ? (message.timestamp.toDate() | date : 'HH:mm') + ' Uhr' : ''"
+        [text]="message?.text ?? ''"
+        [chatId]="chatId || ''"
+        [messageId]="message?.id"
+        [reactionsMap]="message?.reactions"
+        collectionName="channels"
+        [context]="'thread'"
+      ></app-message-bubble>
+      } }
+    </section>
+    <div class="separator-wrapper">
+      <span>{{ answersAmount }} Antworten</span>
+      <hr class="separator-line" />
+    </div>
+    <section class="trigger-message-container">
+      <app-message-bubble [isThreadView]="true"
+        [incoming]="senderId !== currentUserData.id"
+        [name]="senderId !== currentUserData.id ? senderName : 'Du'"
+        [avatar]="
+          senderId !== currentUserData.id
+            ? senderAvatar
+            : currentUserData.avatar ?? 'assets/img-profile/profile.png'
+        "
+        [time]="messageTimestamp ? (messageTimestamp.toDate() | date : 'HH:mm') + ' Uhr' : ''"
+        [text]="messageText ?? ''"
+        [chatId]="chatId || ''"
+        [messageId]="currentUserData.id"
+        [reactionsMap]="messageReactions"
+      ></app-message-bubble>
+    </section>
+  </main>
   <footer class="footer">
-    <app-message-area-component></app-message-area-component>
+    <app-message-area-component (send)="handleNewMessage($event)"></app-message-area-component>
   </footer>
 </section>

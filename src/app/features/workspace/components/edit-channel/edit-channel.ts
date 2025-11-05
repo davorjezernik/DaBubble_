@@ -1,20 +1,27 @@
-import { Component } from '@angular/core';
-import { NgIf } from '@angular/common';
+import { Component, Inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import {
+  MatDialogModule,
+  MatDialogRef,
+  MAT_DIALOG_DATA,
+} from '@angular/material/dialog';
 
 @Component({
   selector: 'app-edit-channel',
-  imports: [NgIf],
+  standalone: true,
+  imports: [CommonModule, MatDialogModule],
   templateUrl: './edit-channel.html',
-  styleUrl: './edit-channel.scss'
+  styleUrl: './edit-channel.scss',
 })
 export class EditChannel {
-  isModalOpen = false;
-
-  openModal() {
-    this.isModalOpen = true;
-  }
+  hasChanges = false;
+  
+  constructor(
+    public dialogRef: MatDialogRef<EditChannel>,
+    @Inject(MAT_DIALOG_DATA) public data: any
+  ) {}
 
   closeModal() {
-    this.isModalOpen = false;
+    this.dialogRef.close();
   }
 }

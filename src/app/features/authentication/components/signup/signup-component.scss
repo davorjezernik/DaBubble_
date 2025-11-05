@@ -110,6 +110,42 @@ mat-checkbox {
   font-family: 'Nunito', sans-serif;
 }
 
+@media (max-height: 1050px) {
+  .signup-card {
+    padding: 35px 60px;
+    display: flex;
+    width: 520px;
+    margin-top: 0px;
+  }
+
+  .dialog-authentication-header {
+    height: 55px;
+    max-width: 420px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .dialog-authentication-title {
+    font-size: 42px;
+  }
+
+  mat-card-content {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 0 !important;
+
+    p {
+      width: auto;
+      height: 48px;
+      margin-top: 15px;
+      margin-bottom: 0px;
+      font-size: 18px;
+    }
+  }
+}
+
 @media (max-width: 750px) {
   .signup-card {
     padding: 35px 20px;
