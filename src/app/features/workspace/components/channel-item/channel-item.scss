@@ -60,3 +60,20 @@
     }
   }
 }
+
+@media (max-width: 950px) {
+  .channel-anker {
+    &.is-active .channel {
+      background-color: transparent;
+      .channel-name {
+        color: black;
+      }
+
+      .channel-icon path {
+        fill: black;
+        stroke: black;
+        stroke-width: 0;
+      }
+    }
+  }
+}

@@ -47,16 +47,26 @@
   }
 
   .section-content-wrapper {
-  padding-left: 0;
-}
+    padding-left: 0;
+  }
 
-.dm-list, .section-content-wrapper {
-  padding-left: 32px;
-}
+  .dm-list,
+  .section-content-wrapper {
+    padding-left: 32px;
+  }
 
-.dm-list {
+  .dm-list {
     width: 100%;
     display: flex;
     align-items: center;
-}
+  }
+
+  .contact-item-anker {
+    text-decoration: none;
+    padding: 0;
+
+    &.is-active ::ng-deep .dm-item {
+      background-color: transparent;
+    }
+  }
 }

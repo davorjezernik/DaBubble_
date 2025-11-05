@@ -16,7 +16,7 @@ import { DialogUserCardComponent } from '../../../../shared/components/dialog-us
   standalone: true,
   imports: [CommonModule, MessageAreaComponent, MessageBubbleComponent],
   templateUrl: './dm-interface-content.html',
-  styleUrl: './dm-interface-content.scss',
+  styleUrls: ['./dm-interface-content.scss', './dm-interface-component.responsive.scss'],
 })
 /**
  * DM chat content component.
