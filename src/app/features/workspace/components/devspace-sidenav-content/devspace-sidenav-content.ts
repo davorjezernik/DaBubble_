@@ -89,7 +89,7 @@ export class DevspaceSidenavContent implements OnInit, OnDestroy {
     private dialog: MatDialog,
     private channelService: ChannelService,
     private read: ReadStateService,
-    private searchBus: SearchBusService
+    private searchBus: SearchBusService,
     public viewStateService: ViewStateService
   ) {}
 
@@ -148,31 +148,29 @@ export class DevspaceSidenavContent implements OnInit, OnDestroy {
 
   // for total cound by Direkt messasges //
   private buildTotalUnread(list: User[], meUid: string | null) {
-    this.totalUnreadSub?.unsubscribe();
+  this.totalUnreadSub?.unsubscribe();
 
-    if (!meUid) {
-      this.totalUnread = 0;
-      return;
-    }
-
-    const others = list.filter((u) => u.uid !== meUid);
-    if (!others.length) {
-      this.totalUnread = 0;
-      return;
-    }
-
-    const streams = others.map((u) => {
-      const dmId = this.calculateDmId(u);
-      return this.read.unreadDmCount$(dmId, meUid);
-    });
-
-    this.totalUnreadSub = combineLatest(streams)
-      .pipe(
-        map((arr) => arr.reduce((sum, n) => sum + (n || 0), 0)),
-        auditTime(16)
-      )
-      .subscribe((sum) => (this.totalUnread = sum));
+  if (!meUid) {
+    console.warn('meUid missing → skipping unread count');
+    this.totalUnread = 0;
+    return;
   }
+
+  const others = list.filter((u) => u.uid !== meUid);
+  if (!others.length) {
+    this.totalUnread = 0;
+    return;
+  }
+
+  const streams = others.map((u) => {
+    const dmId = this.calculateDmId(u);
+    return this.read.unreadDmCount$(dmId, meUid);
+  });
+
+  this.totalUnreadSub = combineLatest(streams)
+    .pipe(map((arr) => arr.reduce((sum, n) => sum + (n || 0), 0)))
+    .subscribe((sum) => (this.totalUnread = sum));
+}
   // for total cound by Direkt messasges //
 
   // for sorting by unread messages //

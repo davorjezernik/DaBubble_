@@ -89,6 +89,9 @@
             />
           </svg>
           <h3 id="channelsHeading" class="section-title-text">Channels</h3>
+          <span class="dm-total-badge" *ngIf="totalUnreadChannels > 0">
+            {{ totalUnreadChannels }}
+          </span>
         </button>
 
         <button
@@ -121,6 +124,7 @@
             <app-channel-item
               (click)="viewStateService.currentView = 'chat'"
               [channel]="channel"
+              [meUid]="meUid"
             ></app-channel-item>
           </li>
           }
@@ -196,6 +200,7 @@
             />
           </svg>
           <h3 id="dms-heading" class="section-title-text">Direktnachrichten</h3>
+          <span *ngIf="totalUnread > 0" class="dm-total-badge">{{ totalUnread }}</span>
         </button>
       </header>
 

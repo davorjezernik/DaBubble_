@@ -41,6 +41,8 @@ export class HeaderWorkspaceComponent implements OnInit, OnDestroy {
   private bottomSheet = inject(MatBottomSheet);
   private searchBus = inject(SearchBusService);
   public userMenuService = inject(UserMenuService);
+  private auth = inject(Auth);
+private router = inject(Router);
 
   // Profile of the logged-in user //
   user$: Observable<User | null> = this.userService.currentUser$();
