@@ -64,6 +64,7 @@
     overflow: hidden;
     text-overflow: ellipsis;
     max-width: 200px;
+    min-width: 0;
 
     .you {
       margin-left: 4px;

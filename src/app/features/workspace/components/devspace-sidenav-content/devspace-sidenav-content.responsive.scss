@@ -9,6 +9,36 @@ $color-surface: #ffffff;
 $radius-pill: 999px;
 
 @media (max-width: 950px) {
+
+  .channels-and-contacts {
+    box-sizing: border-box;
+    padding: 20px;
+    border-radius: 30px;
+    background-color: rgb(248, 248, 248);
+  }
+
+  .section-header {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    width: 100%;
+  }
+
+  .section-toggle-button {
+    grid-column: 1 / 2;
+    justify-self: start;
+  }
+
+  .section-addon-button {
+    grid-column: 3 / 4;
+    justify-self: end;
+  }
+
+  .dm-toggle-button {
+    grid-column: 1 / 3;
+    justify-self: start;
+  }
+
   .add-item-button {
     @include mixins.text-style(
       $size: 18px,
