@@ -17,5 +17,6 @@
 </svg>
 
     <span class="channel-name">{{ channel.name }}</span>
+    <span class="badge" *ngIf="unread > 0">{{ unread }}</span>
   </li>
 </a>

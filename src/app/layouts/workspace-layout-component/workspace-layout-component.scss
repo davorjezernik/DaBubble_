@@ -124,3 +124,65 @@
   display: flex;
   flex: 1;
 }
+
+.avatar-wrap {
+  position: relative;
+  width: 70px;
+  height: 70px;
+
+  .avatar {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    display: block;
+  }
+  .status {
+    position: absolute;
+    right: 2px;
+    bottom: 2px;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    border: 2px solid #fff;
+    background: #686868;
+    &.online {
+      background: #92c83e;
+    }
+  }
+}
+
+.expand-icon {
+  font-size: 28px;
+  line-height: 1;
+  color: #000;
+  transition: color 0.1s ease;
+}
+
+.mobile-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.go-to-devspace {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  background: none;
+  border: none;
+  cursor: pointer;
+
+  > img {
+    margin-right: 8px;
+  }
+  > span {
+    @include mixins.text-style(
+      $size: 24px,
+      $color: #000000,
+      $font-weight: 700,
+      $font-family: 'Nunito',
+      $line-height: 1
+    );
+  }
+}

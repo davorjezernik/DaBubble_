@@ -1,0 +1,72 @@
+@media (max-width: 1400px) {
+  .thread-sidenav {
+    width: 360px;
+  }
+}
+
+@media (max-width: 950px) {
+  :host {
+    height: 100vh;
+    padding: 0;
+  }
+
+
+  .main-content {
+    height: 90vh;
+    overflow-y: auto;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
+
+  .main-content-area {
+    border-radius: 0;
+  }
+
+  .main-content-wrapper {
+    margin: 0;
+  }
+
+  .main-and-thread-wrapper {
+    height: 100%;
+  }
+
+  .thread-sidenav {
+    width: 100vw;
+  }
+
+  .devspace-sidenav {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border-radius: 0;
+    overflow-y: auto;
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
+
+  .devspace-sidenav-button {
+    display: none;
+  }
+
+  .mobile-header {
+    height: 8vh;
+    padding: 15px 16px;
+  }
+
+  .brand {
+    > img {
+      height: 56px;
+      width: auto;
+    }
+  }
+
+  .avatar-wrap {
+    cursor: pointer;
+    height: 56px;
+    width: 56px;
+  }
+}

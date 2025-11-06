@@ -16,13 +16,14 @@ import { UserService } from '../../../../../services/user.service';
 import { ChannelMember } from '../../../../shared/components/channel-show-members-dialog/channel-show-members-dialog';
 import { DialogIconAddMemberToChannel } from '../../../../shared/components/dialog-icon-add-member-to-channel/dialog-icon-add-member-to-channel';
 import { AddableUser } from '../../../../shared/components/dialog-icon-add-member-to-channel/dialog-icon-add-member-to-channel';
+import { ReadStateService } from '../../../../../services/read-state.service';
 
 @Component({
   selector: 'app-channel-interface-content',
   standalone: true,
   imports: [CommonModule, MessageAreaComponent, RouterModule, DatePipe, MessageBubbleComponent],
   templateUrl: './channel-interface-content.html',
-  styleUrl: './channel-interface-content.scss',
+  styleUrls: ['./channel-interface-content.scss', './channel-interface-component.responsive.scss'],
 })
 export class ChannelInterfaceContent extends BaseChatInterfaceComponent {
   override collectionName: 'channels' | 'dms' = 'channels';
@@ -31,8 +32,8 @@ export class ChannelInterfaceContent extends BaseChatInterfaceComponent {
   private loadedProfileIds = new Set<string>();
   private localMessagesSub?: any;
 
-  members$!: Observable<ChannelMember[]>; // für den Dialog
-  avatarPreview$!: Observable<ChannelMember[]>; // erste 3 fürs Badge
+  members$!: Observable<ChannelMember[]>;
+  avatarPreview$!: Observable<ChannelMember[]>; 
   memberCount$!: Observable<number>;
 
   constructor(
@@ -41,7 +42,8 @@ export class ChannelInterfaceContent extends BaseChatInterfaceComponent {
     protected override authService: AuthService,
     private channelService: ChannelService,
     private userService: UserService,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private read: ReadStateService
   ) {
     super(route, firestore, authService);
   }
@@ -89,7 +91,22 @@ export class ChannelInterfaceContent extends BaseChatInterfaceComponent {
       },
       error: (err) => console.error('Error fetching channel data:', err),
     });
+    if (this.currentUserId) {
+      this.read.markChannelRead(chatId, this.currentUserId);
+    } else {
+      this.authService.currentUser$.pipe(take(1)).subscribe((u) => {
+        if (u?.uid) this.read.markChannelRead(chatId, u.uid);
+      });
+    }
   }
+
+  override async handleNewMessage(text: string) {
+  if (this.chatId) this.read.bumpLastChannelMessage(this.chatId); // ⬅️ NEU: Optimistischer bump
+  await super.handleNewMessage(text);
+  if (this.chatId && this.currentUserId) {
+    await this.read.markChannelRead(this.chatId, this.currentUserId); // ⬅️ NEU
+  }
+}
 
   /**
    * Preload user profiles for given member IDs:
@@ -148,42 +165,42 @@ export class ChannelInterfaceContent extends BaseChatInterfaceComponent {
     this.memberCount$ = this.members$.pipe(map((ms) => ms.length));
   }
 
-  // Öffnet ChannelShowMembersDialog //
+  // open ChannelShowMembersDialog //
   openMembersDialog(ev?: MouseEvent, anchor?: HTMLElement) {
-  ev?.stopPropagation();
+    ev?.stopPropagation();
 
-  const el = anchor ?? (ev?.currentTarget as HTMLElement);
-  const rect = el.getBoundingClientRect();
+    const el = anchor ?? (ev?.currentTarget as HTMLElement);
+    const rect = el.getBoundingClientRect();
 
-  const GAP = 5;
-  const DLG_W = 450;
-  const top  = rect.bottom + window.scrollY + GAP;
-  const left = Math.max(8, rect.right + window.scrollX - DLG_W);
+    const GAP = 5;
+    const DLG_W = 450;
+    const top = rect.bottom + window.scrollY + GAP;
+    const left = Math.max(8, rect.right + window.scrollX - DLG_W);
 
-  const ref = this.dialog.open(ChannelShowMembersDialog, {
-    width: `${DLG_W}px`,
-    height: '411px',
-    autoFocus: false,
-    hasBackdrop: true,
-    panelClass: 'members-dialog-panel',
-    position: { top: `${top}px`, left: `${left}px` },
-  });
+    const ref = this.dialog.open(ChannelShowMembersDialog, {
+      width: `${DLG_W}px`,
+      height: '411px',
+      autoFocus: false,
+      hasBackdrop: true,
+      panelClass: 'members-dialog-panel',
+      position: { top: `${top}px`, left: `${left}px` },
+    });
 
-  const sub = this.members$.subscribe(ms => {
-    ref.componentInstance.members = ms;
-    ref.componentInstance.currentUserId = this.currentUserId ?? '';
-    ref.componentInstance.channelName = this.channelData?.name ?? '';
-    ref.componentInstance.addIconAnchor = anchor ?? null;
-    sub.unsubscribe();
-  });
+    const sub = this.members$.subscribe((ms) => {
+      ref.componentInstance.members = ms;
+      ref.componentInstance.currentUserId = this.currentUserId ?? '';
+      ref.componentInstance.channelName = this.channelData?.name ?? '';
+      ref.componentInstance.addIconAnchor = anchor ?? null;
+      sub.unsubscribe();
+    });
 
-  ref.componentInstance.close.subscribe(() => ref.close());
-  ref.componentInstance.addMembersClick.subscribe(({ ev, anchor }) => {
-    this.openAddMembersUnderIcon(ev, anchor ?? el);
-  });
-}
+    ref.componentInstance.close.subscribe(() => ref.close());
+    ref.componentInstance.addMembersClick.subscribe(({ ev, anchor }) => {
+      this.openAddMembersUnderIcon(ev, anchor ?? el);
+    });
+  }
 
-  // Öffnet dialog-icon-add-member-to-channel //
+  // open dialog-icon-add-member-to-channel //
   openAddMembersUnderIcon(ev: MouseEvent, anchor: HTMLElement) {
     ev.stopPropagation();
 
