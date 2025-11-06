@@ -15,7 +15,7 @@
             fill="black"
           />
         </svg>
-  <span class="channel-name" (click)="openEditChannel($event)" title="Kanal bearbeiten">{{ channelData?.name }}</span>
+        <span class="channel-name" (click)="openEditChannel($event)" title="Kanal bearbeiten">{{ channelData?.name }}</span>
         <svg
           class="info-arrow"
           width="30"
@@ -120,10 +120,10 @@
         </svg>
       </button>
       <p class="channel-intro">
-        Channel wurde erstellt. Das ist der Anfang des Channels
+        Channel wurde erstellt. Das ist der Anfang des Channels&nbsp;
         <span class="current-channel">
           <img src="assets/icons/small-hashtag.svg" alt="hashtag" />
-          {{ channelData?.name }}
+          <span>{{ channelData?.name }}</span>
         </span>
         .
       </p>

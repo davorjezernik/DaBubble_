@@ -69,6 +69,10 @@ button {
 
     .channel-name {
       color: #535af1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 200px;
     }
 
     .info-hashtag path {
@@ -92,7 +96,6 @@ button {
   }
 }
 
-
 .channel-name {
   @include mixins.text-style(
     $size: 24px,
@@ -101,6 +104,10 @@ button {
     $font-family: 'Nunito',
     $line-height: 1
   );
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 200px;
 }
 
 .arrow-visibility {
@@ -110,14 +117,21 @@ button {
 .current-channel {
   display: flex;
   align-items: center;
-}
-
-.channel-intro {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  display: flex;
-  align-items: center;
+  max-width: 250px;
+  line-height: 1.4;
+  vertical-align: middle;
+
+    > span {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+.channel-intro {
   gap: 4px;
   padding-left: 10px;
   @include mixins.text-style(
@@ -173,14 +187,16 @@ button {
   border-radius: 50%;
   object-fit: cover;
   border: 2px solid #fff;
-  margin-left: -10px; 
+  margin-left: -10px;
 }
-.avatar-stack .avatar:first-child { margin-right: 0; }
+.avatar-stack .avatar:first-child {
+  margin-right: 0;
+}
 
 .member-count {
   margin-left: 10px;
-  font-family:'Nunito', sans-serif;
+  font-family: 'Nunito', sans-serif;
   font-weight: 700;
   font-size: 20px;
-  color: #000; 
+  color: #000;
 }

@@ -1,0 +1,19 @@
+@media (max-width: 1100px) {
+  .brand .logo {
+    height: 50px;
+  }
+
+  .name {
+    font-size: 24px;
+  }
+
+  .avatar-wrap {
+    height: 54px;
+    width: 54px;
+
+    .status {
+      width: 8px;
+      height: 8px;
+    }
+  }
+}

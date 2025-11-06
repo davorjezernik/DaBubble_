@@ -20,6 +20,7 @@ import {
   deleteField,
   increment,
 } from '@angular/fire/firestore';
+import { ViewStateService } from '../../../../services/view-state.service';
 
 @Component({
   selector: 'app-message-bubble',
@@ -140,7 +141,6 @@ export class MessageBubbleComponent implements OnChanges {
    */
 
   ngOnInit(): void {
-    console.log('isThreadView:', this.isThreadView);
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -458,6 +458,8 @@ export class MessageBubbleComponent implements OnChanges {
     event.stopPropagation();
     this.showMiniActions = false;
     if (!this.chatId || !this.messageId) return;
+    this.viewStateService.requestCloseDevspaceDrawer();
+    this.viewStateService.currentView = 'thread';
     this.threadPanel.openThread({
       chatId: this.chatId,
       messageId: this.messageId,
@@ -492,5 +494,5 @@ export class MessageBubbleComponent implements OnChanges {
    * @param firestore AngularFire Firestore instance used for message updates/deletes and reactions.
    * @param threadPanel Service to open the thread side panel for a given message.
    */
-  constructor(private firestore: Firestore, private threadPanel: ThreadPanelService) {}
+  constructor(private firestore: Firestore, private threadPanel: ThreadPanelService, public viewStateService: ViewStateService) {}
 }

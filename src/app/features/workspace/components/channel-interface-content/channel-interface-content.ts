@@ -23,7 +23,7 @@ import { ReadStateService } from '../../../../../services/read-state.service';
   standalone: true,
   imports: [CommonModule, MessageAreaComponent, RouterModule, DatePipe, MessageBubbleComponent],
   templateUrl: './channel-interface-content.html',
-  styleUrl: './channel-interface-content.scss',
+  styleUrls: ['./channel-interface-content.scss', './channel-interface-component.responsive.scss'],
 })
 export class ChannelInterfaceContent extends BaseChatInterfaceComponent {
   override collectionName: 'channels' | 'dms' = 'channels';
@@ -260,9 +260,7 @@ export class ChannelInterfaceContent extends BaseChatInterfaceComponent {
   // Öffnet EditChannel als Modal
   openEditChannel(ev?: MouseEvent) {
     ev?.stopPropagation();
-
     if (!this.channelData) return;
-
     const ref = this.dialog.open(EditChannel, {
       data: { channel: this.channelData },
       autoFocus: false,

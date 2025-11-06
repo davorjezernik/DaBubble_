@@ -1,12 +1,4 @@
-import {
-  Component,
-  EventEmitter,
-  Output,
-  OnDestroy,
-  OnInit,
-  HostListener,
-  inject,
-} from '@angular/core';
+import { Component, EventEmitter, Output, OnDestroy, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -25,6 +17,7 @@ import { DialogUserCardComponent } from '../../../../shared/components/dialog-us
 import { UserMenuDialogComponent } from '../../../../shared/components/user-menu-dialog.component/user-menu-dialog.component';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { SearchBusService } from '../../../../../services/search-bus.service';
+import { UserMenuService } from '../../../../../services/user-menu.service';
 
 @Component({
   selector: 'app-header-workspace',
@@ -40,15 +33,14 @@ import { SearchBusService } from '../../../../../services/search-bus.service';
     MatDialogModule,
   ],
   templateUrl: './header-workspace.component.html',
-  styleUrl: './header-workspace.component.scss',
+  styleUrls: ['./header-workspace.component.scss', './header-workspace-component.responsive.scss'],
 })
 export class HeaderWorkspaceComponent implements OnInit, OnDestroy {
-  private auth = inject(Auth);
-  private router = inject(Router);
   private userService = inject(UserService);
   private dialog = inject(MatDialog);
   private bottomSheet = inject(MatBottomSheet);
   private searchBus = inject(SearchBusService);
+  public userMenuService = inject(UserMenuService);
 
   // Profile of the logged-in user //
   user$: Observable<User | null> = this.userService.currentUser$();
@@ -141,12 +133,5 @@ export class HeaderWorkspaceComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
     this.sub?.unsubscribe();
     this.userService.markOnline(false);
-  }
-
-  // Avatar-Fallback //
-  fallbackAvatar(evt: Event) {
-    const img = evt.target as HTMLImageElement;
-    img.onerror = null;
-    img.src = 'assets/img-profile/profile.png';
   }
 }

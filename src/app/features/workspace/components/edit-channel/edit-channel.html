@@ -7,19 +7,41 @@
         <div class="modal-containers margin-bottom">
             <div class="modal-edit-header">
                 <h3>Channel-Name</h3>
-                <a>Edit</a>
+                <a (click)="startEditingName()" *ngIf="!isEditingName">Edit</a>
+                <a (click)="saveChanges('name')" *ngIf="isEditingName">Speichern</a>
             </div>
-            <div class="modal-edit-name-content">
-                <p># <span>{{ data?.channel?.name || '' }}</span></p>
+            <div class="modal-channel">
+                <div class="width-chanel">
+                    <ng-container *ngIf="!isEditingName">
+                        <p># <span>{{ data?.channel?.name || '' }}</span></p>
+                    </ng-container>
+                    <ng-container *ngIf="isEditingName">
+                        <div class="edit-input-container">
+                            <input type="text" [(ngModel)]="editedName" placeholder="Channel Name" class="edit-input">
+                        </div>
+                    </ng-container>
+                </div>
             </div>
         </div>
         <div class="modal-containers">
-            <div class="modal-edit-header">
-                <h3>Description</h3>
-                <a>Edit</a>
-            </div>
-            <div class="modal-edit-description-content">
-                <p>{{ data?.channel?.description || 'Keine Beschreibung' }}</p>
+            <div class="margin-bottom">
+                <div class="modal-edit-header">
+                    <h3>Description</h3>
+                    <a (click)="startEditingDescription()" *ngIf="!isEditingDescription">Edit</a>
+                    <a (click)="saveChanges('description')" *ngIf="isEditingDescription">Speichern</a>
+                </div>
+                <div class="modal-channel">
+                    <div class="width-chanel">
+                        <ng-container *ngIf="!isEditingDescription">
+                            <span>{{ data?.channel?.description || 'Keine Beschreibung' }}</span>
+                        </ng-container>
+                        <ng-container *ngIf="isEditingDescription">
+                            <div class="edit-input-container">
+                                <input type="text" [(ngModel)]="editedDescription" placeholder="Channel Beschreibung" class="edit-input description-input">
+                            </div>
+                        </ng-container>
+                    </div>
+                </div>
             </div>
             <div class="modal-seperator">
                 <div class="seperator"></div>
@@ -30,7 +52,7 @@
             </div>
         </div>
         <div class="button-container">
-            <button (click)="closeModal()">Schließen</button>
-        </div>
+                <button (click)="closeModal()" [disabled]="!hasChanges" [class.active]="hasChanges">Änderungen speichern</button>
+            </div>
     </div>
 </div>
