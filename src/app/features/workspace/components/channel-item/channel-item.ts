@@ -36,6 +36,7 @@ export class ChannelItem implements OnInit, OnDestroy, OnChanges {
       this.setupSub();
     }
   }
+  
   private setupSub() {
     this.sub?.unsubscribe();
     if (!this.meUid || !this.channel?.id) {
