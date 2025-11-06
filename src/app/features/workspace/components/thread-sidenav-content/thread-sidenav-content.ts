@@ -27,6 +27,7 @@ import { Subscription } from 'rxjs';
 import { MessageBubbleComponent } from '../../../../shared/components/message-bubble-component/message-bubble.component';
 import { UserService } from '../../../../../services/user.service';
 import { DatePipe } from '@angular/common';
+import { ViewStateService } from '../../../../../services/view-state.service';
 
 @Component({
   selector: 'app-thread-sidenav-content',
@@ -67,7 +68,7 @@ export class ThreadSidenavContent implements OnInit, OnDestroy, OnChanges, After
   @ViewChild('chatContent') private chatContent?: ElementRef<HTMLDivElement>;
   private shouldScrollToBottom = true;
 
-  constructor(private firestore: Firestore, private userService: UserService) {}
+  constructor(private firestore: Firestore, private userService: UserService, public viewStateService: ViewStateService) {}
 
   ngOnInit(): void {}
 
@@ -161,6 +162,7 @@ export class ThreadSidenavContent implements OnInit, OnDestroy, OnChanges, After
 
   public onClose() {
     this.close.emit();
+    this.viewStateService.currentView = 'chat';
   }
 
   private scrollToBottom(): void {

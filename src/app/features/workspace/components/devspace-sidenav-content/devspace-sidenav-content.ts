@@ -2,14 +2,12 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { CommonModule } from '@angular/common';
-import { Observable, Subscription, map, of, combineLatest, firstValueFrom, auditTime } from 'rxjs';
+import { Subscription, map, combineLatest, firstValueFrom, auditTime } from 'rxjs';
 import { UserService } from '../../../../../services/user.service';
 import { User } from '../../../../../models/user.class';
 import {
   Firestore,
-  addDoc,
   collection,
-  collectionData,
   doc,
   serverTimestamp,
   setDoc,
@@ -25,6 +23,10 @@ import { ChannelItem } from '../channel-item/channel-item';
 import { ChannelService } from '../../../../../services/channel-service';
 import { ContactItem } from '../contact-item/contact-item';
 import { ReadStateService } from '../../../../../services/read-state.service';
+import { ViewStateService } from '../../../../../services/view-state.service';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
 
 @Component({
   selector: 'app-devspace-sidenav-content',
@@ -38,9 +40,14 @@ import { ReadStateService } from '../../../../../services/read-state.service';
     ChannelItem,
     RouterModule,
     ContactItem,
+    FormsModule,
+    MatFormFieldModule,
+    MatIconModule,
+    MatInputModule,
+    MatButtonModule,
   ],
   templateUrl: './devspace-sidenav-content.html',
-  styleUrl: './devspace-sidenav-content.scss',
+  styleUrls: ['./devspace-sidenav-content.scss', './devspace-sidenav-content.responsive.scss'],
 })
 export class DevspaceSidenavContent implements OnInit, OnDestroy {
   users: User[] = [];
@@ -75,11 +82,11 @@ export class DevspaceSidenavContent implements OnInit, OnDestroy {
   constructor(
     private usersService: UserService,
     private firestore: Firestore,
-    private router: Router,
     private authService: AuthService,
     private dialog: MatDialog,
     private channelService: ChannelService,
-    private read: ReadStateService
+    private read: ReadStateService,
+    public viewStateService: ViewStateService
   ) {}
 
   ngOnInit(): void {
@@ -123,7 +130,7 @@ export class DevspaceSidenavContent implements OnInit, OnDestroy {
       .subscribe((sum) => (this.totalUnreadChannels = sum));
   }
   // total count for channels //
-  
+
   // for total cound by Direkt messasges //
   private buildTotalUnread(list: User[], meUid: string | null) {
     this.totalUnreadSub?.unsubscribe();

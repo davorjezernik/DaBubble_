@@ -16,7 +16,7 @@ import { ReadStateService } from '../../../../../services/read-state.service';
   standalone: true,
   imports: [CommonModule, MessageAreaComponent, MessageBubbleComponent],
   templateUrl: './dm-interface-content.html',
-  styleUrl: './dm-interface-content.scss',
+  styleUrls: ['./dm-interface-content.scss', './dm-interface-component.responsive.scss'],
 })
 /**
  * DM chat content component.

@@ -1,6 +1,6 @@
 .dm-item {
   min-width: 205px;
-  width: auto;
+  width: 90%;
   height: 58px;
   display: flex;
   align-items: center;
@@ -60,6 +60,11 @@
     color: #000;
     white-space: nowrap;
     transition: color 0.2s ease;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 200px;
+    min-width: 0;
 
     .you {
       margin-left: 4px;
@@ -73,7 +78,7 @@
     min-width: 22px;
     height: 22px;
     border-radius: 50px;
-    background: #e53935; 
+    background: #e53935;
     color: #fff;
     font-family: 'Nunito', sans-serif;
     font-size: 12px;
@@ -83,12 +88,27 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    flex-shrink: 0; 
+    flex-shrink: 0;
     box-shadow: 0 1px 0 rgba(0, 0, 0, 0.08);
   }
 
   &:hover .badge {
     transform: translateY(-1px);
     transition: transform 0.15s ease;
+  }
+}
+
+@media (max-width: 950px) {
+  .contact-item-anker {
+    text-decoration: none;
+    padding: 0;
+
+    &.is-active .dm-item {
+      background-color: transparent;
+    }
+  }
+
+  .dm-item > .name {
+    max-width: 157px;
   }
 }
