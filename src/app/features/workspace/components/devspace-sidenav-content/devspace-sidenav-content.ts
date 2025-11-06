@@ -23,6 +23,7 @@ import { ChannelItem } from '../channel-item/channel-item';
 import { ChannelService } from '../../../../../services/channel-service';
 import { ContactItem } from '../contact-item/contact-item';
 import { ReadStateService } from '../../../../../services/read-state.service';
+import { SearchBusService } from '../../../../../services/search-bus.service';
 import { ViewStateService } from '../../../../../services/view-state.service';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
@@ -57,12 +58,14 @@ export class DevspaceSidenavContent implements OnInit, OnDestroy {
   private sortSub?: Subscription;
   private totalUnreadSub?: Subscription;
   private totalUnreadChannelsSub?: Subscription;
+  private searchBusSub?: Subscription;
 
   dmsOpen = true;
   channelsOpen = true;
   currentChatId: string = '';
   totalUnread = 0;
   totalUnreadChannels = 0;
+  search = '';
 
   // Users//
 
@@ -86,12 +89,24 @@ export class DevspaceSidenavContent implements OnInit, OnDestroy {
     private dialog: MatDialog,
     private channelService: ChannelService,
     private read: ReadStateService,
+    private searchBus: SearchBusService
     public viewStateService: ViewStateService
   ) {}
 
   ngOnInit(): void {
     this.subscribeToUsers();
     this.subscribeToChannels();
+
+    this.searchBusSub = this.searchBus.query$.subscribe((q) => {
+      this.search = q;
+      if (q) {
+        this.maxVisible = this.users.length;
+        this.maxVisibleChannels = this.channels.length;
+      } else {
+        this.maxVisible = Math.min(this.pageSizeUsers, this.users.length);
+        this.maxVisibleChannels = Math.min(this.pageSizeChannels, this.channels.length);
+      }
+    });
   }
 
   private subscribeToUsers(): void {
@@ -222,7 +237,11 @@ export class DevspaceSidenavContent implements OnInit, OnDestroy {
       this.users = list;
     }
 
-    this.maxVisible = Math.min(this.maxVisible, this.users.length);
+    if (this.search) {
+      this.maxVisible = this.users.length;
+    } else {
+      this.maxVisible = Math.min(this.pageSizeUsers, this.users.length);
+    }
   }
 
   private subscribeToChannels(): void {
@@ -232,6 +251,13 @@ export class DevspaceSidenavContent implements OnInit, OnDestroy {
     ]).subscribe(([channels, user]) => {
       const userChannels = this.filterUserChannels(channels, user?.uid);
       this.channels = this.sortChannels(userChannels);
+
+      if (this.search) {
+        this.maxVisibleChannels = this.channels.length;
+      } else {
+        this.maxVisibleChannels = Math.min(this.pageSizeChannels, this.channels.length);
+      }
+
       this.buildTotalUnreadChannels(this.channels, this.meUid);
     });
   }
@@ -257,23 +283,59 @@ export class DevspaceSidenavContent implements OnInit, OnDestroy {
     this.sortSub?.unsubscribe();
     this.totalUnreadSub?.unsubscribe();
     this.totalUnreadChannelsSub?.unsubscribe();
+    this.searchBusSub?.unsubscribe();
+  }
+
+  private norm(s: any): string {
+    const str = String(s ?? '').toLowerCase();
+    try {
+      return str.normalize('NFD').replace(/\p{Diacritic}/gu, '');
+    } catch {
+      return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    }
+  }
+
+  private matches(hay: any, q: string): boolean {
+    if (!q) return true;
+    const H = this.norm(hay);
+    const Q = this.norm(q);
+    return H.includes(Q);
   }
 
   get visibleUsers(): User[] {
     const base = this.sortedUsers.length ? this.sortedUsers : this.users;
-    return base.slice(0, Math.min(this.maxVisible, base.length));
+
+    if (!this.search) {
+      return base.slice(0, Math.min(this.maxVisible, base.length));
+    }
+
+    const me = base[0] && this.meUid && base[0].uid === this.meUid ? base[0] : null;
+    const others = me ? base.slice(1) : base;
+
+    const filteredOthers = others.filter((u) => this.matches(u.name, this.search));
+    return me && this.matches(me.name, this.search) ? [me, ...filteredOthers] : filteredOthers;
   }
 
   get visibleChannels() {
-    return (this.channels ?? []).slice(0, Math.min(this.maxVisibleChannels, this.channels.length));
+    const base = this.channels ?? [];
+
+    if (!this.search) {
+      return base.slice(0, Math.min(this.maxVisibleChannels, base.length));
+    }
+
+    return base.filter((c) => this.matches(c.name, this.search));
   }
 
   get hiddenCount(): number {
-    return Math.max(this.users.length - this.maxVisible, 0);
+    if (this.search) return 0;
+    const base = this.sortedUsers.length ? this.sortedUsers : this.users;
+    return Math.max(base.length - this.maxVisible, 0);
   }
 
   get hiddenChannelsCount() {
-    return Math.max((this.channels?.length ?? 0) - this.maxVisibleChannels, 0);
+    if (this.search) return 0;
+    const base = this.channels ?? [];
+    return Math.max(base.length - this.maxVisibleChannels, 0);
   }
 
   loadMore(): void {
