@@ -58,7 +58,7 @@
   align-items: center;
   padding: 15px;
   gap: 8px;
-  background: #797EF3;
+  background: #797ef3;
   border-radius: 30px 0px 30px 30px;
   position: static; /* allow mini-actions to anchor to message-container instead */
 
@@ -237,11 +237,11 @@
     position: relative;
     display: inline-flex;
     align-items: center;
-    gap: 6px;
-    padding: 6px 8px;
-    border-radius: 14px;
-    border: 1px solid #e0e0e0;
-    background: #fff;
+    gap: 10px;
+    padding: 5px 10px;
+    border-radius: 20px;
+    border: 1px solid #ADB0D9;
+    background: #FFFFFF;
     cursor: pointer;
     line-height: 1;
     transition: background 0.15s ease, border-color 0.15s ease;
@@ -251,28 +251,65 @@
       border-color: #d5d5d5;
     }
 
+    &.reacted {
+      background: #eceefe;
+      border-color: #d6d9ff;
+    }
+
+    .emoji-wrapper {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+
+      .reaction-tooltip {
+        display: none;
+        position: absolute;
+        bottom: calc(100% + 6px);
+        left: 50%;
+        transform: none;
+        background: #444DF2;
+        color: white;
+        border-radius: 30px 30px 30px 0;
+        padding: 15px 10px;
+        z-index: 10;
+        text-align: center;
+        font-family: 'Nunito', sans-serif;
+        width: auto;
+        min-width: 170px;
+        white-space: nowrap;
+        line-height: 24px;
+
+        .reacter-emoji {
+          font-size: 20px;
+          line-height: 1;
+        }
+
+        .reacter-name {
+          font-size: 16px;
+          font-weight: 700;
+          margin-top: 5px;
+        }
+
+        .reacter-verb {
+          font-size: 16px;
+          font-weight: 400;
+        }
+      }
+    }
+
+    &:hover .emoji-wrapper .reaction-tooltip {
+      display: block;
+    }
+
     .emoji {
       font-size: 16px;
     }
 
-    .count-badge {
-      position: absolute;
-      top: -6px;
-      right: -6px;
-      min-width: 16px;
-      height: 16px;
-      padding: 0 4px;
-      border-radius: 999px;
-      background: #797ef3;
-      color: #fff;
-      font-size: 10px;
-      font-weight: 700;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      border: 1px solid #fff;
-      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
-      pointer-events: none;
+    .count-number {
+      font-size: 16px;
+      font-family: Nunito, sans-serif;
+      font-weight: 400;
+      color: #000000;
     }
   }
 
