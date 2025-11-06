@@ -16,6 +16,7 @@
   padding-bottom: 15px;
   box-sizing: border-box;
   transition: background-color 0.15s ease;
+  position: relative; /* anchor for absolute-positioned mini-actions */
 }
 
 .message-content {
@@ -57,16 +58,16 @@
   align-items: center;
   padding: 15px;
   gap: 8px;
-  background: #797ef3;
+  background: #797EF3;
   border-radius: 30px 0px 30px 30px;
-  position: relative;
+  position: static; /* allow mini-actions to anchor to message-container instead */
 
   p {
     font-family: 'Nunito', sans-serif;
     font-weight: 400;
     font-size: 18px;
     line-height: 25px;
-    color: #ffffff;
+    color: #FFFFFF;
     margin: 0;
     width: 100%;
     overflow-wrap: anywhere;
@@ -77,19 +78,20 @@
 
 .mini-actions {
   position: absolute;
-  bottom: 100%;
-  right: 0;
-  transform: translate(-8px, -8px);
+  bottom: 80%;
+  left: 5%; /* default: non-incoming align to outer left of message container */
+  right: auto;
   display: none;
   align-items: center;
-  gap: 25px;
-  padding: 13px 25px;
+  gap: 15px;
+  padding: 13px 25px 13px 30px;
   background: #ffffff;
-  border: 1px solid #e0e0e0;
+  border: 1px solid #ADB0D9;
   border-radius: 25px 25px 0px 25px;
   box-shadow: 0 6px 24px rgba(0, 0, 0, 0.08);
-  z-index: 2;
+  z-index: 3;
   overflow: visible;
+  transform: translateY(-8px); /* Apply vertical offset directly */
 }
 
 .mini-actions.visible {
@@ -143,9 +145,9 @@
 .mini-icon-btn {
   display: inline-flex;
   align-items: center;
-  justify-content: center;
+  left: 5%; /* default: non-incoming align to outer left of message container */
   width: 22px;
-  height: 22px;
+  transform: translate(0, -8px); /* final position after slide-in */
   padding: 0;
   border: none;
   background: transparent;
@@ -153,17 +155,39 @@
 }
 
 .menu-dropdown {
-  position: absolute;
-  top: 100%;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.08);
+  z-index: 3;
   right: 0;
   margin-top: 8px;
   min-width: 180px;
-  background: #ffffff;
-  border: 1px solid #e5e7eb;
-  border-radius: 10px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
-  z-index: 3;
-  padding: 6px;
+}
+
+/* Slide-in animations */
+@keyframes miniActionsSlideInLeft {
+  from {
+    transform: translate(-30px, -8px);
+    opacity: 0;
+  }
+  to {
+    transform: translate(0, -8px);
+    opacity: 1;
+  }
+}
+
+@keyframes miniActionsSlideInRight {
+  from {
+    transform: translate(30px, -8px);
+    opacity: 0;
+  }
+  to {
+    transform: translate(0, -8px);
+    opacity: 1;
+  }
+}
+
+.mini-actions.visible {
+  display: inline-flex;
+  animation: miniActionsSlideInLeft 150ms ease-out;
 }
 
 .menu-item {
@@ -288,7 +312,7 @@
       position: absolute;
       bottom: 18px;
       left: 24px;
-      transform: translateX(-100%);
+      // transform: translateX(-100%);
       z-index: 1000;
     }
   }
@@ -396,6 +420,7 @@
   background: #eceefe;
 }
 
+/* On hover over the incoming row, turn the speech bubble itself white (unless editing) */
 .message-container.incoming:hover .speech-bubble:not(.editing) {
   background: #ffffff;
 }
@@ -405,12 +430,15 @@
 }
 
 .message-container.incoming .mini-actions {
-  left: 0;
-  right: auto;
-  transform: translate(8px, -8px);
-  border-radius: 25px 25px 25px 0px;
+  right: 5%; /* incoming: align to outer right of message container */
+  left: auto;
+  transform: translateY(-8px);
 }
 
+
+.message-container.incoming .mini-actions.visible {
+  animation: miniActionsSlideInRight 150ms ease-out;
+}
 .message-container.incoming .reactions {
   justify-content: flex-start;
 }
@@ -437,6 +465,7 @@
   }
 }
 
+/* Inline edit styles */
 .edit-container {
   width: 100%;
   display: flex;
@@ -516,6 +545,8 @@
   }
 }
 
+/* Position the emoji picker just above the left icon in edit mode */
+/* Anchor the edit-mode emoji picker to the left icon (common variant) */
 .edit-left-actions app-emoji-picker-component {
   position: absolute;
   bottom: 44px;

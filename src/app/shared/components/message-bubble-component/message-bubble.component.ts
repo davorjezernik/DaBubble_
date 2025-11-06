@@ -330,7 +330,7 @@ export class MessageBubbleComponent implements OnChanges {
   onSpeechBubbleLeave() {
     this.startMiniActionsHideTimer();
     this.isMoreMenuOpen = false;
-    this.showEmojiPicker = false;
+    // this.showEmojiPicker = false; // Do not hide picker here, it causes a race condition
   }
 
   /** Keep mini actions visible while hovering over them. */
@@ -444,9 +444,7 @@ export class MessageBubbleComponent implements OnChanges {
   onMiniAddReactionClick(event: MouseEvent) {
     event.stopPropagation();
     this.showMiniActions = false;
-    setTimeout(() => {
-      this.showEmojiPicker = true;
-    });
+    this.toggleEmojiPicker();
   }
 
   /**
@@ -485,6 +483,11 @@ export class MessageBubbleComponent implements OnChanges {
         await updateDoc(ref, { [fieldPath]: increment(delta) });
       }
     } catch (e) {}
+  }
+
+  @HostListener('mouseleave')
+  onHostLeave() {
+    this.onClosePicker();
   }
 
   /**
