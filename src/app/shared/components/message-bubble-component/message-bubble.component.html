@@ -152,13 +152,13 @@
           <span class="emoji-wrapper">
             <span class="emoji">{{ r.emoji }}</span>
             <div class="reaction-tooltip">
-            <div class="reacter-emoji">{{ r.emoji }}</div>
-            <div class="reacter-name">
-              @for (user of r.users; track user.id; let i = $index) {
-              <span>{{ user.name }}</span
-              >@if (i < r.users.length - 1) {<span>,&nbsp;</span>} }
-            </div>
-            <div class="reacter-verb">hat reagiert</div>
+              <div class="reacter-emoji">{{ r.emoji }}</div>
+              <div class="reacter-name">
+                @for (user of r.users; track user.id; let i = $index) {
+                <span>{{ user.name }}</span
+                >@if (i < r.users.length - 1) {<span>,&nbsp;</span>} }
+              </div>
+              <div class="reacter-verb">hat reagiert</div>
             </div>
           </span>
           @if (r.count > 0) { <span class="count-number">{{ r.count }}</span> }
