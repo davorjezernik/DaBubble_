@@ -49,9 +49,9 @@
   </header>
 
   <!-- Channels -->
-  <div class="channels-and-contacts">
+  <div class="channels-and-contacts devspace-elements-gap">
     <!-- Channels Section -->
-    <section class="sidenav-section" aria-labelledby="channels-heading">
+    <section class="sidenav-section devspace-elements-gap" aria-labelledby="channels-heading">
       <header class="section-header">
         <button
           type="button"
@@ -117,7 +117,7 @@
       </header>
 
       @if(channelsOpen) {
-      <div id="channels-content" class="section-content-wrapper">
+      <div id="channelsContent" class="section-content-wrapper devspace-elements-gap">
         <ul class="item-list" role="list">
           @for (channel of visibleChannels; track channel.id) {
           <li>
@@ -162,7 +162,7 @@
     </section>
 
     <!-- Direct Messages Section -->
-    <section class="sidenav-section" aria-labelledby="dms-heading">
+    <section class="sidenav-section devspace-elements-gap" aria-labelledby="dms-heading">
       <header class="section-header">
         <button
           type="button"
@@ -205,9 +205,9 @@
       </header>
 
       @if (dmsOpen) {
-      <div id="dms-content" class="section-content-wrapper">
+      <div id="dms-content" class="section-content-wrapper devspace-elements-gap">
         
-        <ul class="item-list contacts-list" role="list">
+        <ul class="item-list" role="list">
           @for(u of visibleUsers; track u.uid) {
           <li>
             <a
