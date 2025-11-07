@@ -1,4 +1,9 @@
-import { Injectable, inject } from '@angular/core';
+import {
+  Injectable,
+  inject,
+  EnvironmentInjector,
+  runInInjectionContext,
+} from '@angular/core';
 import {
   Firestore,
   doc,
@@ -14,154 +19,256 @@ import {
   collectionData,
   limit,
 } from '@angular/fire/firestore';
-import { BehaviorSubject, Observable, combineLatest, map, switchMap } from 'rxjs';
+import {
+  BehaviorSubject,
+  Observable,
+  combineLatest,
+  map,
+  switchMap,
+} from 'rxjs';
 
 type ReadDoc = { lastReadAt?: Timestamp } | undefined;
 
 @Injectable({ providedIn: 'root' })
 export class ReadStateService {
   private firestore = inject(Firestore);
+  private env = inject(EnvironmentInjector);
 
+  // lastRead values per thread+user //
   private optim$ = new Map<string, BehaviorSubject<Timestamp>>();
 
-  private key(dmId: string, uid: string) {
-    return `${dmId}|${uid}`;
+  // Last message bumps per thread //
+  private bumpMap = new Map<string, BehaviorSubject<number>>();
+
+  // Executes fn in a valid injection context against AngularFire warnings //
+  private withCtx<T>(fn: () => T): T {
+    return runInInjectionContext(this.env, fn);
   }
 
-  private getOptimistic$(dmId: string, uid: string) {
-    const k = this.key(dmId, uid);
-    if (!this.optim$.has(k))
+  // Wrapper around docData with a valid injection context //
+  private docData$<T>(ref: any): Observable<T> {
+    return this.withCtx(() => docData(ref) as Observable<T>);
+  }
+
+  // Wrapper around collectionData with a valid injection context //
+  private collectionData$<T>(q: any, options?: any): Observable<T[]> {
+    return this.withCtx(
+      () => collectionData(q, options) as Observable<T[]>
+    );
+  }
+
+  // Key for maps: threadId|uid reused for DMs & channels //
+  private key(threadId: string, uid: string) {
+    return `${threadId}|${uid}`;
+  }
+
+  // Get/create optimistic Timestamp Subject instance //
+  private getOptimistic$(threadId: string, uid: string) {
+    const k = this.key(threadId, uid);
+    if (!this.optim$.has(k)) {
       this.optim$.set(k, new BehaviorSubject<Timestamp>(Timestamp.fromMillis(0)));
+    }
     return this.optim$.get(k)!;
   }
 
-  private bumpMap = new Map<string, BehaviorSubject<number>>();
-  private getLastBump$(dmId: string) {
-    if (!this.bumpMap.has(dmId)) this.bumpMap.set(dmId, new BehaviorSubject<number>(0));
-    return this.bumpMap.get(dmId)!;
+  // Get/create last message Bump Subject instance //
+  private getLastBump$(threadId: string) {
+    if (!this.bumpMap.has(threadId)) {
+      this.bumpMap.set(threadId, new BehaviorSubject<number>(0));
+    }
+    return this.bumpMap.get(threadId)!;
   }
 
+  // DMs
+
+  private readDoc(dmId: string, uid: string) {
+    return doc(this.firestore, `dms/${dmId}/reads/${uid}`);
+  }
+
+  // Client-side bump for new DM message sorting //
   bumpLastMessage(dmId: string) {
     this.getLastBump$(dmId).next(Date.now());
   }
 
-  readDoc(dmId: string, uid: string) {
-    return doc(this.firestore, `dms/${dmId}/reads/${uid}`);
-  }
-
+  // Mark DM as read //
   async markDmRead(dmId: string, uid: string) {
-    // 1) sofort lokal auf "jetzt" setzen (verhindert Blink)
     this.getOptimistic$(dmId, uid).next(Timestamp.now());
-    // 2) Firestore persistieren
+
     const ref = this.readDoc(dmId, uid);
     await setDoc(ref, { lastReadAt: serverTimestamp() }, { merge: true });
   }
 
+  // Number of unread DM messages from other authors //
   unreadDmCount$(dmId: string, uid: string): Observable<number> {
     const myReadRef = this.readDoc(dmId, uid);
-    const fs$ = docData(myReadRef) as Observable<ReadDoc>;
+    const fs$ = this.docData$<ReadDoc>(myReadRef); 
     const opt$ = this.getOptimistic$(dmId, uid);
 
     return combineLatest([fs$, opt$]).pipe(
       switchMap(([read, opt]) => {
-        // since = max(Firestore, Optimistic)
         const fsSince =
-          read?.lastReadAt instanceof Timestamp ? read.lastReadAt : Timestamp.fromMillis(0);
+          read?.lastReadAt instanceof Timestamp
+            ? read.lastReadAt
+            : Timestamp.fromMillis(0);
         const since = fsSince.toMillis() > opt.toMillis() ? fsSince : opt;
 
         const messagesRef = collection(
           this.firestore,
           `dms/${dmId}/messages`
         ) as CollectionReference<any>;
-        const q = query(messagesRef, where('timestamp', '>', since), orderBy('timestamp', 'asc'));
-        return collectionData(q, { idField: 'id' }) as Observable<any[]>;
+
+        const qy = query(
+          messagesRef,
+          where('timestamp', '>', since),
+          orderBy('timestamp', 'asc')
+        );
+
+        return this.collectionData$<any>(qy, { idField: 'id' });
       }),
       map((msgs) => msgs.filter((m) => m?.authorId !== uid).length)
     );
   }
 
-  /** Firestore-basierter letzter Nachrichtenzeitpunkt (Millis) */
+  // Last message time from Firestore //
   private lastMessageAtFs$(dmId: string): Observable<number> {
     const messagesRef = collection(
       this.firestore,
       `dms/${dmId}/messages`
     ) as CollectionReference<any>;
 
-    // neueste Nachricht holen (1 Stück)
     const qy = query(messagesRef, orderBy('timestamp', 'desc'), limit(1));
 
-    return collectionData(qy).pipe(
-      map((rows: any[]) => {
+    return this.collectionData$<any>(qy).pipe(
+      map((rows) => {
         const ts = rows?.[0]?.timestamp;
         return ts instanceof Timestamp ? ts.toMillis() : 0;
       })
     );
   }
 
-  // Kombi-Meta für Sortierung
+  // Last news update including optimistic bump //
   lastMessageAt$(dmId: string): Observable<number> {
-    return combineLatest([this.lastMessageAtFs$(dmId), this.getLastBump$(dmId)]).pipe(
-      map(([fsMillis, bumpMillis]) => Math.max(fsMillis, bumpMillis))
+    return combineLatest([
+      this.lastMessageAtFs$(dmId),
+      this.getLastBump$(dmId),
+    ]).pipe(map(([fsMillis, bumpMillis]) => Math.max(fsMillis, bumpMillis)));
+  }
+
+  // Combined meta for DMs Unread + last timestamp for sorting //
+  dmMeta$(dmId: string, uid: string): Observable<{
+    unread: number;
+    lastMessageAt: number;
+  }> {
+    return combineLatest([
+      this.unreadDmCount$(dmId, uid),
+      this.lastMessageAt$(dmId),
+    ]).pipe(
+      map(([unread, lastMessageAt]) => ({
+        unread,
+        lastMessageAt,
+      }))
     );
   }
 
-  dmMeta$(dmId: string, uid: string): Observable<{ unread: number; lastMessageAt: number }> {
-    return combineLatest([this.unreadDmCount$(dmId, uid), this.lastMessageAt$(dmId)]).pipe(
-      map(([unread, lastMessageAt]) => ({ unread, lastMessageAt }))
+  // Channels
+  
+  // Message collection for DMs/Channels //
+  private msgsRef(
+    kind: 'dms' | 'channels',
+    id: string
+  ): CollectionReference<any> {
+    return collection(
+      this.firestore,
+      `${kind}/${id}/messages`
+    ) as CollectionReference<any>;
+  }
+
+  private readDocGeneric(
+    kind: 'dms' | 'channels',
+    id: string,
+    uid: string
+  ) {
+    return doc(this.firestore, `${kind}/${id}/reads/${uid}`);
+  }
+
+  // Mark channel as read //
+  markChannelRead(channelId: string, uid: string) {
+    this.getOptimistic$(channelId, uid).next(Timestamp.now());
+    const ref = this.readDocGeneric('channels', channelId, uid);
+    return setDoc(ref, { lastReadAt: serverTimestamp() }, { merge: true });
+  }
+
+  // Number of unread channel messages from other authors //
+  unreadChannelCount$(channelId: string, uid: string): Observable<number> {
+    const fs$ = this.docData$<ReadDoc>(
+      this.readDocGeneric('channels', channelId, uid)
+    );
+    const opt$ = this.getOptimistic$(channelId, uid);
+
+    return combineLatest([fs$, opt$]).pipe(
+      switchMap(([read, opt]) => {
+        const fsSince =
+          read?.lastReadAt instanceof Timestamp
+            ? read.lastReadAt
+            : Timestamp.fromMillis(0);
+        const since = fsSince.toMillis() > opt.toMillis() ? fsSince : opt;
+
+        const qy = query(
+          this.msgsRef('channels', channelId),
+          where('timestamp', '>', since),
+          orderBy('timestamp', 'asc')
+        );
+
+        return this.collectionData$<any>(qy);
+      }),
+      map((msgs) => msgs.filter((m) => m?.authorId !== uid).length)
     );
   }
 
-  private msgsRef(kind: 'dms'|'channels', id: string) {
-  return collection(this.firestore, `${kind}/${id}/messages`) as CollectionReference<any>;
-}
-private readDocGeneric(kind: 'dms'|'channels', id: string, uid: string) {
-  return doc(this.firestore, `${kind}/${id}/reads/${uid}`);
-}
+  // Client-side bump upon new channel message //
+  bumpLastChannelMessage(channelId: string) {
+    this.getLastBump$(channelId).next(Date.now());
+  }
 
-// ---- CHANNEL: Read markieren ----
-markChannelRead(channelId: string, uid: string) {
-  // optimistisch (gegen Blink)
-  this.getOptimistic$(channelId, uid).next(Timestamp.now());
-  const ref = this.readDocGeneric('channels', channelId, uid);
-  return setDoc(ref, { lastReadAt: serverTimestamp() }, { merge: true });
-}
+  // Last channel message time from Firestore //
+  private lastChannelMessageAtFs$(
+    channelId: string
+  ): Observable<number> {
+    const qy = query(
+      this.msgsRef('channels', channelId),
+      orderBy('timestamp', 'desc'),
+      limit(1)
+    );
 
-// ---- CHANNEL: Unread zählen ----
-unreadChannelCount$(channelId: string, uid: string): Observable<number> {
-  const fs$ = docData(this.readDocGeneric('channels', channelId, uid)) as Observable<ReadDoc>;
-  const opt$ = this.getOptimistic$(channelId, uid);
-  return combineLatest([fs$, opt$]).pipe(
-    switchMap(([read, opt]) => {
-      const fsSince = read?.lastReadAt instanceof Timestamp ? read.lastReadAt : Timestamp.fromMillis(0);
-      const since = fsSince.toMillis() > opt.toMillis() ? fsSince : opt;
-      const qy = query(this.msgsRef('channels', channelId), where('timestamp','>',since), orderBy('timestamp','asc'));
-      return collectionData(qy) as Observable<any[]>;
-    }),
-    map(msgs => msgs.filter(m => m?.authorId !== uid).length)
-  );
-}
+    return this.collectionData$<any>(qy).pipe(
+      map((rows) => {
+        const ts = rows?.[0]?.timestamp;
+        return ts instanceof Timestamp ? ts.toMillis() : 0;
+      })
+    );
+  }
 
-// ---- CHANNEL: letzte Nachricht (optimistisch) ----
-bumpLastChannelMessage(channelId: string) {
-  this.getLastBump$(channelId).next(Date.now());
-}
-private lastChannelMessageAtFs$(channelId: string): Observable<number> {
-  const qy = query(this.msgsRef('channels', channelId), orderBy('timestamp','desc'), limit(1));
-  return collectionData(qy).pipe(map((rows:any[]) => {
-    const ts = rows?.[0]?.timestamp;
-    return ts instanceof Timestamp ? ts.toMillis() : 0;
-  }));
-}
-lastChannelMessageAt$(channelId: string): Observable<number> {
-  return combineLatest([ this.lastChannelMessageAtFs$(channelId), this.getLastBump$(channelId) ])
-    .pipe(map(([fsMillis,bump]) => Math.max(fsMillis, bump)));
-}
+  // Last channel message time including bump //
+  lastChannelMessageAt$(channelId: string): Observable<number> {
+    return combineLatest([
+      this.lastChannelMessageAtFs$(channelId),
+      this.getLastBump$(channelId),
+    ]).pipe(map(([fsMillis, bump]) => Math.max(fsMillis, bump)));
+  }
 
-// ---- CHANNEL: Kombi-Meta (für Sortierung) ----
-channelMeta$(channelId: string, uid: string): Observable<{ unread: number; lastMessageAt: number }> {
-  return combineLatest([
-    this.unreadChannelCount$(channelId, uid),
-    this.lastChannelMessageAt$(channelId),
-  ]).pipe(map(([unread, lastMessageAt]) => ({ unread, lastMessageAt })));
-}
+  // for sorting channels (unread + last timestamp) //
+  channelMeta$(channelId: string, uid: string): Observable<{
+    unread: number;
+    lastMessageAt: number;
+  }> {
+    return combineLatest([
+      this.unreadChannelCount$(channelId, uid),
+      this.lastChannelMessageAt$(channelId),
+    ]).pipe(
+      map(([unread, lastMessageAt]) => ({
+        unread,
+        lastMessageAt,
+      }))
+    );
+  }
 }
