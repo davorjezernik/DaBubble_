@@ -1,4 +1,5 @@
 @use 'mixins';
+@use 'variables';
 
 :host {
   display: block;
@@ -64,9 +65,14 @@
   p {
     font-family: 'Nunito', sans-serif;
     font-weight: 400;
-    font-size: 18px;
+    @include mixins.text-style(
+      $size: variables.$basic-text-size,
+      $color: #ffffff,
+      $font-weight: 400,
+      $font-family: 'Nunito',
+      $line-height: 1.4
+    );
     line-height: 25px;
-    color: #ffffff;
     margin: 0;
     width: 100%;
     overflow-wrap: anywhere;

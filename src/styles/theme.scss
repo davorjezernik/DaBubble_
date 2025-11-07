@@ -12,12 +12,12 @@
 // ALL SIZES STORING HERE//
 
 :root {
-  --devspace-text-size: 18px;
+  --basic-text-size: 18px;
 }
 
 @media (max-width: 400px) {
   :root {
-    --devspace-text-size: 17px;
+    --basic-text-size: 17px;
   }
 }
 
