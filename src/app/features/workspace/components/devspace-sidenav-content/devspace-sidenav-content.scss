@@ -96,6 +96,19 @@ a {
   gap: 20px;
 }
 
+.contact-item-anker {
+  display: block;
+  text-decoration: none;
+  min-width: 0;
+  width: 100%;
+}
+
+app-contact-item {
+  display: block;
+  min-width: 0;
+  width: 100%;
+}
+
 .section-toggle-button {
   display: flex;
   align-items: center;
@@ -138,10 +151,17 @@ a {
   gap: 10px;
   display: flex;
   flex-direction: column;
+  list-style: none;
+  width: 100%;
+
+  > li {
+    min-width: 0;
+  }
 }
 
 .contacts-list {
   padding-left: 20px;
+
 }
 
 .section-header {

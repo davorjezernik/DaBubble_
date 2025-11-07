@@ -1,4 +1,4 @@
-<li class="dm-item" (click)="onContactClick()">
+<div class="dm-item" (click)="onContactClick()">
   <div class="avatar-wrap">
     <img class="avatar" [src]="user.avatar" [alt]="user.name" />
     <span class="status" [class.online]="user.online"></span>
@@ -12,4 +12,4 @@
   </span>
 
   <span class="badge" *ngIf="unread > 0">{{ unread }}</span>
-</li>
+</div>

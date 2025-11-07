@@ -1,6 +1,7 @@
 .dm-item {
-  min-width: 205px;
-  width: 90%;
+  min-width: 0;
+  box-sizing: border-box;
+  width: 100%;
   height: 58px;
   display: flex;
   align-items: center;
@@ -63,7 +64,7 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    max-width: 200px;
+    flex: 1;
     min-width: 0;
 
     .you {
@@ -94,21 +95,6 @@
 
   &:hover .badge {
     transform: translateY(-1px);
-    transition: transform 0.15s ease;
-  }
-}
-
-@media (max-width: 950px) {
-  .contact-item-anker {
-    text-decoration: none;
-    padding: 0;
-
-    &.is-active .dm-item {
-      background-color: transparent;
-    }
-  }
-
-  .dm-item > .name {
-    max-width: 157px;
+    transition: transform 125ms ease;
   }
 }
