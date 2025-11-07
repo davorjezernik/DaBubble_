@@ -206,23 +206,22 @@
 
       @if (dmsOpen) {
       <div id="dms-content" class="section-content-wrapper devspace-elements-gap">
-        
         <ul class="item-list" role="list">
           @for(u of visibleUsers; track u.uid) {
-          <li>
-            <a
-              class="contact-item-anker"
-              [routerLink]="['/workspace/dm', calculateDmId(u)]"
-              routerLinkActive="is-active"
-            >
+          <a
+            class="contact-item-anker"
+            [routerLink]="['/workspace/dm', calculateDmId(u)]"
+            routerLinkActive="is-active"
+          >
+            <li class="contact">
               <app-contact-item
                 (click)="viewStateService.currentView = 'chat'"
                 [meUid]="meUid"
                 [user]="u"
                 (contactClick)="ensureDmExists($event)"
               ></app-contact-item>
-            </a>
-          </li>
+            </li>
+          </a>
           }
         </ul>
 

@@ -102,6 +102,16 @@ a {
   text-decoration: none;
   min-width: 0;
   width: 100%;
+
+  &.is-active .contact {  
+    ::ng-deep .dm-item {
+      background-color: $color-dm-hover;
+      span {
+        color: #444df2;
+        font-weight: 700;
+      }
+    }
+  }
 }
 
 app-contact-item {
@@ -355,7 +365,7 @@ app-contact-item {
   min-width: 22px;
   height: 22px;
   border-radius: 50px;
-  background: #e53935;   
+  background: #e53935;
   color: #fff;
   font-family: 'Nunito', sans-serif;
   font-size: 12px;

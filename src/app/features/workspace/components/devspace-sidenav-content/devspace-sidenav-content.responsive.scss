@@ -79,6 +79,26 @@ $radius-pill: 999px;
   .mobile-edit-btn {
     display: flex;
   }
+
+  .contact-item-anker {
+    display: block;
+    text-decoration: none;
+    min-width: 0;
+    width: 100%;
+
+    &.is-active .contact {
+      ::ng-deep .dm-item {
+        background-color: transparent;
+        &:hover {
+          background-color: $color-dm-hover;
+        }
+        span {
+          color: $color-text;
+          font-weight: 400;
+        }
+      }
+    }
+  }
 }
 
 @media (max-width: 730px) {
