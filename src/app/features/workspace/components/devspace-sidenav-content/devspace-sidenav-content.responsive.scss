@@ -1,4 +1,5 @@
 @use 'mixins';
+@use 'variables';
 
 // Theme tokens
 $color-text: #0f0f10;
@@ -98,10 +99,11 @@ $radius-pill: 999px;
     margin-bottom: 15px;
   }
   .channels-and-contacts {
-    padding: 20px 0 20px;
+    padding: 20px 0 60px;
     background-color: transparent;
   }
 }
 
-@media (max-width: 420px) {
+@media (max-width: 400px) {
+  
 }

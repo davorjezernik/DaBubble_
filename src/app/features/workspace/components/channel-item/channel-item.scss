@@ -1,4 +1,5 @@
 @use 'mixins';
+@use 'variables';
 
 .channel-anker {
   cursor: pointer;
@@ -48,7 +49,7 @@
 
   .channel-name {
     @include mixins.text-style(
-      $size: 18px,
+      $size: variables.$devspace-text-size,
       $color: #000000,
       $font-weight: 400,
       $font-family: 'Nunito',
