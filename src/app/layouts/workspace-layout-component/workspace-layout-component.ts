@@ -23,7 +23,6 @@ import { AsyncPipe } from '@angular/common';
     ThreadSidenavContent,
     HeaderWorkspaceComponent,
     MatIconModule,
-    AsyncPipe,
   ],
   templateUrl: './workspace-layout-component.html',
   styleUrls: ['./workspace-layout-component.scss', './workspace-layout-component.responsive.scss'],
