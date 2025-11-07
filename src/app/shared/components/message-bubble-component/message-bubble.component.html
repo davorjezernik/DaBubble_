@@ -9,6 +9,7 @@
       <span class="timestamp">{{ time }}</span>
       <span class="user-name">{{ name }}</span>
     </div>
+
     <div class="speech-bubble" [class.msg-box]="isEditing" [class.editing]="isEditing">
       @if (!isEditing) {
       <div
@@ -53,6 +54,7 @@
         <span [class.hidden]="isThreadView" class="mini-hit" (click)="onCommentClick($event)">
           <img src="assets/icons/comment.svg" alt="Comment" class="mini-icon" />
         </span>
+
         @if (!incoming) {
         <div class="more-menu" (click)="$event.stopPropagation()">
           <button
@@ -106,7 +108,7 @@
               class="edit-icon-btn"
               type="button"
               aria-label="Insert emoji"
-              (click)="toggleEditEmojiPicker()"
+              (click)="toggleEditEmojiPicker($event)"
             >
               <img src="assets/icons/sentiment_satisfied.svg" alt="Emoji" />
             </button>
@@ -151,17 +153,22 @@
         >
           <span class="emoji-wrapper">
             <span class="emoji">{{ r.emoji }}</span>
+            @if (!r.isLegacyCount) {
             <div class="reaction-tooltip">
               <div class="reacter-emoji">{{ r.emoji }}</div>
-              <div class="reacter-name">
-                @for (user of r.users; track user.id; let i = $index) {
-                <span>{{ user.name }}</span
-                >@if (i < r.users.length - 1) {<span>,&nbsp;</span>} }
+              <div class="reacter-names">
+                @for (uid of r.userIds; track uid; let i = $index) {
+                <span>{{ r.userNames[i] || '...' }}</span
+                >@if (i < r.userIds.length - 1) {<span>,&nbsp;</span>} }
               </div>
-              <div class="reacter-verb">hat reagiert</div>
+              <div class="reacter-verb">
+                {{ r.count === 1 ? 'hat reagiert' : 'haben reagiert' }}
+              </div>
             </div>
+            }
           </span>
-          @if (r.count > 0) { <span class="count-number">{{ r.count }}</span> }
+          @if (r.count > 1) { <span class="count-number">{{ r.count }}</span> } @else if (r.count
+          === 1) { <span class="count-number">1</span> }
         </button>
         } @if (!reactionsExpanded && hasMore) {
         <button class="reaction-chip more-chip" (click)="showMore()">
@@ -185,9 +192,7 @@
         </div>
       </div>
     </div>
-    @if (lastReplyDate) {
-    <div class="thread-meta">Letzte Antwort {{ lastReplyDate | date : 'HH:mm' }} Uhr</div>
-    } }
+    }
   </div>
   <div class="avatar-container">
     <img [src]="avatar" alt="User Avatar" class="avatar-img" />

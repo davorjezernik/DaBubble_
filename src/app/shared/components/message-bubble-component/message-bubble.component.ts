@@ -17,18 +17,9 @@ import {
   doc,
   updateDoc,
   deleteDoc,
-  arrayUnion,
-  arrayRemove,
+  deleteField,
 } from '@angular/fire/firestore';
-import { User as FirebaseUser } from '@firebase/auth';
-import { AuthService } from '../../../../services/auth-service';
-
-export interface Reaction {
-  emoji: string;
-  count: number;
-  users: { id: string; name: string }[];
-  currentUserReacted: boolean;
-}
+import { UserService } from '../../../../services/user.service';
 
 @Component({
   selector: 'app-message-bubble',
@@ -38,10 +29,8 @@ export interface Reaction {
   styleUrl: './message-bubble.component.scss',
 })
 export class MessageBubbleComponent implements OnChanges {
-  @ViewChild('editEmojiPicker', { read: ElementRef })
-  editEmojiPickerRef?: ElementRef;
-  @ViewChild('editEmojiButton', { read: ElementRef })
-  editEmojiButtonRef?: ElementRef;
+  @ViewChild('editEmojiPicker', { read: ElementRef }) editEmojiPickerRef?: ElementRef;
+  @ViewChild('editEmojiButton', { read: ElementRef }) editEmojiButtonRef?: ElementRef;
 
   @Input() incoming: boolean = false; // when true, render as left-side/incoming message
   @Input() name: string = 'Frederik Beck';
@@ -52,9 +41,8 @@ export class MessageBubbleComponent implements OnChanges {
   // Persistence wiring
   @Input() chatId?: string;
   @Input() messageId?: string;
-  @Input() reactionsMap?:
-    | Record<string, { users: { id: string; name: string }[] }>
-    | null;
+  // reactions can be legacy number (count) or a map of uid->true per emoji
+  @Input() reactionsMap?: Record<string, number | Record<string, true>> | null;
   @Input() collectionName: 'channels' | 'dms' = 'dms';
   @Input() lastReplyAt?: unknown;
   @Input() context: 'chat' | 'thread' = 'chat';
@@ -72,7 +60,6 @@ export class MessageBubbleComponent implements OnChanges {
   isSaving = false;
   isDeleting = false;
   editEmojiPickerVisible = false;
-  currentUser: FirebaseUser | null = null;
 
   /**
    * Toggle the inline emoji picker for quick reactions.
@@ -135,7 +122,18 @@ export class MessageBubbleComponent implements OnChanges {
     this.editEmojiPickerVisible = false;
   }
 
-  reactions: Reaction[] = [];
+  reactions: Array<{
+    emoji: string;
+    count: number;
+    userIds: string[];
+    userNames: string[];
+    currentUserReacted: boolean;
+    isLegacyCount: boolean;
+  }> = [];
+  private nameCache = new Map<string, string>();
+  private subscribedUids = new Set<string>();
+  private currentUserId: string | null = null;
+  private currentUserName: string | null = null;
   private readonly MAX_UNIQUE_REACTIONS = 20;
   private readonly DEFAULT_COLLAPSE_THRESHOLD = 7;
   private readonly NARROW_COLLAPSE_THRESHOLD = 6;
@@ -144,8 +142,7 @@ export class MessageBubbleComponent implements OnChanges {
 
   @HostListener('window:resize')
   onWindowResize() {
-    this.isNarrow =
-      typeof window !== 'undefined' ? window.innerWidth <= 450 : this.isNarrow;
+    this.isNarrow = typeof window !== 'undefined' ? window.innerWidth <= 450 : this.isNarrow;
   }
 
   /**
@@ -155,34 +152,74 @@ export class MessageBubbleComponent implements OnChanges {
    */
 
   ngOnInit(): void {
-    this.authService.currentUser$.subscribe((user) => {
-      this.currentUser = user;
-      this.updateReactions(); // Re-process reactions if user changes
+    // track current user for toggling and display
+    this.userService.currentUser$().subscribe((u: any) => {
+      this.currentUserId = u?.uid ?? null;
+      this.currentUserName = (u?.name ?? '').toString();
+      // re-evaluate reactions when user changes (for currentUserReacted)
+      this.rebuildReactions();
     });
   }
 
   ngOnChanges(changes: SimpleChanges) {
     if ('reactionsMap' in changes) {
-      this.updateReactions();
+      this.rebuildReactions();
     }
   }
 
-  private updateReactions() {
+  private rebuildReactions() {
     const map = this.reactionsMap || {};
-    const currentUserId = this.currentUser?.uid;
+    const uid = this.currentUserId;
+    const out: typeof this.reactions = [];
+    for (const [emoji, value] of Object.entries(map)) {
+      if (typeof value === 'number') {
+        const count = Math.max(0, Number(value));
+        if (count > 0) {
+          out.push({
+            emoji,
+            count,
+            userIds: [],
+            userNames: [],
+            currentUserReacted: false,
+            isLegacyCount: true,
+          });
+        }
+      } else if (value && typeof value === 'object') {
+        const userIds = Object.keys(value as Record<string, true>);
+        const count = userIds.length;
+        if (count > 0) {
+          // prefetch names
+          this.ensureNamesLoaded(userIds);
+          const userNames = userIds.map((id) => this.nameCache.get(id) || '');
+          out.push({
+            emoji,
+            count,
+            userIds,
+            userNames,
+            currentUserReacted: !!uid && userIds.includes(uid),
+            isLegacyCount: false,
+          });
+        }
+      }
+    }
+    // sort by count desc (optional)
+    this.reactions = out.sort((a, b) => b.count - a.count);
+  }
 
-    this.reactions = Object.entries(map)
-      .map(([emoji, data]) => {
-        const users = data.users || [];
-        return {
-          emoji,
-          users: users,
-          count: users.length,
-          currentUserReacted: users.some((u) => u.id === currentUserId),
-        };
-      })
-      .filter((r) => r.count > 0) // Filter out reactions with no users
-      .sort((a, b) => b.count - a.count);
+  private ensureNamesLoaded(uids: string[]) {
+    for (const id of uids) {
+      if (this.nameCache.has(id) || this.subscribedUids.has(id)) continue;
+      this.subscribedUids.add(id);
+      this.userService.userById$(id).subscribe((u: any) => {
+        if (u) this.nameCache.set(id, String(u.name ?? ''));
+        // refresh names in current reactions
+        this.reactions = this.reactions.map((r) =>
+          r.userIds.includes(id)
+            ? { ...r, userNames: r.userIds.map((x) => this.nameCache.get(x) || '') }
+            : r
+        );
+      });
+    }
   }
 
   /**
@@ -191,16 +228,8 @@ export class MessageBubbleComponent implements OnChanges {
    * Uses: reactions (local array), MAX_UNIQUE_REACTIONS, persistReactionDelta(...) for Firestore sync.
    */
   addOrIncrementReaction(emoji: string) {
-    if (!this.currentUser) return;
-
-    const existing = this.reactions.find((r) => r.emoji === emoji);
-    if (existing) {
-      if (!existing.currentUserReacted) {
-        this.persistReaction(emoji, 'add');
-      }
-    } else if (this.reactions.length < this.MAX_UNIQUE_REACTIONS) {
-      this.persistReaction(emoji, 'add');
-    }
+    // From picker or quick-add: ensure current user reacts (idempotent)
+    this.addReaction(emoji);
   }
 
   /**
@@ -208,16 +237,46 @@ export class MessageBubbleComponent implements OnChanges {
    * @param emoji The emoji key to decrement/remove.
    */
   onClickReaction(emoji: string) {
-    if (!this.currentUser) return;
-
-    const reaction = this.reactions.find((r) => r.emoji === emoji);
-    if (!reaction) return;
-
-    if (reaction.currentUserReacted) {
-      this.persistReaction(emoji, 'remove');
-    } else {
-      this.persistReaction(emoji, 'add');
+    const r = this.reactions.find((x) => x.emoji === emoji);
+    if (!r) {
+      // If not present, treat as add
+      this.addReaction(emoji);
+      return;
     }
+    if (r.currentUserReacted) this.removeReaction(emoji, r.isLegacyCount);
+    else this.addReaction(emoji, r.isLegacyCount);
+  }
+
+  private async addReaction(emoji: string, legacy = false) {
+    if (!this.chatId || !this.messageId || !this.currentUserId) return;
+    try {
+      const ref = doc(
+        this.firestore,
+        `${this.collectionName}/${this.chatId}/messages/${this.messageId}`
+      );
+      if (legacy) {
+        // replace numeric with map containing current user
+        await updateDoc(ref, { [`reactions.${emoji}`]: { [this.currentUserId]: true } });
+      } else {
+        await updateDoc(ref, { [`reactions.${emoji}.${this.currentUserId}`]: true });
+      }
+    } catch (e) {}
+  }
+
+  private async removeReaction(emoji: string, legacy = false) {
+    if (!this.chatId || !this.messageId || !this.currentUserId) return;
+    try {
+      const ref = doc(
+        this.firestore,
+        `${this.collectionName}/${this.chatId}/messages/${this.messageId}`
+      );
+      if (legacy) {
+        // cannot remove from numeric; convert to empty (delete field)
+        await updateDoc(ref, { [`reactions.${emoji}`]: deleteField() });
+      } else {
+        await updateDoc(ref, { [`reactions.${emoji}.${this.currentUserId}`]: deleteField() });
+      }
+    } catch (e) {}
   }
 
   /**
@@ -225,9 +284,7 @@ export class MessageBubbleComponent implements OnChanges {
    */
   get visibleReactions() {
     const total = this.reactions.length;
-    const limit = this.reactionsExpanded
-      ? this.MAX_UNIQUE_REACTIONS
-      : this.getCollapseThreshold();
+    const limit = this.reactionsExpanded ? this.MAX_UNIQUE_REACTIONS : this.getCollapseThreshold();
     return this.reactions.slice(0, Math.min(limit, total));
   }
 
@@ -244,8 +301,7 @@ export class MessageBubbleComponent implements OnChanges {
   get moreCount() {
     return Math.max(
       0,
-      Math.min(this.reactions.length, this.MAX_UNIQUE_REACTIONS) -
-        this.getCollapseThreshold()
+      Math.min(this.reactions.length, this.MAX_UNIQUE_REACTIONS) - this.getCollapseThreshold()
     );
   }
 
@@ -263,9 +319,7 @@ export class MessageBubbleComponent implements OnChanges {
    * Returns DEFAULT or NARROW threshold.
    */
   private getCollapseThreshold(): number {
-    return this.isNarrow
-      ? this.NARROW_COLLAPSE_THRESHOLD
-      : this.DEFAULT_COLLAPSE_THRESHOLD;
+    return this.isNarrow ? this.NARROW_COLLAPSE_THRESHOLD : this.DEFAULT_COLLAPSE_THRESHOLD;
   }
 
   /**
@@ -330,10 +384,8 @@ export class MessageBubbleComponent implements OnChanges {
     }
 
     if (this.editEmojiPickerVisible) {
-      const clickedInsideButton =
-        this.editEmojiButtonRef?.nativeElement.contains(event.target);
-      const clickedInsidePicker =
-        this.editEmojiPickerRef?.nativeElement.contains(event.target);
+      const clickedInsideButton = this.editEmojiButtonRef?.nativeElement.contains(event.target);
+      const clickedInsidePicker = this.editEmojiPickerRef?.nativeElement.contains(event.target);
 
       if (!clickedInsideButton && !clickedInsidePicker) {
         this.closeEditEmojiPicker();
@@ -452,9 +504,7 @@ export class MessageBubbleComponent implements OnChanges {
   async deleteMessage() {
     if (!this.chatId || !this.messageId) return;
     const confirmed =
-      typeof window !== 'undefined'
-        ? window.confirm('Nachricht wirklich löschen?')
-        : true;
+      typeof window !== 'undefined' ? window.confirm('Nachricht wirklich löschen?') : true;
     if (!confirmed) return;
     try {
       this.isDeleting = true;
@@ -506,35 +556,42 @@ export class MessageBubbleComponent implements OnChanges {
   /**
    * Persist reaction change to Firestore using atomic updates.
    * @param emoji Emoji key in the map (stored as reactions.<emoji> field path).
-   * @param action 'add' to add the current user, 'remove' to remove them.
+   * @param delta +1 to increment, -1 to decrement.
+   * @param newCount New local count after applying delta (<=0 removes the field).
    */
-  private async persistReaction(emoji: string, action: 'add' | 'remove') {
-    if (!this.chatId || !this.messageId || !this.currentUser) return;
+  // persistReactionDelta no longer used (count model replaced with user map)
 
-    try {
-      const ref = doc(
-        this.firestore,
-        `${this.collectionName}/${this.chatId}/messages/${this.messageId}`
-      );
-      const fieldPath = `reactions.${emoji}.users`;
-      const userPayload = {
-        id: this.currentUser.uid,
-        name: this.currentUser.displayName || 'Unknown User',
-      };
+  /**
+   * Close pickers only when pointer leaves a padded area around the host (message-container).
+   * Adds ~12px tolerance, and keeps open when hovering the emoji picker itself.
+   */
+  @HostListener('document:mousemove', ['$event'])
+  onDocumentMouseMove(event: MouseEvent) {
+    if (!this.showEmojiPicker && !this.editEmojiPickerVisible) return;
+    const hostEl = (event.currentTarget && (this as any).el?.nativeElement) as HTMLElement | undefined;
+    // Fallback to global document-based query: use the first .message-container inside this component.
+    const root = (this as any).el?.nativeElement as HTMLElement | undefined;
+    const host = root ?? undefined;
+    const container = host?.querySelector('.message-container') as HTMLElement | null;
+    const refEl = container ?? host;
+    if (!refEl) return;
 
-      if (action === 'add') {
-        await updateDoc(ref, { [fieldPath]: arrayUnion(userPayload) });
-      } else {
-        await updateDoc(ref, { [fieldPath]: arrayRemove(userPayload) });
-      }
-    } catch (e) {
-      console.error('Failed to persist reaction:', e);
+    const rect = refEl.getBoundingClientRect();
+    const pad = 12;
+    const x = event.clientX;
+    const y = event.clientY;
+    const insidePadded =
+      x >= rect.left - pad &&
+      x <= rect.right + pad &&
+      y >= rect.top - pad &&
+      y <= rect.bottom + pad;
+
+    const target = event.target as HTMLElement | null;
+    const overPicker = !!target?.closest('.emoji-picker-container');
+    if (!insidePadded && !overPicker) {
+      this.onClosePicker();
+      this.closeEditEmojiPicker();
     }
-  }
-
-  @HostListener('mouseleave')
-  onHostLeave() {
-    this.onClosePicker();
   }
 
   /**
@@ -545,6 +602,7 @@ export class MessageBubbleComponent implements OnChanges {
   constructor(
     private firestore: Firestore,
     private threadPanel: ThreadPanelService,
-    private authService: AuthService
+    private userService: UserService,
+    public el: ElementRef<HTMLElement>
   ) {}
 }
