@@ -1,0 +1,14 @@
+@media (max-width: 950px) {
+  .chat-container {
+    height: 89vh;
+  }
+
+  .chat-header {
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+  }
+
+  .footer {
+    padding: 0 15px 20px;
+  }
+}

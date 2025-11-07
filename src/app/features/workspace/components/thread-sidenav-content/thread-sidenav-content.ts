@@ -34,7 +34,7 @@ import { ViewStateService } from '../../../../../services/view-state.service';
   standalone: true,
   imports: [MessageAreaComponent, MessageBubbleComponent, DatePipe],
   templateUrl: './thread-sidenav-content.html',
-  styleUrl: './thread-sidenav-content.scss',
+  styleUrls: ['./thread-sidenav-content.scss', 'thread-sidenav-component.responsive.scss'],
 })
 export class ThreadSidenavContent implements OnInit, OnDestroy, OnChanges, AfterViewChecked {
   @Input() chatId?: string;
