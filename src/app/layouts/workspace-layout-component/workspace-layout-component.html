@@ -1,30 +1,5 @@
-@if (this.viewStateService.isMobileView) {
-<header class="mobile-header">
-  @if (this.viewStateService.currentView === 'devspace') {
-  <section class="brand">
-    <img src="assets/img/14. Home-Workspaces.svg" alt="DABubble" class="logo" />
-  </section>
-  } @else {
-  <button class="go-to-devspace" (click)="this.viewStateService.currentView = 'devspace'">
-    <img src="assets/icons/mobile-devspace-arrow.svg" alt="arrow" />
-    <img src="assets/icons/devspace-logo.svg" alt="devspace logo" />
-    <span>Devspace</span>
-  </button>
-  }
-  <section>
-    <div class="avatar-wrap" (click)="this.userMenuService.openUserMenu($event, user$)">
-      <img
-        class="avatar"
-        [src]="(user$ | async)?.avatar"
-        (error)="this.userMenuService.fallbackAvatar($event)"
-        [alt]="(user$ | async)?.name || 'Avatar'"
-      />
-    </div>
-  </section>
-</header>
-} @else {
 <app-header-workspace></app-header-workspace>
-} @if (this.viewStateService.isMobileView) {
+@if (this.viewStateService.isMobileView) {
 <main class="main-content">
   <section class="main-and-thread-wrapper">
     @if (viewStateService.currentView === 'devspace') {

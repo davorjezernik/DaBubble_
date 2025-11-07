@@ -283,7 +283,6 @@ app-contact-item {
 
 .search-form {
   width: 100%;
-  max-width: 600px;
 }
 
 .search-container {
@@ -294,7 +293,7 @@ app-contact-item {
   background-color: transparent;
   padding: 10px 15px;
   margin-bottom: 30px;
-  transition: border-color 0.2s ease;
+  transition: border-color 125ms ease;
 
   &:focus-within {
     border-color: #535af1;

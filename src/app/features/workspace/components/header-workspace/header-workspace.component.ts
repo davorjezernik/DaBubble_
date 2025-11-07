@@ -18,6 +18,7 @@ import { UserMenuDialogComponent } from '../../../../shared/components/user-menu
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { SearchBusService } from '../../../../../services/search-bus.service';
 import { UserMenuService } from '../../../../../services/user-menu.service';
+import { ViewStateService } from '../../../../../services/view-state.service';
 
 @Component({
   selector: 'app-header-workspace',
@@ -40,7 +41,6 @@ export class HeaderWorkspaceComponent implements OnInit, OnDestroy {
   private dialog = inject(MatDialog);
   private bottomSheet = inject(MatBottomSheet);
   private searchBus = inject(SearchBusService);
-  public userMenuService = inject(UserMenuService);
   private auth = inject(Auth);
 private router = inject(Router);
 
@@ -52,7 +52,7 @@ private router = inject(Router);
   private sub?: Subscription;
   @Output() searchChange = new EventEmitter<string>();
 
-  constructor() {
+  constructor(public userMenuService: UserMenuService, public viewStateService: ViewStateService) {
     this.sub = this.searchCtrl.valueChanges
       .pipe(debounceTime(250), distinctUntilChanged())
       .subscribe((q) => {
