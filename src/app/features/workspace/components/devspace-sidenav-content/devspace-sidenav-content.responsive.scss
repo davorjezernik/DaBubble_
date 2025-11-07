@@ -105,5 +105,10 @@ $radius-pill: 999px;
 }
 
 @media (max-width: 400px) {
-  
+  .sidenav {
+    padding: 12px;
+  }
+  .load-more-button {
+    white-space: nowrap;
+  }
 }

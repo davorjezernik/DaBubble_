@@ -239,14 +239,15 @@ app-contact-item {
   display: flex;
   align-items: center;
   gap: 15px;
-  padding: 4px 50px;
+  padding: 4px 20px;
+  margin-left: 30px;
   border-radius: 30px;
   min-height: 58px;
   cursor: pointer;
   transition: background 125ms ease, color 125ms ease-in-out;
   background-color: transparent;
   border: none;
-  width: 100%;
+  width: 90%;
   text-align: left;
 
   &:hover {
@@ -272,7 +273,7 @@ app-contact-item {
 
   .name {
     color: #535af1;
-    font-size: 18px;
+    font-size: variables.$devspace-text-size;
     font-weight: 500;
     font-family: 'Nunito', sans-serif;
   }
