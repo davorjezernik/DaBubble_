@@ -91,6 +91,10 @@ $radius-pill: 999px;
         background-color: transparent;
         &:hover {
           background-color: $color-dm-hover;
+          span {
+            color: #444df2;
+            font-weight: 700;
+          }
         }
         span {
           color: $color-text;

@@ -21,6 +21,14 @@
   align-items: center;
   overflow-y: auto;
 
+  > :first-child:not(.trigger-message-container) {
+    margin-bottom: auto;
+  }
+
+  > :first-child:is(.trigger-message-container) {
+    margin-top: auto;
+  }
+
   &::-webkit-scrollbar {
     display: none;
   }
@@ -83,12 +91,23 @@
   );
 }
 
+.channel {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
 .channel-name {
   margin: 0;
   color: #797ef3;
   font-family: 'Nunito', sans-serif;
   font-weight: 400;
   font-size: 14px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 160px;
+  min-width: 0;
 }
 
 .footer {
@@ -136,4 +155,5 @@
 .reaction-messages-box {
   width: 100%;
   box-sizing: border-box;
+  margin-bottom: auto;
 }

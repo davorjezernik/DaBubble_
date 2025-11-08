@@ -59,7 +59,7 @@
 
   .name {
     @include mixins.text-style(
-      $size: variables.$devspace-text-size,
+      $size: variables.$basic-text-size,
       $color: #000,
       $font-weight: 400,
       $font-family: 'Nunito',

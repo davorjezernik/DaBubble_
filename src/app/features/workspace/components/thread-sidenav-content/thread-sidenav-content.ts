@@ -34,7 +34,7 @@ import { ViewStateService } from '../../../../../services/view-state.service';
   standalone: true,
   imports: [MessageAreaComponent, MessageBubbleComponent, DatePipe],
   templateUrl: './thread-sidenav-content.html',
-  styleUrl: './thread-sidenav-content.scss',
+  styleUrls: ['./thread-sidenav-content.scss', 'thread-sidenav-component.responsive.scss'],
 })
 export class ThreadSidenavContent implements OnInit, OnDestroy, OnChanges, AfterViewChecked {
   @Input() chatId?: string;
@@ -49,6 +49,7 @@ export class ThreadSidenavContent implements OnInit, OnDestroy, OnChanges, After
   senderName: string = 'Unknown User';
   messageTimestamp: any;
   messageReactions?: Record<string, number>;
+  channelName: string = '';
 
   currentUserData = {
     id: '',
@@ -62,6 +63,7 @@ export class ThreadSidenavContent implements OnInit, OnDestroy, OnChanges, After
   userDataSub?: Subscription;
   answersAmountSub?: Subscription;
   answersDataSub?: Subscription;
+  channelNameSub?: Subscription;
 
   messages: any[] = [];
 
@@ -83,6 +85,15 @@ export class ThreadSidenavContent implements OnInit, OnDestroy, OnChanges, After
     this.accessTriggerMessageData();
     this.getAnswersAmount();
     this.getAllThreadMessages();
+    this.getCurrentChannelName();
+  }
+
+  private getCurrentChannelName() {
+    if (this.collectionName !== 'channels' || !this.chatId) return;
+    const channelDocRef = doc(this.firestore, `channels/${this.chatId}`);
+    this.channelNameSub = docData(channelDocRef).subscribe((channelData: any) => {
+      this.channelName = channelData.name || 'unknown-channel';
+    });
   }
 
   ngOnDestroy(): void {
