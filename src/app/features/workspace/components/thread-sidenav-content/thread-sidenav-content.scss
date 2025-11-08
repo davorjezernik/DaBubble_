@@ -18,9 +18,16 @@
   width: 100%;
   display: flex;
   flex-direction: column-reverse;
-  justify-content: flex-end;
   align-items: center;
   overflow-y: auto;
+
+  > :first-child:not(.trigger-message-container) {
+    margin-bottom: auto;
+  }
+
+  > :first-child:is(.trigger-message-container) {
+    margin-top: auto;
+  }
 
   &::-webkit-scrollbar {
     display: none;
@@ -137,4 +144,5 @@
 .reaction-messages-box {
   width: 100%;
   box-sizing: border-box;
+  margin-bottom: auto;
 }
