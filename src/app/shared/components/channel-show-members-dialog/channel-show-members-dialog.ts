@@ -49,7 +49,7 @@ export class ChannelShowMembersDialog {
       panelClass: 'user-card-dialog',
       width: '90vw',
       maxWidth: '500px',
-      maxHeight: '90vh',
+      maxHeight: '91vh',
       autoFocus: false,
       restoreFocus: true,
     });

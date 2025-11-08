@@ -165,6 +165,15 @@ export class ChannelInterfaceContent extends BaseChatInterfaceComponent {
     this.memberCount$ = this.members$.pipe(map((ms) => ms.length));
   }
 
+  onAddUserClick(ev: MouseEvent, anchor: HTMLElement) {
+  ev.stopPropagation();
+  if (window.innerWidth <= 950) {
+    this.openMembersDialog(ev, anchor);
+    return;
+  }
+  this.openAddMembersUnderIcon(ev, anchor);
+}
+
   // open ChannelShowMembersDialog //
   openMembersDialog(ev?: MouseEvent, anchor?: HTMLElement) {
     ev?.stopPropagation();
@@ -178,7 +187,6 @@ export class ChannelInterfaceContent extends BaseChatInterfaceComponent {
     const left = Math.max(8, rect.right + window.scrollX - DLG_W);
 
     const ref = this.dialog.open(ChannelShowMembersDialog, {
-      width: `${DLG_W}px`,
       autoFocus: false,
       hasBackdrop: true,
       panelClass: 'members-dialog-panel',
