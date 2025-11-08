@@ -12,3 +12,23 @@
     padding: 0 15px 20px;
   }
 }
+
+@media (max-width: 560px) {
+  .thread-name {
+    font-size: 20px;
+  }
+
+  .channel-name {
+    max-width: 120px;
+  }
+}
+
+@media (max-width: 400px) {
+  .chat-header {
+    padding: 20px 10px;
+  }
+
+  .channel-name {
+    max-width: 100px;
+  }
+}
