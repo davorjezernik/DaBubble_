@@ -179,7 +179,6 @@ export class ChannelInterfaceContent extends BaseChatInterfaceComponent {
 
     const ref = this.dialog.open(ChannelShowMembersDialog, {
       width: `${DLG_W}px`,
-      height: '411px',
       autoFocus: false,
       hasBackdrop: true,
       panelClass: 'members-dialog-panel',

@@ -304,7 +304,7 @@ body.intro-active app-auth-layout-component .header .logo img {
 
 .members-dialog-panel .mdc-dialog__surface {
   width: 415px !important;
-  height: 411px !important;
+  max-height: 411px !important;
   display: flex;
   flex-direction: column;
   box-sizing: border-box;

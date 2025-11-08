@@ -2,7 +2,10 @@ import { Component, EventEmitter, Input, Output, HostListener } from '@angular/c
 import { CommonModule } from '@angular/common';
 import { MatDialog } from '@angular/material/dialog';
 import { DialogUserCardComponent } from '../dialog-user-card/dialog-user-card.component';
-import { DialogIconAddMemberToChannel, AddableUser  } from '../dialog-icon-add-member-to-channel/dialog-icon-add-member-to-channel';
+import {
+  DialogIconAddMemberToChannel,
+  AddableUser,
+} from '../dialog-icon-add-member-to-channel/dialog-icon-add-member-to-channel';
 
 export interface ChannelMember {
   id: string;
@@ -36,13 +39,17 @@ export class ChannelShowMembersDialog {
 
   openUserCard(member: any, e?: MouseEvent) {
     e?.stopPropagation();
+    const isSelf = member.id === this.currentUserId;
+
     this.dialog.open(DialogUserCardComponent, {
-      data: { user: member },
+      data: {
+        user: member,
+        isSelf, 
+      },
       panelClass: 'user-card-dialog',
-      width: '500px',
-      height: '705px',
-      maxWidth: 'none',
-      maxHeight: 'none',
+      width: '90vw',
+      maxWidth: '500px',
+      maxHeight: '90vh',
       autoFocus: false,
       restoreFocus: true,
     });
