@@ -1,9 +1,9 @@
 <!-- Primary Sidebar Navigation -->
 <nav class="sidenav" aria-label="Main navigation">
   @if (this.viewStateService.isMobileView) {
-  <form role="search" class="search-form">
+  <form role="search" class="search-form" (ngSubmit)="$event.preventDefault()">
     <div class="search-container">
-      <input placeholder="Gehe zu…" type="search" id="searchInput" />
+      <input placeholder="Gehe zu…" type="search" id="searchInput" [formControl]="searchCtrl"/>
       <button type="submit" class="search-button" aria-label="Search">
         <mat-icon>search</mat-icon>
       </button>

@@ -2,7 +2,15 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { CommonModule } from '@angular/common';
-import { Subscription, map, combineLatest, firstValueFrom, auditTime } from 'rxjs';
+import {
+  Subscription,
+  map,
+  combineLatest,
+  firstValueFrom,
+  auditTime,
+  debounceTime,
+  distinctUntilChanged,
+} from 'rxjs';
 import { UserService } from '../../../../../services/user.service';
 import { User } from '../../../../../models/user.class';
 import {
@@ -15,7 +23,7 @@ import {
 } from '@angular/fire/firestore';
 import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../../../../services/auth-service';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule, FormControl } from '@angular/forms';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { AddChannel } from '../add-channel/add-channel';
 import { AddUsersToChannel } from '../add-users-to-channel/add-users-to-channel';
@@ -37,6 +45,7 @@ import { MatInputModule } from '@angular/material/input';
     MatSidenavModule,
     CommonModule,
     FormsModule,
+    ReactiveFormsModule,
     MatDialogModule,
     ChannelItem,
     RouterModule,
@@ -60,12 +69,15 @@ export class DevspaceSidenavContent implements OnInit, OnDestroy {
   private totalUnreadChannelsSub?: Subscription;
   private searchBusSub?: Subscription;
 
+  search = '';
+  searchCtrl = new FormControl<string>('', { nonNullable: true }); // 👈 neu
+  private searchCtrlSub?: Subscription;
+
   dmsOpen = true;
   channelsOpen = true;
   currentChatId: string = '';
   totalUnread = 0;
   totalUnreadChannels = 0;
-  search = '';
 
   // Users//
 
@@ -96,7 +108,9 @@ export class DevspaceSidenavContent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.subscribeToUsers();
     this.subscribeToChannels();
-
+    this.searchCtrlSub = this.searchCtrl.valueChanges
+      .pipe(debounceTime(250), distinctUntilChanged())
+      .subscribe((q) => this.searchBus.set(q || ''));
     this.searchBusSub = this.searchBus.query$.subscribe((q) => {
       this.search = q;
       if (q) {
@@ -105,6 +119,9 @@ export class DevspaceSidenavContent implements OnInit, OnDestroy {
       } else {
         this.maxVisible = Math.min(this.pageSizeUsers, this.users.length);
         this.maxVisibleChannels = Math.min(this.pageSizeChannels, this.channels.length);
+      }
+      if (q !== this.searchCtrl.value) {
+        this.searchCtrl.setValue(q, { emitEvent: false });
       }
     });
   }
@@ -148,29 +165,29 @@ export class DevspaceSidenavContent implements OnInit, OnDestroy {
 
   // for total cound by Direkt messasges //
   private buildTotalUnread(list: User[], meUid: string | null) {
-  this.totalUnreadSub?.unsubscribe();
+    this.totalUnreadSub?.unsubscribe();
 
-  if (!meUid) {
-    console.warn('meUid missing → skipping unread count');
-    this.totalUnread = 0;
-    return;
+    if (!meUid) {
+      console.warn('meUid missing → skipping unread count');
+      this.totalUnread = 0;
+      return;
+    }
+
+    const others = list.filter((u) => u.uid !== meUid);
+    if (!others.length) {
+      this.totalUnread = 0;
+      return;
+    }
+
+    const streams = others.map((u) => {
+      const dmId = this.calculateDmId(u);
+      return this.read.unreadDmCount$(dmId, meUid);
+    });
+
+    this.totalUnreadSub = combineLatest(streams)
+      .pipe(map((arr) => arr.reduce((sum, n) => sum + (n || 0), 0)))
+      .subscribe((sum) => (this.totalUnread = sum));
   }
-
-  const others = list.filter((u) => u.uid !== meUid);
-  if (!others.length) {
-    this.totalUnread = 0;
-    return;
-  }
-
-  const streams = others.map((u) => {
-    const dmId = this.calculateDmId(u);
-    return this.read.unreadDmCount$(dmId, meUid);
-  });
-
-  this.totalUnreadSub = combineLatest(streams)
-    .pipe(map((arr) => arr.reduce((sum, n) => sum + (n || 0), 0)))
-    .subscribe((sum) => (this.totalUnread = sum));
-}
   // for total cound by Direkt messasges //
 
   // for sorting by unread messages //
@@ -281,6 +298,7 @@ export class DevspaceSidenavContent implements OnInit, OnDestroy {
     this.sortSub?.unsubscribe();
     this.totalUnreadSub?.unsubscribe();
     this.totalUnreadChannelsSub?.unsubscribe();
+    this.searchCtrlSub?.unsubscribe();
     this.searchBusSub?.unsubscribe();
   }
 

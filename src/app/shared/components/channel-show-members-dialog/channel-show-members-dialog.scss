@@ -5,7 +5,7 @@ $offline: #b7bcc5;
 
 .members-dialog {
   width: 415px;
-  height: 411px;
+  max-height: 411px;
   padding: 40px;
   border-top-left-radius: 30px !important;
   border-bottom-right-radius: 30px !important;

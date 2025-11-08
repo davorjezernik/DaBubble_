@@ -42,7 +42,7 @@ export class HeaderWorkspaceComponent implements OnInit, OnDestroy {
   private bottomSheet = inject(MatBottomSheet);
   private searchBus = inject(SearchBusService);
   private auth = inject(Auth);
-private router = inject(Router);
+  private router = inject(Router);
 
   // Profile of the logged-in user //
   user$: Observable<User | null> = this.userService.currentUser$();
@@ -57,8 +57,8 @@ private router = inject(Router);
       .pipe(debounceTime(250), distinctUntilChanged())
       .subscribe((q) => {
         const v = (q ?? '').trim();
-        this.searchChange.emit(v);    
-        this.searchBus.set(v);          
+        this.searchChange.emit(v);
+        this.searchBus.set(v);
       });
   }
 
@@ -69,46 +69,52 @@ private router = inject(Router);
 
   // Menu for the top and from 400px below. //
   openUserMenu(evt: MouseEvent) {
-  const trigger = evt.currentTarget as HTMLElement;
-  const avatar  = (trigger.querySelector('.avatar-wrap') as HTMLElement) ?? trigger;
-  const r = avatar.getBoundingClientRect();
+    const trigger = evt.currentTarget as HTMLElement;
+    const avatar = (trigger.querySelector('.avatar-wrap') as HTMLElement) ?? trigger;
+    const r = avatar.getBoundingClientRect();
 
-  const GAP = 8;
-  const MARGIN = 16;
-  const MENU_W = (window.innerWidth <= 880) ? 350 : 300;
+    const GAP = 8;
+    const MARGIN = 16;
+    const MENU_W = window.innerWidth <= 880 ? 350 : 300;
 
-  // if smaller than 400px //
-  if (window.innerWidth <= 400) {
-    const ref = this.bottomSheet.open(UserMenuDialogComponent, {
+    // if smaller than 400px //
+    if (window.innerWidth <= 400) {
+      const ref = this.bottomSheet.open(UserMenuDialogComponent, {
+        data: {},
+        panelClass: 'user-menu-bottom',
+      });
+      ref
+        .afterDismissed()
+        .pipe(take(1))
+        .subscribe((action) => {
+          if (action === 'profile') this.openProfil();
+          if (action === 'logout') this.logout();
+        });
+      return;
+    }
+
+    // normal dialog menu //
+    let left = r.right - MENU_W;
+    left = Math.max(MARGIN, Math.min(left, window.innerWidth - MENU_W - MARGIN));
+    const top = r.bottom + GAP;
+
+    const ref = this.dialog.open(UserMenuDialogComponent, {
       data: {},
-      panelClass: 'user-menu-bottom'
+      panelClass: 'user-menu-dialog',
+      hasBackdrop: true,
+      autoFocus: false,
+      restoreFocus: true,
+      position: { top: `${top}px`, left: `${left}px` },
     });
-    ref.afterDismissed().pipe(take(1)).subscribe(action => {
-      if (action === 'profile') this.openProfil();
-      if (action === 'logout')  this.logout();
-    });
-    return;
+
+    ref
+      .afterClosed()
+      .pipe(take(1))
+      .subscribe((action) => {
+        if (action === 'profile') this.openProfil();
+        if (action === 'logout') this.logout();
+      });
   }
-
-  // normal dialog menu //
-  let left = r.right - MENU_W;
-  left = Math.max(MARGIN, Math.min(left, window.innerWidth - MENU_W - MARGIN));
-  const top = r.bottom + GAP;
-
-  const ref = this.dialog.open(UserMenuDialogComponent, {
-    data: {},
-    panelClass: 'user-menu-dialog',
-    hasBackdrop: true,
-    autoFocus: false,
-    restoreFocus: true,
-    position: { top: `${top}px`, left: `${left}px` },
-  });
-
-  ref.afterClosed().pipe(take(1)).subscribe((action) => {
-    if (action === 'profile') this.openProfil();
-    if (action === 'logout') this.logout();
-  });
-}
 
   openProfil() {
     this.user$.pipe(take(1)).subscribe((user) => {
@@ -116,10 +122,9 @@ private router = inject(Router);
       this.dialog.open(DialogUserCardComponent, {
         data: { user },
         panelClass: 'user-card-dialog',
-        width: '500px',
-        height: '705px',
-        maxWidth: 'none',
-        maxHeight: 'none',
+        width: '90vw',
+        maxWidth: '500px', 
+        maxHeight: '90vh',
         autoFocus: false,
         restoreFocus: true,
       });
