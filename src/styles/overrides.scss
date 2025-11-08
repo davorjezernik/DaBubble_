@@ -221,21 +221,29 @@ body.intro-active app-auth-layout-component .header .logo img {
 //user-menu-dialog.coponent //
 
 //dialog-user-card.component //
+.user-card-dialog .mat-mdc-dialog-container, .user-card-dialog .mat-mdc-dialog-container .mdc-dialog__surface {
+    background: transparent !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+    max-height: none !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
 .user-card-dialog .mat-mdc-dialog-container,
 .user-card-dialog .mat-mdc-dialog-container .mdc-dialog__surface {
   background: transparent !important;
   box-shadow: none !important;
   border-radius: 0 !important;
-  width: 100% !important;
-  height: 100% !important;
-  max-height: none !important;
   padding: 0 !important;
   overflow: visible !important;
 }
 
 .user-card-dialog .mat-mdc-dialog-content,
 .user-card-dialog .mdc-dialog__content {
-  max-height: none !important;
   height: auto !important;
   overflow: visible !important;
   padding: 0 !important;
@@ -243,6 +251,12 @@ body.intro-active app-auth-layout-component .header .logo img {
 //dialog-user-card.component //
 
 //user-edit-dialog.component //
+.user-edit-dialog .mat-mdc-dialog-container, .user-edit-dialog .mat-mdc-dialog-container .mdc-dialog__surface {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .user-edit-dialog .mat-mdc-dialog-container,
 .user-edit-dialog .mat-mdc-dialog-container .mdc-dialog__surface {
   background: transparent !important;

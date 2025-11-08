@@ -115,10 +115,9 @@ export class DmInterfaceContent extends BaseChatInterfaceComponent {
     this.dialog.open(DialogUserCardComponent, {
       data: { user: this.recipientData },
       panelClass: 'user-card-dialog',
-      width: '500px',
-      height: '705px',
-      maxWidth: 'none',
-      maxHeight: 'none',
+      width: '90vw',
+      maxWidth: '500px',
+      maxHeight: '90vh',
       autoFocus: false,
       restoreFocus: true,
     });
