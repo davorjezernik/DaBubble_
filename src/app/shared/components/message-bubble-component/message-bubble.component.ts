@@ -8,6 +8,7 @@ import {
   SimpleChanges,
   ViewChild,
   ElementRef,
+  OnDestroy,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ThreadPanelService } from '../../../../services/thread-panel.service';
@@ -19,8 +20,11 @@ import {
   deleteDoc,
   deleteField,
   increment,
+  collection,
+  collectionData,
 } from '@angular/fire/firestore';
 import { ViewStateService } from '../../../../services/view-state.service';
+import { firstValueFrom, map, Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-message-bubble',
@@ -29,7 +33,7 @@ import { ViewStateService } from '../../../../services/view-state.service';
   templateUrl: './message-bubble.component.html',
   styleUrl: './message-bubble.component.scss',
 })
-export class MessageBubbleComponent implements OnChanges {
+export class MessageBubbleComponent implements OnChanges, OnDestroy {
   @ViewChild('editEmojiPicker', { read: ElementRef }) editEmojiPickerRef?: ElementRef;
   @ViewChild('editEmojiButton', { read: ElementRef }) editEmojiButtonRef?: ElementRef;
 
@@ -60,6 +64,10 @@ export class MessageBubbleComponent implements OnChanges {
   isSaving = false;
   isDeleting = false;
   editEmojiPickerVisible = false;
+
+  lastThreadMessageTime: string = '';
+  answersCount: number = 0;
+  answersCountSub?: Subscription;
 
   /**
    * Toggle the inline emoji picker for quick reactions.
@@ -140,8 +148,7 @@ export class MessageBubbleComponent implements OnChanges {
    * @param changes Angular SimpleChanges for this component.
    */
 
-  ngOnInit(): void {
-  }
+  ngOnInit(): void {}
 
   ngOnChanges(changes: SimpleChanges) {
     if ('reactionsMap' in changes) {
@@ -150,6 +157,11 @@ export class MessageBubbleComponent implements OnChanges {
         .filter(([_, v]) => typeof v === 'number' && v > 0)
         .map(([emoji, count]) => ({ emoji, count: Number(count) }));
     }
+    this.getAnswersInfo();
+  }
+
+  ngOnDestroy(): void {
+    this.answersCountSub?.unsubscribe();
   }
 
   /**
@@ -489,10 +501,33 @@ export class MessageBubbleComponent implements OnChanges {
     } catch (e) {}
   }
 
+  private async getAnswersInfo() {
+    const coll = collection(
+      this.firestore,
+      `${this.collectionName}/${this.chatId}/messages/${this.messageId}/thread`
+    );
+    this.getAnswersAmount(coll);
+    this.getLastAnswerTime(coll);
+  }
+
+  private async getAnswersAmount(coll: any) {
+    this.answersCountSub = collectionData(coll).pipe(map(docs => docs.length)).subscribe(count => {
+      this.answersCount = count;
+    });
+  }
+
+  private async getLastAnswerTime(coll: any) {
+
+  }
+
   /**
    * DI constructor.
    * @param firestore AngularFire Firestore instance used for message updates/deletes and reactions.
    * @param threadPanel Service to open the thread side panel for a given message.
    */
-  constructor(private firestore: Firestore, private threadPanel: ThreadPanelService, public viewStateService: ViewStateService) {}
+  constructor(
+    private firestore: Firestore,
+    private threadPanel: ThreadPanelService,
+    public viewStateService: ViewStateService
+  ) {}
 }
