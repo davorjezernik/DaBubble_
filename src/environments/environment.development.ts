@@ -9,4 +9,10 @@ export const environment = {
     messagingSenderId: '69214031220',
     appId: '1:69214031220:web:3d2480569252b62ac03021',
   },
+  guest: {
+    email: 'guest@example.com',
+    password: 'guest1234',
+    uid: 'ZADXT0hXHmMwluwQFiT9qXCgK8E2'
+  }
+  // gast selber anlegen auf der firebase in authetication und database//
 };
