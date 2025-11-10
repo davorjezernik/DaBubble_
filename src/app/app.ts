@@ -1,4 +1,12 @@
-import { Component, signal, Inject, PLATFORM_ID, OnInit  } from '@angular/core';
+import {
+  Component,
+  signal,
+  Inject,
+  PLATFORM_ID,
+  OnInit,
+  HostListener,
+  inject,
+} from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { Router, NavigationEnd, RouterOutlet } from '@angular/router';
 import { CommonModule } from '@angular/common';
@@ -6,6 +14,9 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { filter } from 'rxjs';
 import { IntroOverlayComponent } from './core/intro-overlay/intro-overlay.component';
+import { AuthService } from '../services/auth-service';
+import { UserService } from '../services/user.service';
+import { Auth } from '@angular/fire/auth';
 
 @Component({
   selector: 'app-root',
@@ -13,8 +24,11 @@ import { IntroOverlayComponent } from './core/intro-overlay/intro-overlay.compon
   templateUrl: './app.html',
   styleUrl: './app.scss',
 })
-export class App implements OnInit{
+export class App implements OnInit {
   protected readonly title = signal('dabubble');
+  private authService = inject(AuthService);
+  private userService = inject(UserService);
+  private auth = inject(Auth);
 
   constructor(
     private router: Router,
@@ -35,7 +49,7 @@ export class App implements OnInit{
 
     this.router.events
       .pipe(filter((e): e is NavigationEnd => e instanceof NavigationEnd))
-      .subscribe(e => {
+      .subscribe((e) => {
         const onLogin = e.urlAfterRedirects === '/';
         const seenNow = localStorage.getItem('introSeen') === '1';
         const shouldShow = onLogin && !seenNow;
@@ -53,8 +67,29 @@ export class App implements OnInit{
   onIntroDone(): void {
     this.showIntro = false;
     document.body.classList.remove('intro-active');
-    try { localStorage.setItem('introSeen', '1'); } catch {}
+    try {
+      localStorage.setItem('introSeen', '1');
+    } catch {}
   }
   // intro //
 
+  // sign out close window //
+  @HostListener('window:beforeunload')
+  onBeforeUnload() {
+    const user = this.auth.currentUser;
+    if (user) {
+      this.userService.markOnline(false);
+      this.auth.signOut();
+    }
+  }
+
+  @HostListener('document:visibilitychange')
+  onVisibilityChange() {
+    const user = this.auth.currentUser;
+    if (document.visibilityState === 'hidden' && user) {
+      this.userService.markOnline(false);
+      this.auth.signOut();
+    }
+  }
+  // sign out close window //
 }
