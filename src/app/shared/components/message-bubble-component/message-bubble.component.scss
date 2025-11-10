@@ -367,76 +367,6 @@
   }
 }
 
-@media (max-width: 450px) {
-  .reactions.center-narrow {
-    justify-content: center;
-  }
-  .reactions.center-narrow .reaction-list {
-    justify-content: center;
-  }
-}
-
-:host ::ng-deep app-emoji-picker-component {
-  .emoji-picker-container,
-  .emoji-mart {
-    border-radius: 20px !important;
-    overflow: hidden;
-    padding: 0 16px;
-  }
-
-  .emoji-mart-anchors {
-    display: none !important;
-  }
-
-  .emoji-picker-container {
-    bottom: 0 !important;
-    right: 0 !important;
-    left: auto !important;
-  }
-
-  .edit-actions .emoji-picker-container {
-    bottom: 0 !important;
-    left: 0 !important;
-    right: auto !important;
-  }
-
-  .emoji-mart-search {
-    display: none !important;
-  }
-  .emoji-mart-preview {
-    display: none !important;
-  }
-
-  .emoji-mart-scroll {
-    height: 104px !important;
-  }
-
-  .emoji-mart,
-  .emoji-mart-scroll,
-  .emoji-mart-anchors,
-  .emoji-mart-preview,
-  .emoji-mart-bar {
-    border: none !important;
-    box-shadow: none !important;
-  }
-
-  .emoji-mart-bar {
-    display: none !important;
-  }
-
-  .emoji-mart {
-    border: 1px solid #adb0d9 !important;
-  }
-}
-
-@media (max-width: 700px) {
-  :host ::ng-deep {
-    .emoji-mart {
-      width: 110% !important;
-    }
-  }
-}
-
 /* ================= Incoming (left-side) variant ================= */
 
 .message-container.incoming .avatar-container {
@@ -529,7 +459,7 @@
   border-radius: 12px;
   padding: 10px 12px;
   font-family: 'Nunito', sans-serif;
-  font-size: 16px;
+  font-size: 18px;
   line-height: 22px;
   color: #686868;
   background: #fff;
@@ -603,17 +533,10 @@
   z-index: 1000;
 }
 
-@media (max-width: 700px) {
-  .edit-left-actions app-emoji-picker-component {
-    left: 160px;
-  }
-}
-
 .btn {
   min-width: 141px;
   height: 49px;
   border-radius: 50px;
-  font-size: 16px;
   font-weight: 700;
   color: #797ef3;
   font-family: 'Nunito', sans-serif;
@@ -648,4 +571,155 @@
 
 .speech-bubble.msg-box p {
   color: #000000;
+}
+
+@media (max-width: 700px) {
+  :host ::ng-deep .emoji-mart {
+    width: 150px !important;
+  }
+
+  .btn {
+    height: 40px;
+  }
+
+  .speech-bubble.msg-box {
+    gap: 8px;
+  }
+
+  .btn.btn--secondary {
+    min-width: 60px;
+    padding: 0;
+    font-size: 0;
+
+    &::before {
+      content: '✕';
+      font-size: 16px;
+      font-weight: 800;
+      color: #797ef3;
+      transition: color 0.15s;
+    }
+
+    &:hover::before {
+      color: #ffffff;
+    }
+  }
+
+  .btn.btn--primary {
+    min-width: 60px;
+    padding: 0;
+    font-size: 0;
+
+    &::before {
+      content: '✓';
+      font-size: 16px;
+      font-weight: 700;
+      color: #ffffff;
+    }
+  }
+
+  .edit-left-actions app-emoji-picker-component {
+    left: 160px;
+  }
+}
+
+
+@media (max-width: 500px) {
+  .message-container {
+    gap: 8px;
+  }
+
+  .speech-bubble.msg-box {
+    padding: 16px;
+  }
+
+  .mini-actions {
+    left: 5%;
+  }
+
+  .message-container.incoming .mini-actions {
+    right: 20%;
+    left: auto;
+  }
+
+  .reactions.center-narrow {
+    justify-content: center;
+  }
+  .reactions.center-narrow .reaction-list {
+    justify-content: center;
+  }
+
+  .avatar-container .avatar-img {
+    width: 50px;
+    height: 50px;
+  }
+
+  .menu-dropdown {
+    top: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  .reactions .reaction-chip .reaction-tooltip {
+    left: 5%;
+    border-radius: 15px 15px 15px 0;
+    padding: 8px 6px;
+    width: 88px;
+    min-width: auto;
+    white-space: normal;
+    word-break: break-word;
+  }
+}
+
+:host ::ng-deep app-emoji-picker-component {
+  .emoji-picker-container,
+  .emoji-mart {
+    border-radius: 5px !important;
+    overflow: hidden;
+    padding: 0;
+  }
+
+  .emoji-mart-anchors {
+    display: none !important;
+  }
+
+  .emoji-picker-container {
+    bottom: 0 !important;
+    right: 0 !important;
+    left: auto !important;
+  }
+
+  .edit-actions .emoji-picker-container {
+    bottom: 0 !important;
+    left: 0 !important;
+    right: auto !important;
+  }
+
+  .emoji-mart-search {
+    display: none !important;
+  }
+  .emoji-mart-preview {
+    display: none !important;
+  }
+
+  .emoji-mart-scroll {
+    height: 104px !important;
+  }
+
+  .emoji-mart,
+  .emoji-mart-scroll,
+  .emoji-mart-anchors,
+  .emoji-mart-preview,
+  .emoji-mart-bar {
+    border: none !important;
+    box-shadow: none !important;
+  }
+
+  .emoji-mart-bar {
+    display: none !important;
+  }
+
+  .emoji-mart {
+    border: 1px solid #adb0d9 !important;
+  }
+
 }
