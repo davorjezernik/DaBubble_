@@ -22,7 +22,7 @@
             "tsConfig": "tsconfig.app.json",
             "inlineStyleLanguage": "scss",
             "stylePreprocessorOptions": {
-              "includePaths": ["src/styles/abstracts"]
+              "includePaths": ["src/styles"]
             },
             "assets": [
               {
@@ -89,7 +89,7 @@
             "tsConfig": "tsconfig.spec.json",
             "inlineStyleLanguage": "scss",
             "stylePreprocessorOptions": {
-              "includePaths": ["src/styles/abstracts"]
+              "includePaths": ["src/styles"]
             },
             "assets": [
               {

@@ -12,7 +12,18 @@
     <section class="mat-typography">
       <section class="user-name-edit">
         <h3>{{ data.user.name }}</h3>
-        <button class="edit-btn" *ngIf="isSelf" (click)="onEditUser()">Bearbeiten</button>
+        <!-- Desktop-Version -->
+        <button class="edit-btn edit-text" *ngIf="isSelf" (click)="onEditUser()">Bearbeiten</button>
+
+        <!-- Mobile-Version -->
+        <button
+          class="edit-btn edit-icon"
+          *ngIf="isSelf"
+          (click)="onEditUser()"
+          aria-label="Profil bearbeiten"
+        >
+          <img src="assets/icons/edit.svg" alt="Bearbeiten Icon" />
+        </button>
       </section>
       <p class="user-status">
         <span

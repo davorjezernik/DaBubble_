@@ -28,8 +28,17 @@
       display: none;
     }
 
+    &:not(.empty) {
+      > :first-child {
+        margin-bottom: auto;
+      }
+    }
+
     &.empty {
       padding-left: 45px;
+      > :first-child {
+        margin-top: auto;
+      }
     }
   }
 

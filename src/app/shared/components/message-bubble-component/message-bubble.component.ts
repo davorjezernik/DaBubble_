@@ -20,6 +20,7 @@ import {
   deleteField,
 } from '@angular/fire/firestore';
 import { UserService } from '../../../../services/user.service';
+import { ViewStateService } from '../../../../services/view-state.service';
 
 @Component({
   selector: 'app-message-bubble',
@@ -546,6 +547,8 @@ export class MessageBubbleComponent implements OnChanges {
     event.stopPropagation();
     this.showMiniActions = false;
     if (!this.chatId || !this.messageId) return;
+    this.viewStateService.requestCloseDevspaceDrawer();
+    this.viewStateService.currentView = 'thread';
     this.threadPanel.openThread({
       chatId: this.chatId,
       messageId: this.messageId,
@@ -603,6 +606,7 @@ export class MessageBubbleComponent implements OnChanges {
     private firestore: Firestore,
     private threadPanel: ThreadPanelService,
     private userService: UserService,
-    public el: ElementRef<HTMLElement>
+    public el: ElementRef<HTMLElement>,
+    public viewStateService: ViewStateService
   ) {}
 }

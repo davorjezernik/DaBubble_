@@ -1,93 +1,99 @@
-.dialog-user-card-container{
+.dialog-user-card-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 500px;
+  overflow-y: auto;
+  background-color: rgb(255, 255, 255);
+  padding: 40px;
+  gap: 45px;
+  border-radius: 30px;
+}
+
+.dialog-user-card-header-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+
+  h2 {
     display: flex;
-    flex-direction: column;
     align-items: center;
-    width: 500px;
-    background-color: rgb(255, 255, 255);
-    padding: 40px;
-    gap: 45px;
-    border-radius: 30px;
+  }
 }
 
-.dialog-user-card-header-container{
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
-    width: 100%;
+.close-icon {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
 }
 
-.close-icon{
-    width: 20px;
-    height: 20px;
-    cursor: pointer;
+.h2-dialog-user {
+  font-size: 24px;
+  font-family: 'Nunito', sans-serif;
+  font-weight: 700;
+  padding: 0px;
 }
 
-.h2-dialog-user{
-    font-size: 24px;
-    font-family:'Nunito', sans-serif;
-    font-weight:700;
-    padding: 0px;
+.user-profil-image-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  img {
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    object-fit: cover;
+  }
 }
 
-.user-profil-image-container{
-    display: flex;
-    justify-content: center;
-    align-items: center;
-
-    img{
-        width: 200px;
-        height: 200px;
-        border-radius: 50%;
-        object-fit: cover;
-    }
+.mat-typography {
+  padding: 0px;
 }
 
-.mat-typography{
-    padding: 0px;
+.info-email-container {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 15px;
+  margin-top: 45px;
+
+  h3 {
+    margin: 0px;
+  }
 }
 
-.info-email-container{
-    display: flex;
-    justify-content: flex-start;
-    align-items: center;
-    gap: 20px;
-    margin-bottom: 15px;
-    margin-top: 45px;
+.main-container-user-dialog {
+  display: flex;
+  justify-content: flex-start;
+  width: 100%;
 
-    h3{
-        margin: 0px;
-    }
-}
+  h3 {
+    font-family: 'Nunito', sans-serif;
+    font-weight: 700;
+    font-size: 32px;
+    margin-bottom: 5px;
+    color: #000000;
+  }
 
-.main-container-user-dialog{
-    display: flex;
-    justify-content: flex-start;
-    width: 100%;
+  a {
+    text-decoration: none;
+    color: rgb(33, 137, 255);
+    margin-left: 45px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 18px;
+    font-weight: 400;
+  }
 
-    h3{
-        font-family:'Nunito', sans-serif;
-        font-weight:700;
-        font-size: 32px;
-        margin-bottom: 5px;
-        color: #000000;
-    }
-
-    a{
-        text-decoration: none;
-        color: rgb(33, 137, 255);
-        margin-left: 45px;
-        font-family:'Nunito', sans-serif;
-        font-size: 18px;
-        font-weight: 400;
-    }
-
-    p{
-        font-family:'Nunito', sans-serif;
-        font-size: 20px;
-        font-weight: 400;
-        color: #686868;
-    }
+  p {
+    font-family: 'Nunito', sans-serif;
+    font-size: 20px;
+    font-weight: 400;
+    color: #686868;
+  }
 }
 
 .user-status {
@@ -106,32 +112,31 @@
   border-radius: 50%;
   border: 2px solid #fff;
   box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1);
-  background-color: #686868; 
+  background-color: #686868;
   transition: background-color 0.3s ease;
 
   &.online {
-    background-color: #92c83e; 
+    background-color: #92c83e;
   }
 
   &.offline {
-    background-color: #686868; 
+    background-color: #686868;
   }
-    
 }
 
-.user-card-btn{
-    background-color: rgb(33, 137, 255);
-    color: white;
-    font-family:'Nunito', sans-serif;
-    font-weight: 700;
-    font-size: 18px;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 50px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    cursor: pointer;
+.user-card-btn {
+  background-color: rgb(33, 137, 255);
+  color: white;
+  font-family: 'Nunito', sans-serif;
+  font-weight: 700;
+  font-size: 18px;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 50px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
 }
 
 .user-name-edit {
@@ -150,11 +155,15 @@
   color: #000;
 }
 
+.edit-icon {
+  display: none;
+}
+
 .edit-btn {
-  margin-left: auto; 
+  margin-left: auto;
   background: none;
   border: none;
-  color: #797EF3;
+  color: #797ef3;
   font-family: 'Nunito', sans-serif;
   font-weight: 700;
   font-size: 18px;
@@ -167,4 +176,97 @@
 .edit-btn:hover {
   background: rgba(121, 126, 243, 0.15);
   color: #5a5ef0;
+}
+
+@media (max-width: 750px) {
+  .dialog-user-card-container {
+    width: 350px;
+    padding: 30px;
+    gap: 25px;
+  }
+
+  .edit-text {
+    display: none;
+  }
+
+  .edit-icon {
+    display: inline-flex;
+    align-items: center;
+    background: none;
+    border: none;
+    padding: 6px;
+    cursor: pointer;
+
+    img {
+      width: 24px;
+      height: 24px;
+      transition: opacity 125ms ease;
+    }
+
+    &:hover img {
+      filter: invert(45%) sepia(60%) saturate(1500%) hue-rotate(215deg) brightness(95%)
+        contrast(92%);
+      opacity: 0.8;
+    }
+  }
+
+  .main-container-user-dialog {
+    width: auto;
+  }
+
+  .user-name-edit {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 60px;
+    width: 100%;
+  }
+}
+
+@media (max-width: 430px) {
+  .dialog-user-card-container {
+    width: 300px;
+    padding: 30px;
+    gap: 25px;
+  }
+
+  .user-name-edit {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 30px;
+    width: 100%;
+  }
+}
+
+@media (max-width: 370px) {
+  .dialog-user-card-container {
+    width: 280px;
+    padding: 20px;
+    gap: 15px;
+  }
+
+  .user-name-edit {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 10px;
+    width: 100%;
+  }
+}
+
+@media (max-width: 330px) {
+  .dialog-user-card-container {
+    width: 280px;
+    padding: 10px;
+    gap: 15px;
+  }
+
+  .user-name-edit {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 0px;
+    width: 100%;
+  }
 }
