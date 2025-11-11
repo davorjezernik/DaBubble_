@@ -143,7 +143,7 @@
     @if (!isEditing) { @if (answersCount > 0) {
     <div class="answers-info" (click)="onCommentClick($event)">
       <span class="answers-amount">{{ answersCount }} Antworten</span>
-      <span class="last-answer-time" [class.shown]="lastTime">Letzte Antwort {{ lastTime }}</span>
+      <span class="last-answer-time">Letzte Antwort {{ lastTime }}</span>
     </div>
     }
     <div class="reactions" [class.center-narrow]="shouldCenterNarrow">

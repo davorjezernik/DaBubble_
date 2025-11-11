@@ -526,7 +526,7 @@ export class MessageBubbleComponent implements OnChanges, OnDestroy {
       .pipe(
         map((messages) => {
           if (messages.length === 0) return '';
-          const timestamps = messages.map((msg: any) => msg.timestamp?.toMillis());
+          const timestamps = messages.map((msg: any) => msg.timestamp?.toMillis()).filter((ts: any): ts is number => typeof ts === 'number');
           if (timestamps.length === 0) return '';
           const latest = Math.max(...timestamps);
           const latestDate = new Date(latest);

@@ -603,7 +603,6 @@
 }
 
 .last-answer-time {
-  display: none;
   @include mixins.text-style(
     $size: 14px,
     $color: #686868,
