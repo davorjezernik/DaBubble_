@@ -19,6 +19,8 @@ import { merge } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AuthService } from '../../../../../services/auth-service';
 import { firstValueFrom } from 'rxjs';
+import { UserService } from '../../../../../services/user.service';
+
 @Component({
   selector: 'app-dialog-login',
   standalone: true,
@@ -46,7 +48,12 @@ export class LoginComponent {
   emailErrorMessage = signal('');
   passwordErrorMessage = signal('');
 
-  constructor(public router: Router, private zone: NgZone, private authService: AuthService) {
+  constructor(
+    public router: Router,
+    private zone: NgZone,
+    private authService: AuthService,
+    private userService: UserService
+  ) {
     merge(this.loginForm.controls.email.statusChanges, this.loginForm.controls.email.valueChanges)
       .pipe(takeUntilDestroyed())
       .subscribe(() => this.updateErrorMessages());
@@ -117,4 +124,16 @@ export class LoginComponent {
     if (!user) return;
     this.router.navigate([`/workspace/dm/${selfDmUid}`]);
   }
+
+  // guest logIn //
+  async loginAsGuest() {
+    try {
+      const user = await this.authService.loginAsGuest();
+      await this.userService.markOnline(true);
+      await this.navigateToSelfDm();
+    } catch (err) {
+      console.error('Guest login failed', err);
+    }
+  }
+  // guest logIn //
 }

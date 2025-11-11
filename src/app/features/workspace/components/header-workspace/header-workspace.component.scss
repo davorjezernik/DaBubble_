@@ -1,3 +1,5 @@
+@use 'mixins';
+
 .ws-header {
   height: 70px;
   width: 96%;
@@ -27,8 +29,8 @@ input {
   border: none;
   outline: none;
   width: 989px;
-  background: url("/assets/icons/search.svg") no-repeat right center;
-  background-size: 35px;  
+  background: url('/assets/icons/search.svg') no-repeat right center;
+  background-size: 35px;
   background-position: calc(100% - 17.5px) center;
   font-family: 'Nunito', sans-serif;
   font-size: 20px;
@@ -38,7 +40,7 @@ input {
 .user {
   display: flex;
   align-items: center;
-  gap: 20px ;
+  gap: 20px;
   background: transparent;
   border: 0;
   padding: 0;
@@ -48,7 +50,7 @@ input {
 
 .user:hover .name,
 .user:hover .expand-icon {
-  color: #797EF3;
+  color: #797ef3;
 }
 
 .name {
@@ -63,50 +65,51 @@ input {
   overflow: hidden;
   text-overflow: ellipsis;
   min-width: 0;
-  transition: color .1s ease;
+  transition: color 0.1s ease;
 }
 
-.avatar-wrap{
-  position:relative;
-  width:70px; 
-  height:70px; 
+.avatar-wrap {
+  position: relative;
+  width: 70px;
+  height: 70px;
+  cursor: pointer;
 
-  .avatar{
-    width:100%; 
-    height:100%;
-    border-radius:50%;
-    object-fit:cover; 
-    display:block;
+  .avatar {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    display: block;
   }
-  .status{
-    position:absolute;
-    right:2px; 
-    bottom:2px;            
-    width:14px; 
-    height:14px;
-    border-radius:50%;
-    border:2px solid #fff;
-    background:#686868;
-    &.online{ 
-      background:#92C83E; 
+  .status {
+    position: absolute;
+    right: 2px;
+    bottom: 2px;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    border: 2px solid #fff;
+    background: #686868;
+    &.online {
+      background: #92c83e;
     }
   }
 }
 
 .expand-icon {
   font-size: 28px;
-  line-height: 1;  
+  line-height: 1;
   color: #000;
-  transition: color .1s ease;
+  transition: color 0.1s ease;
 }
 
 :host ::ng-deep .user-menu-panel {
   min-width: 260px;
   border-radius: 24px !important;
-  box-shadow: 0 10px 30px rgba(0,0,0,.12);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
 
-  .mat-mdc-menu-content { 
-    padding: 16px 20px !important; 
+  .mat-mdc-menu-content {
+    padding: 16px 20px !important;
   }
 
   .mat-mdc-menu-item {
@@ -124,20 +127,20 @@ input {
     font-weight: 700;
     font-size: 18px;
     color: #000;
-    transition: background .15s, color .15s, transform .15s;
+    transition: background 0.15s, color 0.15s, transform 0.15s;
   }
 
   .mat-mdc-menu-item:hover .pill,
   .mat-mdc-menu-item.cdk-program-focused .pill,
   .mat-mdc-menu-item.mdc-list-item--selected .pill,
   .mat-mdc-menu-item:focus .pill {
-    background: rgba(121,126,243,.15);
-    color: #797EF3;
+    background: rgba(121, 126, 243, 0.15);
+    color: #797ef3;
   }
 }
 
-.user-menu-dialog .menu-card { 
-  width: 300px; 
+.user-menu-dialog .menu-card {
+  width: 300px;
 }
 
 @media (max-width: 1040px) {
@@ -145,7 +148,7 @@ input {
     display: none;
   }
 
-  .user{
+  .user {
     margin-right: 20px;
     gap: 5px;
   }
@@ -156,31 +159,45 @@ input {
     display: none;
   }
 
-  .ws-header{
+  .ws-header {
     padding-left: 20px;
   }
 
-  .expand-icon{
+  .expand-icon {
     display: none;
   }
 
-  .user-menu-dialog .menu-card { 
-    width: 350px; 
+  .user-menu-dialog .menu-card {
+    width: 350px;
   }
 }
 
-@media (max-width: 500px) {
-  .brand{
-    img{
-      width: 161px;
-    }
-  }
+.mobile-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 8vh;
+  padding: 15px 16px;
+}
 
-  .user{
-    margin-right: 0px;
-  }
+.go-to-devspace {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  background: none;
+  border: none;
+  cursor: pointer;
 
-  .ws-header{
-    padding-left: 10px;
+  > img {
+    margin-right: 8px;
+  }
+  > span {
+    @include mixins.text-style(
+      $size: 24px,
+      $color: #000000,
+      $font-weight: 700,
+      $font-family: 'Nunito',
+      $line-height: 1
+    );
   }
 }

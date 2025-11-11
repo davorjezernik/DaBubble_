@@ -158,31 +158,3 @@
   color: #000;
   transition: color 0.1s ease;
 }
-
-.mobile-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.go-to-devspace {
-  display: flex;
-  align-items: center;
-  gap: 2px;
-  background: none;
-  border: none;
-  cursor: pointer;
-
-  > img {
-    margin-right: 8px;
-  }
-  > span {
-    @include mixins.text-style(
-      $size: 24px,
-      $color: #000000,
-      $font-weight: 700,
-      $font-family: 'Nunito',
-      $line-height: 1
-    );
-  }
-}

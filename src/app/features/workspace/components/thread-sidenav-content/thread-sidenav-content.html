@@ -2,7 +2,24 @@
   <header class="chat-header">
     <div class="channel-info-thread-container">
       <h2 class="thread-name">Thread</h2>
-      <span class="channel-name"># Entwicklerteam</span>
+      @if (collectionName === 'channels') {
+      <span class="channel">
+        <svg class="hashtag-icon"
+          width="11"
+          height="11"
+          viewBox="0 0 11 11"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M2.32451 10.6667C2.1134 10.6667 1.94118 10.5833 1.80784 10.4167C1.67451 10.25 1.63562 10.0667 1.69118 9.86667L2.15784 8H0.67451C0.452288 8 0.27451 7.914 0.141176 7.742C0.00784311 7.56956 -0.0310457 7.37778 0.0245098 7.16667C0.0578431 7.01111 0.135621 6.88889 0.257843 6.8C0.380065 6.71111 0.518954 6.66667 0.67451 6.66667H2.49118L3.15784 4H1.34118C1.11895 4 0.941176 3.914 0.807843 3.742C0.67451 3.56956 0.635621 3.37778 0.691177 3.16667C0.72451 3.01111 0.802288 2.88889 0.92451 2.8C1.04673 2.71111 1.18562 2.66667 1.34118 2.66667H3.49118L4.04118 0.483333C4.07451 0.338889 4.14673 0.222222 4.25784 0.133333C4.36895 0.0444443 4.50229 0 4.65784 0C4.86895 0 5.04118 0.0833333 5.17451 0.25C5.30784 0.416667 5.34673 0.6 5.29118 0.8L4.82451 2.66667H7.49118L8.04118 0.483333C8.07451 0.338889 8.14673 0.222222 8.25784 0.133333C8.36895 0.0444443 8.50229 0 8.65784 0C8.86895 0 9.04118 0.0833333 9.17451 0.25C9.30784 0.416667 9.34673 0.6 9.29118 0.8L8.82451 2.66667H10.3078C10.5301 2.66667 10.7078 2.75267 10.8412 2.92467C10.9745 3.09711 11.0134 3.28889 10.9578 3.5C10.9245 3.65556 10.8467 3.77778 10.7245 3.86667C10.6023 3.95556 10.4634 4 10.3078 4H8.49118L7.82451 6.66667H9.64118C9.8634 6.66667 10.0412 6.75267 10.1745 6.92467C10.3078 7.09711 10.3467 7.28889 10.2912 7.5C10.2578 7.65556 10.1801 7.77778 10.0578 7.86667C9.93562 7.95556 9.79673 8 9.64118 8H7.49118L6.94118 10.1833C6.90784 10.3278 6.83562 10.4444 6.72451 10.5333C6.6134 10.6222 6.48007 10.6667 6.32451 10.6667C6.1134 10.6667 5.94118 10.5833 5.80784 10.4167C5.67451 10.25 5.63562 10.0667 5.69118 9.86667L6.15784 8H3.49118L2.94118 10.1833C2.90784 10.3278 2.83562 10.4444 2.72451 10.5333C2.6134 10.6222 2.48007 10.6667 2.32451 10.6667ZM3.82451 6.66667H6.49118L7.15784 4H4.49118L3.82451 6.66667Z"
+            fill="#797EF3"
+          />
+        </svg>
+
+        <span class="channel-name">{{ channelName }}</span>
+      </span>
+      }
     </div>
     <div>
       <button type="button" class="icon-btn" aria-label="close button" (click)="onClose()">
@@ -13,7 +30,8 @@
   <main class="chat-content" #chatContent>
     <section class="reaction-messages-box">
       @if (messages.length !== 0) { @for (message of messages; track message.id) {
-      <app-message-bubble [isThreadView]="true"
+      <app-message-bubble
+        [isThreadView]="true"
         [incoming]="message.user?.id !== currentUserData.id"
         [name]="message.user?.id !== currentUserData.id ? message.user?.displayName || '' : 'Du'"
         [avatar]="
@@ -36,7 +54,8 @@
       <hr class="separator-line" />
     </div>
     <section class="trigger-message-container">
-      <app-message-bubble [isThreadView]="true"
+      <app-message-bubble
+        [isThreadView]="true"
         [incoming]="senderId !== currentUserData.id"
         [name]="senderId !== currentUserData.id ? senderName : 'Du'"
         [avatar]="

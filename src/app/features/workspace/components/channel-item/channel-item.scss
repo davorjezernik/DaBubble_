@@ -1,8 +1,11 @@
 @use 'mixins';
+@use 'variables';
 
 .channel-anker {
   cursor: pointer;
   text-decoration: none;
+  display: block;
+  width: 100%;
 
   &.is-active .channel {
     background-color: #eceefe;
@@ -23,6 +26,7 @@
 }
 
 .channel {
+  box-sizing: border-box;
   display: flex;
   align-items: center;
   gap: 10px;
@@ -31,6 +35,9 @@
   text-decoration: none;
   color: inherit;
   transition: background-color 125ms ease-in-out, color 125ms ease-in-out;
+  width: 100%;
+  min-width: 0;
+  flex-shrink: 1;
 
   .channel-icon {
     flex-shrink: 0;
@@ -42,7 +49,7 @@
 
   .channel-name {
     @include mixins.text-style(
-      $size: 18px,
+      $size: variables.$basic-text-size,
       $color: #000000,
       $font-weight: 400,
       $font-family: 'Nunito',
@@ -51,7 +58,7 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    max-width: 167px;
+    max-width: 100%;
   }
 
   &:hover {
@@ -68,7 +75,7 @@
     min-width: 22px;
     height: 22px;
     border-radius: 50px;
-    background: #e53935; 
+    background: #e53935;
     color: #fff;
     font-family: 'Nunito', sans-serif;
     font-size: 12px;
@@ -78,7 +85,7 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    flex-shrink: 0; 
+    flex-shrink: 0;
     box-shadow: 0 1px 0 rgba(0, 0, 0, 0.08);
   }
 
