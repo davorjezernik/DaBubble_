@@ -2,7 +2,7 @@
   class="message-container"
   [class.incoming]="incoming"
   (mouseenter)="onSpeechBubbleEnter()"
-  (mouseleave)="onSpeechBubbleLeave()"
+  (mouseleave)="onSpeechBubbleLeave($event)"
 >
   <div class="message-content">
     <div class="message-header">
@@ -16,7 +16,7 @@
         class="mini-actions"
         [class.visible]="showMiniActions"
         (mouseenter)="onMiniActionsEnter()"
-        (mouseleave)="onMiniActionsLeave()"
+        (mouseleave)="onMiniActionsLeave($event)"
         (click)="$event.stopPropagation()"
       >
         <span [class.hidden]="isThreadView" class="mini-hit" (click)="onQuickReact('✅')">

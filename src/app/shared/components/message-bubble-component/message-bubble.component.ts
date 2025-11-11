@@ -55,7 +55,6 @@ export class MessageBubbleComponent implements OnChanges {
   @Output() editMessage = new EventEmitter<void>();
 
   showMiniActions = false;
-  private miniActionsHideTimer: any;
   isEditing = false;
   editText = '';
   isSaving = false;
@@ -138,12 +137,17 @@ export class MessageBubbleComponent implements OnChanges {
   private readonly MAX_UNIQUE_REACTIONS = 20;
   private readonly DEFAULT_COLLAPSE_THRESHOLD = 7;
   private readonly NARROW_COLLAPSE_THRESHOLD = 6;
+  private readonly VERY_NARROW_COLLAPSE_THRESHOLD = 4; // <= 400px
 
   isNarrow = typeof window !== 'undefined' ? window.innerWidth <= 450 : false;
+  isVeryNarrow = typeof window !== 'undefined' ? window.innerWidth <= 400 : false;
 
   @HostListener('window:resize')
   onWindowResize() {
-    this.isNarrow = typeof window !== 'undefined' ? window.innerWidth <= 450 : this.isNarrow;
+    if (typeof window !== 'undefined') {
+      this.isNarrow = window.innerWidth <= 450;
+      this.isVeryNarrow = window.innerWidth <= 400;
+    }
   }
 
   /**
@@ -320,6 +324,7 @@ export class MessageBubbleComponent implements OnChanges {
    * Returns DEFAULT or NARROW threshold.
    */
   private getCollapseThreshold(): number {
+    if (this.isVeryNarrow) return this.VERY_NARROW_COLLAPSE_THRESHOLD; // <= 400px → max 5
     return this.isNarrow ? this.NARROW_COLLAPSE_THRESHOLD : this.DEFAULT_COLLAPSE_THRESHOLD;
   }
 
@@ -410,49 +415,32 @@ export class MessageBubbleComponent implements OnChanges {
 
   /** Show mini actions when cursor enters the bubble. */
   onSpeechBubbleEnter() {
-    this.clearMiniActionsHideTimer();
     this.showMiniActions = true;
   }
 
-  /**
-   * Start timer to hide mini actions when cursor leaves.
-   * Also closes 3-dots menu and reaction picker.
-   */
-  onSpeechBubbleLeave() {
-    this.startMiniActionsHideTimer();
+  /** Hide only when pointer truly leaves component (not moving into mini-actions). */
+  onSpeechBubbleLeave(event: MouseEvent) {
+    const next = event.relatedTarget as HTMLElement | null;
+    if (next && (next.closest('.mini-actions') || next.closest('.message-container'))) {
+      return;
+    }
+    this.showMiniActions = false;
     this.isMoreMenuOpen = false;
-    // this.showEmojiPicker = false; // Do not hide picker here, it causes a race condition
   }
 
   /** Keep mini actions visible while hovering over them. */
   onMiniActionsEnter() {
-    this.clearMiniActionsHideTimer();
     this.showMiniActions = true;
   }
 
-  /** Hide mini actions shortly after leaving the mini actions area. */
-  onMiniActionsLeave() {
-    this.startMiniActionsHideTimer();
-    this.isMoreMenuOpen = false;
-  }
-
-  /**
-   * Start a short timeout to hide the mini actions bar.
-   * @param delay Timeout in ms (default 180). Uses miniActionsHideTimer to manage the timer id.
-   */
-  private startMiniActionsHideTimer(delay = 180) {
-    this.clearMiniActionsHideTimer();
-    this.miniActionsHideTimer = setTimeout(() => {
-      this.showMiniActions = false;
-    }, delay);
-  }
-
-  /** Clear and reset the mini actions hide timer if running. */
-  private clearMiniActionsHideTimer() {
-    if (this.miniActionsHideTimer) {
-      clearTimeout(this.miniActionsHideTimer);
-      this.miniActionsHideTimer = undefined;
+  /** Hide when leaving mini actions AND not moving back to container. */
+  onMiniActionsLeave(event: MouseEvent) {
+    const next = event.relatedTarget as HTMLElement | null;
+    if (next && (next.closest('.mini-actions') || next.closest('.message-container'))) {
+      return;
     }
+    this.showMiniActions = false;
+    this.isMoreMenuOpen = false;
   }
 
   /**
@@ -460,7 +448,7 @@ export class MessageBubbleComponent implements OnChanges {
    */
   startEdit() {
     this.isEditing = true;
-    this.showMiniActions = false;
+    this.showMiniActions = false; // hide actions during edit mode
     this.editText = this.text || '';
   }
 
