@@ -74,19 +74,10 @@ export class App implements OnInit {
   // intro //
 
   // sign out close window //
-  @HostListener('window:beforeunload')
-  onBeforeUnload() {
+  @HostListener('window:beforeunload', ['$event'])
+  onBeforeUnload(event: BeforeUnloadEvent) {
     const user = this.auth.currentUser;
     if (user) {
-      this.userService.markOnline(false);
-      this.auth.signOut();
-    }
-  }
-
-  @HostListener('document:visibilitychange')
-  onVisibilityChange() {
-    const user = this.auth.currentUser;
-    if (document.visibilityState === 'hidden' && user) {
       this.userService.markOnline(false);
       this.auth.signOut();
     }
