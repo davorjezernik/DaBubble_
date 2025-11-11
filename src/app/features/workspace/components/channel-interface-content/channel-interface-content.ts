@@ -260,13 +260,15 @@ export class ChannelInterfaceContent extends BaseChatInterfaceComponent {
   // Öffnet EditChannel als Modal
   openEditChannel(ev?: MouseEvent) {
     ev?.stopPropagation();
-    if (!this.channelData) return;
-    const ref = this.dialog.open(EditChannel, {
-      data: { channel: this.channelData },
-      autoFocus: false,
-    });
-
-    ref
+      if (this.channelData?.name === 'everyone') {
+        return;
+      }
+      if (!this.channelData) return;
+      const ref = this.dialog.open(EditChannel, {
+        data: { channel: this.channelData },
+        autoFocus: false,
+      });
+      ref
       .afterClosed()
       .pipe(take(1))
       .subscribe((res) => {
