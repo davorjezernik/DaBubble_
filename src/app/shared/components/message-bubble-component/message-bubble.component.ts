@@ -65,8 +65,9 @@ export class MessageBubbleComponent implements OnChanges, OnDestroy {
   isDeleting = false;
   editEmojiPickerVisible = false;
 
-  lastThreadMessageTime: string = '';
+  lastTime: string = '';
   answersCount: number = 0;
+  lastTimeSub?: Subscription;
   answersCountSub?: Subscription;
 
   /**
@@ -511,13 +512,29 @@ export class MessageBubbleComponent implements OnChanges, OnDestroy {
   }
 
   private async getAnswersAmount(coll: any) {
-    this.answersCountSub = collectionData(coll).pipe(map(docs => docs.length)).subscribe(count => {
-      this.answersCount = count;
-    });
+    this.answersCountSub = collectionData(coll)
+      .pipe(map((docs) => docs.length))
+      .subscribe((count) => {
+        this.answersCount = count;
+      });
   }
 
   private async getLastAnswerTime(coll: any) {
-
+    this.lastTimeSub = collectionData(coll)
+      .pipe(
+        map((messages) => {
+          if (messages.length === 0) return '';
+          const timestamps = messages.map((msg: any) => msg.timestamp?.toMillis());
+          if (timestamps.length === 0) return '';
+          const latest = Math.max(...timestamps);
+          const latestDate = new Date(latest);
+          return latestDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        })
+      )
+      .subscribe((timestamp) => {
+        this.lastTime = timestamp;
+        console.log('Latest timestamp:', timestamp);
+      });
   }
 
   /**
