@@ -1,6 +1,16 @@
 import { inject, Injectable } from '@angular/core';
-import { Auth, authState, GoogleAuthProvider, signInWithEmailAndPassword, signInWithPopup, User } from '@angular/fire/auth';
+import {
+  Auth,
+  authState,
+  GoogleAuthProvider,
+  signInWithEmailAndPassword,
+  signInWithPopup,
+  signInAnonymously,
+  User,
+  deleteUser,
+} from '@angular/fire/auth';
 import { Observable } from 'rxjs';
+import { environment } from '../environments/environment';
 
 @Injectable({
   providedIn: 'root',
@@ -9,21 +19,32 @@ export class AuthService {
   private auth: Auth = inject(Auth);
   public readonly currentUser$: Observable<User | null>;
 
-    constructor() {
+  constructor() {
     this.currentUser$ = authState(this.auth);
   }
 
-    loginWithEmail(email: string, password: string):Promise<any> {
+  loginWithEmail(email: string, password: string): Promise<any> {
     return signInWithEmailAndPassword(this.auth, email, password);
   }
 
-    signInWithGoogle():Promise<any> {
+  signInWithGoogle(): Promise<any> {
     const provider = new GoogleAuthProvider();
     return signInWithPopup(this.auth, provider);
-    
   }
 
-    logout():Promise<void> {
-    return this.auth.signOut();
+  // guest logIn //
+  async loginAsGuest(): Promise<User> {
+    const { email, password } = environment.guest;
+    const cred = await signInWithEmailAndPassword(this.auth, email, password);
+    return cred.user;
+  }
+
+  isGuest(user: User | null): boolean {
+    return !!user && user.uid === environment.guest.uid;
+  }
+  // guest logIn //
+
+  async logout(): Promise<void> {
+    await this.auth.signOut();
   }
 }
