@@ -503,6 +503,8 @@ export class MessageBubbleComponent implements OnChanges, OnDestroy {
   }
 
   private async getAnswersInfo() {
+    if (!this.chatId || !this.messageId) return;
+
     const coll = collection(
       this.firestore,
       `${this.collectionName}/${this.chatId}/messages/${this.messageId}/thread`
@@ -533,7 +535,6 @@ export class MessageBubbleComponent implements OnChanges, OnDestroy {
       )
       .subscribe((timestamp) => {
         this.lastTime = timestamp;
-        console.log('Latest timestamp:', timestamp);
       });
   }
 
