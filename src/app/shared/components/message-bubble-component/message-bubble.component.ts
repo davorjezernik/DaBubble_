@@ -42,12 +42,16 @@ export class MessageBubbleComponent implements OnChanges {
   // Persistence wiring
   @Input() chatId?: string;
   @Input() messageId?: string;
+  // For thread replies: parent/root message id of the thread
+  @Input() parentMessageId?: string;
   // reactions can be legacy number (count) or a map of uid->true per emoji
   @Input() reactionsMap?: Record<string, number | Record<string, true>> | null;
   @Input() collectionName: 'channels' | 'dms' = 'dms';
   @Input() lastReplyAt?: unknown;
   @Input() context: 'chat' | 'thread' = 'chat';
   @Input() isThreadView: boolean = false;
+  /** When true, show an "Bearbeitet" label in the header (set by parent or via saveEdit). */
+  @Input() edited?: boolean;
 
   showEmojiPicker = false;
   reactionsExpanded = false;
@@ -60,20 +64,36 @@ export class MessageBubbleComponent implements OnChanges {
   isSaving = false;
   isDeleting = false;
   editEmojiPickerVisible = false;
+  private readonly DELETED_PLACEHOLDER = 'Diese Nachricht wurde gelöscht.';
 
   /**
    * Toggle the inline emoji picker for quick reactions.
    * Uses: showEmojiPicker (boolean) – controls visibility of the picker.
    */
   toggleEmojiPicker() {
+    if (this.isDeleted) return;
     this.showEmojiPicker = !this.showEmojiPicker;
   }
+  /**
+   * Build Firestore doc path for this message depending on context.
+   * - Normal chat: {collectionName}/{chatId}/messages/{messageId}
+   * - Thread reply: {collectionName}/{chatId}/messages/{parentMessageId}/thread/{messageId}
+   */
+  private buildMessageDocPath(): string | null {
+    if (!this.collectionName || !this.chatId || !this.messageId) return null;
+    if (this.isThreadView && this.parentMessageId) {
+      return `${this.collectionName}/${this.chatId}/messages/${this.parentMessageId}/thread/${this.messageId}`;
+    }
+    return `${this.collectionName}/${this.chatId}/messages/${this.messageId}`;
+  }
+
 
   /**
    * Open the reactions emoji picker and hide mini actions.
    * Affects: showEmojiPicker (true), showMiniActions (false).
    */
   openEmojiPicker() {
+    if (this.isDeleted) return;
     this.showEmojiPicker = true;
     this.showMiniActions = false;
   }
@@ -84,6 +104,7 @@ export class MessageBubbleComponent implements OnChanges {
    * Side effects: updates reactions array and closes picker.
    */
   onEmojiSelected(emoji: string) {
+    if (this.isDeleted) return;
     this.addOrIncrementReaction(emoji);
     this.showEmojiPicker = false;
   }
@@ -233,6 +254,7 @@ export class MessageBubbleComponent implements OnChanges {
    * Uses: reactions (local array), MAX_UNIQUE_REACTIONS, persistReactionDelta(...) for Firestore sync.
    */
   addOrIncrementReaction(emoji: string) {
+    if (this.isDeleted) return;
     // From picker or quick-add: ensure current user reacts (idempotent)
     this.addReaction(emoji);
   }
@@ -242,6 +264,7 @@ export class MessageBubbleComponent implements OnChanges {
    * @param emoji The emoji key to decrement/remove.
    */
   onClickReaction(emoji: string) {
+    if (this.isDeleted) return;
     const r = this.reactions.find((x) => x.emoji === emoji);
     if (!r) {
       // If not present, treat as add
@@ -253,12 +276,11 @@ export class MessageBubbleComponent implements OnChanges {
   }
 
   private async addReaction(emoji: string, legacy = false) {
-    if (!this.chatId || !this.messageId || !this.currentUserId) return;
+    if (!this.currentUserId) return;
+    const path = this.buildMessageDocPath();
+    if (!path) return;
     try {
-      const ref = doc(
-        this.firestore,
-        `${this.collectionName}/${this.chatId}/messages/${this.messageId}`
-      );
+      const ref = doc(this.firestore, path);
       if (legacy) {
         // replace numeric with map containing current user
         await updateDoc(ref, { [`reactions.${emoji}`]: { [this.currentUserId]: true } });
@@ -269,12 +291,11 @@ export class MessageBubbleComponent implements OnChanges {
   }
 
   private async removeReaction(emoji: string, legacy = false) {
-    if (!this.chatId || !this.messageId || !this.currentUserId) return;
+    if (!this.currentUserId) return;
+    const path = this.buildMessageDocPath();
+    if (!path) return;
     try {
-      const ref = doc(
-        this.firestore,
-        `${this.collectionName}/${this.chatId}/messages/${this.messageId}`
-      );
+      const ref = doc(this.firestore, path);
       if (legacy) {
         // cannot remove from numeric; convert to empty (delete field)
         await updateDoc(ref, { [`reactions.${emoji}`]: deleteField() });
@@ -356,11 +377,23 @@ export class MessageBubbleComponent implements OnChanges {
     return null;
   }
 
+  /** True when this message is a soft-deleted placeholder text. */
+  get isDeleted(): boolean {
+    const t = (this.text || '').trim();
+    return t === this.DELETED_PLACEHOLDER;
+  }
+
+  /** True when message has been edited (from input flag). */
+  get isEdited(): boolean {
+    return !!this.edited;
+  }
+
   /**
    * Toggle the 3-dots context menu.
    * @param event Optional MouseEvent to stop propagation and prevent default.
    */
   toggleMoreMenu(event?: MouseEvent) {
+    if (this.isDeleted) return;
     if (event) {
       event.stopPropagation();
       event.preventDefault();
@@ -373,6 +406,7 @@ export class MessageBubbleComponent implements OnChanges {
    * Closes the menu and prepares editText buffer from current text.
    */
   onEditMessage() {
+    if (this.isDeleted) return;
     this.isMoreMenuOpen = false;
     this.startEdit();
   }
@@ -415,30 +449,32 @@ export class MessageBubbleComponent implements OnChanges {
 
   /** Show mini actions when cursor enters the bubble. */
   onSpeechBubbleEnter() {
+    if (this.isDeleted) return;
     this.showMiniActions = true;
   }
 
   /** Hide only when pointer truly leaves component (not moving into mini-actions). */
   onSpeechBubbleLeave(event: MouseEvent) {
     const next = event.relatedTarget as HTMLElement | null;
-    if (next && (next.closest('.mini-actions') || next.closest('.message-container'))) {
-      return;
-    }
+    const host = this.el.nativeElement.querySelector('.message-container') as HTMLElement | null;
+    // Keep visible only if moving within THIS message's own container (incl. its mini-actions)
+    if (next && host && host.contains(next)) return;
     this.showMiniActions = false;
     this.isMoreMenuOpen = false;
   }
 
   /** Keep mini actions visible while hovering over them. */
   onMiniActionsEnter() {
+    if (this.isDeleted) return;
     this.showMiniActions = true;
   }
 
   /** Hide when leaving mini actions AND not moving back to container. */
   onMiniActionsLeave(event: MouseEvent) {
     const next = event.relatedTarget as HTMLElement | null;
-    if (next && (next.closest('.mini-actions') || next.closest('.message-container'))) {
-      return;
-    }
+    const host = this.el.nativeElement.querySelector('.message-container') as HTMLElement | null;
+    // Keep visible only if moving within THIS message's own container (incl. its mini-actions)
+    if (next && host && host.contains(next)) return;
     this.showMiniActions = false;
     this.isMoreMenuOpen = false;
   }
@@ -447,6 +483,7 @@ export class MessageBubbleComponent implements OnChanges {
    * Enter editing mode: show textarea and preload editText with current text.
    */
   startEdit() {
+    if (this.isDeleted) return;
     this.isEditing = true;
     this.showMiniActions = false; // hide actions during edit mode
     this.editText = this.text || '';
@@ -462,7 +499,8 @@ export class MessageBubbleComponent implements OnChanges {
    * Validates non-empty trimmed text; updates local UI optimistically.
    */
   async saveEdit() {
-    if (!this.chatId || !this.messageId) {
+    const path = this.buildMessageDocPath();
+    if (!path) {
       this.isEditing = false;
       return;
     }
@@ -473,12 +511,10 @@ export class MessageBubbleComponent implements OnChanges {
     }
     try {
       this.isSaving = true;
-      const ref = doc(
-        this.firestore,
-        `${this.collectionName}/${this.chatId}/messages/${this.messageId}`
-      );
-      await updateDoc(ref, { text: newText });
+      const ref = doc(this.firestore, path);
+      await updateDoc(ref, { text: newText, edited: true });
       this.text = newText;
+      this.edited = true;
       this.isEditing = false;
     } catch (e) {
     } finally {
@@ -491,17 +527,18 @@ export class MessageBubbleComponent implements OnChanges {
    * Uses isDeleting flag to disable buttons while in-flight.
    */
   async deleteMessage() {
-    if (!this.chatId || !this.messageId) return;
+    const path = this.buildMessageDocPath();
+    if (!path) return;
     const confirmed =
       typeof window !== 'undefined' ? window.confirm('Nachricht wirklich löschen?') : true;
     if (!confirmed) return;
     try {
       this.isDeleting = true;
-      const ref = doc(
-        this.firestore,
-        `${this.collectionName}/${this.chatId}/messages/${this.messageId}`
-      );
-      await deleteDoc(ref);
+      const ref = doc(this.firestore, path);
+      // Soft delete: keep the message document, replace content and mark deleted
+      await updateDoc(ref, { text: this.DELETED_PLACEHOLDER, deleted: true });
+      this.text = this.DELETED_PLACEHOLDER;
+      this.isMoreMenuOpen = false;
     } catch (e) {
       // noop
     } finally {
@@ -511,6 +548,7 @@ export class MessageBubbleComponent implements OnChanges {
 
   /** Quick-add a reaction via the mini actions bar and close the bar. */
   onQuickReact(emoji: string) {
+    if (this.isDeleted) return;
     this.addOrIncrementReaction(emoji);
     this.showMiniActions = false;
   }
@@ -521,6 +559,7 @@ export class MessageBubbleComponent implements OnChanges {
    * Uses setTimeout to open after mini actions hide state is applied.
    */
   onMiniAddReactionClick(event: MouseEvent) {
+    if (this.isDeleted) return;
     event.stopPropagation();
     this.showMiniActions = false;
     this.toggleEmojiPicker();
@@ -532,6 +571,7 @@ export class MessageBubbleComponent implements OnChanges {
    * Requires chatId and messageId; uses threadPanel.openThread(...).
    */
   onCommentClick(event: MouseEvent) {
+    if (this.isDeleted) return;
     event.stopPropagation();
     this.showMiniActions = false;
     if (!this.chatId || !this.messageId) return;

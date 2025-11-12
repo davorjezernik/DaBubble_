@@ -49,6 +49,7 @@ export class ThreadSidenavContent implements OnInit, OnDestroy, OnChanges, After
   senderName: string = 'Unknown User';
   messageTimestamp: any;
   messageReactions?: Record<string, number>;
+  messageEdited: boolean = false;
   channelName: string = '';
 
   currentUserData = {
@@ -121,6 +122,7 @@ export class ThreadSidenavContent implements OnInit, OnDestroy, OnChanges, After
       this.senderName = messageData.authorName;
       this.messageTimestamp = messageData.timestamp || null;
       this.messageReactions = messageData.reactions || [];
+      this.messageEdited = !!messageData.edited;
     });
   }
 

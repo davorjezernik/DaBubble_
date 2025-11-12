@@ -7,11 +7,19 @@
   <div class="message-content">
     <div class="message-header">
       <span class="timestamp">{{ time }}</span>
+      @if (isEdited && !isDeleted) {
+      <span class="edited">Bearbeitet</span>
+      }
       <span class="user-name">{{ name }}</span>
     </div>
 
-    <div class="speech-bubble" [class.msg-box]="isEditing" [class.editing]="isEditing">
-      @if (!isEditing) {
+    <div
+      class="speech-bubble"
+      [class.msg-box]="isEditing"
+      [class.editing]="isEditing"
+      [class.deleted]="isDeleted"
+    >
+      @if (!isEditing && !isDeleted) {
       <div
         class="mini-actions"
         [class.visible]="showMiniActions"
@@ -142,7 +150,7 @@
       }
     </div>
 
-    @if (!isEditing) {
+    @if (!isEditing && !isDeleted) {
     <div class="reactions" [class.center-narrow]="shouldCenterNarrow">
       <div class="reaction-list">
         @for (r of visibleReactions; track r.emoji) {

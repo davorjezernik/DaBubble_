@@ -50,6 +50,15 @@
     color: #686868;
     white-space: nowrap;
   }
+
+  .edited {
+    font-family: 'Nunito', sans-serif;
+    font-weight: 400;
+    font-size: 14px;
+    color: #686868;
+    white-space: nowrap;
+    margin-left: -12px; /* reduce large gap when placed next to timestamp */
+  }
 }
 
 .speech-bubble {
@@ -78,6 +87,14 @@
     overflow-wrap: anywhere;
     word-break: break-word;
     hyphens: auto;
+  }
+}
+
+/* Soft-deleted message appearance */
+.speech-bubble.deleted {
+  p {
+    color: #B0B8C2 !important; /* lighter grey for deleted placeholder */
+    font-style: italic;
   }
 }
 
@@ -384,6 +401,9 @@
   }
   .timestamp {
     order: 2;
+  }
+  .edited {
+    order: 3; /* ensure 'Bearbeitet' sits to the right of the time in incoming layout */
   }
 }
 

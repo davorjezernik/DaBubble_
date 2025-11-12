@@ -43,6 +43,7 @@
             : ''
         "
         [text]="message.text ?? ''"
+        [edited]="message.edited"
         [chatId]="chatId || ''"
         [messageId]="message.id"
         [reactionsMap]="message.reactions"
@@ -77,12 +78,16 @@
       </button>
       <p class="chat-info">
         Diese Unterhaltung findet nur zwischen
-        <button class="recipient-tag" (click)="openUserCard()">@{{ recipientData?.name }}</button> und dir statt.
+        <button class="recipient-tag" (click)="openUserCard()">@{{ recipientData?.name }}</button>
+        und dir statt.
       </p>
     </section>
     } } }
   </main>
   <footer class="footer">
-    <app-message-area-component [recipientName]="recipientData?.name || ''" (send)="handleNewMessage($event)"></app-message-area-component>
+    <app-message-area-component
+      [recipientName]="recipientData?.name || ''"
+      (send)="handleNewMessage($event)"
+    ></app-message-area-component>
   </footer>
 </section>

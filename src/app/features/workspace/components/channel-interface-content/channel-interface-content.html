@@ -15,7 +15,9 @@
             fill="black"
           />
         </svg>
-        <span class="channel-name" (click)="openEditChannel($event)" title="Kanal bearbeiten">{{ channelData?.name }}</span>
+        <span class="channel-name" (click)="openEditChannel($event)" title="Kanal bearbeiten">{{
+          channelData?.name
+        }}</span>
         <svg
           class="info-arrow"
           width="30"
@@ -147,6 +149,7 @@
           : ''
       "
       [text]="message.text ?? ''"
+      [edited]="message.edited"
       [chatId]="chatId || ''"
       [messageId]="message.id"
       [reactionsMap]="message.reactions"

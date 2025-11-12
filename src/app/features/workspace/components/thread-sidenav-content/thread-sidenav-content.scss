@@ -211,8 +211,4 @@
   border: 1px solid #adb0d9 !important;
 }
 
-@media (max-width: 700px) {
-  :host app-message-bubble ::ng-deep .emoji-mart {
-    width: 150px !important;
-  }
-}
+
