@@ -1,0 +1,34 @@
+<div class="dialog-edit-user-card-container">
+  <header class="dialog-edit-user-card-header">
+    <h2>Dein Profil bearbeiten</h2>
+    <img
+      class="close-icon"
+      mat-dialog-close
+      src="assets/icons/close.svg"
+      alt="close icon"
+    />
+  </header>
+
+  <figure class="edit-avatar">
+    <img [src]="data.user.avatar" alt="Avatar" (error)="data.user.avatar = 'assets/img-profile/profile.png'" />
+  </figure>
+
+  <form class="edit-form">
+    <label>
+      <div class="label-row">
+        <img src="assets/icons/account_circle.svg" alt="User Icon" />
+        <span>Vollständiger Name</span>
+      </div>
+      <input
+        type="text"
+        [formControl]="nameCtrl"
+        placeholder="Dein Name hier"
+      />
+    </label>
+  </form>
+
+  <footer class="edit-actions">
+    <button class="cancel-btn" (click)="close()">Abbrechen</button>
+    <button class="save-btn" (click)="save()">Speichern</button>
+  </footer>
+</div>

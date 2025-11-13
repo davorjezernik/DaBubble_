@@ -1,0 +1,88 @@
+<section class="chat-container">
+  <header class="chat-header">
+    <button class="dm-info-button" (click)="openUserCard()">
+      <figure class="header-avatar-figure">
+        <div class="header-avatar-wrapper">
+          <img [src]="recipientData?.avatar" alt="avatar" />
+        </div>
+        <figcaption class="header-person-name">{{ recipientData?.name }}</figcaption>
+      </figure>
+    </button>
+  </header>
+  <main #messagesContainer class="chat-content" [class.empty]="(messages$ | async)?.length === 0">
+    @if (messages$ | async; as messages) { @for (message of messages; track message.id) {
+
+    <div class="message-item">
+      @if (message.showDateSeparator) {
+      <section class="timestamp-block">
+        <p class="timestamp-line"></p>
+        <div class="timestamp-bubble">
+          <span class="message-timestamp">{{
+            isTodaysMessage(message.timestamp)
+              ? 'Heute'
+              : (message.timestamp?.toDate() | date : 'EEEE, d. MMMM')
+          }}</span>
+        </div>
+        <p class="timestamp-line"></p>
+      </section>
+      }
+
+      <app-message-bubble
+        [incoming]="message.authorId !== currentUserId"
+        [name]="message.authorId !== currentUserId ? recipientData?.name ?? '' : 'Du'"
+        [avatar]="
+          message.authorId !== currentUserId
+            ? recipientData?.avatar ?? 'assets/img-profile/profile.png'
+            : currentUserProfile?.avatar ?? 'assets/img-profile/profile.png'
+        "
+        [time]="
+          message.time
+            ? message.time + ' Uhr'
+            : message.timestamp
+            ? (message.timestamp.toDate() | date : 'HH:mm') + ' Uhr'
+            : ''
+        "
+        [text]="message.text ?? ''"
+        [chatId]="chatId || ''"
+        [messageId]="message.id"
+        [reactionsMap]="message.reactions"
+        [lastReplyAt]="message.lastReplyAt"
+      ></app-message-bubble>
+    </div>
+    } @empty { @if (isOwnDm) {
+    <section>
+      <button class="avatar-figure-button" (click)="openUserCard()">
+        <figure class="avatar-figure">
+          <div class="avatar-wrapper">
+            <img [src]="recipientData?.avatar" alt="avatar" />
+          </div>
+          <figcaption class="avatar-caption">{{ recipientData?.name }}</figcaption>
+        </figure>
+      </button>
+      <p class="chat-info">
+        <span>Dieser Raum ist nur für dich da.</span> Mache dir Notizen, liste deine To-dos auf oder
+        bewahre Links und Dateien griffbereit auf. Du kannst hier auch gerne Dinge mit dir selbst
+        besprechen.
+      </p>
+    </section>
+    } @else {
+    <section>
+      <button class="avatar-figure-button" (click)="openUserCard()">
+        <figure class="avatar-figure">
+          <div class="avatar-wrapper">
+            <img [src]="recipientData?.avatar" alt="avatar" />
+          </div>
+          <figcaption class="avatar-caption">{{ recipientData?.name }}</figcaption>
+        </figure>
+      </button>
+      <p class="chat-info">
+        Diese Unterhaltung findet nur zwischen
+        <button class="recipient-tag" (click)="openUserCard()">@{{ recipientData?.name }}</button> und dir statt.
+      </p>
+    </section>
+    } } }
+  </main>
+  <footer class="footer">
+    <app-message-area-component [recipientName]="recipientData?.name || ''" (send)="handleNewMessage($event)"></app-message-area-component>
+  </footer>
+</section>

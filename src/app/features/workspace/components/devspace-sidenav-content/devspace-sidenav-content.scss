@@ -1,0 +1,379 @@
+@use 'mixins';
+@use 'variables';
+@use '@angular/material' as mat;
+
+// Theme tokens
+$color-text: #0f0f10;
+$color-muted: #6b6f76;
+$color-brand: #535af1; // hover color for headings and 'Channel hinzufügen'
+$color-dm-hover: #eceefe; // hover bg for user rows + active channel pill
+$color-surface: #ffffff;
+$radius-pill: 999px;
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+button {
+  background-color: transparent;
+  border: none;
+  outline: none;
+  cursor: pointer;
+}
+
+a {
+  text-decoration: none;
+}
+
+.devspace-elements-gap {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+.sidenav {
+  width: 100%;
+  height: 100%;
+  padding: 32px 30px 32px;
+  font: 16px/1.3 system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, 'Apple Color Emoji',
+    'Segoe UI Emoji';
+  color: $color-text;
+  background: $color-surface;
+  overflow-y: auto;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.sidenav-brand {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  column-gap: 8px;
+  margin-bottom: 20px;
+
+  .brand-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .brand-logo {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    object-fit: cover;
+  }
+
+  .brand-name {
+    @include mixins.text-style(
+      $size: 24px,
+      $color: #000000,
+      $font-weight: 700,
+      $font-family: 'Nunito',
+      $line-height: 1
+    );
+  }
+
+  .brand-action {
+    display: inline-grid;
+    place-items: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+
+    &:focus-visible {
+      outline: 2px solid $color-brand;
+      outline-offset: 2px;
+    }
+  }
+}
+
+.contact-item-anker {
+  display: block;
+  text-decoration: none;
+  min-width: 0;
+  width: 100%;
+
+  &.is-active .contact {  
+    ::ng-deep .dm-item {
+      background-color: $color-dm-hover;
+      span {
+        color: #444df2;
+        font-weight: 700;
+      }
+    }
+  }
+}
+
+app-contact-item {
+  display: block;
+  min-width: 0;
+  width: 100%;
+}
+
+.section-toggle-button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: all 125ms ease-in-out;
+
+  &:hover {
+    .section-toggle-arrow,
+    .section-title-icon {
+      path {
+        fill: $color-brand;
+      }
+    }
+
+    .section-title-text {
+      color: $color-brand;
+    }
+  }
+
+  &[aria-expanded='true'] {
+    .section-toggle-arrow {
+      transition: transform 125ms ease-in-out;
+      transform: rotate(-90deg);
+    }
+  }
+}
+
+.section-title-text {
+  margin: 0;
+  @include mixins.text-style(
+    $size: 20px,
+    $color: #000000,
+    $font-weight: 700,
+    $font-family: 'Nunito',
+    $line-height: 1
+  );
+}
+
+.item-list {
+  gap: 10px;
+  display: flex;
+  flex-direction: column;
+  list-style: none;
+  width: 100%;
+  padding-left: 30px;
+  margin: 0;
+
+  > li {
+    min-width: 0;
+  }
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.section-addon-button {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 125ms ease-in-out;
+  border-radius: 50%;
+  padding: 2px;
+
+  > svg {
+    width: 24px;
+    height: 24px;
+  }
+
+  &:hover {
+    background-color: $color-dm-hover;
+    svg > path {
+      fill: $color-brand;
+    }
+  }
+}
+
+.trigger-message-btn {
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  background-color: transparent;
+  transition: all 125ms ease-in-out;
+
+  &:hover {
+    background-color: $color-dm-hover;
+
+    svg > g > path {
+      fill: $color-brand;
+      stroke: $color-brand;
+      stroke-width: 0.6;
+    }
+  }
+}
+
+.add-item-button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-left: 16px;
+  padding-left: 30px;
+  @include mixins.text-style(
+    $size: 18px,
+    $color: #000000,
+    $font-weight: 400,
+    $font-family: 'Nunito',
+    $line-height: 1
+  );
+
+  &:hover {
+    transition: all 125ms ease-in-out;
+    color: $color-brand;
+
+    > svg > path {
+      stroke-width: 0.5;
+    }
+  }
+}
+
+.load-more-button {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 4px 20px;
+  margin-left: 30px;
+  border-radius: 30px;
+  min-height: 58px;
+  cursor: pointer;
+  transition: background 125ms ease, color 125ms ease-in-out;
+  background-color: transparent;
+  border: none;
+  width: 90%;
+  text-align: left;
+
+  &:hover {
+    background: #eceefe;
+    .name {
+      color: #535af1;
+      font-weight: 700;
+    }
+  }
+
+  .more-pill {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: #eceefe;
+    display: grid;
+    place-items: center;
+    font-weight: 700;
+    font-size: 18px;
+    color: #535af1;
+    flex-shrink: 0;
+  }
+
+  .name {
+    color: #535af1;
+    font-size: variables.$basic-text-size;
+    font-weight: 500;
+    font-family: 'Nunito', sans-serif;
+  }
+}
+
+/* MOBILE SEARCH INPUT */
+
+.search-form {
+  width: 100%;
+}
+
+.search-container {
+  display: flex;
+  align-items: center;
+  border: 1px solid #adb0d9;
+  border-radius: 30px;
+  background-color: transparent;
+  padding: 10px 15px;
+  margin-bottom: 30px;
+  transition: border-color 125ms ease;
+
+  &:focus-within {
+    border-color: #535af1;
+  }
+}
+
+.search-container input[type='search'] {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: inherit;
+  font-size: 1rem;
+  padding: 8px;
+
+  &::placeholder {
+    color: #aaa;
+  }
+}
+
+.search-button {
+  background: none;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0.25rem;
+  color: inherit;
+
+  &:hover .search-icon {
+    color: red;
+  }
+}
+
+.search-icon {
+  font-size: 1.25rem;
+}
+
+.mobile-edit-btn {
+  display: none;
+  position: absolute;
+  bottom: 60px;
+  right: 40px;
+  background-color: $color-brand;
+  border-radius: 50%;
+}
+
+.mobile-edit-btn {
+  @include mat.fab-overrides(
+    (
+      container-elevation-shadow: 0px 6px 10px 0px rgba(0, 0, 0, 0.2),
+    )
+  );
+}
+
+.dm-total-badge {
+  margin-left: 8px;
+  min-width: 22px;
+  height: 22px;
+  border-radius: 50px;
+  background: #e53935;
+  color: #fff;
+  font-family: 'Nunito', sans-serif;
+  font-size: 12px;
+  line-height: 22px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  vertical-align: middle;
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.08);
+}

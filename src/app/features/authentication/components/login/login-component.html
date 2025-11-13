@@ -1,0 +1,61 @@
+<section class="dialog-login" role="dialog" aria-modal="true" aria-labelledby="login-title">
+  <h1 id="login-title" class="dialog-login__title">Anmeldung</h1>
+  <p class="dialog-login__subtitle">
+    Wir empfehlen dir, die E-Mail-Adresse zu nutzen, die du bei der Arbeit verwendest.
+  </p>
+  <form [formGroup]="loginForm" (submit)="login()">
+    <mat-card-content class="form-group">
+      <mat-form-field class="custom-form-field" appearance="outline">
+        <mat-icon matPrefix class="material-icons-outlined">mail</mat-icon>
+        <input
+          matInput
+          placeholder="beispielname@example.com"
+          formControlName="email"
+          (blur)="updateErrorMessages()"
+          required
+        />
+        @if (this.loginForm.controls.email.invalid && this.loginForm.controls.email.touched) {
+        <mat-error>{{ emailErrorMessage() }}</mat-error>
+        }
+      </mat-form-field>
+      <mat-form-field class="custom-form-field" appearance="outline">
+        <mat-icon matPrefix class="material-icons-outlined">lock</mat-icon>
+        <input type="password"
+          matInput
+          placeholder="Passwort"
+          formControlName="password"
+          (blur)="updateErrorMessages()"
+          required
+        />
+        @if (this.loginForm.controls.password.invalid && this.loginForm.controls.email.touched) {
+        <mat-error>{{ passwordErrorMessage() }}</mat-error>
+        }
+      </mat-form-field>
+    </mat-card-content>
+    <p class="password-forgotten">
+      <a [routerLink]="'/password-reset'" class="dialog-login__forgot">Passwort vergessen?</a>
+    </p>
+    <div class="dialog-login__divider">
+      <span class="line"></span>
+      <span class="text">ODER</span>
+      <span class="line"></span>
+    </div>
+    <div class="google-login-row" tabindex="0" (click)="signInWithGoogle()">
+      <img class="google-icon" src="assets/icons/google-logo.svg" alt="Google Icon" />
+      <span class="google-text">Anmelden mit Google</span>
+    </div>
+    <div class="dialog-login__actions">
+      <button
+        type="submit"
+        class="btn btn--primary"
+        [class.disabled]="loginForm.invalid"
+        [disabled]="loginForm.invalid"
+      >
+        Anmelden
+      </button>
+      <button [routerLink]="'/workspace'" type="button" class="btn btn--secondary" (click)="loginAsGuest()">
+        Gäste-Login
+      </button>
+    </div>
+  </form>
+</section>

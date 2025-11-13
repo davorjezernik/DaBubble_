@@ -1,0 +1,51 @@
+<div class="dialog-user-card-container">
+  <header class="dialog-user-card-header-container">
+    <h2 class="h2-dialog-user" mat-dialog-title>Profil</h2>
+    <img class="close-icon" mat-dialog-close src="assets/icons/close.svg" alt="Schließen" />
+  </header>
+
+  <figure class="user-profil-image-container">
+    <img [src]="data.user.avatar" (error)="fallbackAvatar($event)" [alt]="data.user.name" />
+  </figure>
+
+  <main class="main-container-user-dialog">
+    <section class="mat-typography">
+      <section class="user-name-edit">
+        <h3>{{ data.user.name }}</h3>
+        <!-- Desktop-Version -->
+        <button class="edit-btn edit-text" *ngIf="isSelf" (click)="onEditUser()">Bearbeiten</button>
+
+        <!-- Mobile-Version -->
+        <button
+          class="edit-btn edit-icon"
+          *ngIf="isSelf"
+          (click)="onEditUser()"
+          aria-label="Profil bearbeiten"
+        >
+          <img src="assets/icons/edit.svg" alt="Bearbeiten Icon" />
+        </button>
+      </section>
+      <p class="user-status">
+        <span
+          class="status-dot"
+          [class.online]="data.user.online"
+          [class.offline]="!data.user.online"
+        >
+        </span>
+        {{ data.user.online ? 'Aktiv' : 'Abwesend' }}
+      </p>
+
+      <section class="info-email-container">
+        <img src="assets/icons/mail.svg" alt="Mail Icon" />
+        <h3>E-Mail-Adresse</h3>
+      </section>
+      <a [href]="'mailto:' + data.user.email">{{ data.user.email }}</a>
+    </section>
+  </main>
+
+  <mat-dialog-actions *ngIf="!isSelf">
+    <button class="user-card-btn" matButton>
+      <img src="assets/icons/message-icon.svg" alt="Message Icon" />Nachricht
+    </button>
+  </mat-dialog-actions>
+</div>

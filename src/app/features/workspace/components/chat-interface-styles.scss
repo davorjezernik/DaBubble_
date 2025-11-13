@@ -1,0 +1,165 @@
+@use 'mixins';
+
+@mixin chat-interface-base {
+  // Shared outer container to enable proper flex scrolling in all chat screens
+  .chat-container {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    align-items: stretch;
+  }
+
+  .chat-content {
+    flex: 1;
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    overflow-y: auto;
+    display: flex;
+    justify-content: flex-start;
+    align-items: flex-start;
+    padding: 20px 0px 10px;
+    box-sizing: border-box;
+    flex-direction: column-reverse;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+
+    &:not(.empty) {
+      > :first-child {
+        margin-bottom: auto;
+      }
+    }
+
+    &.empty {
+      padding-left: 45px;
+      > :first-child {
+        margin-top: auto;
+      }
+    }
+  }
+
+  .message-item {
+    width: 100%;
+  }
+
+  .message-timestamp {
+    @include mixins.text-style(
+      $size: 18px,
+      $color: #000000,
+      $font-weight: 400,
+      $font-family: 'Nunito',
+      $line-height: 1
+    );
+    white-space: nowrap;
+  }
+
+  .timestamp-line {
+    width: 100%;
+    height: 1px;
+    background-color: #d9d9d9;
+  }
+
+  .timestamp-block {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    margin: 40px 0;
+  }
+
+  .timestamp-bubble {
+    border-radius: 30px;
+    padding: 5px 15px;
+    border: 1px solid #adb0d9;
+  }
+
+  .message {
+    margin-left: 24px;
+  }
+
+  .avatar-wrapper {
+    position: relative;
+    width: 100px;
+    height: 100px;
+
+    > img {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+  }
+
+  .avatar-figure {
+    display: flex;
+    align-items: end;
+    gap: 25px;
+    margin: 0;
+  }
+
+  .avatar-caption {
+    @include mixins.text-style(
+      $size: 24px,
+      $color: #000000,
+      $font-weight: 700,
+      $font-family: 'Nunito',
+      $line-height: 1
+    );
+    transition: color 125ms ease-in-out;
+
+    &:hover {
+      color: #535af1;
+    }
+  }
+
+  .chat-info {
+    line-height: 140%;
+    width: 90%;
+    @include mixins.text-style(
+      $size: 20px,
+      $color: #686868,
+      $font-weight: 400,
+      $font-family: 'Nunito'
+    );
+
+    > span {
+      @include mixins.text-style(
+        $size: 20px,
+        $color: #686868,
+        $font-weight: 700,
+        $font-family: 'Nunito',
+        $line-height: 1
+      );
+    }
+  }
+
+  .recipient-tag {
+    background-color: transparent;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    padding: 0;
+    transition: all 125ms ease-in-out;
+    cursor: pointer;
+    @include mixins.text-style(
+      $size: 20px,
+      $color: #535af1,
+      $font-weight: 400,
+      $font-family: 'Nunito',
+      $line-height: 1.4
+    );
+
+    &:hover {
+      font-weight: 700;
+    }
+  }
+
+  .avatar-figure-button {
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+  }
+}

@@ -1,31 +1,35 @@
 import {
   ApplicationConfig,
+  importProvidersFrom,
   provideBrowserGlobalErrorListeners,
   provideZoneChangeDetection,
 } from '@angular/core';
 import { provideRouter } from '@angular/router';
+import { MAT_RIPPLE_GLOBAL_OPTIONS, RippleGlobalOptions } from '@angular/material/core';
 
-import { routes } from './app.routes';
+import { AuthRoutes } from './app.routes';
 import { initializeApp, provideFirebaseApp } from '@angular/fire/app';
 import { getAuth, provideAuth } from '@angular/fire/auth';
 import { getFirestore, provideFirestore } from '@angular/fire/firestore';
+import { environment } from '../environments/environment.development';
+import { AppRoutingModule } from './app-routing-module';
+
+const globalRippleConfig: RippleGlobalOptions = {
+  disabled: true
+};
 
 export const appConfig: ApplicationConfig = {
   providers: [
+    importProvidersFrom(AppRoutingModule),
     provideBrowserGlobalErrorListeners(),
     provideZoneChangeDetection({ eventCoalescing: true }),
-    provideRouter(routes),
+    provideRouter(AuthRoutes),
     provideFirebaseApp(() =>
-      initializeApp({
-        apiKey: 'AIzaSyBT81psRiMumvUIdzN1EAwK8NjKIEYUPM0',
-        authDomain: 'dabubble-69d59.firebaseapp.com',
-        projectId: 'dabubble-69d59',
-        storageBucket: 'dabubble-69d59.firebasestorage.app',
-        messagingSenderId: '69214031220',
-        appId: '1:69214031220:web:3d2480569252b62ac03021',
-      })
+      initializeApp(environment.firebase)
     ),
     provideAuth(() => getAuth()),
     provideFirestore(() => getFirestore()),
+        {provide: MAT_RIPPLE_GLOBAL_OPTIONS, useValue: globalRippleConfig}
+
   ],
 };

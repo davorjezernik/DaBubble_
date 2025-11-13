@@ -1,0 +1,106 @@
+@use 'mixins';
+@use 'variables';
+
+.dm-item {
+  min-width: 0;
+  box-sizing: border-box;
+  width: 100%;
+  height: 58px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 4px 20px;
+  border-radius: 30px;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+
+  &:hover {
+    background: #eceefe;
+
+    .name {
+      color: #535af1;
+      font-weight: 700;
+
+      .you {
+        color: #535af1;
+        font-weight: 700;
+      }
+    }
+  }
+
+  .avatar-wrap {
+    position: relative;
+    width: 50px;
+    height: 50px;
+
+    .avatar {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .status {
+      position: absolute;
+      right: 0;
+      bottom: 0;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      border: 2px solid #fff;
+      background: #686868;
+
+      &.online {
+        background: #92c83e;
+      }
+    }
+  }
+
+  .name {
+    @include mixins.text-style(
+      $size: variables.$basic-text-size,
+      $color: #000,
+      $font-weight: 400,
+      $font-family: 'Nunito',
+      $line-height: 1
+    );
+    white-space: nowrap;
+    transition: color 125ms ease-in-out;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex: 1;
+    min-width: 0;
+
+    .you {
+      margin-left: 4px;
+      font-weight: 400;
+      color: #000;
+      transition: color 125ms ease;
+    }
+  }
+  .badge {
+    margin-left: auto;
+    min-width: 22px;
+    height: 22px;
+    border-radius: 50px;
+    background: #e53935;
+    color: #fff;
+    font-family: 'Nunito', sans-serif;
+    font-size: 12px;
+    line-height: 22px;
+    text-align: center;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    box-shadow: 0 1px 0 rgba(0, 0, 0, 0.08);
+  }
+
+  &:hover .badge {
+    transform: translateY(-1px);
+    transition: transform 125ms ease;
+  }
+}

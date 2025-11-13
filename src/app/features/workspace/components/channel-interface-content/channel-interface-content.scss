@@ -1,0 +1,202 @@
+@use 'mixins';
+
+@use '../chat-interface-styles' as chat;
+
+@include chat.chat-interface-base;
+
+:host {
+  height: 100%;
+  width: 100%;
+}
+
+button {
+  all: unset;
+  cursor: pointer;
+  background-color: transparent;
+}
+
+/* .chat-container and .chat-content are provided by the shared mixin now */
+
+.chat-header {
+  border-top-left-radius: 30px;
+  border-top-right-radius: 30px;
+  margin-bottom: 20px;
+  height: 96px;
+  width: 100%;
+  padding: 0 45px 0;
+  box-shadow: 0 2px 10px rgb(0 0 0 / 8%);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-sizing: border-box;
+}
+
+.footer {
+  width: 100%;
+  padding: 0 35px 40px 35px;
+  box-sizing: border-box;
+}
+
+.users-and-add-users {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.add-user-btn {
+  &:hover {
+    svg {
+      transition: all 125ms ease-in-out;
+      transform: scale(1.1);
+    }
+    svg path {
+      transition: 125ms ease-in-out;
+      fill: #535af1;
+    }
+  }
+}
+
+.channel-info-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 10px;
+  margin: 0;
+  gap: 10px;
+  transition: all 125ms ease-in-out;
+  &:hover:not(.basic-chat) {
+    background-color: #eceefe;
+
+    .channel-name {
+      color: #535af1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 200px;
+    }
+
+    .info-hashtag path {
+      transition: 125ms ease-in-out;
+      fill: #535af1;
+    }
+
+    .info-arrow path {
+      transition: 125ms ease-in-out;
+      fill: #535af1;
+    }
+
+    .arrow-visibility {
+      transition: all 125ms ease-in-out;
+      visibility: visible;
+    }
+  }
+
+  &.basic-chat {
+    cursor: default;
+  }
+}
+
+.channel-name {
+  @include mixins.text-style(
+    $size: 24px,
+    $color: #000000,
+    $font-weight: 700,
+    $font-family: 'Nunito',
+    $line-height: 1
+  );
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 200px;
+}
+
+.arrow-visibility {
+  visibility: hidden;
+}
+
+.current-channel {
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 250px;
+  line-height: 1.4;
+  vertical-align: middle;
+
+    > span {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+.channel-intro {
+  gap: 4px;
+  padding-left: 10px;
+  @include mixins.text-style(
+    $size: 20px,
+    $color: #000000,
+    $font-weight: 400,
+    $font-family: 'Nunito',
+    $line-height: 1
+  );
+}
+
+.current-channel {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 400;
+  @include mixins.text-style(
+    $size: 20px,
+    $color: #535af1,
+    $font-weight: 600,
+    $font-family: 'Nunito',
+    $line-height: 1
+  );
+}
+
+.current-channel img {
+  width: 14px;
+  height: 14px;
+}
+
+.avatar-stack {
+  all: unset;
+  cursor: pointer;
+  display: inline-flex;
+  flex-direction: row-reverse;
+  align-items: center;
+  padding: 6px 10px 6px 18px;
+  border-radius: 50px;
+  transition: all 125ms ease-in-out;
+
+  &:hover {
+    background: #eceefe;
+
+    .member-count {
+      color: #535af1;
+    }
+  }
+}
+
+.avatar-stack .avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #fff;
+  margin-left: -10px;
+}
+.avatar-stack .avatar:first-child {
+  margin-right: 0;
+}
+
+.member-count {
+  margin-left: 10px;
+  font-family: 'Nunito', sans-serif;
+  font-weight: 700;
+  font-size: 20px;
+  color: #000;
+}

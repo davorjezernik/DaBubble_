@@ -1,0 +1,53 @@
+@media (max-width: 950px) {
+  .brand .logo {
+    height: 64px;
+  }
+
+  .name {
+    font-size: 24px;
+  }
+
+  .avatar-wrap {
+    height: 64px;
+    width: 64px;
+
+    .status {
+      width: 8px;
+      height: 8px;
+    }
+  }
+}
+
+@media (max-width: 560px) {
+  .mobile-header {
+    padding: 10px 12px;
+  }
+  .brand .logo {
+    height: 56px;
+  }
+
+  .name {
+    font-size: 24px;
+  }
+
+  .avatar-wrap {
+    height: 60px;
+    width: 60px;
+
+    .status {
+      width: 8px;
+      height: 8px;
+    }
+  }
+}
+
+@media (max-width: 400px) {
+  .mobile-header {
+    padding: 8px 10px;
+  }
+
+    .brand .logo {
+    height: 50px;
+  }
+
+}

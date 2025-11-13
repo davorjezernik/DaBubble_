@@ -1,0 +1,77 @@
+<mat-card class="signup-card">
+  <mat-icon class="dialog-authentication-back-arrow" (click)="goBack()">arrow_back</mat-icon>
+  <div class="dialog-authentication-header">
+    <h2 class="dialog-authentication-title">Konto erstellen</h2>
+  </div>
+
+  @if (loading) {
+  <div class="loading-overlay">
+    <mat-progress-spinner mode="indeterminate" color="primary"></mat-progress-spinner>
+  </div>
+  }
+
+  <form [formGroup]="signinForm" (ngSubmit)="proceedToAvatarSelection()" [class.hidden]="loading">
+    <mat-card-content>
+      <p>Mit deinem Namen und deiner E-Mail-Adresse hast du dein neues DaBubble-Konto.</p>
+
+      <mat-form-field class="custom-form-field" appearance="outline" [hideRequiredMarker]="true">
+        <mat-icon matPrefix class="material-icons-outlined">person</mat-icon>
+        <input
+          matInput
+          formControlName="name"
+          placeholder="Name und Nachname"
+          [errorStateMatcher]="matcher"
+        />
+        @if (signinForm.get('name')?.hasError('required')) {
+        <mat-error>Bitte gib deinen Namen ein.</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field class="custom-form-field" appearance="outline" [hideRequiredMarker]="true">
+        <mat-icon matPrefix class="material-icons-outlined">mail</mat-icon>
+        <input
+          matInput
+          formControlName="email"
+          placeholder="beispielname@email.com"
+          [errorStateMatcher]="matcher"
+        />
+        @if (signinForm.get('email')?.hasError('email') &&
+        !signinForm.get('email')?.hasError('required')) {
+        <mat-error>Bitte gib eine gültige E-Mail-Adresse ein.</mat-error>
+        } @if (signinForm.get('email')?.hasError('required')) {
+        <mat-error>E-Mail ist erforderlich.</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field class="custom-form-field" appearance="outline" [hideRequiredMarker]="true">
+        <mat-icon matPrefix class="material-icons-outlined">lock</mat-icon>
+        <input
+          matInput
+          formControlName="passwort"
+          placeholder="Passwort"
+          [errorStateMatcher]="matcher"
+          type="password"
+        />
+        @if (signinForm.get('passwort')?.hasError('required')) {
+        <mat-error>Bitte gib ein Passwort ein.</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-checkbox formControlName="privacyPolicy" color="primary">
+        <span>Ich stimme der <a href="/privacy-policy" target="_blank">Datenschutzerklärung</a> zu.</span>
+      </mat-checkbox>
+    </mat-card-content>
+
+    <mat-card-actions class="dialog-authentication-actions">
+      <button
+        mat-flat-button
+        class="btn-weiter"
+        type="submit"
+        cdkFocusInitial
+        [disabled]="!signinForm.valid || loading"
+      >
+        Weiter
+      </button>
+    </mat-card-actions>
+  </form>
+</mat-card>

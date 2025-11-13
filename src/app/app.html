@@ -1,5 +1,6 @@
 @if (showIntro) {
-  <app-intro-overlay (done)="showIntro = false"></app-intro-overlay>
+  <app-intro-overlay (done)="onIntroDone()"></app-intro-overlay>
 }
-<app-backdrop-component></app-backdrop-component>
-<router-outlet></router-outlet>
+<main class="content-wrapper">
+  <router-outlet class="router"></router-outlet>
+</main>

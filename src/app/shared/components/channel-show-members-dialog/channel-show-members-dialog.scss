@@ -1,0 +1,196 @@
+$brand: #535af1;
+$hover-bg: #eceefe;
+$online: #5cd65c;
+$offline: #b7bcc5;
+
+.members-dialog {
+  width: 415px;
+  max-height: 411px;
+  padding: 40px;
+  border-top-left-radius: 30px !important;
+  border-bottom-right-radius: 30px !important;
+  border-bottom-left-radius: 30px !important;
+  border-top-right-radius: 0 !important;
+  background: #fff;
+  box-shadow: 0 6px 10px #00000033;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  box-sizing: border-box;
+}
+
+.dlg-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.dlg-header h3 {
+  margin: 0;
+  font-family: 'Nunito', sans-serif;
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.dlg-close {
+  width: 20px;
+  height: 20px;
+  padding: 10px;
+  transition: background 125ms ease, transform 125ms ease;
+  border-radius: 50%;
+  background: transparent;
+  cursor: pointer;
+
+  &:hover {
+    background: $hover-bg;
+    content: url('/assets/icons/close-hover.svg');
+  }
+}
+
+.member-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 13px;
+
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.member-row {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 3px 10px;
+  border-radius: 30px;
+  cursor: pointer;
+  transition: background 125ms ease, color 125ms ease;
+
+  width: fit-content;
+  max-width: 100%;
+
+  &:hover {
+    background: $hover-bg;
+
+    .status-dot {
+      border-color: $hover-bg;
+    }
+  }
+}
+
+.member-avatar-wrap {
+  position: relative;
+  width: 50px;
+  height: 50px;
+  display: inline-grid;
+  place-items: center;
+}
+
+.member-avatar {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.status-dot {
+  position: absolute;
+  right: -2px;
+  bottom: 0px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: $offline;
+  border: 2px solid #fff;
+  transition: background 125ms ease, border-color 125ms ease;
+}
+
+.is-online .status-dot {
+  background: $online;
+}
+
+.member-main {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.member-name {
+  font-family: 'Nunito', sans-serif;
+  font-size: 18px;
+  font-weight: 400;
+}
+
+.you {
+  font-weight: 400;
+}
+
+.add-members {
+  margin-top: 8px;
+
+  &:hover {
+    background: $hover-bg;
+
+    .add-members-btn {
+      color: $brand;
+      font-weight: 700;
+    }
+
+    .add-icon {
+      background-color: $hover-bg;
+      background-image: url('/assets/icons/add-person-to-channel-hover.svg');
+      background-size: 32px;
+      background-position: center;
+      background-repeat: no-repeat;
+    }
+  }
+}
+
+.add-icon {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  cursor: pointer;
+
+  background-color: transparent;
+  background-image: url('/assets/icons/add-person-to-channel.svg');
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 50px;
+
+  transition: background-color 125ms ease;
+}
+
+.add-members-btn {
+  all: unset;
+  cursor: pointer;
+  font-family: 'Nunito', sans-serif;
+  font-size: 18px;
+  font-weight: 400;
+}
+
+@media (max-width: 460px) {
+  .members-dialog {
+    width: 360px;
+  }
+}
+
+@media (max-width: 400px) {
+  .members-dialog {
+    width: 285px;
+    padding: 20px;
+  }
+
+  .member-row {
+  gap: 10px;
+  padding: 3px 0px;
+}
+}
+
