@@ -21,6 +21,9 @@ import {
 } from '@angular/fire/firestore';
 import { UserService } from '../../../../services/user.service';
 import { ViewStateService } from '../../../../services/view-state.service';
+import { MatDialog } from '@angular/material/dialog';
+import { firstValueFrom } from 'rxjs';
+import { DialogUserCardComponent } from '../dialog-user-card/dialog-user-card.component';
 
 @Component({
   selector: 'app-message-bubble',
@@ -32,6 +35,7 @@ import { ViewStateService } from '../../../../services/view-state.service';
 export class MessageBubbleComponent implements OnChanges {
   @ViewChild('editEmojiPicker', { read: ElementRef }) editEmojiPickerRef?: ElementRef;
   @ViewChild('editEmojiButton', { read: ElementRef }) editEmojiButtonRef?: ElementRef;
+  @ViewChild('editTextarea', { read: ElementRef }) editTextareaRef?: ElementRef<HTMLTextAreaElement>;
 
   @Input() incoming: boolean = false; // when true, render as left-side/incoming message
   @Input() name: string = 'Frederik Beck';
@@ -52,6 +56,8 @@ export class MessageBubbleComponent implements OnChanges {
   @Input() isThreadView: boolean = false;
   /** When true, show an "Bearbeitet" label in the header (set by parent or via saveEdit). */
   @Input() edited?: boolean;
+  /** Author user id for opening profile card on name click. */
+  @Input() authorId?: string;
 
   showEmojiPicker = false;
   reactionsExpanded = false;
@@ -65,6 +71,8 @@ export class MessageBubbleComponent implements OnChanges {
   isDeleting = false;
   editEmojiPickerVisible = false;
   private readonly DELETED_PLACEHOLDER = 'Diese Nachricht wurde gelöscht.';
+  // Delete confirmation UI state
+  confirmDeleteOpen = false;
 
   /**
    * Toggle the inline emoji picker for quick reactions.
@@ -96,6 +104,11 @@ export class MessageBubbleComponent implements OnChanges {
     if (this.isDeleted) return;
     this.showEmojiPicker = true;
     this.showMiniActions = false;
+  }
+
+  /** Display name truncated per 12/12 rule (first and last name). */
+  get displayName(): string {
+    return this.truncateFullName(this.name || '');
   }
 
   /**
@@ -141,6 +154,22 @@ export class MessageBubbleComponent implements OnChanges {
   onEditEmojiSelected(emoji: string) {
     this.editText = (this.editText || '') + emoji;
     this.editEmojiPickerVisible = false;
+    this.autosizeEditTextarea();
+  }
+
+  /** Input handler for the edit textarea: updates text and auto-grows the field. */
+  onEditInput(event: Event) {
+    const target = event.target as HTMLTextAreaElement | null;
+    this.editText = target?.value ?? '';
+    this.autosizeEditTextarea();
+  }
+
+  /** Resize the edit textarea to fit content without scrollbar. */
+  private autosizeEditTextarea() {
+    const el = this.editTextareaRef?.nativeElement;
+    if (!el) return;
+    el.style.height = 'auto';
+    el.style.height = `${el.scrollHeight}px`;
   }
 
   reactions: Array<{
@@ -216,7 +245,7 @@ export class MessageBubbleComponent implements OnChanges {
         if (count > 0) {
           // prefetch names
           this.ensureNamesLoaded(userIds);
-          const userNames = userIds.map((id) => this.nameCache.get(id) || '');
+          const userNames = userIds.map((id) => this.truncateFullName(this.nameCache.get(id) || ''));
           out.push({
             emoji,
             count,
@@ -241,11 +270,27 @@ export class MessageBubbleComponent implements OnChanges {
         // refresh names in current reactions
         this.reactions = this.reactions.map((r) =>
           r.userIds.includes(id)
-            ? { ...r, userNames: r.userIds.map((x) => this.nameCache.get(x) || '') }
+            ? { ...r, userNames: r.userIds.map((x) => this.truncateFullName(this.nameCache.get(x) || '')) }
             : r
         );
       });
     }
+  }
+
+  /**
+   * Shorten first and last name separately to 12 chars each with ellipsis.
+   * Uses first token as Vorname and last token as Nachname. If only one token, truncates that.
+   */
+  private truncateFullName(name: string): string {
+    const cleaned = (name || '').toString().trim().replace(/\s+/g, ' ');
+    if (!cleaned) return '';
+    const parts = cleaned.split(' ');
+    const trunc = (s: string) => (s.length > 12 ? s.slice(0, 12) + '…' : s);
+    if (parts.length === 1) return trunc(parts[0]);
+    const first = trunc(parts[0]);
+    const last = trunc(parts[parts.length - 1]);
+    // Avoid duplicating the same token if identical
+    return first === last ? first : `${first} ${last}`;
   }
 
   /**
@@ -445,6 +490,9 @@ export class MessageBubbleComponent implements OnChanges {
     if (this.editEmojiPickerVisible) {
       this.editEmojiPickerVisible = false;
     }
+    if (this.confirmDeleteOpen) {
+      this.confirmDeleteOpen = false;
+    }
   }
 
   /** Show mini actions when cursor enters the bubble. */
@@ -487,6 +535,8 @@ export class MessageBubbleComponent implements OnChanges {
     this.isEditing = true;
     this.showMiniActions = false; // hide actions during edit mode
     this.editText = this.text || '';
+    // Defer to next tick so textarea is in the DOM
+    setTimeout(() => this.autosizeEditTextarea());
   }
 
   /** Exit editing mode without saving. */
@@ -526,12 +576,19 @@ export class MessageBubbleComponent implements OnChanges {
    * Delete this message from Firestore (doc/deleteDoc) after user confirmation.
    * Uses isDeleting flag to disable buttons while in-flight.
    */
-  async deleteMessage() {
+  openConfirmDelete() {
+    if (this.isDeleted) return;
+    this.isMoreMenuOpen = false;
+    this.confirmDeleteOpen = true;
+  }
+
+  cancelConfirmDelete() {
+    this.confirmDeleteOpen = false;
+  }
+
+  async confirmDelete() {
     const path = this.buildMessageDocPath();
     if (!path) return;
-    const confirmed =
-      typeof window !== 'undefined' ? window.confirm('Nachricht wirklich löschen?') : true;
-    if (!confirmed) return;
     try {
       this.isDeleting = true;
       const ref = doc(this.firestore, path);
@@ -539,6 +596,7 @@ export class MessageBubbleComponent implements OnChanges {
       await updateDoc(ref, { text: this.DELETED_PLACEHOLDER, deleted: true });
       this.text = this.DELETED_PLACEHOLDER;
       this.isMoreMenuOpen = false;
+      this.confirmDeleteOpen = false;
     } catch (e) {
       // noop
     } finally {
@@ -581,6 +639,23 @@ export class MessageBubbleComponent implements OnChanges {
       chatId: this.chatId,
       messageId: this.messageId,
       collectionName: this.collectionName,
+    });
+  }
+
+  /** Open the user card dialog for the message author when clicking on the user name. */
+  async onUserNameClick(event?: MouseEvent) {
+    event?.stopPropagation();
+    if (!this.authorId) return;
+    const user = await firstValueFrom(this.userService.userById$(this.authorId));
+    if (!user) return;
+    this.dialog.open(DialogUserCardComponent, {
+      data: { user },
+      panelClass: 'user-card-dialog',
+      width: '90vw',
+      maxWidth: '500px',
+      maxHeight: '90vh',
+      autoFocus: false,
+      restoreFocus: true,
     });
   }
 
@@ -635,6 +710,7 @@ export class MessageBubbleComponent implements OnChanges {
     private threadPanel: ThreadPanelService,
     private userService: UserService,
     public el: ElementRef<HTMLElement>,
-    public viewStateService: ViewStateService
+    public viewStateService: ViewStateService,
+    private dialog: MatDialog
   ) {}
 }

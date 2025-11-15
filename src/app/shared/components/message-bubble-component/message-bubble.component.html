@@ -10,7 +10,7 @@
       @if (isEdited && !isDeleted) {
       <span class="edited">Bearbeitet</span>
       }
-      <span class="user-name">{{ name }}</span>
+      <span class="user-name" (click)="onUserNameClick($event)">{{ displayName }}</span>
     </div>
 
     <div
@@ -91,7 +91,7 @@
             <button
               class="menu-item"
               role="menuitem"
-              (click)="deleteMessage()"
+              (click)="openConfirmDelete()"
               [disabled]="isDeleting"
             >
               Nachricht löschen
@@ -104,9 +104,10 @@
       } @if (isEditing) {
       <div class="edit-container" (click)="$event.stopPropagation()">
         <textarea
+          #editTextarea
           class="edit-textarea"
           [value]="editText"
-          (input)="editText = $any($event.target).value"
+          (input)="onEditInput($event)"
           rows="1"
         ></textarea>
         <div class="edit-actions">
@@ -160,8 +161,29 @@
           [class.reacted]="r.currentUserReacted"
         >
           <span class="emoji-wrapper">
+            @if (r.emoji === '✅') {
+            <svg
+              class="emoji-svg"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              aria-label="Erledigt"
+              role="img"
+              focusable="false"
+            >
+              <circle cx="12" cy="12" r="10" fill="#22C55E" />
+              <path
+                d="M9.5 12.5l2 2 4-4"
+                stroke="#FFFFFF"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                fill="none"
+              />
+            </svg>
+            } @else {
             <span class="emoji">{{ r.emoji }}</span>
-            @if (!r.isLegacyCount) {
+            } @if (!r.isLegacyCount) {
             <div class="reaction-tooltip">
               <div class="reacter-emoji">{{ r.emoji }}</div>
               <div class="reacter-names">
@@ -206,3 +228,17 @@
     <img [src]="avatar" alt="User Avatar" class="avatar-img" />
   </div>
 </div>
+
+@if (confirmDeleteOpen) {
+<div class="delete-confirm-overlay">
+  <div class="delete-confirm-bubble" (click)="$event.stopPropagation()">
+    <div class="delete-confirm-text">Nachricht wirklich löschen?</div>
+    <div class="delete-confirm-actions">
+      <button type="button" class="confirm-btn" (click)="cancelConfirmDelete()">Abbrechen</button>
+      <button type="button" class="confirm-btn" (click)="confirmDelete()" [disabled]="isDeleting">
+        Löschen
+      </button>
+    </div>
+  </div>
+</div>
+}

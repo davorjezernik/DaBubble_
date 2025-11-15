@@ -211,4 +211,11 @@
   border: 1px solid #adb0d9 !important;
 }
 
+/* Thread-only override: at ≤500px, place the 3-dots dropdown without centering translation */
+@media (max-width: 500px) {
+  :host app-message-bubble ::ng-deep .menu-dropdown {
+    transform: translateX(0%) !important;
+  }
+}
+
 

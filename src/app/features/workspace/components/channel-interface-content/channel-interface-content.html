@@ -141,6 +141,7 @@
           ? memberProfiles[message.authorId]?.avatar || 'assets/img-profile/profile.png'
           : currentUserProfile?.avatar ?? 'assets/img-profile/profile.png'
       "
+      [authorId]="message.authorId"
       [time]="
         message.time
           ? message.time + ' Uhr'

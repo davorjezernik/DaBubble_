@@ -40,6 +40,7 @@
             ? message.user?.avatar || 'assets/img-profile/profile.png'
             : message.user?.avatar ?? 'assets/img-profile/profile.png'
         "
+        [authorId]="message.user?.id"
         [time]="message?.timestamp ? (message.timestamp.toDate() | date : 'HH:mm') + ' Uhr' : ''"
         [text]="message?.text ?? ''"
         [edited]="message?.edited"
@@ -66,6 +67,7 @@
             ? senderAvatar
             : currentUserData.avatar ?? 'assets/img-profile/profile.png'
         "
+        [authorId]="senderId"
         [time]="messageTimestamp ? (messageTimestamp.toDate() | date : 'HH:mm') + ' Uhr' : ''"
         [text]="messageText ?? ''"
         [edited]="messageEdited"
