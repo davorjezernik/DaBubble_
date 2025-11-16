@@ -31,15 +31,17 @@
         <mat-icon matPrefix class="material-icons-outlined">mail</mat-icon>
         <input
           matInput
+          type="email"
+          name="email"
           formControlName="email"
           placeholder="beispielname@email.com"
           [errorStateMatcher]="matcher"
+          pattern="[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}"
+          required
         />
-        @if (signinForm.get('email')?.hasError('email') &&
-        !signinForm.get('email')?.hasError('required')) {
-        <mat-error>Bitte gib eine gültige E-Mail-Adresse ein.</mat-error>
-        } @if (signinForm.get('email')?.hasError('required')) {
-        <mat-error>E-Mail ist erforderlich.</mat-error>
+        @if (signinForm.get('email')?.hasError('pattern') &&
+            !signinForm.get('email')?.hasError('required')) {
+          <mat-error>Das Format der E-Mail-Adresse ist ungültig.</mat-error>
         }
       </mat-form-field>
 
@@ -54,6 +56,9 @@
         />
         @if (signinForm.get('passwort')?.hasError('required')) {
         <mat-error>Bitte gib ein Passwort ein.</mat-error>
+        }
+        @if (signinForm.get('passwort')?.hasError('minlength')) {
+        <mat-error>Passwort muss mindestens 8 Zeichen lang sein.</mat-error>
         }
       </mat-form-field>
 

@@ -70,7 +70,11 @@ export class ThreadSidenavContent implements OnInit, OnDestroy, OnChanges, After
   @ViewChild('chatContent') private chatContent?: ElementRef<HTMLDivElement>;
   private shouldScrollToBottom = true;
 
-  constructor(private firestore: Firestore, private userService: UserService, public viewStateService: ViewStateService) {}
+  constructor(
+    private firestore: Firestore,
+    private userService: UserService,
+    public viewStateService: ViewStateService
+  ) {}
 
   ngOnInit(): void {}
 
