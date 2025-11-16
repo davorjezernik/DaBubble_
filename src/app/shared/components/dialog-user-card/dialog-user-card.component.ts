@@ -28,10 +28,15 @@ export class DialogUserCardComponent implements OnInit {
     private userService: UserService
   ) {}
 
-   ngOnInit() {
-    this.userService.currentUser$()
+  ngOnInit() {
+    this.userService
+      .currentUser$()
       .pipe(take(1))
-      .subscribe(me => this.isSelf = !!me && me.uid === this.data.user.uid);
+      .subscribe((me) => {
+        const u: any = this.data.user;
+        const targetId = u.uid ?? u.id; 
+        this.isSelf = !!me && !!targetId && me.uid === targetId;
+      });
   }
 
   onEditUser() {
