@@ -165,6 +165,15 @@ export class ChannelInterfaceContent extends BaseChatInterfaceComponent {
     this.memberCount$ = this.members$.pipe(map((ms) => ms.length));
   }
 
+  onAddUserClick(ev: MouseEvent, anchor: HTMLElement) {
+  ev.stopPropagation();
+  if (window.innerWidth <= 950) {
+    this.openMembersDialog(ev, anchor);
+    return;
+  }
+  this.openAddMembersUnderIcon(ev, anchor);
+}
+
   // open ChannelShowMembersDialog //
   openMembersDialog(ev?: MouseEvent, anchor?: HTMLElement) {
     ev?.stopPropagation();
@@ -178,7 +187,6 @@ export class ChannelInterfaceContent extends BaseChatInterfaceComponent {
     const left = Math.max(8, rect.right + window.scrollX - DLG_W);
 
     const ref = this.dialog.open(ChannelShowMembersDialog, {
-      width: `${DLG_W}px`,
       autoFocus: false,
       hasBackdrop: true,
       panelClass: 'members-dialog-panel',
@@ -259,13 +267,15 @@ export class ChannelInterfaceContent extends BaseChatInterfaceComponent {
   // Öffnet EditChannel als Modal
   openEditChannel(ev?: MouseEvent) {
     ev?.stopPropagation();
-    if (!this.channelData) return;
-    const ref = this.dialog.open(EditChannel, {
-      data: { channel: this.channelData },
-      autoFocus: false,
-    });
-
-    ref
+      if (this.channelData?.name === 'everyone') {
+        return;
+      }
+      if (!this.channelData) return;
+      const ref = this.dialog.open(EditChannel, {
+        data: { channel: this.channelData },
+        autoFocus: false,
+      });
+      ref
       .afterClosed()
       .pipe(take(1))
       .subscribe((res) => {

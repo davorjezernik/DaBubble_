@@ -53,7 +53,7 @@
       >
         Anmelden
       </button>
-      <button [routerLink]="'/workspace'" type="button" class="btn btn--secondary">
+      <button [routerLink]="'/workspace'" type="button" class="btn btn--secondary" (click)="loginAsGuest()">
         Gäste-Login
       </button>
     </div>

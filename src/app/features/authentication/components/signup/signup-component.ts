@@ -13,7 +13,6 @@ import { MyErrorStateMatcher } from './error-state-matcher';
 import { MatCardModule } from '@angular/material/card';
 import { Router } from '@angular/router';
 import { SharedDataService } from '../../../../core/services/shared-data-service';
-
 @Component({
   selector: 'app-dialog-signin-component',
   standalone: true,
@@ -39,7 +38,7 @@ export class SignupComponent {
   signinForm = new FormGroup({
     name: new FormControl('', [Validators.required]),
     email: new FormControl('', [Validators.required, Validators.email]),
-    passwort: new FormControl('', [Validators.required]),
+    passwort: new FormControl('', [Validators.required, Validators.minLength(8)]),
     privacyPolicy: new FormControl(false, [Validators.requiredTrue]),
   });
 

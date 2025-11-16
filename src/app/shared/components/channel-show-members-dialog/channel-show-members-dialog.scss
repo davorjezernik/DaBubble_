@@ -56,11 +56,11 @@ $offline: #b7bcc5;
   flex-direction: column;
   gap: 13px;
 
-  scrollbar-width: none; 
-  -ms-overflow-style: none; 
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 
   &::-webkit-scrollbar {
-    display: none; 
+    display: none;
   }
 }
 
@@ -74,7 +74,7 @@ $offline: #b7bcc5;
   transition: background 125ms ease, color 125ms ease;
 
   width: fit-content;
-  max-width: 100%; 
+  max-width: 100%;
 
   &:hover {
     background: $hover-bg;
@@ -146,8 +146,8 @@ $offline: #b7bcc5;
     .add-icon {
       background-color: $hover-bg;
       background-image: url('/assets/icons/add-person-to-channel-hover.svg');
-      background-size: 32px;          
-      background-position: center;    
+      background-size: 32px;
+      background-position: center;
       background-repeat: no-repeat;
     }
   }
@@ -175,3 +175,22 @@ $offline: #b7bcc5;
   font-size: 18px;
   font-weight: 400;
 }
+
+@media (max-width: 460px) {
+  .members-dialog {
+    width: 360px;
+  }
+}
+
+@media (max-width: 400px) {
+  .members-dialog {
+    width: 285px;
+    padding: 20px;
+  }
+
+  .member-row {
+  gap: 10px;
+  padding: 3px 0px;
+}
+}
+

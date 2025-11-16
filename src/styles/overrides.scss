@@ -303,7 +303,7 @@ body.intro-active app-auth-layout-component .header .logo img {
 }
 
 .members-dialog-panel .mdc-dialog__surface {
-  width: 415px !important;
+  max-width: 415px !important;
   max-height: 411px !important;
   display: flex;
   flex-direction: column;
@@ -326,7 +326,7 @@ body.intro-active app-auth-layout-component .header .logo img {
   padding: 0;
 }
 .add-members-dialog-panel .mdc-dialog__surface {
-  width: 514px !important;
+  max-width: 514px !important;
   padding: 0;
   background: #ffffff;
   box-shadow: 0px 6px 10px 0px #00000033;

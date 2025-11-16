@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Output, OnDestroy, OnInit, inject } from '@angular/core';
+import { Component, EventEmitter, Output, OnDestroy, OnInit, inject, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -8,7 +8,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatMenuModule } from '@angular/material/menu';
 import { Router } from '@angular/router';
 import { Auth, signOut } from '@angular/fire/auth';
-import { debounceTime, distinctUntilChanged, Subscription, Observable } from 'rxjs';
+import { debounceTime, distinctUntilChanged, Subscription, Observable, firstValueFrom } from 'rxjs';
 import { UserService } from '../../../../../services/user.service';
 import { User } from '../../../../../models/user.class';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
@@ -19,6 +19,7 @@ import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { SearchBusService } from '../../../../../services/search-bus.service';
 import { UserMenuService } from '../../../../../services/user-menu.service';
 import { ViewStateService } from '../../../../../services/view-state.service';
+import { AuthService } from '../../../../../services/auth-service';
 
 @Component({
   selector: 'app-header-workspace',
@@ -36,6 +37,9 @@ import { ViewStateService } from '../../../../../services/view-state.service';
   templateUrl: './header-workspace.component.html',
   styleUrls: ['./header-workspace.component.scss', './header-workspace-component.responsive.scss'],
 })
+
+@HostListener('window:beforeunload')
+
 export class HeaderWorkspaceComponent implements OnInit, OnDestroy {
   private userService = inject(UserService);
   private dialog = inject(MatDialog);
@@ -43,6 +47,7 @@ export class HeaderWorkspaceComponent implements OnInit, OnDestroy {
   private searchBus = inject(SearchBusService);
   private auth = inject(Auth);
   private router = inject(Router);
+  private authService = inject(AuthService);
 
   // Profile of the logged-in user //
   user$: Observable<User | null> = this.userService.currentUser$();
@@ -123,7 +128,7 @@ export class HeaderWorkspaceComponent implements OnInit, OnDestroy {
         data: { user },
         panelClass: 'user-card-dialog',
         width: '90vw',
-        maxWidth: '500px', 
+        maxWidth: '500px',
         maxHeight: '90vh',
         autoFocus: false,
         restoreFocus: true,
@@ -132,13 +137,22 @@ export class HeaderWorkspaceComponent implements OnInit, OnDestroy {
   }
 
   async logout() {
-    await this.userService.markOnline(false);
-    await signOut(this.auth);
+    const user = await firstValueFrom(this.authService.currentUser$);
+    if (user) {
+      await this.userService.markOnline(false);
+    }
+  
+    await this.authService.logout();
     this.router.navigateByUrl('/');
   }
 
   ngOnDestroy() {
     this.sub?.unsubscribe();
-    this.userService.markOnline(false);
+
+    this.authService.currentUser$.pipe(take(1)).subscribe((user) => {
+      if (user && !user.isAnonymous) {
+        this.userService.markOnline(false);
+      }
+    });
   }
 }
