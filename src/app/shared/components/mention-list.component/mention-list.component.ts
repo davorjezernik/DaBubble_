@@ -19,7 +19,7 @@ export interface MentionChannel {
   standalone: true,
   imports: [CommonModule],
   templateUrl: './mention-list.component.html',
-  styleUrls: ['./mention-list.component.scss'],
+  styleUrls: ['./mention-list.component.scss', './mention-list.component.responsiv..scss'],
 })
 export class MentionListComponent {
   @Input() mode: 'users' | 'channels' = 'users';
