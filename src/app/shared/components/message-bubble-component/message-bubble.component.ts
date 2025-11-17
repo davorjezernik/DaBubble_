@@ -8,6 +8,7 @@ import {
   SimpleChanges,
   ViewChild,
   ElementRef,
+  OnDestroy,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ThreadPanelService } from '../../../../services/thread-panel.service';
@@ -18,12 +19,16 @@ import {
   updateDoc,
   deleteDoc,
   deleteField,
+  increment,
+  collection,
+  collectionData,
 } from '@angular/fire/firestore';
 import { UserService } from '../../../../services/user.service';
 import { ViewStateService } from '../../../../services/view-state.service';
 import { MatDialog } from '@angular/material/dialog';
 import { firstValueFrom } from 'rxjs';
 import { DialogUserCardComponent } from '../dialog-user-card/dialog-user-card.component';
+import { firstValueFrom, map, Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-message-bubble',
@@ -32,7 +37,7 @@ import { DialogUserCardComponent } from '../dialog-user-card/dialog-user-card.co
   templateUrl: './message-bubble.component.html',
   styleUrl: './message-bubble.component.scss',
 })
-export class MessageBubbleComponent implements OnChanges {
+export class MessageBubbleComponent implements OnChanges, OnDestroy {
   @ViewChild('editEmojiPicker', { read: ElementRef }) editEmojiPickerRef?: ElementRef;
   @ViewChild('editEmojiButton', { read: ElementRef }) editEmojiButtonRef?: ElementRef;
   @ViewChild('editTextarea', { read: ElementRef }) editTextareaRef?: ElementRef<HTMLTextAreaElement>;
@@ -73,6 +78,11 @@ export class MessageBubbleComponent implements OnChanges {
   private readonly DELETED_PLACEHOLDER = 'Diese Nachricht wurde gelöscht.';
   // Delete confirmation UI state
   confirmDeleteOpen = false;
+
+  lastTime: string = '';
+  answersCount: number = 0;
+  lastTimeSub?: Subscription;
+  answersCountSub?: Subscription;
 
   /**
    * Toggle the inline emoji picker for quick reactions.
@@ -220,6 +230,11 @@ export class MessageBubbleComponent implements OnChanges {
     if ('reactionsMap' in changes) {
       this.rebuildReactions();
     }
+    this.getAnswersInfo();
+  }
+
+  ngOnDestroy(): void {
+    this.answersCountSub?.unsubscribe();
   }
 
   private rebuildReactions() {
@@ -700,17 +715,93 @@ export class MessageBubbleComponent implements OnChanges {
     }
   }
 
+  private async getAnswersInfo() {
+    if (!this.chatId || !this.messageId) return;
+
+    const coll = collection(
+      this.firestore,
+      `${this.collectionName}/${this.chatId}/messages/${this.messageId}/thread`
+    );
+    this.getAnswersAmount(coll);
+    this.getLastAnswerTime(coll);
+  }
+
+  private async getAnswersAmount(coll: any) {
+    this.answersCountSub = collectionData(coll)
+      .pipe(map((docs) => docs.length))
+      .subscribe((count) => {
+        this.answersCount = count;
+      });
+  }
+
+  private async getLastAnswerTime(coll: any) {
+    this.lastTimeSub = collectionData(coll)
+      .pipe(
+        map((messages) => {
+          if (messages.length === 0) return '';
+          const timestamps = messages.map((msg: any) => msg.timestamp?.toMillis()).filter((ts: any): ts is number => typeof ts === 'number');
+          if (timestamps.length === 0) return '';
+          const latest = Math.max(...timestamps);
+          const latestDate = new Date(latest);
+          return latestDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        })
+      )
+      .subscribe((timestamp) => {
+        this.lastTime = timestamp;
+      });
+  }
+
+  private async getAnswersInfo() {
+    if (!this.chatId || !this.messageId) return;
+
+    const coll = collection(
+      this.firestore,
+      `${this.collectionName}/${this.chatId}/messages/${this.messageId}/thread`
+    );
+    this.getAnswersAmount(coll);
+    this.getLastAnswerTime(coll);
+  }
+
+  private async getAnswersAmount(coll: any) {
+    this.answersCountSub = collectionData(coll)
+      .pipe(map((docs) => docs.length))
+      .subscribe((count) => {
+        this.answersCount = count;
+      });
+  }
+
+  private async getLastAnswerTime(coll: any) {
+    this.lastTimeSub = collectionData(coll)
+      .pipe(
+        map((messages) => {
+          if (messages.length === 0) return '';
+          const timestamps = messages.map((msg: any) => msg.timestamp?.toMillis()).filter((ts: any): ts is number => typeof ts === 'number');
+          if (timestamps.length === 0) return '';
+          const latest = Math.max(...timestamps);
+          const latestDate = new Date(latest);
+          return latestDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        })
+      )
+      .subscribe((timestamp) => {
+        this.lastTime = timestamp;
+      });
+  }
+
   /**
    * DI constructor.
    * @param firestore AngularFire Firestore instance used for message updates/deletes and reactions.
    * @param threadPanel Service to open the thread side panel for a given message.
    */
   constructor(
+    
     private firestore: Firestore,
+   
     private threadPanel: ThreadPanelService,
+   
     private userService: UserService,
     public el: ElementRef<HTMLElement>,
-    public viewStateService: ViewStateService,
+    public viewStateService: ViewStateService
+  ,
     private dialog: MatDialog
   ) {}
 }

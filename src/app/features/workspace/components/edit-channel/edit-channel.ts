@@ -6,12 +6,13 @@ import {
   MAT_DIALOG_DATA,
 } from '@angular/material/dialog';
 import { FormsModule } from '@angular/forms';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { ChannelService } from '../../../../../services/channel-service';
 
 @Component({
   selector: 'app-edit-channel',
   standalone: true,
-  imports: [CommonModule, MatDialogModule, FormsModule],
+  imports: [CommonModule, MatDialogModule, FormsModule, MatSnackBarModule],
   templateUrl: './edit-channel.html',
   styleUrl: './edit-channel.scss',
 })
@@ -25,7 +26,8 @@ export class EditChannel implements OnInit {
   constructor(
     public dialogRef: MatDialogRef<EditChannel>,
     @Inject(MAT_DIALOG_DATA) public data: any,
-    private channelService: ChannelService
+    private channelService: ChannelService,
+    private snackBar: MatSnackBar
   ) {}
 
   ngOnInit() {
@@ -63,9 +65,14 @@ export class EditChannel implements OnInit {
   }
 
   private async updateNameIfChanged() {
-    if (this.editedName === this.data.channel.name) return;
-    await this.updateChannel({ name: this.editedName });
-    this.data.channel.name = this.editedName;
+    const newName = (this.editedName || '').trim();
+    if (newName === this.data.channel.name) return;
+    if (newName.toLowerCase() === 'everyone') {
+      this.snackBar.open('Diesen Namen kannst du nicht wählen.', 'OK', { duration: 4000 });
+      return;
+    }
+    await this.updateChannel({ name: newName });
+    this.data.channel.name = newName;
   }
 
   private async updateDescriptionIfChanged() {
@@ -87,6 +94,4 @@ export class EditChannel implements OnInit {
     this.isEditingName = false;
     this.isEditingDescription = false;
   }
-
-
 }

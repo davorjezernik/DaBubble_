@@ -866,3 +866,298 @@
   }
 }
 
+
+:host ::ng-deep app-emoji-picker-component {
+  .emoji-picker-container,
+  .emoji-mart {
+    border-radius: 5px !important;
+    overflow: hidden;
+    padding: 0;
+  }
+
+  .emoji-mart-anchors {
+    display: none !important;
+  }
+
+  .emoji-picker-container {
+    bottom: 0 !important;
+    right: 0 !important;
+    left: auto !important;
+  }
+
+  .edit-actions .emoji-picker-container {
+    bottom: 0 !important;
+    left: 0 !important;
+    right: auto !important;
+  }
+
+  .emoji-mart-search {
+    display: none !important;
+  }
+  .emoji-mart-preview {
+    display: none !important;
+  }
+
+  .emoji-mart-scroll {
+    height: 104px !important;
+  }
+
+  .emoji-mart,
+  .emoji-mart-scroll,
+  .emoji-mart-anchors,
+  .emoji-mart-preview,
+  .emoji-mart-bar {
+    border: none !important;
+    box-shadow: none !important;
+  }
+
+  .emoji-mart-bar {
+    display: none !important;
+  }
+
+  .emoji-mart {
+    border: 1px solid #adb0d9 !important;
+  }
+
+}
+
+/* Delete confirmation overlay and bubble */
+.delete-confirm-overlay {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: rgba(0, 0, 0, 0.45); /* grey backdrop to block attention */
+  z-index: 10000; /* above menus and pickers */
+}
+
+.delete-confirm-bubble {
+  background: #444DF2; /* brand purple similar to tooltips */
+  color: #ffffff;
+  border-radius: 28px;
+  border-bottom-right-radius: 0; /* bottom-right angular */
+  padding: 20px 28px; /* more padding */
+  box-shadow: 0px 6px 10px 0px #00000033; /* requested style */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  min-width: 280px;
+  max-width: 92vw;
+}
+
+.delete-confirm-text {
+  font-family: 'Nunito', sans-serif;
+  font-weight: 400;
+  font-size: 20px;
+  text-align: center;
+  margin-bottom: 8px; /* extra space above buttons */
+}
+
+.delete-confirm-actions {
+  display: inline-flex;
+  gap: 12px;
+}
+
+.confirm-btn {
+  height: 36px;
+  padding: 0 16px;
+  border-radius: 20px;
+  font-family: 'Nunito', sans-serif;
+  font-weight: 700;
+  font-size: 16px;
+  border: none; /* default white border on purple bubble */
+  cursor: pointer;
+  transition: background-color 120ms ease, box-shadow 120ms ease, transform 80ms ease, color 120ms ease;
+  background: #ffffff;
+  color: #444DF2;
+}
+
+.confirm-btn:hover {
+  background: #E0E2FF; /* stronger change */
+  color: #1118a3; /* darker text on hover */
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.18); /* slightly stronger */
+  border-color: transparent; /* remove white ring on hover */
+}
+
+.confirm-btn:active {
+  transform: translateY(1px);
+}
+
+.confirm-btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(68, 77, 242, 0.35);
+}
+
+.confirm-btn[disabled] {
+  opacity: 0.6;
+  cursor: default;
+  box-shadow: none;
+}
+
+@media (max-width: 500px) {
+  .delete-confirm-bubble {
+    min-width: 240px;
+    border-radius: 24px;
+    border-bottom-right-radius: 0;
+    padding: 24px 28px;
+  }
+  .delete-confirm-text {
+    font-size: 18px;
+  }
+  .confirm-btn {
+    height: 34px;
+    font-size: 15px;
+  }
+}
+
+
+@media (max-width: 700px) {
+  :host ::ng-deep .emoji-mart {
+    width: 150px !important;
+  }
+
+  .btn {
+    height: 40px;
+  }
+
+  .speech-bubble.msg-box {
+    gap: 8px;
+  }
+
+  .btn.btn--secondary {
+    min-width: 60px;
+    padding: 0;
+    font-size: 0;
+
+    &::before {
+      content: '✕';
+      font-size: 16px;
+      font-weight: 800;
+      color: #797ef3;
+      transition: color 0.15s;
+    }
+
+    &:hover::before {
+      color: #ffffff;
+    }
+  }
+
+  .btn.btn--primary {
+    min-width: 60px;
+    padding: 0;
+    font-size: 0;
+
+    &::before {
+      content: '✓';
+      font-size: 16px;
+      font-weight: 700;
+      color: #ffffff;
+    }
+  }
+
+  .edit-left-actions app-emoji-picker-component {
+    left: 160px;
+  }
+}
+
+
+@media (max-width: 500px) {
+  .message-container {
+    gap: 8px;
+  }
+
+  .speech-bubble.msg-box {
+    padding: 16px;
+  }
+
+  .mini-actions {
+    left: 5%;
+  }
+
+  .message-container.incoming .mini-actions {
+    right: 20%;
+    left: auto;
+  }
+
+  .reactions.center-narrow {
+    justify-content: center;
+  }
+  .reactions.center-narrow .reaction-list {
+    justify-content: center;
+  }
+
+  .avatar-container .avatar-img {
+    width: 50px;
+    height: 50px;
+  }
+
+  .menu-dropdown {
+    top: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  .reactions .reaction-chip .reaction-tooltip {
+    left: 5%;
+    border-radius: 15px 15px 15px 0;
+    padding: 8px 6px;
+    width: 88px;
+    min-width: auto;
+    white-space: normal;
+    word-break: break-word;
+  }
+
+
+}
+
+@media (max-width: 400px) {
+  .reactions {
+    width: 116%;
+    margin-left: -14px;
+    margin-right: -14px
+  }
+
+  .btn.btn--primary,
+  .btn.btn--secondary {
+    height: 30px;
+    min-width: 40px;
+  }
+}
+
+
+.answers-info {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  cursor: pointer;
+
+  &:hover {
+    .answers-amount {
+      font-weight: 700;
+    }
+    .last-answer-time {
+      color:#000000;
+    }
+  }
+}
+
+.answers-amount {
+  @include mixins.text-style(
+    $size: variables.$basic-text-size,
+    $color: #535AF1,
+    $font-weight: 400,
+    $font-family: 'Nunito',
+    $line-height: 1.4
+  );
+}
+
+.last-answer-time {
+  @include mixins.text-style(
+    $size: 14px,
+    $color: #686868,
+    $font-weight: 400,
+    $font-family: 'Nunito',
+    $line-height: 1.4
+  );
+}
