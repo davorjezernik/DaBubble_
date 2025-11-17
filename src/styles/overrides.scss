@@ -342,7 +342,7 @@ body.intro-active app-auth-layout-component .header .logo img {
 // responsiv for add-channel and add-user-to-channel //
 @media (max-width: 400px) {
   .cdk-overlay-pane.sheet-400 {
-    align-self: flex-end;                 /* unten andocken */
+    align-self: flex-end;                 
     width: 100vw !important;
     max-width: 100vw !important;
     margin: 0 !important;
@@ -351,8 +351,8 @@ body.intro-active app-auth-layout-component .header .logo img {
   }
 
   .cdk-overlay-pane.sheet-400 .mat-mdc-dialog-container .mdc-dialog__surface {
-    border-radius: 50px 50px 0 0 !important;  /* nur oben rund */
-    border: none !important;                  /* unten bündig */
+    border-radius: 50px 50px 0 0 !important;  
+    border: none !important;                  
     box-shadow: 0 -6px 20px rgba(0, 0, 0, 0.2);
     overflow: hidden;
   }
