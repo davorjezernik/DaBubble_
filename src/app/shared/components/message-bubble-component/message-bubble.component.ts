@@ -198,14 +198,20 @@ export class MessageBubbleComponent implements OnChanges, OnDestroy {
   private readonly NARROW_COLLAPSE_THRESHOLD = 6;
   private readonly VERY_NARROW_COLLAPSE_THRESHOLD = 4; // <= 400px
 
+  // Long press state for reaction tooltips on mobile
+  private longPressTimer: any;
+  tooltipVisibleForEmoji: string | null = null;
+
   isNarrow = typeof window !== 'undefined' ? window.innerWidth <= 450 : false;
   isVeryNarrow = typeof window !== 'undefined' ? window.innerWidth <= 400 : false;
+  isMobile = typeof window !== 'undefined' ? window.innerWidth <= 768 : false;
 
   @HostListener('window:resize')
   onWindowResize() {
     if (typeof window !== 'undefined') {
       this.isNarrow = window.innerWidth <= 450;
       this.isVeryNarrow = window.innerWidth <= 400;
+      this.isMobile = window.innerWidth <= 768;
     }
   }
 
@@ -482,6 +488,18 @@ export class MessageBubbleComponent implements OnChanges, OnDestroy {
       this.isMoreMenuOpen = false;
     }
 
+    // Close reaction tooltip if open
+    if (this.tooltipVisibleForEmoji) {
+      this.tooltipVisibleForEmoji = null;
+    }
+
+    if (this.isMobile && this.showMiniActions) {
+      const clickedInside = this.el.nativeElement.contains(event.target as Node);
+      if (!clickedInside) {
+        this.showMiniActions = false;
+      }
+    }
+
     if (this.editEmojiPickerVisible) {
       const clickedInsideButton = this.editEmojiButtonRef?.nativeElement.contains(event.target);
       const clickedInsidePicker = this.editEmojiPickerRef?.nativeElement.contains(event.target);
@@ -511,12 +529,13 @@ export class MessageBubbleComponent implements OnChanges, OnDestroy {
 
   /** Show mini actions when cursor enters the bubble. */
   onSpeechBubbleEnter() {
-    if (this.isDeleted) return;
+    if (this.isDeleted || this.isMobile) return;
     this.showMiniActions = true;
   }
 
   /** Hide only when pointer truly leaves component (not moving into mini-actions). */
   onSpeechBubbleLeave(event: MouseEvent) {
+    if (this.isMobile) return;
     const next = event.relatedTarget as HTMLElement | null;
     const host = this.el.nativeElement.querySelector('.message-container') as HTMLElement | null;
     // Keep visible only if moving within THIS message's own container (incl. its mini-actions)
@@ -527,18 +546,50 @@ export class MessageBubbleComponent implements OnChanges, OnDestroy {
 
   /** Keep mini actions visible while hovering over them. */
   onMiniActionsEnter() {
-    if (this.isDeleted) return;
+    if (this.isDeleted || this.isMobile) return;
     this.showMiniActions = true;
   }
 
   /** Hide when leaving mini actions AND not moving back to container. */
   onMiniActionsLeave(event: MouseEvent) {
+    if (this.isMobile) return;
     const next = event.relatedTarget as HTMLElement | null;
     const host = this.el.nativeElement.querySelector('.message-container') as HTMLElement | null;
     // Keep visible only if moving within THIS message's own container (incl. its mini-actions)
     if (next && host && host.contains(next)) return;
     this.showMiniActions = false;
     this.isMoreMenuOpen = false;
+  }
+
+  onMessageClick() {
+    if (this.isMobile && !this.isDeleted) {
+      this.showMiniActions = !this.showMiniActions;
+    }
+  }
+
+  // --- Long press handlers for reaction tooltips on mobile ---
+
+  handleTouchStart(event: TouchEvent, emoji: string) {
+    if (!this.isMobile) return;
+    // Prevent click event from firing immediately
+    event.stopPropagation();
+
+    this.longPressTimer = setTimeout(() => {
+      this.tooltipVisibleForEmoji = emoji;
+      // Prevent the click event from firing after the long press
+      event.preventDefault();
+    }, 400); // 400ms for long press
+  }
+
+  handleTouchEnd(event: TouchEvent) {
+    if (!this.isMobile) return;
+    clearTimeout(this.longPressTimer);
+  }
+
+  handleTouchMove(event: TouchEvent) {
+    if (!this.isMobile) return;
+    // If finger moves, cancel the long press
+    clearTimeout(this.longPressTimer);
   }
 
   /**

@@ -3,6 +3,7 @@
   [class.incoming]="incoming"
   (mouseenter)="onSpeechBubbleEnter()"
   (mouseleave)="onSpeechBubbleLeave($event)"
+  (click)="onMessageClick()"
 >
   <div class="message-content">
     <div class="message-header">
@@ -164,6 +165,10 @@
           class="reaction-chip"
           (click)="onClickReaction(r.emoji)"
           [class.reacted]="r.currentUserReacted"
+          [class.show-tooltip]="tooltipVisibleForEmoji === r.emoji"
+          (touchstart)="handleTouchStart($event, r.emoji)"
+          (touchend)="handleTouchEnd($event)"
+          (touchmove)="handleTouchMove($event)"
         >
           <span class="emoji-wrapper">
             @if (r.emoji === '✅') {
