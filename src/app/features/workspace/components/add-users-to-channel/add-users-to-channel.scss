@@ -33,6 +33,8 @@
 .dialog-title {
   margin: 0;
   padding: 0;
+  display: flex;
+  align-items: center;
   @include mixins.text-style(
     $size: 24px,
     $color: #1a1a1a,
@@ -123,4 +125,61 @@
   outline: none;
   background: transparent;
   height: 55px;
+}
+
+.sheet-handle {
+  display: none;
+}
+
+@media (max-width: 400px) {
+
+  .dialog-container {
+    padding: 30px 20px 50px 20px;       /* wie beim Menü */
+    gap: 20px;
+    border-bottom-left-radius: 0px;
+  }
+
+  .sheet-handle {
+    display: block;
+    width: 62px;
+    height: 6px;
+    margin: 6px auto 10px;
+    background: #d9d9d9;
+    border-radius: 23px;
+  }
+
+  .dialog-header {
+    padding: 0 0;
+  }
+
+  .dialog-title {
+    font-size: 20px;
+    line-height: 1.1;
+  }
+
+  .dialog-content {
+    padding: 0 0;
+    margin-bottom: 12px;
+  }
+
+  .options-group {
+    gap: 14px;
+  }
+
+  .option-text,
+  .dialog-link {
+    font-size: 16px;
+    line-height: 1.2;
+  }
+
+
+  .input-wrapper {
+    gap: 10px;
+    min-height: 55px;
+  }
+
+  .user-input-field {
+    height: 48px;
+    font-size: 16px;
+  }
 }
