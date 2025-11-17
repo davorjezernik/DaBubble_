@@ -26,7 +26,6 @@ import {
 import { UserService } from '../../../../services/user.service';
 import { ViewStateService } from '../../../../services/view-state.service';
 import { MatDialog } from '@angular/material/dialog';
-import { firstValueFrom } from 'rxjs';
 import { DialogUserCardComponent } from '../dialog-user-card/dialog-user-card.component';
 import { firstValueFrom, map, Subscription } from 'rxjs';
 
@@ -714,43 +713,7 @@ export class MessageBubbleComponent implements OnChanges, OnDestroy {
       this.closeEditEmojiPicker();
     }
   }
-
-  private async getAnswersInfo() {
-    if (!this.chatId || !this.messageId) return;
-
-    const coll = collection(
-      this.firestore,
-      `${this.collectionName}/${this.chatId}/messages/${this.messageId}/thread`
-    );
-    this.getAnswersAmount(coll);
-    this.getLastAnswerTime(coll);
-  }
-
-  private async getAnswersAmount(coll: any) {
-    this.answersCountSub = collectionData(coll)
-      .pipe(map((docs) => docs.length))
-      .subscribe((count) => {
-        this.answersCount = count;
-      });
-  }
-
-  private async getLastAnswerTime(coll: any) {
-    this.lastTimeSub = collectionData(coll)
-      .pipe(
-        map((messages) => {
-          if (messages.length === 0) return '';
-          const timestamps = messages.map((msg: any) => msg.timestamp?.toMillis()).filter((ts: any): ts is number => typeof ts === 'number');
-          if (timestamps.length === 0) return '';
-          const latest = Math.max(...timestamps);
-          const latestDate = new Date(latest);
-          return latestDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        })
-      )
-      .subscribe((timestamp) => {
-        this.lastTime = timestamp;
-      });
-  }
-
+  
   private async getAnswersInfo() {
     if (!this.chatId || !this.messageId) return;
 
