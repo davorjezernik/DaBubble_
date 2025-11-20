@@ -1,0 +1,36 @@
+<section class="chat-container">
+  <header class="chat-header">
+    <span>Neue Nachricht</span>
+
+    <div class="recipient-input" (click)="$event.stopPropagation()">
+      <input
+        type="text"
+        [(ngModel)]="recipientText"
+        placeholder="An: #channel, oder @jemand oder E-Mail Adresse"
+        (keydown)="onRecipientKeyDown($event)"
+        (input)="onRecipientInput()"
+        (focus)="recipientFocused = true; onRecipientInput()"
+        (blur)="onRecipientBlur()"
+      />
+
+      <app-mention-list
+        *ngIf="showMention"
+        class="mention-popover"
+        [visible]="true"
+        [mode]="mentionMode"
+        [users]="mentionUsers"
+        [channels]="mentionChannels"
+        [searchTerm]="mentionSearch"
+        (pick)="insertMention($event)"
+        (userSelected)="onMentionUserPicked($event)"
+        (channelSelected)="onMentionChannelPicked($event)"
+      ></app-mention-list>
+    </div>
+  </header>
+  <main>
+    
+  </main>
+  <footer class="footer">
+    <app-message-area-component></app-message-area-component>
+  </footer>
+</section>
