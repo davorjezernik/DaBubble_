@@ -7,7 +7,7 @@
       </article>
 
       <span class="name">
-        {{ u.name }}
+        {{ u.name | slice:0:16 }}<ng-container *ngIf="u.name.length > 16">…</ng-container>
         <span *ngIf="u.uid === currentUserId" class="you">(Du)</span>
       </span>
     </li>
@@ -17,7 +17,7 @@
     <ul class="list">
       <li class="item" *ngFor="let c of channels" (click)="onPickChannel(c)">
         <div class="hash">#</div>
-        <span class="name">{{ c.name }}</span>
+        <span class="name">{{ c.name | slice:0:16 }}<ng-container *ngIf="c.name.length > 16">…</ng-container></span>
       </li>
     </ul>
   </ng-template>

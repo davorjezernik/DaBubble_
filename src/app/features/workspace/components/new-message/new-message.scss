@@ -42,11 +42,12 @@
   border: 1px solid #dcdcdc;
   border-radius: 30px;
   outline: none;
-
-  /* WICHTIG */
   box-sizing: border-box;
   display: block;
   max-width: 100%;
+  font-family: 'Nunito', sans-serif;
+  font-size: 18px;
+  font-weight: 400;
 }
 
 .recipient-input input:focus {
@@ -59,6 +60,13 @@
   left: 0;
   right: 0;
   z-index: 30;
+}
+
+:host ::ng-deep app-mention-list.mention-popover .mention-panel {
+  border-top-right-radius: 20px;
+  border-top-left-radius: 0;
+  border-bottom-right-radius: 20px;
+  border-bottom-left-radius: 20px;
 }
 
 .footer {

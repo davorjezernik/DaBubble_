@@ -30,35 +30,37 @@ export class NewMessageComponent implements OnInit {
   mentionUsers: MentionUser[] = [];
   mentionChannels: MentionChannel[] = [];
   recipientFocused = false;
+  openOnFreeText = true;
+  minTokenLen = 2;
+  pendingPrefix: '@' | '#' | null = null;
 
-  // Services
   private userService = inject(UserService);
   private channelService = inject(ChannelService);
 
   async ngOnInit() {
-    // Daten wie in deiner Message-Area laden
     const users = await firstValueFrom(this.userService.users$());
-    this.mentionUsers = users.map(u => ({
+    this.mentionUsers = users.map((u) => ({
       uid: u.uid,
       name: u.name,
       avatar: u.avatar,
       online: u.online,
+      email: u.email || '',
     }));
 
     const channels = await firstValueFrom(this.channelService.channels$());
     this.mentionChannels = channels;
   }
 
-  // @ oder # gedrückt -> Liste öffnen/umschalten
   onRecipientKeyDown(e: KeyboardEvent) {
     if (e.key === '@' || e.key === '#') {
       this.mentionMode = e.key === '@' ? 'users' : 'channels';
       this.showMention = true;
-      // mentionSearch wird im onRecipientInput() aus dem aktuellen Wort gesetzt
+      this.pendingPrefix = e.key as '@' | '#'; 
       return;
     }
     if (e.key === 'Escape' && this.showMention) {
       this.showMention = false;
+      this.revertPendingPrefixIfAny();
       return;
     }
   }
@@ -67,50 +69,93 @@ export class NewMessageComponent implements OnInit {
   onRecipientInput() {
     const val = this.recipientText || '';
     const trimmed = val.trimEnd();
-    const match = /(^|\s)([@#])([^\s@#]*)$/i.exec(trimmed);
-    if (this.recipientFocused && match) {
-      this.mentionMode = match[2] === '@' ? 'users' : 'channels';
-      this.mentionSearch = match[3]; // ohne Präfix
+    const mentionMatch = /(^|\s)([@#])([^\s@#]*)$/i.exec(trimmed);
+    if (this.recipientFocused && mentionMatch) {
+      this.mentionMode = mentionMatch[2] === '@' ? 'users' : 'channels';
+      this.mentionSearch = mentionMatch[3];
       this.showMention = true;
-    } else {
-      this.showMention = false;
-      this.mentionSearch = '';
+      this.pendingPrefix =
+        this.mentionSearch.length === 0 ? (this.mentionMode === 'users' ? '@' : '#') : null;
+      return;
     }
+
+    const token = this.getLastToken(trimmed);
+    if (this.recipientFocused && this.isLikelyEmail(token)) {
+      this.mentionMode = 'users';
+      this.mentionSearch = token;
+      this.showMention = true;
+      this.pendingPrefix = null;
+      return;
+    }
+
+    if (
+      this.recipientFocused &&
+      this.openOnFreeText &&
+      token.length >= this.minTokenLen &&
+      !token.startsWith('#')
+    ) {
+      this.mentionMode = 'users';
+      this.mentionSearch = token;
+      this.showMention = true;
+      this.pendingPrefix = null; 
+      return;
+    }
+
+    this.showMention = false;
+    this.mentionSearch = '';
+    this.pendingPrefix = null;
   }
 
+  private getLastToken(s: string): string {
+    const parts = s.split(/\s+/);
+    return parts[parts.length - 1] || '';
+  }
+
+  private isLikelyEmail(v: string): boolean {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test((v || '').trim());
+  }
   onRecipientBlur() {
-    // kleinen Delay, damit Klick auf die Liste noch durchkommt
     setTimeout(() => {
       this.recipientFocused = false;
       this.showMention = false;
+      this.revertPendingPrefixIfAny();
     }, 120);
   }
 
-  // Klick außerhalb schließt die Liste
   @HostListener('document:click', ['$event'])
-  onDocClick(ev: MouseEvent) {
+  onDocClick(_ev: MouseEvent) {
     if (!this.recipientFocused && this.showMention) {
       this.showMention = false;
     }
+    if (!this.recipientFocused) {
+      this.revertPendingPrefixIfAny(); 
+    }
   }
 
-  // Auswahl aus der Liste ersetzt das aktuelle Token
   insertMention(insertValue: string) {
     const cur = this.recipientText || '';
     this.recipientText = cur.replace(
-      /(^|\s)[@#][^\s@#]*$/i,
+      /(^|\s)(?:[@#][^\s@#]*|[^\s@]+@[^\s@]+\.[^\s@]+|[^\s]+)$/i,
       (_m, g1) => `${g1}${insertValue}`
     );
     this.showMention = false;
+    this.pendingPrefix = null;
+  }
+
+  private revertPendingPrefixIfAny() {
+    if (!this.pendingPrefix) return;
+
+    const s = (this.recipientText || '').trimEnd();
+    const lastToken = this.getLastToken(s);
+
+    if (lastToken === this.pendingPrefix) {
+      this.recipientText = s.replace(/(\s)?[@#]$/i, '').trimEnd();
+    }
+
+    this.pendingPrefix = null;
   }
 
   onMentionUserPicked(u: MentionUser) {
-    // Optional: hier kannst du "picked" setzen, wenn du magst
-    // console.log('User ausgewählt:', u);
-  }
-
-  onMentionChannelPicked(c: MentionChannel) {
-    // Optional: Channel-Reaktion
-    // console.log('Channel ausgewählt:', c);
+    console.log('User ausgewählt:', u);
   }
 }

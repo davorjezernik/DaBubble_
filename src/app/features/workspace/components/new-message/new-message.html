@@ -21,9 +21,8 @@
         [users]="mentionUsers"
         [channels]="mentionChannels"
         [searchTerm]="mentionSearch"
+        [allowRawEmail]="true" 
         (pick)="insertMention($event)"
-        (userSelected)="onMentionUserPicked($event)"
-        (channelSelected)="onMentionChannelPicked($event)"
       ></app-mention-list>
     </div>
   </header>
