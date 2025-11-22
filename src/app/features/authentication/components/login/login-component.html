@@ -27,7 +27,7 @@
           (blur)="updateErrorMessages()"
           required
         />
-        @if (this.loginForm.controls.password.invalid && this.loginForm.controls.email.touched) {
+        @if (this.loginForm.controls.password.invalid && this.loginForm.controls.password.touched) {
         <mat-error>{{ passwordErrorMessage() }}</mat-error>
         }
       </mat-form-field>

@@ -390,34 +390,33 @@ export class DevspaceSidenavContent implements OnInit, OnDestroy {
   trackById = (_: number, u: User) => u.uid;
 
   openAddChannelDialog() {
-    const dialogRef = this.dialog.open(AddChannel, {
-      panelClass: 'dialog-panel',
-      width: '80vw',
-      maxWidth: '800px',
-      minWidth: '300px',
-    });
+  const dialogRef = this.dialog.open(AddChannel, {
+    panelClass: 'sheet-400', 
+    width: '480px',
+    maxWidth: '95vw',
+  });
 
-    dialogRef.afterClosed().subscribe((result) => {
-      if (result && result.channelName) {
-        this.openAddUsersToChannelDialog(result);
-      }
-    });
-  }
+  dialogRef.afterClosed().subscribe((result) => {
+    if (result && result.channelName) {
+      this.openAddUsersToChannelDialog(result);
+    }
+  });
+}
 
-  openAddUsersToChannelDialog(result: any) {
-    const addUsersDialogRef = this.dialog.open(AddUsersToChannel, {
-      panelClass: 'dialog-panel',
-      width: '80vw',
-      maxWidth: '750px',
-      minWidth: '300px',
-      data: result,
-    });
-    addUsersDialogRef.afterClosed().subscribe((dialogResult) => {
-      if (dialogResult) {
-        this.saveChannelData(dialogResult);
-      }
-    });
-  }
+openAddUsersToChannelDialog(result: any) {
+  const addUsersDialogRef = this.dialog.open(AddUsersToChannel, {
+    panelClass: 'sheet-400',  
+    width: '480px',
+    maxWidth: '95vw',
+    data: result,
+  });
+
+  addUsersDialogRef.afterClosed().subscribe((dialogResult) => {
+    if (dialogResult) {
+      this.saveChannelData(dialogResult);
+    }
+  });
+}
 
   async saveChannelData(dialogResult: any) {
     const batch = writeBatch(this.firestore);
