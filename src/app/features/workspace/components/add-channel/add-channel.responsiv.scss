@@ -7,21 +7,21 @@
     margin-bottom: 10px;
   }
 
-  .dialog-form {
-    gap: 40px;
-
-    .form-field {
-      margin-top: 10px;
-    }
-  }
-
   .dialog-actions {
     padding: 0 38px 14px;
   }
-
 }
 
 @media (max-width: 400px) {
+
+  .mat-mdc-dialog-content {
+    height: auto !important;
+    max-height: 100svh;
+  }
+
+  .dialog {
+    padding-bottom: 0;
+  }
   .sheet-handle {
     display: block;
     width: 62px;
@@ -29,5 +29,21 @@
     margin: 6px auto 10px;
     background: #d9d9d9;
     border-radius: 23px;
+  }
+  
+  .dialog-header {
+    padding-top: 0px;
+  }
+
+  .dialog-content {
+    padding: 8px 24px;
+  }
+
+  .dialog-form {
+    gap: 0;
+
+    .form-field {
+      margin-top: 10px;
+    }
   }
 }
