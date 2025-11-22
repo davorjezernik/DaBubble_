@@ -12,8 +12,7 @@ import { FormsModule } from '@angular/forms';
 import { EmojiPickerComponent } from '../emoji-picker-component/emoji-picker-component';
 import { SharedComponentsModule } from '../shared-components/shared-components-module';
 import { UserService } from './../../../../services/user.service';
-import { ChannelService } from './../../../../services/channel.service';
-import { firstValueFrom } from 'rxjs';
+import { ChannelService } from './../../../../services/channel-service';
 import {
   MentionListComponent,
   MentionUser,
@@ -22,6 +21,9 @@ import {
 import { AuthService } from './../../../../services/auth-service';
 import { Router } from '@angular/router';
 import { Firestore, doc, setDoc } from '@angular/fire/firestore';
+import { firstValueFrom } from 'rxjs';
+import { filter, take } from 'rxjs/operators';
+import { User } from '@angular/fire/auth';
 
 @Component({
   selector: 'app-message-area-component',
@@ -43,6 +45,7 @@ export class MessageAreaComponent {
   @Input() recipientName = '';
   @Input() channelName = '';
   @Input() mode: 'channel' | 'thread' = 'channel';
+  @Input() placeholder: string = '';
 
   @ViewChild('ta') ta!: ElementRef<HTMLTextAreaElement>;
   @ViewChild('root') root!: ElementRef<HTMLElement>;
@@ -68,18 +71,46 @@ export class MessageAreaComponent {
     private authService: AuthService
   ) {}
 
+  private memberHasUid(m: any, uid: string): boolean {
+    if (typeof m === 'string') return m === uid;           // string-Variante
+    return m?.uid === uid || m?.userId === uid || m?.user?.uid === uid; // object-Varianten
+  }
+
   // Daten für mention laden //
   async ngOnInit() {
+    // Nutzer wie gehabt
     const users = await firstValueFrom(this.usersService.users$());
-    this.mentionUsers = users.map((u) => ({
+    this.mentionUsers = users.map(u => ({
       uid: u.uid,
       name: u.name,
       avatar: u.avatar,
       online: u.online,
     }));
 
-    const channels = await firstValueFrom(this.channelsService.channels$());
-    this.mentionChannels = channels;
+    // 1) aktuellen User sicher holen
+    const me = await firstValueFrom(
+      this.authService.currentUser$.pipe(
+        filter((u): u is User => !!u),
+        take(1)
+      )
+    );
+    const myUid = me.uid;
+
+    // 2) Channels lesen (nimm den Service mit getChannels())
+    const allChannels = await firstValueFrom(this.channelsService.getChannels());
+
+    // 3) nur Channels, in denen ich Mitglied bin
+    const myChannels = (allChannels ?? []).filter((c: any) => {
+      const raw = c?.members ?? [];
+      if (!Array.isArray(raw)) return false;
+      return raw.some(m => this.memberHasUid(m, myUid));
+    });
+
+    // 4) auf MentionChannel mappen (nur id + name)
+    this.mentionChannels = myChannels.map((c: any) => ({
+      id: c.id,
+      name: c.name,
+    }));
   }
 
   // Klick außerhalb der Message-Area //
@@ -249,6 +280,7 @@ export class MessageAreaComponent {
 
   // Text anzeige placeholder //
   get hintText(): string {
+    if (this.placeholder) return this.placeholder;
     if (this.mode === 'thread') return 'Antworten';
 
     const target = this.recipientName?.trim()

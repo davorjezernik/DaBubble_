@@ -20,9 +20,10 @@ export const AuthRoutes: Routes = [
     path: 'workspace',
     component: WorkspaceLayoutComponent,
     children: [
-      { path: 'dm/:id', component: DmInterfaceContent },
-      { path: 'channel/:id', component: ChannelInterfaceContent },
-    ],
+    { path: 'dm/new', loadComponent: () => import('./features/workspace/components/new-message/new-message').then(m => m.NewMessageComponent) },
+    { path: 'dm/:id', component: DmInterfaceContent },
+    { path: 'channel/:id', component: ChannelInterfaceContent },
+  ],
   },
   { path: 'privacy-policy', component: PrivacyPolicyLayoutComponent },
   {

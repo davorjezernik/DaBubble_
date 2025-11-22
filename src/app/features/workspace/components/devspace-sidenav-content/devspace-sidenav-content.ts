@@ -102,7 +102,8 @@ export class DevspaceSidenavContent implements OnInit, OnDestroy {
     private channelService: ChannelService,
     private read: ReadStateService,
     private searchBus: SearchBusService,
-    public viewStateService: ViewStateService
+    public viewStateService: ViewStateService,
+    public router: Router
   ) {}
 
   ngOnInit(): void {
