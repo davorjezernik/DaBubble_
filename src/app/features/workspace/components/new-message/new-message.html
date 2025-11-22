@@ -6,7 +6,7 @@
       <input
         type="text"
         [(ngModel)]="recipientText"
-        placeholder="An: #channel, oder @jemand oder E-Mail Adresse"
+        placeholder="An: #channel, @jemand oder E-Mail"
         (keydown)="onRecipientKeyDown($event)"
         (input)="onRecipientInput()"
         (focus)="recipientFocused = true; onRecipientInput()"
@@ -21,15 +21,33 @@
         [users]="mentionUsers"
         [channels]="mentionChannels"
         [searchTerm]="mentionSearch"
-        [allowRawEmail]="true" 
+        [allowRawEmail]="true"
         (pick)="insertMention($event)"
+        (userSelected)="onMentionUserPicked($event)"
+        (channelSelected)="onMentionChannelPicked($event)"
       ></app-mention-list>
     </div>
   </header>
-  <main>
-    
-  </main>
+
+  <main></main>
+
   <footer class="footer">
-    <app-message-area-component></app-message-area-component>
+    <div class="picked" *ngIf="selectedTargets.length > 0">
+      <span>Senden an:</span>
+      <ng-container *ngFor="let t of selectedTargets; let i = index">
+        <span class="chip">
+          {{ t.label }}
+          <button type="button" class="chip-x" (click)="removeTarget(t)">×</button>
+        </span>
+        <span *ngIf="i < selectedTargets.length - 1">, </span>
+      </ng-container>
+    </div>
+
+    <app-message-area-component
+      [recipientName]="selectedTargets.length === 1 ? selectedTargets[0].label : ''"
+      [disabled]="selectedTargets.length === 0"
+      (send)="handleSendFromFooter($event)"
+      [placeholder]="'Starte eine neue Nachricht'"
+    ></app-message-area-component>
   </footer>
 </section>

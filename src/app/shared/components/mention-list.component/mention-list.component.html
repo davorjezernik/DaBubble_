@@ -15,9 +15,11 @@
 
   <ng-template #channelList>
     <ul class="list">
-      <li class="item" *ngFor="let c of channels" (click)="onPickChannel(c)">
+      <li class="item" *ngFor="let c of channelsView" (click)="onPickChannel(c)">
         <div class="hash">#</div>
-        <span class="name">{{ c.name | slice:0:16 }}<ng-container *ngIf="c.name.length > 16">…</ng-container></span>
+        <span class="name">
+          {{ c.name | slice:0:16 }}<ng-container *ngIf="c.name.length > 16">…</ng-container>
+        </span>
       </li>
     </ul>
   </ng-template>

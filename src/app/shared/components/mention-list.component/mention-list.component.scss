@@ -3,7 +3,7 @@
   max-height: 400px;
   overflow: hidden;
   background: #fff;
-  border: 1px solid #ADB0D9;
+  border: 1px solid #adb0d9;
   border-bottom-right-radius: 20px;
   border-top-left-radius: 20px;
   border-top-right-radius: 20px;
@@ -22,7 +22,7 @@
 .list {
   list-style: none;
   margin: 0;
-  padding: 0px;
+  padding: 0;
   max-height: calc(4 * 86px);
   overflow-y: auto;
   scrollbar-gutter: stable both-edges;
@@ -31,8 +31,8 @@
 .list::-webkit-scrollbar-thumb {
   background: #dcdffc;
   border-radius: 8px;
-  border: 3px solid transparent; 
-  background-clip: padding-box;   
+  border: 3px solid transparent;
+  background-clip: padding-box;
 }
 
 .list::-webkit-scrollbar-track {
@@ -48,7 +48,7 @@
   cursor: pointer;
 
   &:hover {
-    background: #ECEEFE;
+    background: #eceefe;
   }
 
   .avatar-wrap {
@@ -75,7 +75,7 @@
       background: #686868;
 
       &.online {
-        background: #92C83E;
+        background: #92c83e;
       }
     }
   }
@@ -86,7 +86,7 @@
     border-radius: 50%;
     display: grid;
     place-items: center;
-    background: #ECEEFE;
+    background: #eceefe;
     font-weight: 700;
     color: #535af1;
   }
@@ -98,5 +98,20 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+  }
+}
+
+@media (max-width: 550px) {
+  .mention-panel {
+    width: 230px;
+    max-height: 200px;
+    overflow: hidden;
+    background: #fff;
+    border: 1px solid #adb0d9;
+    border-bottom-right-radius: 20px;
+    border-top-left-radius: 20px;
+    border-top-right-radius: 20px;
+    box-shadow: 0 8px 10px rgba(0, 0, 0, 0.08);
+    padding: 0px 10px 0px 0px;
   }
 }

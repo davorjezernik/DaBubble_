@@ -111,4 +111,11 @@ export class MentionListComponent {
   onUserSelected(u: MentionUser) {
     this.userSelected.emit(u);
   }
+
+  get channelsView(): MentionChannel[] {
+    const qRaw = (this.searchTerm || '').trim();
+    const q = (qRaw.startsWith('#') ? qRaw.slice(1) : qRaw).toLowerCase();
+    if (!q) return this.channels ?? [];
+    return (this.channels ?? []).filter((c) => (c.name || '').toLowerCase().includes(q));
+  }
 }
