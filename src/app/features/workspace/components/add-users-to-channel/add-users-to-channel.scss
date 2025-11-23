@@ -105,6 +105,7 @@
 
 // This is the main container for chips and the input
 .input-wrapper {
+  position: relative;
   display: flex;
   flex-direction: row-reverse;
   white-space: nowrap;
