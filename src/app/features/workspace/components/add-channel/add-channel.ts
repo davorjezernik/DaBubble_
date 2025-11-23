@@ -1,4 +1,4 @@
-import { Component, ViewChild } from '@angular/core';
+import { Component, Optional, ViewChild } from '@angular/core';
 import { NgIf } from '@angular/common';
 import { FormsModule, NgModel } from '@angular/forms';
 import { ChannelService } from '../../../../../services/channel-service';
@@ -7,13 +7,25 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
+import { MatBottomSheetModule, MatBottomSheetRef } from '@angular/material/bottom-sheet';
 
 @Component({
   selector: 'app-add-chat',
   standalone: true,
-  imports: [ FormsModule, MatFormFieldModule, MatDialogModule, MatInputModule, MatIconModule],
+  imports: [
+    FormsModule,
+    MatFormFieldModule,
+    MatDialogModule,
+    MatBottomSheetModule,
+    MatInputModule,
+    MatIconModule,
+  ],
   templateUrl: './add-channel.html',
-  styleUrls: ['./add-channel.scss' , './add-channel.responsiv.scss' , '../../../../shared/styles/form-field-styles.scss'],
+  styleUrls: [
+    './add-channel.scss',
+    './add-channel.responsiv.scss',
+    '../../../../shared/styles/form-field-styles.scss',
+  ],
 })
 export class AddChannel {
   isModalOpen = false;
@@ -25,7 +37,19 @@ export class AddChannel {
 
   @ViewChild('channelNameInput') channelNameInput?: NgModel;
 
-  constructor(private channelService: ChannelService, public dialogRef: MatDialogRef<AddChannel>) {}
+  constructor(
+    private channelService: ChannelService,
+    @Optional() public dialogRef: MatDialogRef<AddChannel>,
+    @Optional() public sheetRef: MatBottomSheetRef<AddChannel>
+  ) {}
+
+  closeDialog(result?: any) {
+    if (this.sheetRef) {
+      this.sheetRef.dismiss(result);
+    } else if (this.dialogRef) {
+      this.dialogRef.close(result);
+    }
+  }
 
   async onConfirm() {
     this.channelName = this.channelName.trim();
@@ -38,7 +62,7 @@ export class AddChannel {
     }
 
     if (!this.channelNameInput?.invalid) {
-      this.dialogRef.close({
+      this.closeDialog({
         channelName: this.channelName,
         description: this.description,
       });

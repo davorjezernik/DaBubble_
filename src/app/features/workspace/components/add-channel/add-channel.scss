@@ -3,6 +3,16 @@
 
 .dialog {
   padding: 20px 20px 40px;
+
+  &::-webkit-scrollbar {
+    display: none !important;
+  }
+}
+
+.btn-wrapper {
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
 }
 
 .dialog-header {
@@ -43,15 +53,11 @@
 .dialog-form {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 32px;
   .form-field {
     width: 100%;
-    margin-top: 20px;
+    margin-top: 10px;
   }
-}
-
-.dialog-actions {
-  padding: 0 24px 24px;
 }
 
 .form-field-label {
@@ -99,6 +105,7 @@
 .submit-btn {
   border: none;
   @include mixins.primary-button($hover-bg-color: #797ef3, $bg-color: #444df2);
+  z-index: 2;
 
   &.disabled {
     cursor: default;

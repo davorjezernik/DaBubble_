@@ -36,6 +36,7 @@ import { ViewStateService } from '../../../../../services/view-state.service';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
+import { MatBottomSheet } from '@angular/material/bottom-sheet';
 
 @Component({
   selector: 'app-devspace-sidenav-content',
@@ -103,7 +104,8 @@ export class DevspaceSidenavContent implements OnInit, OnDestroy {
     private read: ReadStateService,
     private searchBus: SearchBusService,
     public viewStateService: ViewStateService,
-    public router: Router
+    public router: Router,
+    private bottomSheet: MatBottomSheet
   ) {}
 
   ngOnInit(): void {
@@ -390,33 +392,46 @@ export class DevspaceSidenavContent implements OnInit, OnDestroy {
   trackById = (_: number, u: User) => u.uid;
 
   openAddChannelDialog() {
-  const dialogRef = this.dialog.open(AddChannel, {
-    panelClass: 'sheet-400', 
-    width: '480px',
-    maxWidth: '95vw',
-  });
+    // Check if screen is mobile (matches your CSS breakpoint)
+    const isMobile = window.innerWidth < 500;
 
-  dialogRef.afterClosed().subscribe((result) => {
+    if (isMobile) {
+      // Open as Bottom Sheet (Slides up)
+      const sheetRef = this.bottomSheet.open(AddChannel);
+      sheetRef.afterDismissed().subscribe((result) => {
+        this.handleChannelResult(result);
+      });
+    } else {
+      // Open as Dialog (Pops up)
+      const dialogRef = this.dialog.open(AddChannel, {
+        panelClass: ".mobile-channel-sheet",
+      });
+      dialogRef.afterClosed().subscribe((result) => {
+        this.handleChannelResult(result);
+      });
+    }
+  }
+
+  private handleChannelResult(result: any) {
     if (result && result.channelName) {
       this.openAddUsersToChannelDialog(result);
     }
-  });
-}
+  }
 
-openAddUsersToChannelDialog(result: any) {
-  const addUsersDialogRef = this.dialog.open(AddUsersToChannel, {
-    panelClass: 'sheet-400',  
-    width: '480px',
-    maxWidth: '95vw',
-    data: result,
-  });
+  openAddUsersToChannelDialog(result: any) {
+    const addUsersDialogRef = this.dialog.open(AddUsersToChannel, {
+      panelClass: 'sheet-400',
+      width: '480px',
+      maxWidth: '95vw',
+      data: result,
+    });
 
-  addUsersDialogRef.afterClosed().subscribe((dialogResult) => {
-    if (dialogResult) {
-      this.saveChannelData(dialogResult);
-    }
-  });
-}
+    addUsersDialogRef.afterClosed().subscribe((dialogResult) => {
+      if (dialogResult) {
+        this.saveChannelData(dialogResult);
+      }
+    });
+  }
 
   async saveChannelData(dialogResult: any) {
     const batch = writeBatch(this.firestore);
