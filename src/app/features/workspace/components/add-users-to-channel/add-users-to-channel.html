@@ -21,61 +21,63 @@
     </button>
   </header>
 
-  <mat-dialog-content class="dialog-content">
-    <mat-radio-group
-      [(ngModel)]="selectedOption"
-      class="options-group"
-      aria-label="Wählen Sie eine Option"
-    >
-      <mat-radio-button class="option-item mat-radio-button" value="all" checked="true">
-        <span class="option-text">
-          Alle Mitglieder von
-          <a class="dialog-link" href="#" (click)="$event.preventDefault()">Entwicklerteam</a>
-          hinzufügen
-        </span>
-      </mat-radio-button>
+  <div class="dialog-content-wrapper">
+    <mat-dialog-content class="dialog-content">
+      <mat-radio-group
+        [(ngModel)]="selectedOption"
+        class="options-group"
+        aria-label="Wählen Sie eine Option"
+      >
+        <mat-radio-button class="option-item mat-radio-button" value="all" checked="true">
+          <span class="option-text">
+            Alle Mitglieder von
+            <a class="dialog-link" href="#" (click)="$event.preventDefault()">Entwicklerteam</a>
+            hinzufügen
+          </span>
+        </mat-radio-button>
 
-      <mat-radio-button class="option-item mat-radio-button" value="specific">
-        <span class="option-text">Bestimmte Leute hinzufügen</span>
-      </mat-radio-button>
-    </mat-radio-group>
-  </mat-dialog-content>
-  @if (selectedOption === 'specific') {
-  <mat-form-field appearance="outline" class="form-field with-padding">
-    <div class="input-wrapper">
-      <input
-        [(ngModel)]="inputValue"
-        matInput
-        [placeholder]="selectedUsers.length === 0 ? 'Name eingeben' : ''"
-        class="user-input-field"
-      />
-      @for(user of selectedUsers; track user.uid) {
-      <app-contact-chip
-        [userData]="user"
-        [usersSelected]="selectedUsers"
-        [isRemovable]="user.uid !== currentUser?.uid"
-      ></app-contact-chip>
-      }
-    </div>
-  </mat-form-field>
-  @if (inputValue.length > 0) {
-  <app-mention-list
-    [allSelectedUsers]="selectedUsers"
-    (userSelected)="addUserToChosen($event)"
-    [searchTerm]="inputValue"
-    [visible]="showMention"
-    [mode]="mentionMode"
-    [users]="mentionUsers"
-  ></app-mention-list>
-  } }
+        <mat-radio-button class="option-item mat-radio-button" value="specific">
+          <span class="option-text">Bestimmte Leute hinzufügen</span>
+        </mat-radio-button>
+      </mat-radio-group>
+    </mat-dialog-content>
+    @if (selectedOption === 'specific') {
+    <mat-form-field appearance="outline" class="form-field with-padding">
+      <div class="input-wrapper">
+        <input
+          [(ngModel)]="inputValue"
+          matInput
+          [placeholder]="selectedUsers.length === 0 ? 'Name eingeben' : ''"
+          class="user-input-field"
+        />
+        @for(user of selectedUsers; track user.uid) {
+        <app-contact-chip
+          [userData]="user"
+          [usersSelected]="selectedUsers"
+          [isRemovable]="user.uid !== currentUser?.uid"
+        ></app-contact-chip>
+        }
+      </div>
+    </mat-form-field>
+    @if (inputValue.length > 0) {
+    <app-mention-list
+      [allSelectedUsers]="selectedUsers"
+      (userSelected)="addUserToChosen($event)"
+      [searchTerm]="inputValue"
+      [visible]="showMention"
+      [mode]="mentionMode"
+      [users]="mentionUsers"
+    ></app-mention-list>
+    } }
 
-  <mat-dialog-actions class="dialog-actions" align="end">
-    <button
-      [class.disabled]="selectedOption == 'specific' && selectedUsers.length == 0"
-      class="dialog-action-button"
-      (click)="onConfirm()"
-    >
-      Erstellen
-    </button>
-  </mat-dialog-actions>
+    <mat-dialog-actions class="dialog-actions" align="end">
+      <button
+        [class.disabled]="selectedOption == 'specific' && selectedUsers.length == 0"
+        class="dialog-action-button"
+        (click)="onConfirm()"
+      >
+        Erstellen
+      </button>
+    </mat-dialog-actions>
+  </div>
 </div>

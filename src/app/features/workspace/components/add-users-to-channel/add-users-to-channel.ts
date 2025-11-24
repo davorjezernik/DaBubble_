@@ -28,7 +28,7 @@ import { ContactChip } from '../../../../shared/components/contact-chip/contact-
     ContactChip,
   ],
   templateUrl: './add-users-to-channel.html',
-  styleUrls: ['./add-users-to-channel.scss', './add-users-to-channel.responsiv.scss', '../../../../shared/styles/form-field-styles.scss'],
+  styleUrls: ['./add-users-to-channel.scss', './add-users-to-channel.responsive.scss', '../../../../shared/styles/form-field-styles.scss'],
 })
 export class AddUsersToChannel implements OnInit {
   selectedOption: string = 'all';

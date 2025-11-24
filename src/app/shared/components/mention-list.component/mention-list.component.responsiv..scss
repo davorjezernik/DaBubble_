@@ -1,7 +1,8 @@
 @media (max-width: 500px) {
   .mention-panel {
-    width: 280px;
-    max-height: 400px;
+    box-sizing: border-box;
+    width: 100%;
+    max-height: 100%;
     overflow: hidden;
     background: #fff;
     border: 1px solid #adb0d9;
@@ -10,13 +11,17 @@
     border-top-right-radius: 20px;
     box-shadow: 0 8px 10px rgba(0, 0, 0, 0.08);
     padding: 20px 21px 20px 21px;
+    margin-bottom: 8px;
+  }
+
+  .list {
+    max-height: 100%;
   }
 }
 
 @media (max-width: 400px) {
   .mention-panel {
-    width: 240px;
-    max-height: 400px;
+    max-height: 100%;
     overflow: hidden;
     background: #fff;
     border: 1px solid #adb0d9;
@@ -24,7 +29,7 @@
     border-top-left-radius: 20px;
     border-top-right-radius: 20px;
     box-shadow: 0 8px 10px rgba(0, 0, 0, 0.08);
-    padding: 20px 21px 20px 21px;
+    padding: 15px 16px 15px 16px;
   }
 
   .item {

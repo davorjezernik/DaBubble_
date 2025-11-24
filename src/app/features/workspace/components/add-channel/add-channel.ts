@@ -23,7 +23,7 @@ import { MatBottomSheetModule, MatBottomSheetRef } from '@angular/material/botto
   templateUrl: './add-channel.html',
   styleUrls: [
     './add-channel.scss',
-    './add-channel.responsiv.scss',
+    './add-channel.responsive.scss',
     '../../../../shared/styles/form-field-styles.scss',
   ],
 })
