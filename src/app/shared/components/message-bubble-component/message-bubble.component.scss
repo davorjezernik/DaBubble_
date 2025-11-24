@@ -500,119 +500,6 @@
   }
 }
 
-.edit-container {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.edit-textarea {
-  width: 100%;
-  min-height: 60px;
-  border: none;
-  border-radius: 12px;
-  padding: 10px 12px;
-  font-family: 'Nunito', sans-serif;
-  font-size: 18px;
-  line-height: 22px;
-  color: #686868;
-  background: #fff;
-  box-sizing: border-box;
-  resize: none;
-  overflow: hidden;
-  &:focus,
-  &:focus-visible {
-    outline: none;
-    box-shadow: none;
-  }
-  &::-webkit-resizer {
-    display: none;
-  }
-}
-
-.edit-actions {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-}
-
-.edit-right-actions {
-  display: inline-flex;
-  gap: 12px;
-}
-
-.edit-left-actions {
-  display: inline-flex;
-  gap: 8px;
-  position: relative;
-}
-
-.edit-icon-btn {
-  width: 40px;
-  height: 40px;
-  border: 0;
-  outline: 0;
-  border-radius: 50%;
-  background: transparent;
-  display: grid;
-  place-items: center;
-  cursor: pointer;
-
-  img {
-    width: 24px;
-    height: 24px;
-    transition: 0.2s;
-  }
-
-  &:first-child:hover img {
-    content: url('/assets/icons/sentiment-hover.svg');
-  }
-
-  &:nth-child(2):hover img {
-    content: url('/assets/icons/alternate-hover.svg');
-  }
-
-  &:hover {
-    background: #f1f3fe;
-  }
-}
-
-.edit-left-actions .edit-icon-btn:first-child {
-  position: relative;
-}
-
-.edit-left-actions .edit-icon-btn:first-child app-emoji-picker-component {
-  position: absolute;
-  bottom: 44px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 1000;
-}
-
-.btn {
-  min-width: 141px;
-  height: 49px;
-  border-radius: 50px;
-  font-weight: 700;
-  color: #797ef3;
-  font-family: 'Nunito', sans-serif;
-  cursor: pointer;
-  transition: background 0.15s, color 0.15s, border 0.15s;
-  border: #797ef3 1px solid;
-  box-shadow: none;
-  padding: 12px 25px;
-
-  &.btn--primary {
-    @include mixins.primary-button();
-  }
-
-  &.btn--secondary {
-    @include mixins.secondary-button();
-  }
-}
-
 .speech-bubble.editing {
   background: #ffffff;
   border: #adb0d9 1px solid;
@@ -634,12 +521,6 @@
     bottom: 0 !important;
     right: 0 !important;
     left: auto !important;
-  }
-
-  .edit-actions .emoji-picker-container {
-    bottom: 0 !important;
-    left: 0 !important;
-    right: auto !important;
   }
 
   .emoji-mart-search {
@@ -718,42 +599,6 @@
   :host ::ng-deep .emoji-mart {
     width: 150px !important;
   }
-
-  .btn {
-    height: 40px;
-  }
-
-  .btn.btn--secondary {
-    min-width: 60px;
-    padding: 0;
-    font-size: 0;
-
-    &::before {
-      content: '✕';
-      font-size: 16px;
-      font-weight: 800;
-      color: #797ef3;
-      transition: color 0.15s;
-    }
-
-    &:hover::before {
-      color: #ffffff;
-    }
-  }
-
-  .btn.btn--primary {
-    min-width: 60px;
-    padding: 0;
-    font-size: 0;
-
-    &::before {
-      content: '✓';
-      font-size: 16px;
-      font-weight: 700;
-      color: #ffffff;
-    }
-  }
-
 }
 
 
@@ -813,12 +658,6 @@
     width: 108%;
     margin-left: -14px;
     margin-right: -14px
-  }
-
-  .btn.btn--primary,
-  .btn.btn--secondary {
-    height: 30px;
-    min-width: 40px;
   }
 
   .answers-info {

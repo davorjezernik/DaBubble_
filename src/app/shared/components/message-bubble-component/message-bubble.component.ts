@@ -21,12 +21,13 @@ import { ViewStateService } from '../../../../services/view-state.service';
 import { MatDialog } from '@angular/material/dialog';
 import { ConfirmDeleteDialogComponent } from './confirm-delete-dialog.component';
 import { DialogUserCardComponent } from '../dialog-user-card/dialog-user-card.component';
+import { MessageEditModeComponent } from './message-edit-mode/message-edit-mode.component';
 import { firstValueFrom, map, Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-message-bubble',
   standalone: true,
-  imports: [CommonModule, EmojiPickerComponent],
+  imports: [CommonModule, EmojiPickerComponent, MessageEditModeComponent],
   templateUrl: './message-bubble.component.html',
   styleUrl: './message-bubble.component.scss',
   providers: [MessageReactionService]
@@ -50,19 +51,13 @@ export class MessageBubbleComponent implements OnChanges, OnDestroy {
   @Input() authorId?: string;
   @Output() editMessage = new EventEmitter<void>();
 
-  @ViewChild('editEmojiPicker', { read: ElementRef }) editEmojiPickerRef?: ElementRef;
-  @ViewChild('editEmojiButton', { read: ElementRef }) editEmojiButtonRef?: ElementRef;
-  @ViewChild('editTextarea', { read: ElementRef }) editTextareaRef?: ElementRef<HTMLTextAreaElement>;
-
   showEmojiPicker = false;
   reactionsExpanded = false;
   isMoreMenuOpen = false;
   showMiniActions = false;
   isEditing = false;
-  editText = '';
   isSaving = false;
   isDeleting = false;
-  editEmojiPickerVisible = false;
   lastTime: string = '';
   answersCount: number = 0;
   reactions: Array<{
@@ -126,37 +121,6 @@ export class MessageBubbleComponent implements OnChanges, OnDestroy {
     void this.reactionService.addOrIncrementReaction(path, emoji, this.currentUserId);
   }
 
-  /**
-   * Toggle the edit-mode emoji picker next to the textarea.
-   * @param event Optional MouseEvent to stop propagation (prevents immediate close from document listener).
-   * Uses: editEmojiPickerVisible (boolean) – controls visibility in edit mode.
-   */
-  /**
-   * Add selected emoji into the edit textarea content.
-   * @param emoji The unicode emoji string to append to editText.
-   * Uses: editText (string) – current editable text buffer.
-   */
-  onEditEmojiSelected(emoji: string) {
-    this.editText = (this.editText || '') + emoji;
-    this.reactionService.closeEditEmojiPicker();
-    this.autosizeEditTextarea();
-  }
-
-  /** Input handler for the edit textarea: updates text and auto-grows the field. */
-  onEditInput(event: Event) {
-    const target = event.target as HTMLTextAreaElement | null;
-    this.editText = target?.value ?? '';
-    this.autosizeEditTextarea();
-  }
-
-  /** Resize the edit textarea to fit content without scrollbar. */
-  private autosizeEditTextarea() {
-    const el = this.editTextareaRef?.nativeElement;
-    if (!el) return;
-    el.style.height = 'auto';
-    el.style.height = `${el.scrollHeight}px`;
-  }
-
   @HostListener('window:resize')
   onWindowResize() {
     if (typeof window !== 'undefined') {
@@ -183,11 +147,6 @@ export class MessageBubbleComponent implements OnChanges, OnDestroy {
     );
     this.reactionStateSub.add(
       this.reactionService.showEmojiPicker$.subscribe((show) => (this.showEmojiPicker = show))
-    );
-    this.reactionStateSub.add(
-      this.reactionService.editEmojiPickerVisible$.subscribe(
-        (visible) => (this.editEmojiPickerVisible = visible)
-      )
     );
   }
 
@@ -349,14 +308,6 @@ export class MessageBubbleComponent implements OnChanges, OnDestroy {
         this.showMiniActions = false;
       }
     }
-    if (this.editEmojiPickerVisible) {
-      const clickedInsideButton = this.editEmojiButtonRef?.nativeElement.contains(event.target);
-      const clickedInsidePicker = this.editEmojiPickerRef?.nativeElement.contains(event.target);
-
-      if (!clickedInsideButton && !clickedInsidePicker) {
-        this.reactionService.closeEditEmojiPicker();
-      }
-    }
   }
 
   @HostListener('document:keydown.escape')
@@ -367,9 +318,6 @@ export class MessageBubbleComponent implements OnChanges, OnDestroy {
     if (this.isMoreMenuOpen || this.showEmojiPicker) {
       this.isMoreMenuOpen = false;
       this.reactionService.closeEmojiPicker();
-    }
-    if (this.editEmojiPickerVisible) {
-      this.reactionService.closeEditEmojiPicker();
     }
   }
 
@@ -412,14 +360,12 @@ export class MessageBubbleComponent implements OnChanges, OnDestroy {
   }
 
   /**
-   * Enter editing mode: show textarea and preload editText with current text.
+   * Enter editing mode: show edit component.
    */
   startEdit() {
     if (this.isDeleted) return;
     this.isEditing = true;
     this.showMiniActions = false;
-    this.editText = this.text || '';
-    setTimeout(() => this.autosizeEditTextarea());
   }
 
   /** Exit editing mode without saving. */
@@ -428,21 +374,26 @@ export class MessageBubbleComponent implements OnChanges, OnDestroy {
   }
 
   /**
-   * Save the edited message text to Firestore (doc/updateDoc) if identifiers are present.
-   * Validates non-empty trimmed text; updates local UI optimistically.
+   * Save the edited message text to Firestore.
+   * Called when edit component emits save event.
    */
-  async saveEdit() {
+  async saveEdit(newText: string) {
     const path = this.getMessagePath();
-    if (!path) { this.isEditing = false; return; }
-    const newText = (this.editText ?? '').trim();
-    if (!newText) { this.isEditing = false; return; }
+    if (!path) { 
+      this.isEditing = false; 
+      return; 
+    }
     try {
       this.isSaving = true;
       await this.messageLogic.saveEditedText(path, newText);
       this.text = newText;
       this.edited = true;
       this.isEditing = false;
-    } catch (e) { } finally { this.isSaving = false; }
+    } catch (e) { 
+      console.error('Error saving message:', e);
+    } finally { 
+      this.isSaving = false; 
+    }
   }
 
   /**
@@ -555,7 +506,7 @@ export class MessageBubbleComponent implements OnChanges, OnDestroy {
    */
   @HostListener('document:mousemove', ['$event'])
   onDocumentMouseMove(event: MouseEvent) {
-    if (!this.showEmojiPicker && !this.editEmojiPickerVisible) return;
+    if (!this.showEmojiPicker) return;
     const host = (this.el?.nativeElement as HTMLElement | undefined) ?? undefined;
     const container = host?.querySelector('.message-container') as HTMLElement | null;
     const refEl = container ?? host;
@@ -574,7 +525,6 @@ export class MessageBubbleComponent implements OnChanges, OnDestroy {
     const overPicker = !!target?.closest('.emoji-picker-container');
     if (!insidePadded && !overPicker) {
       this.reactionService.closeEmojiPicker();
-      this.reactionService.closeEditEmojiPicker();
     }
   }
   

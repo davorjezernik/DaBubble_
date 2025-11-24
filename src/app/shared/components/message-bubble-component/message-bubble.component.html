@@ -103,50 +103,13 @@
         }
       </div>
       } @if (isEditing) {
-      <div class="edit-container" (click)="$event.stopPropagation()">
-        <textarea
-          #editTextarea
-          class="edit-textarea"
-          [value]="editText"
-          (input)="onEditInput($event)"
-          rows="1"
-        ></textarea>
-        <div class="edit-actions">
-          <div class="edit-left-actions">
-            <button
-              #editEmojiButton
-              class="edit-icon-btn"
-              type="button"
-              aria-label="Insert emoji"
-              (click)="$event.stopPropagation(); reactionService.toggleEditEmojiPicker()"
-            >
-              <img src="assets/icons/sentiment_satisfied.svg" alt="Emoji" />
-            </button>
-            <app-emoji-picker-component
-              #editEmojiPicker
-              [showEmojiPicker]="editEmojiPickerVisible"
-              (emojiSelected)="onEditEmojiSelected($event)"
-              (closePicker)="reactionService.closeEditEmojiPicker()"
-            ></app-emoji-picker-component>
-          </div>
-          <div class="edit-right-actions">
-            <button
-              class="btn btn--secondary"
-              (click)="cancelEdit()"
-              [disabled]="isSaving || isDeleting"
-            >
-              Abbrechen
-            </button>
-            <button
-              class="btn btn--primary"
-              (click)="saveEdit()"
-              [disabled]="isSaving || isDeleting"
-            >
-              Speichern
-            </button>
-          </div>
-        </div>
-      </div>
+      <app-message-edit-mode
+        [text]="text"
+        [isSaving]="isSaving"
+        [isDeleting]="isDeleting"
+        (save)="saveEdit($event)"
+        (cancel)="cancelEdit()"
+      ></app-message-edit-mode>
       } @else {
       <p>{{ text }}</p>
       }
