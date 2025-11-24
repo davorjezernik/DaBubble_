@@ -392,23 +392,18 @@ export class DevspaceSidenavContent implements OnInit, OnDestroy {
   trackById = (_: number, u: User) => u.uid;
 
   openAddChannelDialog() {
-    // Check if screen is mobile (matches your CSS breakpoint)
-    const isMobile = window.innerWidth < 500;
-
-    if (isMobile) {
-      // Open as Bottom Sheet (Slides up)
-      const sheetRef = this.bottomSheet.open(AddChannel);
-      sheetRef.afterDismissed().subscribe((result) => {
-        this.handleChannelResult(result);
+    if (this.isMobileView) {
+      const sheetRef = this.bottomSheet.open(AddChannel, {
+        panelClass: 'mobile-channel-sheet',
       });
+      sheetRef.afterDismissed().subscribe((result) => this.handleChannelResult(result));
     } else {
-      // Open as Dialog (Pops up)
       const dialogRef = this.dialog.open(AddChannel, {
-        panelClass: ".mobile-channel-sheet",
+        panelClass: 'sheet-400', // Fixed: this was .mobile-channel-sheet in your code, should be standard dialog class
+        width: '480px',
+        maxWidth: '95vw',
       });
-      dialogRef.afterClosed().subscribe((result) => {
-        this.handleChannelResult(result);
-      });
+      dialogRef.afterClosed().subscribe((result) => this.handleChannelResult(result));
     }
   }
 
@@ -418,24 +413,47 @@ export class DevspaceSidenavContent implements OnInit, OnDestroy {
     }
   }
 
-  openAddUsersToChannelDialog(result: any) {
-    const addUsersDialogRef = this.dialog.open(AddUsersToChannel, {
+  get isMobileView(): boolean {
+    return window.innerWidth < 500;
+  }
+
+  openAddUsersToChannelDialog(data: any) {
+    if (this.isMobileView) {
+      this.openAddUsersSheet(data);
+    } else {
+      this.openAddUsersDialog(data);
+    }
+  }
+
+  private openAddUsersSheet(data: any) {
+    const sheetRef = this.bottomSheet.open(AddUsersToChannel, {
+      panelClass: 'mobile-channel-sheet',
+      data: data,
+    });
+
+    sheetRef.afterDismissed().subscribe((result) => this.handleUsersResult(result));
+  }
+
+  private openAddUsersDialog(data: any) {
+    const dialogRef = this.dialog.open(AddUsersToChannel, {
       panelClass: 'sheet-400',
       width: '480px',
       maxWidth: '95vw',
-      data: result,
+      data: data,
     });
 
-    addUsersDialogRef.afterClosed().subscribe((dialogResult) => {
-      if (dialogResult) {
-        this.saveChannelData(dialogResult);
-      }
-    });
+    dialogRef.afterClosed().subscribe((result) => this.handleUsersResult(result));
   }
 
-  async saveChannelData(dialogResult: any) {
+  private handleUsersResult(result: any) {
+    if (result) {
+      this.saveChannelData(result);
+    }
+  }
+
+  async saveChannelData(result: any) {
     const batch = writeBatch(this.firestore);
-    const { channel, users } = dialogResult;
+    const { channel, users } = result;
     const channelsRef = collection(this.firestore, 'channels');
     const channelDoc = doc(channelsRef);
 
