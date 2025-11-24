@@ -16,6 +16,7 @@ import { EmojiPickerComponent } from '../emoji-picker-component/emoji-picker-com
 import { Firestore, collection, collectionData } from '@angular/fire/firestore';
 import { UserService } from '../../../../services/user.service';
 import { MessageLogicService } from './message-logic.service';
+import { MessageReactionService } from './message-reaction.service';
 import { ViewStateService } from '../../../../services/view-state.service';
 import { MatDialog } from '@angular/material/dialog';
 import { ConfirmDeleteDialogComponent } from './confirm-delete-dialog.component';
@@ -28,6 +29,7 @@ import { firstValueFrom, map, Subscription } from 'rxjs';
   imports: [CommonModule, EmojiPickerComponent],
   templateUrl: './message-bubble.component.html',
   styleUrl: './message-bubble.component.scss',
+  providers: [MessageReactionService]
 })
 export class MessageBubbleComponent implements OnChanges, OnDestroy {
   @Input() incoming: boolean = false;
@@ -82,9 +84,9 @@ export class MessageBubbleComponent implements OnChanges, OnDestroy {
   private readonly DEFAULT_COLLAPSE_THRESHOLD = 7;
   private readonly NARROW_COLLAPSE_THRESHOLD = 6;
   private readonly VERY_NARROW_COLLAPSE_THRESHOLD = 4;
-  private longPressTimer: any;
   lastTimeSub?: Subscription;
   answersCountSub?: Subscription;
+  private reactionStateSub = new Subscription();
 
   constructor(
     private firestore: Firestore,
@@ -93,17 +95,9 @@ export class MessageBubbleComponent implements OnChanges, OnDestroy {
     public el: ElementRef<HTMLElement>,
     public viewStateService: ViewStateService,
     private dialog: MatDialog,
-    private messageLogic: MessageLogicService
+    private messageLogic: MessageLogicService,
+    public reactionService: MessageReactionService
   ) {}
-
-  /**
-   * Toggle the inline emoji picker for quick reactions.
-   * Uses: showEmojiPicker (boolean) – controls visibility of the picker.
-   */
-  toggleEmojiPicker() {
-    if (this.isDeleted) return;
-    this.showEmojiPicker = !this.showEmojiPicker;
-  }
 
   /** Build Firestore path via logic service */
   private getMessagePath(): string | null {
@@ -115,17 +109,6 @@ export class MessageBubbleComponent implements OnChanges, OnDestroy {
       this.parentMessageId
     );
   }
-
-  /**
-   * Open the reactions emoji picker and hide mini actions.
-   * Affects: showEmojiPicker (true), showMiniActions (false).
-   */
-  openEmojiPicker() {
-    if (this.isDeleted) return;
-    this.showEmojiPicker = true;
-    this.showMiniActions = false;
-  }
-
   /** Display name truncated per 12/12 rule (first and last name). */
   get displayName(): string {
     return this.truncateFullName(this.name || '');
@@ -138,15 +121,9 @@ export class MessageBubbleComponent implements OnChanges, OnDestroy {
    */
   onEmojiSelected(emoji: string) {
     if (this.isDeleted) return;
-    this.addOrIncrementReaction(emoji);
-    this.showEmojiPicker = false;
-  }
-
-  /**
-   * Close the reactions emoji picker.
-   */
-  onClosePicker() {
-    this.showEmojiPicker = false;
+    if (!this.currentUserId) return;
+    const path = this.getMessagePath();
+    void this.reactionService.addOrIncrementReaction(path, emoji, this.currentUserId);
   }
 
   /**
@@ -154,18 +131,6 @@ export class MessageBubbleComponent implements OnChanges, OnDestroy {
    * @param event Optional MouseEvent to stop propagation (prevents immediate close from document listener).
    * Uses: editEmojiPickerVisible (boolean) – controls visibility in edit mode.
    */
-  toggleEditEmojiPicker(event?: MouseEvent) {
-    event?.stopPropagation();
-    this.editEmojiPickerVisible = !this.editEmojiPickerVisible;
-  }
-
-  /**
-   * Close the edit-mode emoji picker.
-   */
-  closeEditEmojiPicker() {
-    this.editEmojiPickerVisible = false;
-  }
-
   /**
    * Add selected emoji into the edit textarea content.
    * @param emoji The unicode emoji string to append to editText.
@@ -173,7 +138,7 @@ export class MessageBubbleComponent implements OnChanges, OnDestroy {
    */
   onEditEmojiSelected(emoji: string) {
     this.editText = (this.editText || '') + emoji;
-    this.editEmojiPickerVisible = false;
+    this.reactionService.closeEditEmojiPicker();
     this.autosizeEditTextarea();
   }
 
@@ -213,6 +178,17 @@ export class MessageBubbleComponent implements OnChanges, OnDestroy {
       this.currentUserId = u?.uid ?? null;
       this.rebuildReactions();
     });
+    this.reactionStateSub.add(
+      this.reactionService.reactions$.subscribe((reactions) => (this.reactions = reactions))
+    );
+    this.reactionStateSub.add(
+      this.reactionService.showEmojiPicker$.subscribe((show) => (this.showEmojiPicker = show))
+    );
+    this.reactionStateSub.add(
+      this.reactionService.editEmojiPickerVisible$.subscribe(
+        (visible) => (this.editEmojiPickerVisible = visible)
+      )
+    );
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -224,10 +200,11 @@ export class MessageBubbleComponent implements OnChanges, OnDestroy {
 
   ngOnDestroy(): void {
     this.answersCountSub?.unsubscribe();
+    this.reactionStateSub.unsubscribe();
   }
 
   private rebuildReactions() {
-    this.reactions = this.messageLogic.rebuildReactions(this.reactionsMap || {}, this.currentUserId);
+    this.reactionService.rebuildReactions(this.reactionsMap || {}, this.currentUserId);
   }
 
   /**
@@ -243,30 +220,6 @@ export class MessageBubbleComponent implements OnChanges, OnDestroy {
    * @param emoji The emoji key to add/increment.
    * Uses: reactions (local array), MAX_UNIQUE_REACTIONS.
    */
-  addOrIncrementReaction(emoji: string) {
-    if (this.isDeleted) return;
-    if (!this.currentUserId) return;
-    const path = this.getMessagePath();
-    this.messageLogic.addReaction(path, emoji, this.currentUserId);
-  }
-
-  /**
-   * Click handler for a reaction chip: decrements or removes when count hits zero.
-   * @param emoji The emoji key to decrement/remove.
-   */
-  onClickReaction(emoji: string) {
-    if (this.isDeleted) return;
-    if (!this.currentUserId) return;
-    const r = this.reactions.find((x) => x.emoji === emoji);
-    const path = this.getMessagePath();
-    if (!r) {
-      this.messageLogic.addReaction(path, emoji, this.currentUserId);
-      return;
-    }
-    if (r.currentUserReacted) this.messageLogic.removeReaction(path, emoji, this.currentUserId, r.isLegacyCount);
-    else this.messageLogic.addReaction(path, emoji, this.currentUserId, r.isLegacyCount);
-  }
-
   // Reaction add/remove now delegated to MessageLogicService
 
   /**
@@ -401,7 +354,7 @@ export class MessageBubbleComponent implements OnChanges, OnDestroy {
       const clickedInsidePicker = this.editEmojiPickerRef?.nativeElement.contains(event.target);
 
       if (!clickedInsideButton && !clickedInsidePicker) {
-        this.closeEditEmojiPicker();
+        this.reactionService.closeEditEmojiPicker();
       }
     }
   }
@@ -413,10 +366,10 @@ export class MessageBubbleComponent implements OnChanges, OnDestroy {
   onEscapeClose() {
     if (this.isMoreMenuOpen || this.showEmojiPicker) {
       this.isMoreMenuOpen = false;
-      this.showEmojiPicker = false;
+      this.reactionService.closeEmojiPicker();
     }
     if (this.editEmojiPickerVisible) {
-      this.editEmojiPickerVisible = false;
+      this.reactionService.closeEditEmojiPicker();
     }
   }
 
@@ -456,26 +409,6 @@ export class MessageBubbleComponent implements OnChanges, OnDestroy {
     if (this.isMobile && !this.isDeleted) {
       this.showMiniActions = !this.showMiniActions;
     }
-  }
-
-  handleTouchStart(event: TouchEvent, emoji: string) {
-    if (!this.isMobile) return;
-    event.stopPropagation();
-
-    this.longPressTimer = setTimeout(() => {
-      this.tooltipVisibleForEmoji = emoji;
-      event.preventDefault();
-    }, 400);
-  }
-
-  handleTouchEnd(event: TouchEvent) {
-    if (!this.isMobile) return;
-    clearTimeout(this.longPressTimer);
-  }
-
-  handleTouchMove(event: TouchEvent) {
-    if (!this.isMobile) return;
-    clearTimeout(this.longPressTimer);
   }
 
   /**
@@ -545,7 +478,9 @@ export class MessageBubbleComponent implements OnChanges, OnDestroy {
   /** Quick-add a reaction via the mini actions bar and close the bar. */
   onQuickReact(emoji: string) {
     if (this.isDeleted) return;
-    this.addOrIncrementReaction(emoji);
+    if (!this.currentUserId) return;
+    const path = this.getMessagePath();
+    void this.reactionService.addOrIncrementReaction(path, emoji, this.currentUserId);
     this.showMiniActions = false;
   }
 
@@ -558,7 +493,24 @@ export class MessageBubbleComponent implements OnChanges, OnDestroy {
     if (this.isDeleted) return;
     event.stopPropagation();
     this.showMiniActions = false;
-    this.toggleEmojiPicker();
+    this.reactionService.toggleEmojiPicker();
+  }
+
+  onReactionChipClick(emoji: string) {
+    if (this.isDeleted) return;
+    if (!this.currentUserId) return;
+    const path = this.getMessagePath();
+    void this.reactionService.handleReactionClick(path, emoji, this.currentUserId);
+  }
+
+  onReactionChipEnter(emoji: string) {
+    if (this.isMobile) return;
+    this.tooltipVisibleForEmoji = emoji;
+  }
+
+  onReactionChipLeave() {
+    if (this.isMobile) return;
+    this.tooltipVisibleForEmoji = null;
   }
 
   /**
@@ -621,8 +573,8 @@ export class MessageBubbleComponent implements OnChanges, OnDestroy {
     const target = event.target as HTMLElement | null;
     const overPicker = !!target?.closest('.emoji-picker-container');
     if (!insidePadded && !overPicker) {
-      this.onClosePicker();
-      this.closeEditEmojiPicker();
+      this.reactionService.closeEmojiPicker();
+      this.reactionService.closeEditEmojiPicker();
     }
   }
   

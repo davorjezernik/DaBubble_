@@ -1,8 +1,9 @@
-@media (min-width: 1000px) and (max-width: 1400px) {
+@media (min-width: 1000px) {
 :host app-message-bubble ::ng-deep .reactions .reaction-chip .reaction-tooltip {
     min-width: 50px !important;
     max-width: 50px !important;
-    white-space: wrap !important;
+    white-space: normal !important;
+    word-break: break-word !important;
     left: 5% !important;
   }
 

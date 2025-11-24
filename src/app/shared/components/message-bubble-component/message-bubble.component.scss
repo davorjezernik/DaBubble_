@@ -340,11 +340,13 @@
       }
     }
 
-    &:hover .emoji-wrapper .reaction-tooltip {
-      display: block;
+    @media (hover: hover) {
+      &:hover .emoji-wrapper .reaction-tooltip {
+        display: block;
+      }
     }
 
-    &.show-tooltip .reaction-tooltip {
+    &.show-tooltip .emoji-wrapper .reaction-tooltip {
       display: block;
     }
 

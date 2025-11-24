@@ -118,7 +118,7 @@
               class="edit-icon-btn"
               type="button"
               aria-label="Insert emoji"
-              (click)="toggleEditEmojiPicker($event)"
+              (click)="$event.stopPropagation(); reactionService.toggleEditEmojiPicker()"
             >
               <img src="assets/icons/sentiment_satisfied.svg" alt="Emoji" />
             </button>
@@ -126,7 +126,7 @@
               #editEmojiPicker
               [showEmojiPicker]="editEmojiPickerVisible"
               (emojiSelected)="onEditEmojiSelected($event)"
-              (closePicker)="closeEditEmojiPicker()"
+              (closePicker)="reactionService.closeEditEmojiPicker()"
             ></app-emoji-picker-component>
           </div>
           <div class="edit-right-actions">
@@ -163,12 +163,11 @@
         @for (r of visibleReactions; track r.emoji) {
         <button
           class="reaction-chip"
-          (click)="onClickReaction(r.emoji)"
+          (click)="onReactionChipClick(r.emoji)"
+          (mouseenter)="onReactionChipEnter(r.emoji)"
+          (mouseleave)="onReactionChipLeave()"
           [class.reacted]="r.currentUserReacted"
           [class.show-tooltip]="tooltipVisibleForEmoji === r.emoji"
-          (touchstart)="handleTouchStart($event, r.emoji)"
-          (touchend)="handleTouchEnd($event)"
-          (touchmove)="handleTouchMove($event)"
         >
           <span class="emoji-wrapper">
             @if (r.emoji === '✅') {
@@ -222,12 +221,12 @@
             src="assets/icons/add_reaction.svg"
             alt="Add reaction"
             class="add-reaction-icon icon-btn"
-            (click)="toggleEmojiPicker()"
+            (click)="isDeleted ? null : reactionService.toggleEmojiPicker()"
           />
           <app-emoji-picker-component
             [showEmojiPicker]="showEmojiPicker"
             (emojiSelected)="onEmojiSelected($event)"
-            (closePicker)="onClosePicker()"
+            (closePicker)="reactionService.closeEmojiPicker()"
           ></app-emoji-picker-component>
         </div>
       </div>
