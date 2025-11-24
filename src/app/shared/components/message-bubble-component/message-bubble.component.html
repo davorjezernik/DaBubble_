@@ -238,17 +238,3 @@
     <img [src]="avatar" alt="User Avatar" class="avatar-img" />
   </div>
 </div>
-
-@if (confirmDeleteOpen) {
-<div class="delete-confirm-overlay">
-  <div class="delete-confirm-bubble" (click)="$event.stopPropagation()">
-    <div class="delete-confirm-text">Nachricht wirklich löschen?</div>
-    <div class="delete-confirm-actions">
-      <button type="button" class="confirm-btn" (click)="cancelConfirmDelete()">Abbrechen</button>
-      <button type="button" class="confirm-btn" (click)="confirmDelete()" [disabled]="isDeleting">
-        Löschen
-      </button>
-    </div>
-  </div>
-</div>
-}

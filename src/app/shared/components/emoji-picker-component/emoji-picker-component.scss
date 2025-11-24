@@ -23,3 +23,23 @@
     }
   }
 }
+
+@media (orientation: landscape) and (max-height: 500px) {
+    :host ::ng-deep {
+    .emoji-mart {
+      width: 350px !important;
+    }
+
+    .emoji-mart-scroll {
+      height: 100px !important;
+    }
+
+    .emoji-mart-preview {
+      display: none;
+    }
+
+    .emoji-picker-container {
+      bottom: 32px;
+    }
+  }
+}

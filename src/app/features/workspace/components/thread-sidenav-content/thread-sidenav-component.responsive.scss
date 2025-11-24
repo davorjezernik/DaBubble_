@@ -1,3 +1,52 @@
+@media (min-width: 1000px) and (max-width: 1400px) {
+:host app-message-bubble ::ng-deep .reactions .reaction-chip .reaction-tooltip {
+    min-width: 50px !important;
+    max-width: 50px !important;
+    white-space: wrap !important;
+    left: 5% !important;
+  }
+
+  :host ::ng-deep .emoji-mart {
+    width: 150px !important;
+  }
+
+  :host app-message-bubble ::ng-deep .btn {
+    height: 40px;
+  }
+
+  :host app-message-bubble ::ng-deep .btn.btn--secondary {
+    min-width: 60px;
+    padding: 0;
+    font-size: 0;
+
+    &::before {
+      content: '✕';
+      font-size: 16px;
+      font-weight: 800;
+      color: #797ef3;
+      transition: color 0.15s;
+    }
+
+    &:hover::before {
+      color: #ffffff;
+    }
+  }
+
+  :host app-message-bubble ::ng-deep .btn.btn--primary {
+    min-width: 60px;
+    padding: 0;
+    font-size: 0;
+
+    &::before {
+      content: '✓';
+      font-size: 16px;
+      font-weight: 700;
+      color: #ffffff;
+    }
+  }
+
+}
+
 @media (max-width: 950px) {
   .chat-container {
     height: 89vh;
@@ -28,6 +77,12 @@
   }
 }
 
+@media (max-width: 500px) {
+  :host app-message-bubble ::ng-deep .menu-dropdown {
+    transform: translateX(0%) !important;
+  }
+}
+
 @media (max-width: 400px) {
   .chat-header {
     padding: 20px 10px;
@@ -37,4 +92,5 @@
     max-width: 100px;
   }
 }
+
 

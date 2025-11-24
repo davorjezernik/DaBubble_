@@ -64,7 +64,7 @@
     font-size: 14px;
     color: #686868;
     white-space: nowrap;
-    margin-left: -12px; /* reduce large gap when placed next to timestamp */
+    margin-left: -12px;
   }
 }
 
@@ -97,10 +97,9 @@
   }
 }
 
-/* Soft-deleted message appearance */
 .speech-bubble.deleted {
   p {
-    color: #B0B8C2 !important; /* lighter grey for deleted placeholder */
+    color: #B0B8C2 !important;
     font-style: italic;
   }
 }
@@ -174,7 +173,7 @@
 .mini-icon-btn {
   display: inline-flex;
   align-items: center;
-  left: 5%; /* default: non-incoming align to outer left of message container */
+  left: 5%;
   width: 22px;
   padding: 0;
   border: none;
@@ -185,18 +184,17 @@
 .menu-dropdown {
   position: absolute;
   top: 50%;
-  left: calc(100% + 12px); /* place to the right of the 3-dots */
-  width: auto; /* shrink to content */
+  left: calc(100% + 12px);
+  width: auto;
   padding: 10px 12px;
   background: #ffffff;
   border: 1px solid #ADB0D9;
-  border-radius: 0 20px 20px 20px; /* square top-left */
+  border-radius: 0 20px 20px 20px;
   box-shadow: 0px 6px 14px 0px #00000033;
   z-index: 5;
   pointer-events: auto;
 }
 
-/* Slide-in animations */
 @keyframes miniActionsSlideInLeft {
   from {
     transform: translate(-30px, -8px);
@@ -225,21 +223,19 @@
 }
 
 .menu-item {
-  /* Shrink to content; allow dropdown to be as narrow as needed */
   width: auto;
   text-align: center;
   background: transparent;
   border: none;
-  /* Reduced vertical padding to make items less tall */
   padding: 6px 12px;
   border-radius: 8px;
   font-family: 'Nunito', sans-serif;
   font-size: 18px;
-  line-height: 18px; /* tighter line height */
+  line-height: 18px;
   font-weight: 500;
   color: #111827;
   cursor: pointer;
-  white-space: nowrap; /* keep entries on one line (Bearbeiten / Löschen) */
+  white-space: nowrap;
 }
 
 .menu-item:hover {
@@ -348,7 +344,6 @@
       display: block;
     }
 
-    // Show tooltip on mobile when long-pressed
     &.show-tooltip .reaction-tooltip {
       display: block;
     }
@@ -394,6 +389,26 @@
     align-items: center;
     justify-content: center;
     margin-left: 8px;
+    z-index: 0;
+
+    &::after {
+      content: '';
+      position: absolute;
+      width: 30px;
+      height: 30px;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      border-radius: 50%;
+      background-color: transparent;
+      transition: background-color 0.15s ease;
+      z-index: -1;
+      pointer-events: none;
+    }
+
+    &:hover::after {
+      background-color: white;
+    }
 
     app-emoji-picker-component {
         position: absolute;
@@ -422,7 +437,7 @@
     order: 2;
   }
   .edited {
-    order: 3; /* ensure 'Bearbeitet' sits to the right of the time in incoming layout */
+    order: 3;
   }
 }
 
@@ -439,7 +454,6 @@
   background: #eceefe;
 }
 
-/* On hover over the incoming row, turn the speech bubble itself white (unless editing) */
 .message-container.incoming:hover .speech-bubble:not(.editing) {
   background: #ffffff;
 }
@@ -449,7 +463,7 @@
 }
 
 .message-container.incoming .mini-actions {
-  right: 5%; /* incoming: align to outer right of message container */
+  right: 5%;
   left: auto;
   transform: translateY(-8px);
 }
@@ -484,7 +498,6 @@
   }
 }
 
-/* Inline edit styles */
 .edit-container {
   width: 100%;
   display: flex;
@@ -505,7 +518,7 @@
   background: #fff;
   box-sizing: border-box;
   resize: none;
-  overflow: hidden; /* prevent scrollbar; height is auto-managed via TS */
+  overflow: hidden;
   &:focus,
   &:focus-visible {
     outline: none;
@@ -564,12 +577,15 @@
   }
 }
 
-/* Position the emoji picker just above the left icon in edit mode */
-/* Anchor the edit-mode emoji picker to the left icon (common variant) */
-.edit-left-actions app-emoji-picker-component {
+.edit-left-actions .edit-icon-btn:first-child {
+  position: relative;
+}
+
+.edit-left-actions .edit-icon-btn:first-child app-emoji-picker-component {
   position: absolute;
   bottom: 44px;
-  left: 200px;
+  left: 50%;
+  transform: translateX(-50%);
   z-index: 1000;
 }
 
@@ -598,19 +614,6 @@
 .speech-bubble.editing {
   background: #ffffff;
   border: #adb0d9 1px solid;
-}
-
-.speech-bubble.msg-box {
-  background: #ffffff;
-  border: 1px solid #adb0d9;
-  border-radius: 20px;
-  padding: 20px;
-  width: 80%;
-  gap: 16px;
-}
-
-.speech-bubble.msg-box p {
-  color: #000000;
 }
 
 :host ::ng-deep app-emoji-picker-component {
@@ -667,214 +670,6 @@
 
 }
 
-/* Delete confirmation overlay and bubble */
-.delete-confirm-overlay {
-  position: fixed;
-  inset: 0;
-  display: grid;
-  place-items: center;
-  background: rgba(0, 0, 0, 0.45); /* grey backdrop to block attention */
-  z-index: 10000; /* above menus and pickers */
-}
-
-.delete-confirm-bubble {
-  background: #444DF2; /* brand purple similar to tooltips */
-  color: #ffffff;
-  border-radius: 28px;
-  border-bottom-right-radius: 0; /* bottom-right angular */
-  padding: 20px 28px; /* more padding */
-  box-shadow: 0px 6px 10px 0px #00000033; /* requested style */
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 12px;
-  min-width: 280px;
-  max-width: 92vw;
-}
-
-.delete-confirm-text {
-  font-family: 'Nunito', sans-serif;
-  font-weight: 400;
-  font-size: 20px;
-  text-align: center;
-  margin-bottom: 8px; /* extra space above buttons */
-}
-
-.delete-confirm-actions {
-  display: inline-flex;
-  gap: 12px;
-}
-
-.confirm-btn {
-  height: 36px;
-  padding: 0 16px;
-  border-radius: 20px;
-  font-family: 'Nunito', sans-serif;
-  font-weight: 700;
-  font-size: 16px;
-  border: none; /* default white border on purple bubble */
-  cursor: pointer;
-  transition: background-color 120ms ease, box-shadow 120ms ease, transform 80ms ease, color 120ms ease;
-  background: #ffffff;
-  color: #444DF2;
-}
-
-.confirm-btn:hover {
-  background: #E0E2FF; /* stronger change */
-  color: #1118a3; /* darker text on hover */
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.18); /* slightly stronger */
-  border-color: transparent; /* remove white ring on hover */
-}
-
-.confirm-btn:active {
-  transform: translateY(1px);
-}
-
-.confirm-btn:focus-visible {
-  outline: none;
-  box-shadow: 0 0 0 3px rgba(68, 77, 242, 0.35);
-}
-
-.confirm-btn[disabled] {
-  opacity: 0.6;
-  cursor: default;
-  box-shadow: none;
-}
-
-@media (max-width: 500px) {
-  .delete-confirm-bubble {
-    min-width: 240px;
-    border-radius: 24px;
-    border-bottom-right-radius: 0;
-    padding: 24px 28px;
-  }
-  .delete-confirm-text {
-    font-size: 18px;
-  }
-  .confirm-btn {
-    height: 34px;
-    font-size: 15px;
-  }
-}
-
-
-@media (max-width: 700px) {
-  :host ::ng-deep .emoji-mart {
-    width: 150px !important;
-  }
-
-  .btn {
-    height: 40px;
-  }
-
-  .speech-bubble.msg-box {
-    gap: 8px;
-  }
-
-  .btn.btn--secondary {
-    min-width: 60px;
-    padding: 0;
-    font-size: 0;
-
-    &::before {
-      content: '✕';
-      font-size: 16px;
-      font-weight: 800;
-      color: #797ef3;
-      transition: color 0.15s;
-    }
-
-    &:hover::before {
-      color: #ffffff;
-    }
-  }
-
-  .btn.btn--primary {
-    min-width: 60px;
-    padding: 0;
-    font-size: 0;
-
-    &::before {
-      content: '✓';
-      font-size: 16px;
-      font-weight: 700;
-      color: #ffffff;
-    }
-  }
-
-  .edit-left-actions app-emoji-picker-component {
-    left: 160px;
-  }
-}
-
-
-@media (max-width: 500px) {
-  .message-container {
-    gap: 8px;
-  }
-
-  .speech-bubble.msg-box {
-    padding: 16px;
-  }
-
-  .mini-actions {
-    left: 5%;
-  }
-
-  .message-container.incoming .mini-actions {
-    right: 20%;
-    left: auto;
-  }
-
-  .reactions.center-narrow {
-    justify-content: center;
-  }
-  .reactions.center-narrow .reaction-list {
-    justify-content: center;
-  }
-
-  .avatar-container .avatar-img {
-    width: 50px;
-    height: 50px;
-  }
-
-  .menu-dropdown {
-    top: calc(100% + 8px);
-    left: 50%;
-    transform: translateX(-50%);
-  }
-
-  .reactions .reaction-chip .reaction-tooltip {
-    left: 5%;
-    border-radius: 15px 15px 15px 0;
-    padding: 8px 6px;
-    width: 88px;
-    min-width: auto;
-    white-space: normal;
-    word-break: break-word;
-  }
-
-
-}
-
-@media (max-width: 400px) {
-  .message-header {
-    gap: 16px;
-  }
-
-  .reactions {
-    width: 108%;
-    margin-left: -14px;
-    margin-right: -14px
-  }
-
-  .btn.btn--primary,
-  .btn.btn--secondary {
-    height: 30px;
-    min-width: 40px;
-  }
-}
-
 
 .answers-info {
   display: flex;
@@ -910,4 +705,134 @@
     $font-family: 'Nunito',
     $line-height: 1.4
   );
+}
+
+@media (max-width: 500px) {
+  /* delete confirm styles removed – handled by MatDialog component */
+}
+
+
+@media (max-width: 700px) {
+  :host ::ng-deep .emoji-mart {
+    width: 150px !important;
+  }
+
+  .btn {
+    height: 40px;
+  }
+
+  .btn.btn--secondary {
+    min-width: 60px;
+    padding: 0;
+    font-size: 0;
+
+    &::before {
+      content: '✕';
+      font-size: 16px;
+      font-weight: 800;
+      color: #797ef3;
+      transition: color 0.15s;
+    }
+
+    &:hover::before {
+      color: #ffffff;
+    }
+  }
+
+  .btn.btn--primary {
+    min-width: 60px;
+    padding: 0;
+    font-size: 0;
+
+    &::before {
+      content: '✓';
+      font-size: 16px;
+      font-weight: 700;
+      color: #ffffff;
+    }
+  }
+
+}
+
+
+@media (max-width: 500px) {
+  .message-container {
+    gap: 8px;
+  }
+
+  .mini-actions {
+    left: 5%;
+  }
+
+  .message-container.incoming .mini-actions {
+    right: 20%;
+    left: auto;
+  }
+
+  .reactions.center-narrow {
+    justify-content: center;
+  }
+  .reactions.center-narrow .reaction-list {
+    justify-content: center;
+  }
+
+  .avatar-container{
+    .avatar-img {
+    width: 50px;
+    height: 50px;
+  }
+
+  } 
+  .menu-dropdown {
+    top: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  .reactions .reaction-chip .reaction-tooltip {
+    left: 5%;
+    border-radius: 15px 15px 15px 0;
+    padding: 8px 6px;
+    width: 88px;
+    min-width: auto;
+    white-space: normal;
+    word-break: break-word;
+  }
+
+
+}
+
+@media (max-width: 400px) {
+  .message-header {
+    gap: 16px;
+  }
+
+  .reactions {
+    width: 108%;
+    margin-left: -14px;
+    margin-right: -14px
+  }
+
+  .btn.btn--primary,
+  .btn.btn--secondary {
+    height: 30px;
+    min-width: 40px;
+  }
+
+  .answers-info {
+    gap: 8px;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+@media (orientation: landscape) and (max-height: 500px) {
+.avatar-container{
+  .avatar-img
+{
+    width: 50px;
+    height: 50px;
+    margin-left: 8px;
+  }
+}
 }

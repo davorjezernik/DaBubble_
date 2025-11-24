@@ -100,3 +100,9 @@
     text-overflow: ellipsis;
   }
 }
+
+@media (orientation: landscape) and (max-height: 500px) {
+  .mention-panel {
+    max-height: 120px;
+  }
+}

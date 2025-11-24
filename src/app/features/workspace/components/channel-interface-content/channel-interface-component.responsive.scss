@@ -7,3 +7,9 @@
     display: none;
   }
 }
+
+@media (orientation: landscape) and (max-height: 500px) {
+    .chat-header {
+    height: 56px;
+  }
+}
