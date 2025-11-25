@@ -25,6 +25,8 @@ import { DialogUserCardComponent } from '../dialog-user-card/dialog-user-card.co
 import { MessageEditModeComponent } from './message-edit-mode/message-edit-mode.component';
 import { MessageMiniActionsComponent } from './message-mini-actions/message-mini-actions.component';
 import { MessageReactionsComponent } from './message-reactions/message-reactions.component';
+import { CloseOnOutsideClickDirective } from './directives/close-on-outside-click.directive';
+import { CloseOnEscapeDirective } from './directives/close-on-escape.directive';
 import { firstValueFrom, map, Subscription } from 'rxjs';
 import {
   DELETED_PLACEHOLDER,
@@ -41,7 +43,14 @@ import {
 @Component({
   selector: 'app-message-bubble',
   standalone: true,
-  imports: [CommonModule, MessageEditModeComponent, MessageMiniActionsComponent, MessageReactionsComponent],
+  imports: [
+    CommonModule,
+    MessageEditModeComponent,
+    MessageMiniActionsComponent,
+    MessageReactionsComponent,
+    CloseOnOutsideClickDirective,
+    CloseOnEscapeDirective
+  ],
   templateUrl: './message-bubble.component.html',
   styleUrl: './message-bubble.component.scss',
   providers: [MessageReactionService, MessageInteractionService]
@@ -226,34 +235,26 @@ export class MessageBubbleComponent implements OnChanges, OnDestroy {
     this.startEdit();
   }
 
-  @HostListener('document:click', ['$event'])
   /**
-   * Global click handler:
-   * - Closes the 3-dots menu
-   * - Closes the edit-mode emoji picker if click is outside button/picker
-   * @param event The click event target to test containment.
+   * Close more menu when clicking outside (called by directive).
    */
-  onDocumentClick(event: Event) {
-    if (this.isMoreMenuOpen) {
-      this.isMoreMenuOpen = false;
-    }
-    if (this.isMobile && this.showMiniActions) {
-      const clickedInside = this.el.nativeElement.contains(event.target as Node);
-      if (!clickedInside) {
-        this.showMiniActions = false;
-      }
-    }
+  onCloseMoreMenu() {
+    this.isMoreMenuOpen = false;
   }
 
-  @HostListener('document:keydown.escape')
   /**
-   * Global ESC handler: closes menus and emoji pickers.
+   * Close mini actions when clicking outside on mobile (called by directive).
    */
-  onEscapeClose() {
-    if (this.isMoreMenuOpen || this.showEmojiPicker) {
-      this.isMoreMenuOpen = false;
-      this.reactionService.closeEmojiPicker();
-    }
+  onCloseMiniActions() {
+    this.showMiniActions = false;
+  }
+
+  /**
+   * Close menus and pickers when ESC key is pressed (called by directive).
+   */
+  onEscapePressed() {
+    this.isMoreMenuOpen = false;
+    this.reactionService.closeEmojiPicker();
   }
 
   /** Show mini actions when cursor enters the bubble. */

@@ -4,8 +4,16 @@
   (mouseenter)="onSpeechBubbleEnter()"
   (mouseleave)="onSpeechBubbleLeave($event)"
   (click)="onMessageClick()"
+  closeOnEscape
+  [isOpen]="isMoreMenuOpen || showEmojiPicker"
+  (close)="onEscapePressed()"
 >
-  <div class="message-content">
+  <div
+    class="message-content"
+    closeOnOutsideClick
+    [isOpen]="isMobile && showMiniActions"
+    (close)="onCloseMiniActions()"
+  >
     <div class="message-header">
       <span class="timestamp">{{ time }}</span>
       @if (isEdited && !isDeleted) {
@@ -38,7 +46,14 @@
         (closeMoreMenu)="onMiniActionsCloseMenu()"
       >
         @if (!incoming) {
-        <div class="more-menu" more-menu (click)="$event.stopPropagation()">
+        <div
+          class="more-menu"
+          more-menu
+          (click)="$event.stopPropagation()"
+          closeOnOutsideClick
+          [isOpen]="isMoreMenuOpen"
+          (close)="onCloseMoreMenu()"
+        >
           <button
             class="mini-icon-btn"
             (click)="toggleMoreMenu($event)"
