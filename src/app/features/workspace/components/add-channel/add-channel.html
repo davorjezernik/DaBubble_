@@ -3,6 +3,7 @@
   <header class="dialog-header">
     <h1 id="dialog-title" class="dialog-title">Channel erstellen</h1>
     <button
+      (click)="closeDialog()"
       class="dialog-close-button"
       mat-icon-button
       mat-dialog-close
@@ -20,71 +21,71 @@
       </svg>
     </button>
   </header>
-
-  <mat-dialog-content
-    class="dialog-content"
-    role="dialog"
-    aria-labelledby="dialog-title"
-    aria-describedby="dialog-description"
-  >
-    <p id="dialog-description" class="dialog-description">
-      Channels dienen deinem Team zur Kommunikation. Am besten sollten sie themenbezogen sein
-      #marketing zum Beispiel.
-    </p>
-
-    <form class="dialog-form" #channelForm="ngForm">
-      <div class="form-group">
-        <label for="channelName" class="form-field-label">Channel-Name</label>
-        <mat-form-field appearance="outline" class="form-field no-border">
-          <mat-icon matIconPrefix>tag</mat-icon>
-          <input
-            matInput
-            id="channelName"
-            name="channelName"
-            [(ngModel)]="channelName"
-            type="text"
-            minlength="2"
-            pattern="^\S*$"
-            required
-            #channelNameInput="ngModel"
-            placeholder="Office-Team"
-          />
-          @if (namingConflict || (channelNameInput.invalid && channelNameInput.touched)) {
-          <mat-error>
-            Der Name darf keine Leerzeichen enthalten, muss mind. 2 Zeichen lang sein oder existiert
-            bereits.
-          </mat-error>
-          }
-        </mat-form-field>
-      </div>
-      <div class="form-group">
-        <label for="description" class="form-field-label"
-          >Beschreibung <span class="label-optional">(optional)</span></label
-        >
-        <mat-form-field appearance="outline" class="form-field with-padding">
-          <input
-            matInput
-            id="description"
-            name="description"
-            [(ngModel)]="description"
-            placeholder="Beschreibung"
-            cdkTextareaAutosize
-            cdkAutosizeMinRows="3"
-          />
-        </mat-form-field>
-      </div>
-    </form>
-  </mat-dialog-content>
-
-  <mat-dialog-actions class="dialog-actions" align="end">
-    <button
-      class="submit-btn"
-      mat-raised-button
-      color="primary"
-      [class.disabled]="channelForm.invalid"
-      (click)="onConfirm()"
+  <section class="dialog-content-wrapper" #scrollContainer>
+    <mat-dialog-content
+      class="dialog-content"
+      role="dialog"
+      aria-labelledby="dialog-title"
+      aria-describedby="dialog-description"
     >
-      Erstellen
-    </button>
-  </mat-dialog-actions>
-</div>
+      <p id="dialog-description" class="dialog-description">
+        Channels dienen deinem Team zur Kommunikation. Am besten sollten sie themenbezogen sein
+        #marketing zum Beispiel.
+      </p>
+
+      <form class="dialog-form" #channelForm="ngForm">
+        <div class="form-group">
+          <label for="channelName" class="form-field-label">Channel-Name</label>
+          <mat-form-field appearance="outline" class="form-field no-border">
+            <mat-icon matIconPrefix>tag</mat-icon>
+            <input (blur)="onNameBlur(channelNameInput)"
+              matInput
+              id="channelName"
+              name="channelName"
+              [(ngModel)]="channelName"
+              type="text"
+              minlength="2"
+              pattern="^\S*$"
+              required
+              #channelNameInput="ngModel"
+              placeholder="Office-Team"
+            />
+            @if (namingConflict || (channelNameInput.invalid && channelNameInput.touched)) {
+            <mat-error>
+              Der Name darf keine Leerzeichen enthalten, muss mind. 2 Zeichen lang sein oder
+              existiert bereits.
+            </mat-error>
+            }
+          </mat-form-field>
+        </div>
+        <div class="form-group">
+          <label for="description" class="form-field-label"
+            >Beschreibung <span class="label-optional">(optional)</span></label
+          >
+          <mat-form-field appearance="outline" class="form-field with-padding">
+            <input
+              matInput
+              id="description"
+              name="description"
+              [(ngModel)]="description"
+              placeholder="Beschreibung"
+              cdkTextareaAutosize
+              cdkAutosizeMinRows="3"
+            />
+          </mat-form-field>
+        </div>
+      </form>
+    </mat-dialog-content>
+    <div class="btn-wrapper">
+      <button
+        class="submit-btn"
+        mat-raised-button
+        color="primary"
+        [class.disabled]="channelForm.invalid"
+        (click)="onConfirm()"
+      >
+        Erstellen
+      </button>
+    </div>
+  </section>
+  </div>

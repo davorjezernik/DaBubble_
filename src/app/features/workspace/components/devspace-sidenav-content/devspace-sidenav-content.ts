@@ -36,6 +36,7 @@ import { ViewStateService } from '../../../../../services/view-state.service';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
+import { MatBottomSheet } from '@angular/material/bottom-sheet';
 
 @Component({
   selector: 'app-devspace-sidenav-content',
@@ -103,7 +104,8 @@ export class DevspaceSidenavContent implements OnInit, OnDestroy {
     private read: ReadStateService,
     private searchBus: SearchBusService,
     public viewStateService: ViewStateService,
-    public router: Router
+    public router: Router,
+    private bottomSheet: MatBottomSheet
   ) {}
 
   ngOnInit(): void {
@@ -390,37 +392,68 @@ export class DevspaceSidenavContent implements OnInit, OnDestroy {
   trackById = (_: number, u: User) => u.uid;
 
   openAddChannelDialog() {
-  const dialogRef = this.dialog.open(AddChannel, {
-    panelClass: 'sheet-500', 
-    width: '480px',
-    maxWidth: '95vw',
-  });
+    if (this.isMobileView) {
+      const sheetRef = this.bottomSheet.open(AddChannel, {
+        panelClass: 'mobile-channel-sheet',
+      });
+      sheetRef.afterDismissed().subscribe((result) => this.handleChannelResult(result));
+    } else {
+      const dialogRef = this.dialog.open(AddChannel, {
+        panelClass: 'sheet-400', // Fixed: this was .mobile-channel-sheet in your code, should be standard dialog class
+        width: '480px',
+        maxWidth: '95vw',
+      });
+      dialogRef.afterClosed().subscribe((result) => this.handleChannelResult(result));
+    }
+  }
 
-  dialogRef.afterClosed().subscribe((result) => {
+  private handleChannelResult(result: any) {
     if (result && result.channelName) {
       this.openAddUsersToChannelDialog(result);
     }
-  });
-}
+  }
 
-openAddUsersToChannelDialog(result: any) {
-  const addUsersDialogRef = this.dialog.open(AddUsersToChannel, {
-    panelClass: 'sheet-500',  
-    width: '480px',
-    maxWidth: '95vw',
-    data: result,
-  });
+  get isMobileView(): boolean {
+    return window.innerWidth < 500;
+  }
 
-  addUsersDialogRef.afterClosed().subscribe((dialogResult) => {
-    if (dialogResult) {
-      this.saveChannelData(dialogResult);
+  openAddUsersToChannelDialog(data: any) {
+    if (this.isMobileView) {
+      this.openAddUsersSheet(data);
+    } else {
+      this.openAddUsersDialog(data);
     }
-  });
-}
+  }
 
-  async saveChannelData(dialogResult: any) {
+  private openAddUsersSheet(data: any) {
+    const sheetRef = this.bottomSheet.open(AddUsersToChannel, {
+      panelClass: 'mobile-channel-sheet',
+      data: data,
+    });
+
+    sheetRef.afterDismissed().subscribe((result) => this.handleUsersResult(result));
+  }
+
+  private openAddUsersDialog(data: any) {
+    const dialogRef = this.dialog.open(AddUsersToChannel, {
+      panelClass: 'sheet-400',
+      width: '480px',
+      maxWidth: '95vw',
+      data: data,
+    });
+
+    dialogRef.afterClosed().subscribe((result) => this.handleUsersResult(result));
+  }
+
+  private handleUsersResult(result: any) {
+    if (result) {
+      this.saveChannelData(result);
+    }
+  }
+
+  async saveChannelData(result: any) {
     const batch = writeBatch(this.firestore);
-    const { channel, users } = dialogResult;
+    const { channel, users } = result;
     const channelsRef = collection(this.firestore, 'channels');
     const channelDoc = doc(channelsRef);
 
