@@ -1,7 +1,18 @@
 @use 'mixins';
+@use 'variables';
 
 .dialog {
   padding: 20px 20px 40px;
+
+  &::-webkit-scrollbar {
+    display: none !important;
+  }
+}
+
+.btn-wrapper {
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
 }
 
 .dialog-header {
@@ -23,11 +34,15 @@
 
 .dialog-content {
   padding: 16px 24px;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 .dialog-description {
   @include mixins.text-style(
-    $size: 18px,
+    $size: variables.$basic-text-size,
     $color: #606060,
     $font-weight: 400,
     $font-family: 'Nunito'
@@ -38,20 +53,16 @@
 .dialog-form {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 32px;
   .form-field {
     width: 100%;
-    margin-top: 20px;
+    margin-top: 10px;
   }
-}
-
-.dialog-actions {
-  padding: 0 24px 24px;
 }
 
 .form-field-label {
   @include mixins.text-style(
-    $size: 18px,
+    $size: variables.$basic-text-size,
     $color: #000000,
     $font-weight: 700,
     $font-family: 'Nunito'
@@ -60,7 +71,7 @@
 
 .label-optional {
   @include mixins.text-style(
-    $size: 18px,
+    $size: variables.$basic-text-size,
     $color: #686868,
     $font-weight: 400,
     $font-family: 'Nunito'
@@ -94,9 +105,14 @@
 .submit-btn {
   border: none;
   @include mixins.primary-button($hover-bg-color: #797ef3, $bg-color: #444df2);
+  z-index: 2;
 
   &.disabled {
     cursor: default;
     pointer-events: none;
   }
+}
+
+.sheet-handle {
+  display: none;
 }

@@ -98,6 +98,9 @@ export class LoginComponent {
       await this.navigateToSelfDm();
     } catch (err: any) {
       console.log(err);
+      this.loginForm.controls.email.setErrors({ loginFailed: true });
+      this.loginForm.controls.password.setErrors({ loginFailed: true });
+      this.updateErrorMessages();
     }
   }
 

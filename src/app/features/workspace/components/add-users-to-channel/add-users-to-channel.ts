@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, Inject, OnInit, Optional } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
@@ -13,6 +13,7 @@ import {
 import { UserService } from '../../../../../services/user.service';
 import { firstValueFrom } from 'rxjs';
 import { ContactChip } from '../../../../shared/components/contact-chip/contact-chip';
+import { MAT_BOTTOM_SHEET_DATA, MatBottomSheetRef } from '@angular/material/bottom-sheet';
 
 @Component({
   selector: 'app-add-users-to-channel',
@@ -28,7 +29,11 @@ import { ContactChip } from '../../../../shared/components/contact-chip/contact-
     ContactChip,
   ],
   templateUrl: './add-users-to-channel.html',
-  styleUrls: ['./add-users-to-channel.scss', '../../../../shared/styles/form-field-styles.scss'],
+  styleUrls: [
+    './add-users-to-channel.scss',
+    './add-users-to-channel.responsive.scss',
+    '../../../../shared/styles/form-field-styles.scss',
+  ],
 })
 export class AddUsersToChannel implements OnInit {
   selectedOption: string = 'all';
@@ -46,22 +51,28 @@ export class AddUsersToChannel implements OnInit {
   mentionUsers: MentionUser[] = [];
 
   constructor(
-    public dialogRef: MatDialogRef<AddUsersToChannel>,
     private userService: UserService,
-    @Inject(MAT_DIALOG_DATA) public data: { channelName: string; description: string }
+    @Optional() public dialogRef: MatDialogRef<AddUsersToChannel>,
+    @Optional() public sheetRef: MatBottomSheetRef<AddUsersToChannel>,
+    @Optional() @Inject(MAT_DIALOG_DATA) public dialogData: { channelName: string; description: string },
+    @Optional() @Inject(MAT_BOTTOM_SHEET_DATA) public sheetData: { channelName: string; description: string }
   ) {}
+
+    get data() {
+    return this.dialogData ?? this.sheetData;
+  }
 
   async ngOnInit() {
     const currentUserData = await firstValueFrom(this.userService.currentUser$());
     if (currentUserData) {
-    this.currentUser = {
-      uid: currentUserData.uid,
-      name: currentUserData.name,
-      avatar: currentUserData.avatar,
-      online: currentUserData.online,
-    };
-    this.selectedUsers.push(this.currentUser);
-  }
+      this.currentUser = {
+        uid: currentUserData.uid,
+        name: currentUserData.name,
+        avatar: currentUserData.avatar,
+        online: currentUserData.online,
+      };
+      this.selectedUsers.push(this.currentUser);
+    }
 
     const users = await firstValueFrom(this.userService.users$());
     this.allUsers = users;
@@ -83,8 +94,16 @@ export class AddUsersToChannel implements OnInit {
     }
   }
 
+    public closeDialog(result?: any) {
+    if (this.sheetRef) {
+      this.sheetRef.dismiss(result);
+    } else if (this.dialogRef) {
+      this.dialogRef.close(result);
+    }
+  }
+
   private createChannelWithSelectedUsers() {
-    this.dialogRef.close({
+    this.closeDialog({
       channel: {
         channelName: this.data.channelName.trim(),
         description: this.data.description.trim(),
@@ -97,7 +116,7 @@ export class AddUsersToChannel implements OnInit {
   }
 
   private createChannelForAllUsers() {
-    this.dialogRef.close({
+    this.closeDialog({
       channel: {
         channelName: this.data.channelName.trim(),
         description: this.data.description.trim(),

@@ -16,60 +16,78 @@ import { CommonModule } from '@angular/common';
   styleUrls: ['./intro-overlay.component.scss'],
 })
 export class IntroOverlayComponent implements AfterViewInit {
+  @ViewChild('overlay', { static: true }) overlay!: ElementRef<HTMLElement>;
   @ViewChild('cluster', { static: true }) cluster!: ElementRef<HTMLDivElement>;
   @ViewChild('logoEl', { static: true }) logoEl!: ElementRef<HTMLImageElement>;
   @ViewChild('titleEl', { static: true }) titleEl!: ElementRef<HTMLHeadingElement>;
   @Output() done = new EventEmitter<void>();
 
   async ngAfterViewInit() {
-    // Logo macht Platz anfang //
-    await this.logoEl.nativeElement.animate(
-      [{ transform: 'translateX(0)' }, { transform: 'translateX(-60px)' }],
-      { duration: 800, easing: 'ease-out', delay: 1000, fill: 'forwards' }
-    ).finished;
-    // Logo macht Platz ende //
+  // Warten bis Bild & Fonts fertig sind
+  try { await (this.logoEl.nativeElement as any).decode?.(); } catch {}
+  if ((document as any).fonts?.ready) await (document as any).fonts.ready;
 
-    // Text von links rein //
-    await this.titleEl.nativeElement.animate(
-      [
-        { opacity: 0, transform: 'translateX(-80px)' },
-        { opacity: 1, transform: 'translateX(-12px)' },
-      ],
-      { duration: 800, easing: 'cubic-bezier(.22,.9,.26,1)', fill: 'forwards' }
-    ).finished;
-    // Text von links rein ende//
-
-    // Parallel: Fly + Farbwechsel + Overlay-Fade anfang//
-    const clusterFly = this.cluster.nativeElement.animate(
-      [
-        { transform: 'translate(-50%,-50%) scale(1)' },
-        {
-          transform: `translate(calc(-50% - (50vw - 215px)),
-                               calc(-50% - (50vh - 125px))) scale(0.4)`,
-        },
-      ],
-      { duration: 800, easing: 'ease-in', fill: 'forwards' }
-    );
-
-    const colorFade = this.titleEl.nativeElement.animate([{ color: '#fff' }, { color: '#000' }], {
-      duration: 500,
-      easing: 'ease-in',
-      fill: 'forwards',
-    });
-
-    const bg = (this.cluster.nativeElement.closest('.overlay') as HTMLElement).querySelector(
-      '.overlay-bg'
-    )!;
-    const bgFade = bg.animate([{ opacity: 1 }, { opacity: 0 }], {
-      duration: 500,
-      easing: 'ease',
-      fill: 'forwards',
-    });
-
-    await Promise.all([clusterFly.finished, colorFade.finished, bgFade.finished]);
-    // Parallel: Fly + Farbwechsel + Overlay-Fade ende//
-
-    this.done.emit();
-    // Cluster ins Backdrop mounten ende//
+  // Reduced motion -> überspringen
+  if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) {
+    setTimeout(() => this.done.emit(), 0);
+    return;
   }
+
+  // CSS-Animation starten
+  this.overlay.nativeElement.classList.add('animate');
+
+  const el = this.cluster.nativeElement;
+
+  // Dauer + Delay + Iterationen ermitteln
+  const cs = getComputedStyle(el);
+  const toMs = (s: string) => {
+    // "0s" | "0.8s" | "120ms" -> number ms
+    if (!s) return 0;
+    return s.endsWith('ms') ? parseFloat(s) : parseFloat(s) * 1000;
+  };
+
+  // Bei mehrfachen Animationen liefert CSS kommagetrennte Listen – nimm die längste
+  const durations = cs.animationDuration.split(',').map(toMs);
+  const delays    = cs.animationDelay.split(',').map(toMs);
+  const counts    = cs.animationIterationCount.split(',').map(c => c.trim() === 'infinite' ? Infinity : parseFloat(c) || 1);
+
+  const totals = durations.map((d, i) => {
+    const delay = delays[i] ?? 0;
+    const count = counts[i] ?? 1;
+    if (!isFinite(count)) return Infinity;
+    return delay + d * count;
+  });
+
+  let totalMs = Math.max(0, ...totals);
+  // Sicherheitsaufschlag + Fallback bei Infinity/0
+  if (!isFinite(totalMs) || totalMs === 0) totalMs = 1800;
+  const safetyMs = Math.min(Math.max(totalMs + 100, 500), 5000); // 0.5s–5s
+
+  // Promise, das beim ersten passenden animationend ODER beim Timeout erfüllt
+  await new Promise<void>((resolve) => {
+    let settled = false;
+
+    const timer = setTimeout(() => {
+      if (settled) return;
+      settled = true;
+      resolve();
+    }, safetyMs);
+
+    const onEnd = (e: AnimationEvent) => {
+      // Nur reagieren, wenn die gewünschte Keyframe-Animation endet.
+      // Wenn du ALLE akzeptieren willst, entferne die Namensprüfung.
+      if ((e as any).animationName === 'cluster-fly') {
+        if (settled) return;
+        settled = true;
+        clearTimeout(timer);
+        resolve();
+      }
+    };
+
+    // einmalig reagieren
+    el.addEventListener('animationend', onEnd as any, { once: true });
+  });
+
+  this.done.emit();
+}
 }

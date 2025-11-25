@@ -7,6 +7,7 @@ export interface MentionUser {
   name: string;
   avatar: string;
   online?: boolean;
+  email?: string;
 }
 
 export interface MentionChannel {
@@ -19,7 +20,7 @@ export interface MentionChannel {
   standalone: true,
   imports: [CommonModule],
   templateUrl: './mention-list.component.html',
-  styleUrls: ['./mention-list.component.scss'],
+  styleUrls: ['./mention-list.component.scss', './mention-list.component.responsiv..scss'],
 })
 export class MentionListComponent {
   @Input() mode: 'users' | 'channels' = 'users';
@@ -30,9 +31,13 @@ export class MentionListComponent {
   @Output() userSelected = new EventEmitter<MentionUser>();
   @Input() allSelectedUsers: MentionUser[] = [];
   @Output() channelSelected = new EventEmitter<MentionChannel>();
+  @Output() emailSelected = new EventEmitter<string>();
 
   private userService = inject(UserService);
   currentUserId: string | null = null;
+
+  @Input() allowRawEmail = true;
+  @Input() showEmail = false;
 
   private _users: MentionUser[] = [];
   get users(): MentionUser[] {
@@ -55,7 +60,10 @@ export class MentionListComponent {
   }
 
   private filterByInputValue() {
-    return this._users.filter((u) => u.name.toLowerCase().includes(this.searchTerm.toLowerCase()));
+    const q = (this.searchTerm || '').toLowerCase();
+    return this._users.filter(
+      (u) => u.name?.toLowerCase().includes(q) || u.email?.toLowerCase().includes(q)
+    );
   }
 
   private filterAlreadyChosen(filteredUsers: MentionUser[]) {
@@ -80,6 +88,17 @@ export class MentionListComponent {
     });
   }
 
+  private isValidEmail(v: string): boolean {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test((v || '').trim());
+  }
+
+  get noUserEmailOption(): string | null {
+    const q = (this.searchTerm || '').trim();
+    if (!this.allowRawEmail || !this.isValidEmail(q)) return null;
+    const exists = this._users.some((u) => (u.email || '').toLowerCase() === q.toLowerCase());
+    return exists ? null : q;
+  }
+
   onPickUser(u: MentionUser) {
     this.pick.emit(`@${u.name} `);
   }
@@ -88,8 +107,15 @@ export class MentionListComponent {
     this.pick.emit(`#${c.name} `);
     this.channelSelected.emit(c);
   }
-  
+
   onUserSelected(u: MentionUser) {
     this.userSelected.emit(u);
+  }
+
+  get channelsView(): MentionChannel[] {
+    const qRaw = (this.searchTerm || '').trim();
+    const q = (qRaw.startsWith('#') ? qRaw.slice(1) : qRaw).toLowerCase();
+    if (!q) return this.channels ?? [];
+    return (this.channels ?? []).filter((c) => (c.name || '').toLowerCase().includes(q));
   }
 }
