@@ -17,6 +17,7 @@ import { Firestore, collection, collectionData } from '@angular/fire/firestore';
 import { UserService } from '../../../../services/user.service';
 import { MessageLogicService } from './message-logic.service';
 import { MessageReactionService } from './message-reaction.service';
+import { MessageInteractionService } from './message-interaction.service';
 import { ViewStateService } from '../../../../services/view-state.service';
 import { MatDialog } from '@angular/material/dialog';
 import { ConfirmDeleteDialogComponent } from './confirm-delete-dialog.component';
@@ -43,7 +44,7 @@ import {
   imports: [CommonModule, MessageEditModeComponent, MessageMiniActionsComponent, MessageReactionsComponent],
   templateUrl: './message-bubble.component.html',
   styleUrl: './message-bubble.component.scss',
-  providers: [MessageReactionService]
+  providers: [MessageReactionService, MessageInteractionService]
 })
 export class MessageBubbleComponent implements OnChanges, OnDestroy {
   @Input() incoming: boolean = false;
@@ -99,7 +100,8 @@ export class MessageBubbleComponent implements OnChanges, OnDestroy {
     public viewStateService: ViewStateService,
     private dialog: MatDialog,
     private messageLogic: MessageLogicService,
-    public reactionService: MessageReactionService
+    public reactionService: MessageReactionService,
+    private interactionService: MessageInteractionService
   ) {}
 
   /** Build Firestore path via logic service */
@@ -263,9 +265,9 @@ export class MessageBubbleComponent implements OnChanges, OnDestroy {
   /** Hide only when pointer truly leaves component (not moving into mini-actions). */
   onSpeechBubbleLeave(event: MouseEvent) {
     if (this.isMobile) return;
-    const next = event.relatedTarget as HTMLElement | null;
     const host = this.el.nativeElement.querySelector('.message-container') as HTMLElement | null;
-    if (next && host && host.contains(next)) return;
+    if (!host) return;
+    if (this.interactionService.isMovingToChild(event, host)) return;
     this.showMiniActions = false;
     this.isMoreMenuOpen = false;
   }
@@ -435,22 +437,13 @@ export class MessageBubbleComponent implements OnChanges, OnDestroy {
   @HostListener('document:mousemove', ['$event'])
   onDocumentMouseMove(event: MouseEvent) {
     if (!this.showEmojiPicker) return;
-    const host = (this.el?.nativeElement as HTMLElement | undefined) ?? undefined;
-    const container = host?.querySelector('.message-container') as HTMLElement | null;
-    const refEl = container ?? host;
-    if (!refEl) return;
-    const rect = refEl.getBoundingClientRect();
-    const pad = 12;
-    const x = event.clientX;
-    const y = event.clientY;
-    const insidePadded =
-      x >= rect.left - pad &&
-      x <= rect.right + pad &&
-      y >= rect.top - pad &&
-      y <= rect.bottom + pad;
-
-    const target = event.target as HTMLElement | null;
-    const overPicker = !!target?.closest('.emoji-picker-container');
+    
+    const container = this.el.nativeElement.querySelector('.message-container') as HTMLElement | null;
+    const refEl = container ?? this.el.nativeElement;
+    
+    const insidePadded = this.interactionService.isMouseWithinPaddedArea(refEl, event.clientX, event.clientY);
+    const overPicker = this.interactionService.isElementOrAncestor(event.target as HTMLElement, '.emoji-picker-container');
+    
     if (!insidePadded && !overPicker) {
       this.reactionService.closeEmojiPicker();
     }
