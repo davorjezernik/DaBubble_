@@ -1,0 +1,119 @@
+@media (max-width: 750px) {
+  .dialog-user-card-container {
+    width: 350px;
+    padding: 30px;
+    gap: 25px;
+  }
+
+  .edit-text {
+    display: none;
+  }
+
+  .edit-icon {
+    display: inline-flex;
+    align-items: center;
+    background: none;
+    border: none;
+    padding: 6px;
+    cursor: pointer;
+
+    img {
+      width: 24px;
+      height: 24px;
+      transition: opacity 125ms ease;
+    }
+
+    &:hover img {
+      filter: invert(45%) sepia(60%) saturate(1500%) hue-rotate(215deg) brightness(95%)
+        contrast(92%);
+      opacity: 0.8;
+    }
+  }
+
+  .user-name-edit {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 60px;
+    width: 100%;
+  }
+}
+
+@media (max-width: 430px) {
+  .dialog-user-card-container {
+    width: 300px;
+    padding: 30px;
+    gap: 25px;
+  }
+
+  .user-name-edit {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 30px;
+    width: 100%;
+  }
+}
+
+@media (max-width: 375px) {
+  .dialog-user-card-container {
+    width: 280px;
+    padding: 30px;
+    gap: 15px;
+  }
+
+  .dialog-user-card-header-container {
+    h2 {
+      font-size: 20px;
+    }
+
+    .close-icon {
+      height: 18px;
+      width: 18px;
+    }
+  }
+
+  .user-name-edit {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 10px;
+    width: 100%;
+
+    h3 {
+      font-size: 24px;
+    }
+  }
+
+  .user-status {
+    font-size: 18px !important;
+  }
+
+  .user-profil-image-container {
+    img {
+      height: 120px;
+      width: 120px;
+    }
+  }
+}
+
+@media (max-width: 360px) {
+  .dialog-user-card-container {
+    width: 260px;
+  }
+}
+
+@media (max-width: 330px) {
+  .dialog-user-card-container {
+    width: 250px;
+    gap: 15px;
+  }
+
+  .user-name-edit {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 0px;
+    width: 100%;
+  }
+}
