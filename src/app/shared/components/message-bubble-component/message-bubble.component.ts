@@ -22,6 +22,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { ConfirmDeleteDialogComponent } from './confirm-delete-dialog.component';
 import { DialogUserCardComponent } from '../dialog-user-card/dialog-user-card.component';
 import { MessageEditModeComponent } from './message-edit-mode/message-edit-mode.component';
+import { MessageMiniActionsComponent } from './message-mini-actions/message-mini-actions.component';
 import { firstValueFrom, map, Subscription } from 'rxjs';
 import {
   DELETED_PLACEHOLDER,
@@ -38,7 +39,7 @@ import {
 @Component({
   selector: 'app-message-bubble',
   standalone: true,
-  imports: [CommonModule, EmojiPickerComponent, MessageEditModeComponent],
+  imports: [CommonModule, EmojiPickerComponent, MessageEditModeComponent, MessageMiniActionsComponent],
   templateUrl: './message-bubble.component.html',
   styleUrl: './message-bubble.component.scss',
   providers: [MessageReactionService]
@@ -84,7 +85,7 @@ export class MessageBubbleComponent implements OnChanges, OnDestroy {
   isVeryNarrow = typeof window !== 'undefined' ? isVeryNarrowViewport(window.innerWidth) : false;
   isMobile = typeof window !== 'undefined' ? isMobileViewport(window.innerWidth) : false;
 
-  private currentUserId: string | null = null;
+  currentUserId: string | null = null;
   readonly DELETED_PLACEHOLDER = DELETED_PLACEHOLDER;
   readonly MAX_UNIQUE_REACTIONS = MAX_UNIQUE_REACTIONS;
   private readonly DEFAULT_COLLAPSE_THRESHOLD = DEFAULT_COLLAPSE_THRESHOLD;
@@ -335,19 +336,20 @@ export class MessageBubbleComponent implements OnChanges, OnDestroy {
   }
 
   /** Keep mini actions visible while hovering over them. */
-  onMiniActionsEnter() {
-    if (this.isDeleted || this.isMobile) return;
-    this.showMiniActions = true;
+  onMiniActionsVisibilityChange(visible: boolean) {
+    this.showMiniActions = visible;
   }
 
-  /** Hide when leaving mini actions AND not moving back to container. */
-  onMiniActionsLeave(event: MouseEvent) {
-    if (this.isMobile) return;
-    const next = event.relatedTarget as HTMLElement | null;
-    const host = this.el.nativeElement.querySelector('.message-container') as HTMLElement | null;
-    if (next && host && host.contains(next)) return;
-    this.showMiniActions = false;
+  /** Close more menu when mini actions requests it. */
+  onMiniActionsCloseMenu() {
     this.isMoreMenuOpen = false;
+  }
+
+  /** Handle thread opening from mini actions */
+  onOpenThread(request: { chatId: string; messageId: string; collectionName: 'channels' | 'dms' }) {
+    this.viewStateService.requestCloseDevspaceDrawer();
+    this.viewStateService.currentView = 'thread';
+    this.threadPanel.openThread(request);
   }
 
   onMessageClick() {
@@ -425,22 +427,15 @@ export class MessageBubbleComponent implements OnChanges, OnDestroy {
 
   /** Quick-add a reaction via the mini actions bar and close the bar. */
   onQuickReact(emoji: string) {
-    if (this.isDeleted) return;
-    if (!this.currentUserId) return;
+    if (this.isDeleted || !this.currentUserId) return;
     const path = this.getMessagePath();
     void this.reactionService.addOrIncrementReaction(path, emoji, this.currentUserId);
-    this.showMiniActions = false;
   }
 
   /**
    * Show the reactions emoji picker from the mini actions bar.
-   * @param event MouseEvent – stopped to avoid closing from document click.
-   * Uses setTimeout to open after mini actions hide state is applied.
    */
-  onMiniAddReactionClick(event: MouseEvent) {
-    if (this.isDeleted) return;
-    event.stopPropagation();
-    this.showMiniActions = false;
+  onMiniAddReactionClick() {
     this.reactionService.toggleEmojiPicker();
   }
 
