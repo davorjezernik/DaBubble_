@@ -1,4 +1,4 @@
-import { Component, Optional, ViewChild } from '@angular/core';
+import { Component, ElementRef, Optional, ViewChild } from '@angular/core';
 import { NgIf } from '@angular/common';
 import { FormsModule, NgModel } from '@angular/forms';
 import { ChannelService } from '../../../../../services/channel-service';
@@ -36,6 +36,7 @@ export class AddChannel {
   description: string = '';
 
   @ViewChild('channelNameInput') channelNameInput?: NgModel;
+  @ViewChild('scrollContainer') scrollContainer?: ElementRef;
 
   constructor(
     private channelService: ChannelService,
@@ -72,5 +73,16 @@ export class AddChannel {
   async doesChannelExists(): Promise<boolean> {
     const channels = await firstValueFrom(this.channelService.getChannels());
     return channels.some((channel) => channel.name === this.channelName);
+  }
+
+  public onNameBlur(input: NgModel) {
+    if (input.valid && this.scrollContainer) {
+      const element = this.scrollContainer.nativeElement;
+
+      element.scrollTo({
+        top: element.scrollHeight,
+        behavior: 'smooth',
+      })
+    }
   }
 }

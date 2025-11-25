@@ -21,7 +21,7 @@
       </svg>
     </button>
   </header>
-  <section class="dialog-content-wrapper">
+  <section class="dialog-content-wrapper" #scrollContainer>
     <mat-dialog-content
       class="dialog-content"
       role="dialog"
@@ -38,7 +38,7 @@
           <label for="channelName" class="form-field-label">Channel-Name</label>
           <mat-form-field appearance="outline" class="form-field no-border">
             <mat-icon matIconPrefix>tag</mat-icon>
-            <input
+            <input (blur)="onNameBlur(channelNameInput)"
               matInput
               id="channelName"
               name="channelName"
