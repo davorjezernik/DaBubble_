@@ -23,6 +23,7 @@ import { ConfirmDeleteDialogComponent } from './confirm-delete-dialog.component'
 import { DialogUserCardComponent } from '../dialog-user-card/dialog-user-card.component';
 import { MessageEditModeComponent } from './message-edit-mode/message-edit-mode.component';
 import { MessageMiniActionsComponent } from './message-mini-actions/message-mini-actions.component';
+import { MessageReactionsComponent } from './message-reactions/message-reactions.component';
 import { firstValueFrom, map, Subscription } from 'rxjs';
 import {
   DELETED_PLACEHOLDER,
@@ -39,7 +40,7 @@ import {
 @Component({
   selector: 'app-message-bubble',
   standalone: true,
-  imports: [CommonModule, EmojiPickerComponent, MessageEditModeComponent, MessageMiniActionsComponent],
+  imports: [CommonModule, MessageEditModeComponent, MessageMiniActionsComponent, MessageReactionsComponent],
   templateUrl: './message-bubble.component.html',
   styleUrl: './message-bubble.component.scss',
   providers: [MessageReactionService]
@@ -64,7 +65,6 @@ export class MessageBubbleComponent implements OnChanges, OnDestroy {
   @Output() editMessage = new EventEmitter<void>();
 
   showEmojiPicker = false;
-  reactionsExpanded = false;
   isMoreMenuOpen = false;
   showMiniActions = false;
   isEditing = false;
@@ -80,7 +80,6 @@ export class MessageBubbleComponent implements OnChanges, OnDestroy {
     currentUserReacted: boolean;
     isLegacyCount: boolean;
   }> = [];
-  tooltipVisibleForEmoji: string | null = null;
   isNarrow = typeof window !== 'undefined' ? isNarrowViewport(window.innerWidth) : false;
   isVeryNarrow = typeof window !== 'undefined' ? isVeryNarrowViewport(window.innerWidth) : false;
   isMobile = typeof window !== 'undefined' ? isMobileViewport(window.innerWidth) : false;
@@ -88,9 +87,6 @@ export class MessageBubbleComponent implements OnChanges, OnDestroy {
   currentUserId: string | null = null;
   readonly DELETED_PLACEHOLDER = DELETED_PLACEHOLDER;
   readonly MAX_UNIQUE_REACTIONS = MAX_UNIQUE_REACTIONS;
-  private readonly DEFAULT_COLLAPSE_THRESHOLD = DEFAULT_COLLAPSE_THRESHOLD;
-  private readonly NARROW_COLLAPSE_THRESHOLD = NARROW_COLLAPSE_THRESHOLD;
-  private readonly VERY_NARROW_COLLAPSE_THRESHOLD = VERY_NARROW_COLLAPSE_THRESHOLD;
   lastTimeSub?: Subscription;
   answersCountSub?: Subscription;
   private reactionStateSub = new Subscription();
@@ -187,64 +183,6 @@ export class MessageBubbleComponent implements OnChanges, OnDestroy {
   }
 
   /**
-   * Add a new reaction or increment an existing one.
-   * @param emoji The emoji key to add/increment.
-   * Uses: reactions (local array), MAX_UNIQUE_REACTIONS.
-   */
-  // Reaction add/remove now delegated to MessageLogicService
-
-  /**
-   * Subset of reactions to display based on expansion state and width.
-   */
-  get visibleReactions() {
-    const total = this.reactions.length;
-    const limit = this.reactionsExpanded ? this.MAX_UNIQUE_REACTIONS : this.getCollapseThreshold();
-    return this.reactions.slice(0, Math.min(limit, total));
-  }
-
-  /**
-   * Whether there are hidden reactions beyond the collapsed limit.
-   */
-  get hasMore() {
-    return this.reactions.length > this.getCollapseThreshold();
-  }
-
-  /**
-   * Count of hidden reactions when collapsed (used in "+ n more").
-   */
-  get moreCount() {
-    return Math.max(
-      0,
-      Math.min(this.reactions.length, this.MAX_UNIQUE_REACTIONS) - this.getCollapseThreshold()
-    );
-  }
-
-  /** Expand the reactions list. */
-  showMore() {
-    this.reactionsExpanded = true;
-  }
-  /** Collapse the reactions list. */
-  showLess() {
-    this.reactionsExpanded = false;
-  }
-
-  /**
-   * Compute the collapse threshold depending on viewport width.
-   * Returns DEFAULT or NARROW threshold.
-   */
-  private getCollapseThreshold(): number {
-    if (this.isVeryNarrow) return this.VERY_NARROW_COLLAPSE_THRESHOLD; // <= 400px → max 5
-    return this.isNarrow ? this.NARROW_COLLAPSE_THRESHOLD : this.DEFAULT_COLLAPSE_THRESHOLD;
-  }
-
-  /**
-   * Center reactions on narrow viewports when at least two chips are visible.
-   */
-  get shouldCenterNarrow(): boolean {
-    return this.isNarrow && this.visibleReactions.length >= 2;
-  }
-
-  /**
    * Normalize last reply timestamp to a Date.
    * Accepts Date, Firestore Timestamp (with toDate), or ISO string/epoch number.
    */
@@ -296,9 +234,6 @@ export class MessageBubbleComponent implements OnChanges, OnDestroy {
   onDocumentClick(event: Event) {
     if (this.isMoreMenuOpen) {
       this.isMoreMenuOpen = false;
-    }
-    if (this.tooltipVisibleForEmoji) {
-      this.tooltipVisibleForEmoji = null;
     }
     if (this.isMobile && this.showMiniActions) {
       const clickedInside = this.el.nativeElement.contains(event.target as Node);
@@ -421,7 +356,6 @@ export class MessageBubbleComponent implements OnChanges, OnDestroy {
       this.text = this.DELETED_PLACEHOLDER;
       this.isMoreMenuOpen = false;
       this.reactions = [];
-      this.reactionsExpanded = false;
     } catch (e) { } finally { this.isDeleting = false; }
   }
 
@@ -439,21 +373,23 @@ export class MessageBubbleComponent implements OnChanges, OnDestroy {
     this.reactionService.toggleEmojiPicker();
   }
 
-  onReactionChipClick(emoji: string) {
+  onReactionClick(emoji: string) {
     if (this.isDeleted) return;
     if (!this.currentUserId) return;
     const path = this.getMessagePath();
     void this.reactionService.handleReactionClick(path, emoji, this.currentUserId);
   }
 
-  onReactionChipEnter(emoji: string) {
-    if (this.isMobile) return;
-    this.tooltipVisibleForEmoji = emoji;
+  onReactionsEmojiSelected(emoji: string) {
+    this.onEmojiSelected(emoji);
   }
 
-  onReactionChipLeave() {
-    if (this.isMobile) return;
-    this.tooltipVisibleForEmoji = null;
+  onReactionsToggleEmojiPicker() {
+    this.reactionService.toggleEmojiPicker();
+  }
+
+  onReactionsCloseEmojiPicker() {
+    this.reactionService.closeEmojiPicker();
   }
 
   /**
