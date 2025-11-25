@@ -81,6 +81,9 @@
     </section>
   </main>
   <footer class="footer">
-    <app-message-area-component (send)="handleNewMessage($event)"></app-message-area-component>
+    <app-message-area-component
+      class="thread-emoji-override"
+      (send)="handleNewMessage($event)"
+    ></app-message-area-component>
   </footer>
 </section>

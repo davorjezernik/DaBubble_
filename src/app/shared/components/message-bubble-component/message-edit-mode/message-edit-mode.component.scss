@@ -113,6 +113,17 @@
   }
 }
 
+  :host ::ng-deep app-emoji-picker-component {
+  .emoji-picker-container,
+  .emoji-mart {
+    overflow: visible;
+  }
+    .emoji-picker-container {
+    left: 0px !important;
+    bottom: 30px !important;
+  }
+}
+
 @media (max-width: 700px) {
   .btn {
     height: 40px;
@@ -149,12 +160,7 @@
     }
   }
 
-    :host ::ng-deep app-emoji-picker-component {
-  .emoji-picker-container,
-  .emoji-mart {
-    overflow: visible;
-  }
-
+  :host ::ng-deep app-emoji-picker-component {
   .emoji-picker-container {
     left: -40px !important;
   }
@@ -163,11 +169,6 @@
 
 @media (max-width: 500px) {
   :host ::ng-deep app-emoji-picker-component {
-  .emoji-picker-container,
-  .emoji-mart {
-    overflow: visible;
-  }
-
   .emoji-picker-container {
     left: 0 !important;
   }

@@ -210,3 +210,9 @@
 :host app-message-bubble ::ng-deep .emoji-mart {
   border: 1px solid #adb0d9 !important;
 }
+
+.thread-emoji-override {
+  ::ng-deep .emoji-picker-container .emoji-mart {
+    width: 200px !important;
+  }
+}

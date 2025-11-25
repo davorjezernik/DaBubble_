@@ -10,6 +10,7 @@ import {
   OnDestroy,
   OnChanges,
   SimpleChanges,
+  HostListener,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { EmojiPickerComponent } from '../../emoji-picker-component/emoji-picker-component';
@@ -117,6 +118,7 @@ export class MessageEditModeComponent implements AfterViewInit, OnInit, OnDestro
   /**
    * Handle document click to close emoji picker if clicked outside
    */
+  @HostListener('document:click', ['$event'])
   onDocumentClick(event: Event) {
     if (this.editEmojiPickerVisible) {
       const clickedInsideButton = this.editEmojiButtonRef?.nativeElement.contains(event.target);
