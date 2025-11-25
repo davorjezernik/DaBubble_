@@ -165,8 +165,6 @@
   }
 }
 
-/* ================= Incoming (left-side) variant ================= */
-
 .message-container.incoming .avatar-container {
   order: -1;
 }
@@ -213,7 +211,6 @@
   left: auto;
   transform: translateY(-8px);
 }
-
 
 .message-container.incoming ::ng-deep app-message-mini-actions .mini-actions.visible {
   animation: miniActionsSlideInRight 150ms ease-out;
@@ -295,9 +292,7 @@
   .emoji-mart {
     border: 1px solid #adb0d9 !important;
   }
-
 }
-
 
 .answers-info {
   display: flex;
@@ -335,17 +330,11 @@
   );
 }
 
-@media (max-width: 500px) {
-  /* delete confirm styles removed – handled by MatDialog component */
-}
-
-
 @media (max-width: 700px) {
   :host ::ng-deep .emoji-mart {
     width: 150px !important;
   }
 }
-
 
 @media (max-width: 500px) {
   .message-container {
@@ -390,8 +379,6 @@
     white-space: normal;
     word-break: break-word;
   }
-
-
 }
 
 @media (max-width: 400px) {
@@ -413,12 +400,12 @@
 }
 
 @media (orientation: landscape) and (max-height: 500px) {
-.avatar-container{
-  .avatar-img
-{
-    width: 50px;
-    height: 50px;
-    margin-left: 8px;
+  .avatar-container{
+    .avatar-img
+  {
+      width: 50px;
+      height: 50px;
+      margin-left: 8px;
+    }
   }
-}
 }

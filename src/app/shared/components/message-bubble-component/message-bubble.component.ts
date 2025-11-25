@@ -6,13 +6,11 @@ import {
   EventEmitter,
   OnChanges,
   SimpleChanges,
-  ViewChild,
   ElementRef,
   OnDestroy,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ThreadPanelService } from '../../../../services/thread-panel.service';
-import { EmojiPickerComponent } from '../emoji-picker-component/emoji-picker-component';
 import { Firestore, collection, collectionData } from '@angular/fire/firestore';
 import { UserService } from '../../../../services/user.service';
 import { MessageLogicService } from './message-logic.service';
@@ -31,9 +29,6 @@ import { firstValueFrom, map, Subscription } from 'rxjs';
 import {
   DELETED_PLACEHOLDER,
   MAX_UNIQUE_REACTIONS,
-  DEFAULT_COLLAPSE_THRESHOLD,
-  NARROW_COLLAPSE_THRESHOLD,
-  VERY_NARROW_COLLAPSE_THRESHOLD,
   isNarrowViewport,
   isVeryNarrowViewport,
   isMobileViewport,
@@ -140,6 +135,7 @@ export class MessageBubbleComponent implements OnChanges, OnDestroy {
     void this.reactionService.addOrIncrementReaction(path, emoji, this.currentUserId);
   }
 
+  /** Update viewport flags when window is resized. */
   @HostListener('window:resize')
   onWindowResize() {
     if (typeof window !== 'undefined') {
@@ -154,7 +150,6 @@ export class MessageBubbleComponent implements OnChanges, OnDestroy {
    * Currently maps reactionsMap (Record<emoji, count>) into reactions array for rendering.
    * @param changes Angular SimpleChanges for this component.
    */
-
   ngOnInit(): void {
     this.messageLogic.onNamesUpdated = () => this.rebuildReactions();
     this.userService.currentUser$().subscribe((u: any) => {
@@ -169,6 +164,7 @@ export class MessageBubbleComponent implements OnChanges, OnDestroy {
     );
   }
 
+  /** Handle input changes, rebuild reactions and update thread info. */
   ngOnChanges(changes: SimpleChanges) {
     if ('reactionsMap' in changes) {
       this.rebuildReactions();
@@ -176,27 +172,23 @@ export class MessageBubbleComponent implements OnChanges, OnDestroy {
     this.getAnswersInfo();
   }
 
+  /** Cleanup subscriptions on component destruction. */
   ngOnDestroy(): void {
     this.answersCountSub?.unsubscribe();
     this.reactionStateSub.unsubscribe();
   }
 
+  /** Rebuild reactions array from reactionsMap input. */
   private rebuildReactions() {
     this.reactionService.rebuildReactions(this.reactionsMap || {}, this.currentUserId);
   }
 
-  /**
-   * Shorten first and last name separately to 12 chars each with ellipsis.
-   * Uses first token as Vorname and last token as Nachname. If only one token, truncates that.
-   */
+  /** Shorten first and last name separately to 12 chars each with ellipsis. */
   private truncateFullName(name: string): string {
     return this.messageLogic.truncateFullName(name);
   }
 
-  /**
-   * Normalize last reply timestamp to a Date.
-   * Accepts Date, Firestore Timestamp (with toDate), or ISO string/epoch number.
-   */
+  /** Normalize last reply timestamp to a Date. */
   get lastReplyDate(): Date | null {
     return normalizeTimestamp(this.lastReplyAt);
   }
@@ -225,33 +217,24 @@ export class MessageBubbleComponent implements OnChanges, OnDestroy {
     this.isMoreMenuOpen = !this.isMoreMenuOpen;
   }
 
-  /**
-   * Start inline edit mode for this message.
-   * Closes the menu and prepares editText buffer from current text.
-   */
+  /**  Closes the menu and prepares editText buffer from current text. */
   onEditMessage() {
     if (this.isDeleted) return;
     this.isMoreMenuOpen = false;
     this.startEdit();
   }
 
-  /**
-   * Close more menu when clicking outside (called by directive).
-   */
+  /** Close more menu when clicking outside (called by directive).*/
   onCloseMoreMenu() {
     this.isMoreMenuOpen = false;
   }
 
-  /**
-   * Close mini actions when clicking outside on mobile (called by directive).
-   */
+  /** Close mini actions when clicking outside on mobile (called by directive).*/
   onCloseMiniActions() {
     this.showMiniActions = false;
   }
 
-  /**
-   * Close menus and pickers when ESC key is pressed (called by directive).
-   */
+  /**Close menus and pickers when ESC key is pressed (called by directive).*/
   onEscapePressed() {
     this.isMoreMenuOpen = false;
     this.reactionService.closeEmojiPicker();
@@ -263,7 +246,7 @@ export class MessageBubbleComponent implements OnChanges, OnDestroy {
     this.showMiniActions = true;
   }
 
-  /** Hide only when pointer truly leaves component (not moving into mini-actions). */
+  /** Hide mini actions when pointer truly leaves component (not moving into mini-actions). */
   onSpeechBubbleLeave(event: MouseEvent) {
     if (this.isMobile) return;
     const host = this.el.nativeElement.querySelector('.message-container') as HTMLElement | null;
@@ -273,47 +256,43 @@ export class MessageBubbleComponent implements OnChanges, OnDestroy {
     this.isMoreMenuOpen = false;
   }
 
-  /** Keep mini actions visible while hovering over them. */
+  /** Update mini actions visibility state from child component. */
   onMiniActionsVisibilityChange(visible: boolean) {
     this.showMiniActions = visible;
   }
 
-  /** Close more menu when mini actions requests it. */
+  /** Close more menu when requested by mini actions component. */
   onMiniActionsCloseMenu() {
     this.isMoreMenuOpen = false;
   }
 
-  /** Handle thread opening from mini actions */
+  /** Handle thread opening from mini actions component. */
   onOpenThread(request: { chatId: string; messageId: string; collectionName: 'channels' | 'dms' }) {
     this.viewStateService.requestCloseDevspaceDrawer();
     this.viewStateService.currentView = 'thread';
     this.threadPanel.openThread(request);
   }
 
+  /** Toggle mini actions on mobile tap. */
   onMessageClick() {
     if (this.isMobile && !this.isDeleted) {
       this.showMiniActions = !this.showMiniActions;
     }
   }
 
-  /**
-   * Enter editing mode: show edit component.
-   */
+  /** Enter editing mode: show edit component.*/
   startEdit() {
     if (this.isDeleted) return;
     this.isEditing = true;
     this.showMiniActions = false;
   }
 
-  /** Exit editing mode without saving. */
+  /** Cancel edit mode without saving changes. */
   cancelEdit() {
     this.isEditing = false;
   }
 
-  /**
-   * Save the edited message text to Firestore.
-   * Called when edit component emits save event.
-   */
+  /** Save the edited message text to Firestore.*/
   async saveEdit(newText: string) {
     const path = this.getMessagePath();
     if (!path) { 
@@ -333,10 +312,7 @@ export class MessageBubbleComponent implements OnChanges, OnDestroy {
     }
   }
 
-  /**
-   * Delete this message from Firestore (doc/deleteDoc) after user confirmation.
-   * Uses isDeleting flag to disable buttons while in-flight.
-   */
+  /** Delete this message from Firestore (doc/deleteDoc) after user confirmation.*/
   openConfirmDelete() {
     if (this.isDeleted) return;
     this.isMoreMenuOpen = false;
@@ -350,6 +326,7 @@ export class MessageBubbleComponent implements OnChanges, OnDestroy {
     });
   }
 
+  /** Execute soft delete after user confirmation. */
   async confirmDelete() {
     const path = this.getMessagePath();
     if (!path) return;
@@ -369,13 +346,12 @@ export class MessageBubbleComponent implements OnChanges, OnDestroy {
     void this.reactionService.addOrIncrementReaction(path, emoji, this.currentUserId);
   }
 
-  /**
-   * Show the reactions emoji picker from the mini actions bar.
-   */
+  /** Show the reactions emoji picker from the mini actions bar.*/
   onMiniAddReactionClick() {
     this.reactionService.toggleEmojiPicker();
   }
 
+  /** Handle reaction chip click to toggle user's reaction. */
   onReactionClick(emoji: string) {
     if (this.isDeleted) return;
     if (!this.currentUserId) return;
@@ -383,14 +359,17 @@ export class MessageBubbleComponent implements OnChanges, OnDestroy {
     void this.reactionService.handleReactionClick(path, emoji, this.currentUserId);
   }
 
+  /** Handle emoji selection from reactions component picker. */
   onReactionsEmojiSelected(emoji: string) {
     this.onEmojiSelected(emoji);
   }
 
+  /** Toggle emoji picker from reactions component. */
   onReactionsToggleEmojiPicker() {
     this.reactionService.toggleEmojiPicker();
   }
 
+  /** Close emoji picker from reactions component. */
   onReactionsCloseEmojiPicker() {
     this.reactionService.closeEmojiPicker();
   }
@@ -398,7 +377,6 @@ export class MessageBubbleComponent implements OnChanges, OnDestroy {
   /**
    * Open the side thread panel for this message.
    * @param event MouseEvent – stopped to prevent bubbling to container.
-   * Requires chatId and messageId; uses threadPanel.openThread(...).
    */
   onCommentClick(event: MouseEvent) {
     if (this.isDeleted) return;
@@ -441,7 +419,6 @@ export class MessageBubbleComponent implements OnChanges, OnDestroy {
     
     const container = this.el.nativeElement.querySelector('.message-container') as HTMLElement | null;
     const refEl = container ?? this.el.nativeElement;
-    
     const insidePadded = this.interactionService.isMouseWithinPaddedArea(refEl, event.clientX, event.clientY);
     const overPicker = this.interactionService.isElementOrAncestor(event.target as HTMLElement, '.emoji-picker-container');
     
@@ -450,6 +427,7 @@ export class MessageBubbleComponent implements OnChanges, OnDestroy {
     }
   }
   
+  /** Load thread answers count and last answer timestamp. */
   private async getAnswersInfo() {
     if (!this.chatId || !this.messageId) return;
 
@@ -461,6 +439,7 @@ export class MessageBubbleComponent implements OnChanges, OnDestroy {
     this.getLastAnswerTime(coll);
   }
 
+  /** Subscribe to thread messages count. */
   private async getAnswersAmount(coll: any) {
     this.answersCountSub = collectionData(coll)
       .pipe(map((docs) => docs.length))
@@ -469,6 +448,7 @@ export class MessageBubbleComponent implements OnChanges, OnDestroy {
       });
   }
 
+  /** Subscribe to latest thread answer timestamp. */
   private async getLastAnswerTime(coll: any) {
     this.lastTimeSub = collectionData(coll)
       .pipe(

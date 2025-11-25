@@ -89,28 +89,46 @@ export class MessageReactionsComponent {
     return this.isNarrow ? this.narrowCollapseThreshold : this.defaultCollapseThreshold;
   }
 
+  /**
+   * Emit when a reaction chip is clicked.
+   */
   onReactionChipClick(emoji: string) {
     this.reactionClick.emit(emoji);
   }
 
+  /**
+   * Show tooltip for a reaction chip on hover (desktop only).
+   */
   onReactionChipEnter(emoji: string) {
     if (this.isMobile) return;
     this.tooltipVisibleForEmoji = emoji;
   }
 
+  /**
+   * Hide reaction tooltip on mouse leave (desktop only).
+   */
   onReactionChipLeave() {
     if (this.isMobile) return;
     this.tooltipVisibleForEmoji = null;
   }
 
+  /**
+   * Request opening of the add-reaction emoji picker.
+   */
   onAddReactionClick() {
     this.toggleEmojiPicker.emit();
   }
 
+  /**
+   * Emit selected emoji from the picker.
+   */
   onEmojiSelected(emoji: string) {
     this.emojiSelected.emit(emoji);
   }
 
+  /**
+   * Emit request to close the emoji picker.
+   */
   onCloseEmojiPicker() {
     this.closeEmojiPicker.emit();
   }

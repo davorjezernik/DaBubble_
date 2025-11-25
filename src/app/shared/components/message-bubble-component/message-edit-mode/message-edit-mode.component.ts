@@ -40,7 +40,7 @@ export class MessageEditModeComponent implements AfterViewInit, OnInit, OnDestro
   private subscription = new Subscription();
 
   constructor(public reactionService: MessageReactionService) {}
-
+  /** Subscribe to edit-emoji picker visibility changes. */
   ngOnInit(): void {
     this.subscription.add(
       this.reactionService.editEmojiPickerVisible$.subscribe(
@@ -49,11 +49,13 @@ export class MessageEditModeComponent implements AfterViewInit, OnInit, OnDestro
     );
   }
 
+  /** Initialize view values and autosize the textarea after view is initialized. */
   ngAfterViewInit(): void {
     this.editText = this.text;
     setTimeout(() => this.autosizeEditTextarea());
   }
 
+  /** Keep local editText in sync when the input text changes externally. */
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['text'] && !changes['text'].firstChange) {
       if (this.text !== this.editText) {
@@ -62,6 +64,7 @@ export class MessageEditModeComponent implements AfterViewInit, OnInit, OnDestro
     }
   }
 
+  /** Cleanup subscriptions when component is destroyed. */
   ngOnDestroy(): void {
     this.subscription.unsubscribe();
   }

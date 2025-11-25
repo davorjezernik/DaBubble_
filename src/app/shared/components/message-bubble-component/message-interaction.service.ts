@@ -8,7 +8,7 @@ import { map, distinctUntilChanged, debounceTime } from 'rxjs/operators';
  */
 @Injectable()
 export class MessageInteractionService {
-  private hoverTolerance = 12; // pixels
+  private hoverTolerance = 12;
   
   /**
    * Manages hover state for an element considering mobile vs desktop.
@@ -21,7 +21,6 @@ export class MessageInteractionService {
    */
   manageHoverState(element: ElementRef<HTMLElement>, isMobile: boolean): Observable<boolean> {
     if (isMobile) {
-      // On mobile, hover is disabled (tap behavior used instead)
       return new Observable(observer => {
         observer.next(false);
         observer.complete();
@@ -98,6 +97,30 @@ export class MessageInteractionService {
   }
 
   /**
+   * Resolve the reference element used for proximity checks.
+   * If a nested `.message-container` exists, use it; otherwise use the host element.
+   * @param containerElement The host ElementRef
+   * @returns HTMLElement to use for proximity calculations
+   */
+  private getReferenceElement(containerElement: ElementRef<HTMLElement>): HTMLElement {
+    const container = containerElement.nativeElement.querySelector('.message-container') as HTMLElement | null;
+    return container ?? containerElement.nativeElement;
+  }
+
+  /**
+   * Return true when the mouse event is outside the padded area and not over the picker.
+   * @param event Mouse event
+   * @param refEl Reference element to check against
+   * @param pickerSelector CSS selector for the picker element
+   * @param padding Padding tolerance in pixels
+   */
+  private isOutsidePaddedArea(event: MouseEvent, refEl: HTMLElement, pickerSelector: string, padding: number): boolean {
+    const insidePadded = this.isMouseWithinPaddedArea(refEl, event.clientX, event.clientY, padding);
+    const overPicker = this.isElementOrAncestor(event.target as HTMLElement, pickerSelector);
+    return !insidePadded && !overPicker;
+  }
+
+  /**
    * Creates an observable that emits when the mouse leaves a padded area.
    * Includes tolerance for emoji picker and menu interactions.
    * 
@@ -113,13 +136,8 @@ export class MessageInteractionService {
   ): Observable<MouseEvent> {
     return new Observable<MouseEvent>(observer => {
       const mouseMoveHandler = (event: MouseEvent) => {
-        const container = containerElement.nativeElement.querySelector('.message-container') as HTMLElement | null;
-        const refEl = container ?? containerElement.nativeElement;
-        
-        const insidePadded = this.isMouseWithinPaddedArea(refEl, event.clientX, event.clientY, padding);
-        const overPicker = this.isElementOrAncestor(event.target as HTMLElement, pickerSelector);
-
-        if (!insidePadded && !overPicker) {
+        const refEl = this.getReferenceElement(containerElement);
+        if (this.isOutsidePaddedArea(event, refEl, pickerSelector, padding)) {
           observer.next(event);
         }
       };
@@ -130,7 +148,7 @@ export class MessageInteractionService {
         document.removeEventListener('mousemove', mouseMoveHandler);
       };
     }).pipe(
-      debounceTime(50) // Prevent excessive emissions
+      debounceTime(50)
     );
   }
 
