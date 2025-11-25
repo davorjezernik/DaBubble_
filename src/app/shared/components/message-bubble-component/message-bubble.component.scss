@@ -245,6 +245,8 @@
 .speech-bubble.editing {
   background: #ffffff;
   border: #adb0d9 1px solid;
+  width: 90%;
+  align-items: stretch;
 }
 
 :host ::ng-deep app-emoji-picker-component {

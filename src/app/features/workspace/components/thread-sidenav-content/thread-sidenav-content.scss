@@ -216,3 +216,40 @@
     width: 200px !important;
   }
 }
+
+@media (min-width: 950px) {
+:host app-message-bubble ::ng-deep .btn {
+  height: 40px !important;
+}
+
+:host app-message-bubble ::ng-deep .btn.btn--secondary {
+  min-width: 60px !important;
+  padding: 0 !important;
+  font-size: 0 !important;
+
+  &::before {
+    content: '✕';
+    font-size: 16px;
+    font-weight: 800;
+    color: #797ef3;
+    transition: color 0.15s;
+  }
+
+  &:hover::before {
+    color: #ffffff;
+  }
+}
+
+:host app-message-bubble ::ng-deep .btn.btn--primary {
+  min-width: 60px !important;
+  padding: 0 !important;
+  font-size: 0 !important;
+
+  &::before {
+    content: '✓';
+    font-size: 16px;
+    font-weight: 700;
+    color: #ffffff;
+  }
+}
+}
