@@ -23,6 +23,17 @@ import { ConfirmDeleteDialogComponent } from './confirm-delete-dialog.component'
 import { DialogUserCardComponent } from '../dialog-user-card/dialog-user-card.component';
 import { MessageEditModeComponent } from './message-edit-mode/message-edit-mode.component';
 import { firstValueFrom, map, Subscription } from 'rxjs';
+import {
+  DELETED_PLACEHOLDER,
+  MAX_UNIQUE_REACTIONS,
+  DEFAULT_COLLAPSE_THRESHOLD,
+  NARROW_COLLAPSE_THRESHOLD,
+  VERY_NARROW_COLLAPSE_THRESHOLD,
+  isNarrowViewport,
+  isVeryNarrowViewport,
+  isMobileViewport,
+  normalizeTimestamp,
+} from './message-bubble.utils';
 
 @Component({
   selector: 'app-message-bubble',
@@ -69,16 +80,16 @@ export class MessageBubbleComponent implements OnChanges, OnDestroy {
     isLegacyCount: boolean;
   }> = [];
   tooltipVisibleForEmoji: string | null = null;
-  isNarrow = typeof window !== 'undefined' ? window.innerWidth <= 450 : false;
-  isVeryNarrow = typeof window !== 'undefined' ? window.innerWidth <= 400 : false;
-  isMobile = typeof window !== 'undefined' ? window.innerWidth <= 768 : false;
+  isNarrow = typeof window !== 'undefined' ? isNarrowViewport(window.innerWidth) : false;
+  isVeryNarrow = typeof window !== 'undefined' ? isVeryNarrowViewport(window.innerWidth) : false;
+  isMobile = typeof window !== 'undefined' ? isMobileViewport(window.innerWidth) : false;
 
-  private readonly DELETED_PLACEHOLDER = 'Diese Nachricht wurde gelöscht.';
   private currentUserId: string | null = null;
-  private readonly MAX_UNIQUE_REACTIONS = 20;
-  private readonly DEFAULT_COLLAPSE_THRESHOLD = 7;
-  private readonly NARROW_COLLAPSE_THRESHOLD = 6;
-  private readonly VERY_NARROW_COLLAPSE_THRESHOLD = 4;
+  readonly DELETED_PLACEHOLDER = DELETED_PLACEHOLDER;
+  readonly MAX_UNIQUE_REACTIONS = MAX_UNIQUE_REACTIONS;
+  private readonly DEFAULT_COLLAPSE_THRESHOLD = DEFAULT_COLLAPSE_THRESHOLD;
+  private readonly NARROW_COLLAPSE_THRESHOLD = NARROW_COLLAPSE_THRESHOLD;
+  private readonly VERY_NARROW_COLLAPSE_THRESHOLD = VERY_NARROW_COLLAPSE_THRESHOLD;
   lastTimeSub?: Subscription;
   answersCountSub?: Subscription;
   private reactionStateSub = new Subscription();
@@ -124,9 +135,9 @@ export class MessageBubbleComponent implements OnChanges, OnDestroy {
   @HostListener('window:resize')
   onWindowResize() {
     if (typeof window !== 'undefined') {
-      this.isNarrow = window.innerWidth <= 450;
-      this.isVeryNarrow = window.innerWidth <= 400;
-      this.isMobile = window.innerWidth <= 768;
+      this.isNarrow = isNarrowViewport(window.innerWidth);
+      this.isVeryNarrow = isVeryNarrowViewport(window.innerWidth);
+      this.isMobile = isMobileViewport(window.innerWidth);
     }
   }
 
@@ -237,27 +248,13 @@ export class MessageBubbleComponent implements OnChanges, OnDestroy {
    * Accepts Date, Firestore Timestamp (with toDate), or ISO string/epoch number.
    */
   get lastReplyDate(): Date | null {
-    const v: any = this.lastReplyAt as any;
-    if (!v) return null;
-    if (v instanceof Date) return v;
-    if (typeof v?.toDate === 'function') {
-      try {
-        return v.toDate();
-      } catch {
-        return null;
-      }
-    }
-    if (typeof v === 'string' || typeof v === 'number') {
-      const d = new Date(v);
-      return isNaN(d.getTime()) ? null : d;
-    }
-    return null;
+    return normalizeTimestamp(this.lastReplyAt);
   }
 
   /** True when this message is a soft-deleted placeholder text. */
   get isDeleted(): boolean {
     const t = (this.text || '').trim();
-    return t === this.DELETED_PLACEHOLDER;
+    return t === DELETED_PLACEHOLDER;
   }
 
   /** True when message has been edited (from input flag). */
