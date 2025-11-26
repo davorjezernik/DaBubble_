@@ -10,6 +10,7 @@ import {
   auditTime,
   debounceTime,
   distinctUntilChanged,
+  filter,
 } from 'rxjs';
 import { UserService } from '../../../../../services/user.service';
 import { User } from '../../../../../models/user.class';
@@ -80,8 +81,6 @@ export class DevspaceSidenavContent implements OnInit, OnDestroy {
   totalUnread = 0;
   totalUnreadChannels = 0;
 
-  // Users//
-
   pageSizeUsers = 4;
   maxVisible = this.pageSizeUsers;
 
@@ -111,9 +110,28 @@ export class DevspaceSidenavContent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.subscribeToUsers();
     this.subscribeToChannels();
+    this.subscribeToSearchControl();
+    this.subscribeToSearchBus();
+  }
+
+  ngOnDestroy(): void {
+    this.sub?.unsubscribe();
+    this.channelsSub?.unsubscribe();
+    this.currentUserSub?.unsubscribe();
+    this.sortSub?.unsubscribe();
+    this.totalUnreadSub?.unsubscribe();
+    this.totalUnreadChannelsSub?.unsubscribe();
+    this.searchCtrlSub?.unsubscribe();
+    this.searchBusSub?.unsubscribe();
+  }
+
+  private subscribeToSearchControl(): void {
     this.searchCtrlSub = this.searchCtrl.valueChanges
       .pipe(debounceTime(250), distinctUntilChanged())
       .subscribe((q) => this.searchBus.set(q || ''));
+  }
+
+  private subscribeToSearchBus(): void {
     this.searchBusSub = this.searchBus.query$.subscribe((q) => {
       this.search = q;
       if (q) {
@@ -138,50 +156,56 @@ export class DevspaceSidenavContent implements OnInit, OnDestroy {
       this.updateUserList(list);
       this.buildSortedUsers(list, this.meUid);
       this.buildTotalUnread(list, this.meUid);
-
       this.buildTotalUnreadChannels(this.channels, this.meUid);
     });
   }
 
-  // total count for channels //
+  private resetTotalUnreadChannels() {
+    this.totalUnreadChannels = 0;
+  }
+
   private buildTotalUnreadChannels(channels: any[], meUid: string | null) {
     this.totalUnreadChannelsSub?.unsubscribe();
-    if (!meUid) {
-      this.totalUnreadChannels = 0;
-      return;
-    }
+    if (!meUid) return this.resetTotalUnreadChannels();
 
-    const myChannels = (channels ?? []).filter((c) =>
-      c?.members?.some((m: any) => (typeof m === 'string' ? m : m?.uid) === meUid)
-    );
-    if (!myChannels.length) {
-      this.totalUnreadChannels = 0;
-      return;
-    }
+    const myChannels = this.filterMyChannels(channels, meUid);
 
+    if (!myChannels.length) return this.resetTotalUnreadChannels();
+    this.subscribeToChannelUnreadCounts(myChannels, meUid);
+  }
+
+  private subscribeToChannelUnreadCounts(myChannels: any[], meUid: string) {
     const streams = myChannels.map((c) => this.read.unreadChannelCount$(c.id, meUid));
     this.totalUnreadChannelsSub = combineLatest(streams)
       .pipe(map((arr) => arr.reduce((s, n) => s + (n || 0), 0)))
       .subscribe((sum) => (this.totalUnreadChannels = sum));
   }
-  // total count for channels //
 
-  // for total cound by Direkt messasges //
+  private filterMyChannels(channels: any[], meUid: string): any[] {
+    return (channels ?? []).filter((c) =>
+      c?.members?.some((m: any) => (typeof m === 'string' ? m : m?.uid) === meUid)
+    );
+  }
+
+  private resetTotalUnread() {
+    this.totalUnread = 0;
+  }
+
   private buildTotalUnread(list: User[], meUid: string | null) {
     this.totalUnreadSub?.unsubscribe();
+    if (!meUid) return this.resetTotalUnread();
+    this.processDmSubscription(list, meUid);
+  }
 
-    if (!meUid) {
-      console.warn('meUid missing → skipping unread count');
-      this.totalUnread = 0;
-      return;
-    }
-
+  private processDmSubscription(list: User[], meUid: string) {
     const others = list.filter((u) => u.uid !== meUid);
-    if (!others.length) {
-      this.totalUnread = 0;
-      return;
-    }
 
+    if (!others.length) return this.resetTotalUnread();
+
+    this.subscribeToDmUnreadCounts(others, meUid);
+  }
+
+  private subscribeToDmUnreadCounts(others: User[], meUid: string) {
     const streams = others.map((u) => {
       const dmId = this.calculateDmId(u);
       return this.read.unreadDmCount$(dmId, meUid);
@@ -191,60 +215,76 @@ export class DevspaceSidenavContent implements OnInit, OnDestroy {
       .pipe(map((arr) => arr.reduce((sum, n) => sum + (n || 0), 0)))
       .subscribe((sum) => (this.totalUnread = sum));
   }
-  // for total cound by Direkt messasges //
 
-  // for sorting by unread messages //
+  private setSortedUsers(list: User[]) {
+    this.sortedUsers = list;
+  }
+
+  private computeSortedUsers(me: User | null) {
+    this.sortedUsers = me ? [me] : [];
+  }
+
   private buildSortedUsers(list: User[], meUid: string | null) {
     this.sortSub?.unsubscribe();
 
-    if (!meUid) {
-      this.sortedUsers = list;
-      return;
-    }
+    if (!meUid) return this.setSortedUsers(list);
 
-    const myId = meUid as string;
+    const me = list.find((u) => (u.uid = meUid)) || null;
+    const others = list.filter((u) => u.uid != meUid);
 
-    const me = list.find((u) => u.uid === myId) || null;
-    const others = list.filter((u) => u.uid !== myId);
+    if (!others.length) return this.computeSortedUsers(me);
 
-    if (!others.length) {
-      this.sortedUsers = me ? [me] : [];
-      return;
-    }
+    this.subscribeToUserSort(others, me, meUid);
+  }
 
-    const metaStreams = others.map((u) => {
-      const dmId = this.calculateDmId(u);
-      return this.read.dmMeta$(dmId, myId).pipe(map((meta) => ({ uid: u.uid, meta })));
-    });
+  private subscribeToUserSort(others: User[], me: User | null, meUid: string) {
+    const metaStreams = this.createMetaStreams(others, meUid);
 
     this.sortSub = combineLatest(metaStreams)
       .pipe(auditTime(16))
-      .subscribe((metaArr) => {
-        const metaMap = new Map(metaArr.map((x) => [x.uid, x.meta]));
-
-        const sortedOthers = [...others].sort((a, b) => {
-          const ma = metaMap.get(a.uid) || { unread: 0, lastMessageAt: 0 };
-          const mb = metaMap.get(b.uid) || { unread: 0, lastMessageAt: 0 };
-
-          const aHas = ma.unread > 0 ? 1 : 0;
-          const bHas = mb.unread > 0 ? 1 : 0;
-          if (aHas !== bHas) return bHas - aHas;
-
-          if (ma.lastMessageAt !== mb.lastMessageAt) return mb.lastMessageAt - ma.lastMessageAt;
-
-          const nameCmp = String(a.name ?? '').localeCompare(String(b.name ?? ''), undefined, {
-            sensitivity: 'base',
-          });
-          if (nameCmp !== 0) return nameCmp;
-
-          return String(a.uid).localeCompare(String(b.uid));
-        });
-
-        this.sortedUsers = me ? [me, ...sortedOthers] : sortedOthers;
-        this.maxVisible = Math.min(this.maxVisible, this.sortedUsers.length);
-      });
+      .subscribe((metaArr) => this.handleSortUpdate(metaArr, others, me));
   }
-  // for sorting by unread messages //
+
+  private handleSortUpdate(metaArr: any[], others: User[], me: User | null) {
+    const metaMap = new Map(metaArr.map((x) => [x.uid, x.meta]));
+    const sortedOthers = [...others].sort((a, b) => this.compareUsers(a, b, metaMap));
+
+    this.sortedUsers = me ? [me, ...sortedOthers] : sortedOthers;
+    this.maxVisible = Math.min(this.maxVisible, this.sortedUsers.length);
+  }
+
+  private createMetaStreams(others: User[], meUid: string) {
+    return others.map((u) => {
+      const dmId = this.calculateDmId(u);
+      return this.read.dmMeta$(dmId, meUid).pipe(map((meta) => ({ uid: u.uid, meta })));
+    });
+  }
+
+  private compareUsers(a: User, b: User, metaMap: Map<string, any>): number {
+    const ma = metaMap.get(a.uid) || { unread: 0, lastMessageAt: 0 };
+    const mb = metaMap.get(b.uid) || { unread: 0, lastMessageAt: 0 };
+
+    return (
+      this.compareByUnread(ma, mb) ||
+      this.compareByTime(ma, mb) ||
+      this.compareByName(a, b) ||
+      String(a.uid).localeCompare(String(b.uid))
+    );
+  }
+
+  private compareByUnread(ma: any, mb: any): number {
+    return (mb.unread > 0 ? 1 : 0) - (ma.unread > 0 ? 1 : 0);
+  }
+
+  private compareByTime(ma: any, mb: any): number {
+    return mb.lastMessageAt - ma.lastMessageAt;
+  }
+
+  private compareByName(a: User, b: User): number {
+    return String(a.name ?? '').localeCompare(String(b.name ?? ''), undefined, {
+      sensitivity: 'base',
+    });
+  }
 
   private updateUserList(list: any[]): void {
     if (this.meUid) {
@@ -294,17 +334,6 @@ export class DevspaceSidenavContent implements OnInit, OnDestroy {
     });
   }
 
-  ngOnDestroy(): void {
-    this.sub?.unsubscribe();
-    this.channelsSub?.unsubscribe();
-    this.currentUserSub?.unsubscribe();
-    this.sortSub?.unsubscribe();
-    this.totalUnreadSub?.unsubscribe();
-    this.totalUnreadChannelsSub?.unsubscribe();
-    this.searchCtrlSub?.unsubscribe();
-    this.searchBusSub?.unsubscribe();
-  }
-
   private norm(s: any): string {
     const str = String(s ?? '').toLowerCase();
     try {
@@ -337,11 +366,9 @@ export class DevspaceSidenavContent implements OnInit, OnDestroy {
 
   get visibleChannels() {
     const base = this.channels ?? [];
-
     if (!this.search) {
       return base.slice(0, Math.min(this.maxVisibleChannels, base.length));
     }
-
     return base.filter((c) => this.matches(c.name, this.search));
   }
 
@@ -383,7 +410,6 @@ export class DevspaceSidenavContent implements OnInit, OnDestroy {
     const uid2 = otherUser.uid;
 
     this.currentChatId = uid1 < uid2 ? `${uid1}-${uid2}` : `${uid2}-${uid1}`;
-
     const docRef = doc(this.firestore, 'dms', this.currentChatId);
 
     await setDoc(docRef, { members: [uid1, uid2] }, { merge: true });
@@ -391,20 +417,28 @@ export class DevspaceSidenavContent implements OnInit, OnDestroy {
 
   trackById = (_: number, u: User) => u.uid;
 
-  openAddChannelDialog() {
+  openAddChannel() {
     if (this.isMobileView) {
-      const sheetRef = this.bottomSheet.open(AddChannel, {
-        panelClass: 'mobile-channel-sheet',
-      });
-      sheetRef.afterDismissed().subscribe((result) => this.handleChannelResult(result));
+      this.openMobileAddChannel();
     } else {
-      const dialogRef = this.dialog.open(AddChannel, {
-        panelClass: 'sheet-400', // Fixed: this was .mobile-channel-sheet in your code, should be standard dialog class
-        width: '480px',
-        maxWidth: '95vw',
-      });
-      dialogRef.afterClosed().subscribe((result) => this.handleChannelResult(result));
+      this.openDesktopAddChannel();
     }
+  }
+
+  private openMobileAddChannel() {
+    const sheetRef = this.bottomSheet.open(AddChannel, {
+      panelClass: 'mobile-channel-sheet',
+    });
+    sheetRef.afterDismissed().subscribe((result) => this.handleChannelResult(result));
+  }
+
+  private openDesktopAddChannel() {
+    const dialogRef = this.dialog.open(AddChannel, {
+      panelClass: 'sheet-400',
+      width: '480px',
+      maxWidth: '95vw',
+    });
+    dialogRef.afterClosed().subscribe((result) => this.handleChannelResult(result));
   }
 
   private handleChannelResult(result: any) {
@@ -452,24 +486,31 @@ export class DevspaceSidenavContent implements OnInit, OnDestroy {
   }
 
   async saveChannelData(result: any) {
-    const batch = writeBatch(this.firestore);
-    const { channel, users } = result;
-    const channelsRef = collection(this.firestore, 'channels');
-    const channelDoc = doc(channelsRef);
-
     const currentUser = await firstValueFrom(this.authService.currentUser$);
 
-    batch.set(channelDoc, {
+    const newChannelRef = doc(collection(this.firestore, 'channels'));
+    const channelData = this.prepareChannelData(result, currentUser);
+
+    await this.executeChannelSave(newChannelRef, channelData);
+  }
+
+  private prepareChannelData(result: any, currentUser: any) {
+    const { channel, users } = result;
+    return {
       name: channel.channelName,
       description: channel.description,
       createdAt: serverTimestamp(),
-      createdBy: currentUser?.displayName,
+      createdBy: currentUser.displayName,
       members: users.map((user: any) => ({
         uid: user.uid,
         displayName: user.displayName,
       })),
-    });
+    };
+  }
 
+  private async executeChannelSave(docRef: any, data: any) {
+    const batch = writeBatch(this.firestore);
+    batch.set(docRef, data);
     await batch.commit();
   }
 }
