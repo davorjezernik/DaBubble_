@@ -44,7 +44,7 @@ export class AddChannel {
     @Optional() public sheetRef: MatBottomSheetRef<AddChannel>
   ) {}
 
-  closeDialog(result?: any) {
+  close(result?: any) {
     if (this.sheetRef) {
       this.sheetRef.dismiss(result);
     } else if (this.dialogRef) {
@@ -63,7 +63,7 @@ export class AddChannel {
     }
 
     if (!this.channelNameInput?.invalid) {
-      this.closeDialog({
+      this.close({
         channelName: this.channelName,
         description: this.description,
       });

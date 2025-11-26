@@ -94,7 +94,7 @@ export class AddUsersToChannel implements OnInit {
     }
   }
 
-    public closeDialog(result?: any) {
+    public close(result?: any) {
     if (this.sheetRef) {
       this.sheetRef.dismiss(result);
     } else if (this.dialogRef) {
@@ -103,7 +103,7 @@ export class AddUsersToChannel implements OnInit {
   }
 
   private createChannelWithSelectedUsers() {
-    this.closeDialog({
+    this.close({
       channel: {
         channelName: this.data.channelName.trim(),
         description: this.data.description.trim(),
@@ -116,7 +116,7 @@ export class AddUsersToChannel implements OnInit {
   }
 
   private createChannelForAllUsers() {
-    this.closeDialog({
+    this.close({
       channel: {
         channelName: this.data.channelName.trim(),
         description: this.data.description.trim(),
