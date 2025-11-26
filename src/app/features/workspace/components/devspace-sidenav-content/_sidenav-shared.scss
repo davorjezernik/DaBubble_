@@ -1,0 +1,160 @@
+@use 'mixins';
+@use 'variables';
+@use '@angular/material' as mat;
+
+// Theme tokens
+$color-text: #0f0f10;
+$color-muted: #6b6f76;
+$color-brand: #535af1; // hover color for headings and 'Channel hinzufügen'
+$color-dm-hover: #eceefe; // hover bg for user rows + active channel pill
+$color-surface: #ffffff;
+$radius-pill: 999px;
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+button {
+  background-color: transparent;
+  border: none;
+  outline: none;
+  cursor: pointer;
+}
+
+a {
+  text-decoration: none;
+}
+
+.devspace-elements-gap {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+.section-title-text {
+  margin: 0;
+  @include mixins.text-style(
+    $size: 20px,
+    $color: #000000,
+    $font-weight: 700,
+    $font-family: 'Nunito',
+    $line-height: 1
+  );
+}
+
+.item-list {
+  gap: 10px;
+  display: flex;
+  flex-direction: column;
+  list-style: none;
+  width: 100%;
+  padding-left: 30px;
+  margin: 0;
+
+  > li {
+    min-width: 0;
+  }
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.load-more-button {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 4px 20px;
+  margin-left: 30px;
+  border-radius: 30px;
+  min-height: 58px;
+  cursor: pointer;
+  transition: background 125ms ease, color 125ms ease-in-out;
+  background-color: transparent;
+  border: none;
+  width: 90%;
+  text-align: left;
+
+  &:hover {
+    background: #eceefe;
+    .name {
+      color: #535af1;
+      font-weight: 700;
+    }
+  }
+
+  .more-pill {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: #eceefe;
+    display: grid;
+    place-items: center;
+    font-weight: 700;
+    font-size: 18px;
+    color: #535af1;
+    flex-shrink: 0;
+  }
+
+  .name {
+    color: #535af1;
+    font-size: variables.$basic-text-size;
+    font-weight: 500;
+    font-family: 'Nunito', sans-serif;
+  }
+}
+
+.dm-total-badge {
+  margin-left: 8px;
+  min-width: 22px;
+  height: 22px;
+  border-radius: 50px;
+  background: #e53935;
+  color: #fff;
+  font-family: 'Nunito', sans-serif;
+  font-size: 12px;
+  line-height: 22px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  vertical-align: middle;
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.08);
+}
+
+@media (max-width: 950px) {
+  .item-list {
+    width: 75vw;
+  }
+
+  .section-header {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    width: 100%;
+  }
+
+  .section-toggle-button {
+    grid-column: 1 / 2;
+    justify-self: start;
+  }
+}
+
+@media (max-width: 730px) {
+}
+
+@media (max-width: 500px) {
+  .item-list {
+    width: 90vw;
+  }
+}
+
+@media (max-width: 400px) {
+  .load-more-button {
+    white-space: nowrap;
+  }
+}
