@@ -166,6 +166,9 @@
   padding: 0;
 }
 
+:host ::ng-deep .emoji-mart-anchors {
+  display: none !important;
+}
 :host app-message-bubble ::ng-deep .emoji-mart-anchors {
   display: none !important;
 }
