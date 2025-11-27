@@ -91,6 +91,9 @@ export class WorkspaceLayoutComponent implements OnInit, OnDestroy, OnChanges {
   subscribeUserService() {
     this.userSub = this.userService.currentUser$().subscribe((user) => {
       this.user = user;
+      if (this.user) {
+        this.userService.markOnline(true);
+      }
     });
   }
 

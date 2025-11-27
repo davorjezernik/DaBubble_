@@ -71,16 +71,12 @@ export class App implements OnInit {
       localStorage.setItem('introSeen', '1');
     } catch {}
   }
-  // intro //
 
-  // sign out close window //
   @HostListener('window:beforeunload', ['$event'])
   onBeforeUnload(event: BeforeUnloadEvent) {
     const user = this.auth.currentUser;
     if (user) {
       this.userService.markOnline(false);
-      this.auth.signOut();
     }
   }
-  // sign out close window //
 }
