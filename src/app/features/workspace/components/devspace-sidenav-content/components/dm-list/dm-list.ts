@@ -6,14 +6,14 @@ import { UserService } from '../../../../../../../services/user.service';
 import { AuthService } from '../../../../../../../services/auth-service';
 import { ViewStateService } from '../../../../../../../services/view-state.service';
 import { ContactItem } from '../../../contact-item/contact-item';
-import { RouterLink } from '@angular/router';
+import { RouterModule } from '@angular/router';
 import { stringMatches } from '../../../../../../shared/utils/search-utils';
 import { ReadStateService } from '../../../../../../../services/read-state.service';
 import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-dm-list',
-  imports: [CommonModule, ContactItem, RouterLink],
+  imports: [CommonModule, ContactItem, RouterModule],
   templateUrl: './dm-list.html',
   styleUrl: './dm-list.scss',
 })

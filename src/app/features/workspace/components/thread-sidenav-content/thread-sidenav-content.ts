@@ -115,6 +115,7 @@ export class ThreadSidenavContent implements OnInit, OnDestroy, OnChanges, After
   }
 
   private subscribeToMessageData() {
+    this.messageDataSub?.unsubscribe();
     const messageDocRef = doc(
       this.firestore,
       `${this.collectionName}/${this.chatId}/messages/${this.messageId}`

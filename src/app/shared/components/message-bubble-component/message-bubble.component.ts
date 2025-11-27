@@ -44,11 +44,11 @@ import {
     MessageMiniActionsComponent,
     MessageReactionsComponent,
     CloseOnOutsideClickDirective,
-    CloseOnEscapeDirective
+    CloseOnEscapeDirective,
   ],
   templateUrl: './message-bubble.component.html',
   styleUrl: './message-bubble.component.scss',
-  providers: [MessageReactionService, MessageInteractionService]
+  providers: [MessageReactionService, MessageInteractionService],
 })
 export class MessageBubbleComponent implements OnChanges, OnDestroy {
   @Input() incoming: boolean = false;
@@ -295,9 +295,9 @@ export class MessageBubbleComponent implements OnChanges, OnDestroy {
   /** Save the edited message text to Firestore.*/
   async saveEdit(newText: string) {
     const path = this.getMessagePath();
-    if (!path) { 
-      this.isEditing = false; 
-      return; 
+    if (!path) {
+      this.isEditing = false;
+      return;
     }
     try {
       this.isSaving = true;
@@ -305,10 +305,10 @@ export class MessageBubbleComponent implements OnChanges, OnDestroy {
       this.text = newText;
       this.edited = true;
       this.isEditing = false;
-    } catch (e) { 
+    } catch (e) {
       console.error('Error saving message:', e);
-    } finally { 
-      this.isSaving = false; 
+    } finally {
+      this.isSaving = false;
     }
   }
 
@@ -319,9 +319,9 @@ export class MessageBubbleComponent implements OnChanges, OnDestroy {
     const ref = this.dialog.open(ConfirmDeleteDialogComponent, {
       panelClass: 'delete-confirm-dialog',
       disableClose: true,
-      autoFocus: false
+      autoFocus: false,
     });
-    ref.afterClosed().subscribe(confirmed => {
+    ref.afterClosed().subscribe((confirmed) => {
       if (confirmed) this.confirmDelete();
     });
   }
@@ -336,7 +336,10 @@ export class MessageBubbleComponent implements OnChanges, OnDestroy {
       this.text = this.DELETED_PLACEHOLDER;
       this.isMoreMenuOpen = false;
       this.reactions = [];
-    } catch (e) { } finally { this.isDeleting = false; }
+    } catch (e) {
+    } finally {
+      this.isDeleting = false;
+    }
   }
 
   /** Quick-add a reaction via the mini actions bar and close the bar. */
@@ -416,17 +419,26 @@ export class MessageBubbleComponent implements OnChanges, OnDestroy {
   @HostListener('document:mousemove', ['$event'])
   onDocumentMouseMove(event: MouseEvent) {
     if (!this.showEmojiPicker) return;
-    
-    const container = this.el.nativeElement.querySelector('.message-container') as HTMLElement | null;
+
+    const container = this.el.nativeElement.querySelector(
+      '.message-container'
+    ) as HTMLElement | null;
     const refEl = container ?? this.el.nativeElement;
-    const insidePadded = this.interactionService.isMouseWithinPaddedArea(refEl, event.clientX, event.clientY);
-    const overPicker = this.interactionService.isElementOrAncestor(event.target as HTMLElement, '.emoji-picker-container');
-    
+    const insidePadded = this.interactionService.isMouseWithinPaddedArea(
+      refEl,
+      event.clientX,
+      event.clientY
+    );
+    const overPicker = this.interactionService.isElementOrAncestor(
+      event.target as HTMLElement,
+      '.emoji-picker-container'
+    );
+
     if (!insidePadded && !overPicker) {
       this.reactionService.closeEmojiPicker();
     }
   }
-  
+
   /** Load thread answers count and last answer timestamp. */
   private async getAnswersInfo() {
     if (!this.chatId || !this.messageId) return;
@@ -441,6 +453,7 @@ export class MessageBubbleComponent implements OnChanges, OnDestroy {
 
   /** Subscribe to thread messages count. */
   private async getAnswersAmount(coll: any) {
+    this.answersCountSub?.unsubscribe();
     this.answersCountSub = collectionData(coll)
       .pipe(map((docs) => docs.length))
       .subscribe((count) => {
@@ -450,11 +463,14 @@ export class MessageBubbleComponent implements OnChanges, OnDestroy {
 
   /** Subscribe to latest thread answer timestamp. */
   private async getLastAnswerTime(coll: any) {
+    this.lastTimeSub?.unsubscribe();
     this.lastTimeSub = collectionData(coll)
       .pipe(
         map((messages) => {
           if (messages.length === 0) return '';
-          const timestamps = messages.map((msg: any) => msg.timestamp?.toMillis()).filter((ts: any): ts is number => typeof ts === 'number');
+          const timestamps = messages
+            .map((msg: any) => msg.timestamp?.toMillis())
+            .filter((ts: any): ts is number => typeof ts === 'number');
           if (timestamps.length === 0) return '';
           const latest = Math.max(...timestamps);
           const latestDate = new Date(latest);

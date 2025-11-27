@@ -11,7 +11,6 @@ import { isPlatformBrowser } from '@angular/common';
 import { Router, NavigationEnd, RouterOutlet } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { MatDialog } from '@angular/material/dialog';
-import { MatIconModule } from '@angular/material/icon';
 import { filter } from 'rxjs';
 import { IntroOverlayComponent } from './core/intro-overlay/intro-overlay.component';
 import { AuthService } from '../services/auth-service';
@@ -20,7 +19,7 @@ import { Auth } from '@angular/fire/auth';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, IntroOverlayComponent],
+  imports: [CommonModule, RouterOutlet, IntroOverlayComponent],
   templateUrl: './app.html',
   styleUrl: './app.scss',
 })
@@ -36,7 +35,6 @@ export class App implements OnInit {
     @Inject(PLATFORM_ID) private platformId: Object
   ) {}
 
-  // intro //
   showIntro = true;
 
   ngOnInit(): void {

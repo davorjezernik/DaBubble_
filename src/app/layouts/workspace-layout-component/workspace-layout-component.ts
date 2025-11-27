@@ -83,7 +83,6 @@ export class WorkspaceLayoutComponent implements OnInit, OnDestroy, OnChanges {
   private initializeThreadPanelSubscription(): void {
     this.threadPanel.open$.subscribe((req: ThreadOpenRequest) => {
       this.threadContext = req;
-      // Defer to ensure the drawer ViewChild is available
       setTimeout(() => this.threadDrawer?.open());
     });
   }
@@ -106,10 +105,8 @@ export class WorkspaceLayoutComponent implements OnInit, OnDestroy, OnChanges {
       this.devspaceDrawer?.close();
     });
 
-    // Add our new subscriptions to the main subscription object for easy cleanup
     this.drawerSubscriptions.add(threadSub);
     this.drawerSubscriptions.add(devspaceSub);
   }
 }
 
-// decide which sidenav to close
