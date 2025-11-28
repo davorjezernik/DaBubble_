@@ -82,7 +82,7 @@ export class DmList implements OnInit, OnDestroy, OnChanges {
     });
   }
 
-  loadMore(): void {
+  public loadMore(): void {
     this.viewStateService.maxVisible = Math.min(
       this.viewStateService.maxVisible + this.viewStateService.pageSizeUsers,
       this.users.length
@@ -191,7 +191,7 @@ export class DmList implements OnInit, OnDestroy, OnChanges {
     });
   }
 
-  calculateDmId(otherUser: User): string {
+  public calculateDmId(otherUser: User): string {
     if (!this.meUid) return '';
     const uid1 = this.meUid;
     const uid2 = otherUser.uid;

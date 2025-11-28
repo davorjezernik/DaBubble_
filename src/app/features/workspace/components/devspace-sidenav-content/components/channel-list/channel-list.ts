@@ -1,13 +1,11 @@
 import { Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
 import { ChannelItem } from '../../../channel-item/channel-item';
 import { combineLatest, firstValueFrom, map, Subscription } from 'rxjs';
-import { User } from '../../../../../../../models/user.class';
 import { stringMatches } from '../../../../../../shared/utils/search-utils';
 import { collection, doc, Firestore, serverTimestamp, writeBatch } from '@angular/fire/firestore';
 import { AuthService } from '../../../../../../../services/auth-service';
 import { ViewStateService } from '../../../../../../../services/view-state.service';
 import { ReadStateService } from '../../../../../../../services/read-state.service';
-import { UserService } from '../../../../../../../services/user.service';
 import { ChannelService } from '../../../../../../../services/channel-service';
 import { AddUsersToChannel } from '../../../add-users-to-channel/add-users-to-channel';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
@@ -22,14 +20,12 @@ import { CommonModule } from '@angular/common';
   styleUrl: './channel-list.scss',
 })
 export class ChannelList implements OnInit, OnDestroy, OnChanges {
-  @Input() users: User[] = [];
   @Input() meUid: string | null = null;
   @Input() search: string = '';
   @Input() channels: any[] = [];
 
   private channelsSub?: Subscription;
   private totalUnreadChannelsSub?: Subscription;
-  private sub?: Subscription;
 
   channelsOpen = true;
   totalUnreadChannels = 0;
@@ -42,21 +38,18 @@ export class ChannelList implements OnInit, OnDestroy, OnChanges {
     private authService: AuthService,
     public viewStateService: ViewStateService,
     private read: ReadStateService,
-    private usersService: UserService,
     private channelService: ChannelService,
     private bottomSheet: MatBottomSheet,
     private dialog: MatDialog
   ) {}
 
   ngOnInit(): void {
-    this.subscribeToUsers();
     this.subscribeToChannels();
   }
 
   ngOnDestroy(): void {
     this.channelsSub?.unsubscribe();
     this.totalUnreadChannelsSub?.unsubscribe();
-    this.sub?.unsubscribe();
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -91,40 +84,6 @@ export class ChannelList implements OnInit, OnDestroy, OnChanges {
       this.maxVisibleChannels = this.channels.length;
     } else {
       this.maxVisibleChannels = Math.min(this.pageSizeChannels, this.channels.length);
-    }
-  }
-
-  private subscribeToUsers(): void {
-    this.sub?.unsubscribe();
-    this.sub = combineLatest([
-      this.usersService.users$(),
-      this.usersService.currentUser$(),
-    ]).subscribe(([list, me]) => {
-      const oldMeUid = this.meUid;
-      this.meUid = me?.uid ?? null;
-      this.updateUserList(list);
-      if (oldMeUid !== this.meUid) {
-        this.buildTotalUnreadChannels(this.channels, this.meUid);
-      }
-    });
-  }
-
-  private updateUserList(list: any[]): void {
-    if (this.meUid) {
-      const meUser = list.find((u) => u.uid === this.meUid);
-      const others = list.filter((u) => u.uid !== this.meUid);
-      this.users = meUser ? [meUser, ...others] : list;
-    } else {
-      this.users = list;
-    }
-
-    if (this.search) {
-      this.viewStateService.maxVisible = this.users.length;
-    } else {
-      this.viewStateService.maxVisible = Math.min(
-        this.viewStateService.pageSizeUsers,
-        this.users.length
-      );
     }
   }
 
@@ -187,13 +146,13 @@ export class ChannelList implements OnInit, OnDestroy, OnChanges {
     });
   }
 
-  loadMoreChannels() {
+  public loadMoreChannels() {
     this.maxVisibleChannels = Math.min(
       this.maxVisibleChannels + this.pageSizeChannels,
       this.channels.length
     );
   }
-  openAddChannel() {
+  public openAddChannel() {
     if (this.isMobileView) {
       this.openMobileAddChannel();
     } else {
@@ -223,7 +182,7 @@ export class ChannelList implements OnInit, OnDestroy, OnChanges {
     }
   }
 
-  openAddUsersToChannelDialog(data: any) {
+  private openAddUsersToChannelDialog(data: any) {
     if (this.isMobileView) {
       this.openAddUsersSheet(data);
     } else {
