@@ -77,7 +77,6 @@ export class DmList implements OnInit, OnDestroy, OnChanges {
   private subscribeToUsers() {
     this.userService.users$().subscribe((users) => {
       this.users = users;
-      // Trigger updates
       this.buildSortedUsers(this.users, this.meUid);
       this.buildTotalUnread(this.users, this.meUid);
     });

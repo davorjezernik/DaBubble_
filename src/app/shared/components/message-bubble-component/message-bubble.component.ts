@@ -169,7 +169,9 @@ export class MessageBubbleComponent implements OnChanges, OnDestroy {
     if ('reactionsMap' in changes) {
       this.rebuildReactions();
     }
-    this.getAnswersInfo();
+    if (changes['messageId'] || changes['chatId'] || changes['collectionName']) {
+      this.getAnswersInfo();
+    }
   }
 
   /** Cleanup subscriptions on component destruction. */
