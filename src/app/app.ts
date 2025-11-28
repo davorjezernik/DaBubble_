@@ -81,7 +81,6 @@ export class App implements OnInit, OnDestroy {
     const user = this.auth.currentUser;
     if (user) {
       this.userService.markOnline(false);
-      this.auth.signOut();
     }
   }
 }

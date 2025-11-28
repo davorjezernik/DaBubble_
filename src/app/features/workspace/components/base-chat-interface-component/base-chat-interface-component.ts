@@ -12,7 +12,7 @@ import {
   Timestamp,
 } from '@angular/fire/firestore';
 import { ActivatedRoute } from '@angular/router';
-import { map, Observable, of, Subscription, switchMap } from 'rxjs';
+import { map, Observable, of, shareReplay, Subscription, switchMap } from 'rxjs';
 import { AuthService } from '../../../../../services/auth-service';
 import { User } from '@angular/fire/auth';
 
@@ -51,7 +51,7 @@ export abstract class BaseChatInterfaceComponent implements OnInit, OnDestroy {
         try {
           this.currentUserProfile = await this.getUserData(user.uid);
           this.currentUserAvatar =
-          this.currentUserProfile?.avatar || 'assets/img-profile/profile.png';
+            this.currentUserProfile?.avatar || 'assets/img-profile/profile.png';
           this.currentUserDisplayName = this.currentUserProfile?.name || 'Unknown User';
         } catch {
           this.currentUserProfile = null;
@@ -115,7 +115,8 @@ export abstract class BaseChatInterfaceComponent implements OnInit, OnDestroy {
         return collectionData(q, { idField: 'id' }).pipe(
           map((messages: any[]) => this.processMessages(messages))
         );
-      })
+      }),
+      shareReplay(1)
     );
     this.messagesSub = this.messages$.subscribe(() => {
       if (this.initialLoadPending || this.scrollAfterMySend) {

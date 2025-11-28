@@ -12,7 +12,6 @@ import { UserService } from '../../../services/user.service';
 import { MatIconModule } from '@angular/material/icon';
 import { User } from '../../../models/user.class';
 import { UserMenuService } from '../../../services/user-menu.service';
-import { AsyncPipe } from '@angular/common';
 
 @Component({
   selector: 'app-workspace-layout-component',
@@ -38,6 +37,7 @@ export class WorkspaceLayoutComponent implements OnInit, OnDestroy, OnChanges {
 
   breakpointSub?: Subscription;
   userSub?: Subscription;
+
   private drawerSubscriptions = new Subscription();
 
   constructor(
@@ -81,13 +81,15 @@ export class WorkspaceLayoutComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   private initializeThreadPanelSubscription(): void {
-    this.threadPanel.open$.subscribe((req: ThreadOpenRequest) => {
+    const sub = this.threadPanel.open$.subscribe((req: ThreadOpenRequest) => {
       this.threadContext = req;
       setTimeout(() => this.threadDrawer?.open());
     });
+    this.drawerSubscriptions.add(sub);
   }
 
   subscribeUserService() {
+    this.userSub?.unsubscribe();
     this.userSub = this.userService.currentUser$().subscribe((user) => {
       this.user = user;
       if (this.user) {
@@ -109,4 +111,3 @@ export class WorkspaceLayoutComponent implements OnInit, OnDestroy, OnChanges {
     this.drawerSubscriptions.add(devspaceSub);
   }
 }
-

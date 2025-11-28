@@ -48,7 +48,7 @@ export class DmList implements OnInit, OnDestroy, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['users'] || changes['meUid']) {
+    if (changes['meUid']) {
       this.buildSortedUsers(this.users, this.meUid);
       this.buildTotalUnread(this.users, this.meUid);
     }
@@ -131,8 +131,8 @@ export class DmList implements OnInit, OnDestroy, OnChanges {
 
     if (!meUid) return this.setSortedUsers(list);
 
-    const me = list.find((u) => (u.uid = meUid)) || null;
-    const others = list.filter((u) => u.uid != meUid);
+    const me = list.find((u) => (u.uid === meUid)) || null;
+    const others = list.filter((u) => u.uid !== meUid);
 
     if (!others.length) return this.computeSortedUsers(me);
 

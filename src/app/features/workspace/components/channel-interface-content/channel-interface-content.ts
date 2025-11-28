@@ -240,6 +240,8 @@ export class ChannelInterfaceContent extends BaseChatInterfaceComponent {
       sub.unsubscribe();
     });
 
+    ref.afterClosed().pipe(take(1)).subscribe(() => { sub.unsubscribe()});
+
     ref.componentInstance.close.subscribe(() => ref.close());
     ref.componentInstance.addMembersClick.subscribe(({ ev, anchor }) => {
       this.openAddMembersUnderIcon(ev, anchor ?? el);

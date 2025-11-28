@@ -17,7 +17,7 @@ import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-channel-list',
-  imports: [CommonModule ,ChannelItem],
+  imports: [CommonModule, ChannelItem],
   templateUrl: './channel-list.html',
   styleUrl: './channel-list.scss',
 })
@@ -95,17 +95,21 @@ export class ChannelList implements OnInit, OnDestroy, OnChanges {
   }
 
   private subscribeToUsers(): void {
+    this.sub?.unsubscribe();
     this.sub = combineLatest([
       this.usersService.users$(),
       this.usersService.currentUser$(),
     ]).subscribe(([list, me]) => {
+      const oldMeUid = this.meUid;
       this.meUid = me?.uid ?? null;
       this.updateUserList(list);
-      this.buildTotalUnreadChannels(this.channels, this.meUid);
+      if (oldMeUid !== this.meUid) {
+        this.buildTotalUnreadChannels(this.channels, this.meUid);
+      }
     });
   }
 
-    private updateUserList(list: any[]): void {
+  private updateUserList(list: any[]): void {
     if (this.meUid) {
       const meUser = list.find((u) => u.uid === this.meUid);
       const others = list.filter((u) => u.uid !== this.meUid);
