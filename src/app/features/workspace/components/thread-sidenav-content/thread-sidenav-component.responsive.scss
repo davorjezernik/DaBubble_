@@ -1,10 +1,24 @@
 @media (min-width: 1000px) {
 :host app-message-bubble ::ng-deep .reactions .reaction-chip .reaction-tooltip {
-    min-width: 50px !important;
-    max-width: 50px !important;
+    min-width: 100px !important;
+    max-width: 100px !important;
     white-space: normal !important;
     word-break: break-word !important;
-    left: 5% !important;
+    // left: 5% !important;
+  }
+
+  /* Thread-specific: flip tooltip placement compared to the default chat view */
+  /* Incoming -> place on right; Not incoming -> left (reverse of chat) */
+  :host app-message-bubble ::ng-deep .message-container.incoming app-message-reactions .reactions .reaction-chip .reaction-tooltip {
+    left: auto !important;
+    right: 50% !important;
+    border-radius: 30px 0 30px 30px !important;
+  }
+
+  :host app-message-bubble ::ng-deep .message-container:not(.incoming) app-message-reactions .reactions .reaction-chip .reaction-tooltip {
+    left: 50% !important;
+    right: auto !important;
+    border-radius: 30px 30px 30px 0 !important;
   }
 
   :host ::ng-deep .emoji-mart {
@@ -47,6 +61,7 @@
   }
 
 }
+
 
 @media (max-width: 950px) {
   .chat-container {

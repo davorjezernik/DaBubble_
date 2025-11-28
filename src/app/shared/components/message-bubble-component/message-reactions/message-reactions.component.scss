@@ -68,8 +68,10 @@
       text-align: center;
       font-family: 'Nunito', sans-serif;
       min-width: 120px;
-      white-space: nowrap;
+      // white-space: nowrap;
       box-shadow: 0 6px 24px rgba(0, 0, 0, 0.12);
+      white-space: normal !important;
+      word-break: break-word !important;
 
       .reacter-emoji {
         font-size: 18px;
@@ -84,6 +86,18 @@
         font-size: 14px;
         font-weight: 400;
       }
+    }
+
+    :host-context(.message-container.incoming) .reaction-chip .reaction-tooltip {
+      right: 50%;
+      left: auto;
+      border-radius: 30px 30px 0 30px;
+    }
+
+    :host-context(.message-container:not(.incoming)) .reaction-chip .reaction-tooltip {
+      left: 50%;
+      right: auto;
+      border-radius: 30px 30px 30px 0;
     }
 
     @media (hover: hover) {
@@ -171,6 +185,22 @@
   justify-content: center;
 }
 
+@media (max-width: 1000px) {
+    :host-context(.message-container.incoming) .reaction-chip .reaction-tooltip {
+    min-width: 100px !important;
+    max-width: 100px !important;
+    white-space: normal !important;
+    word-break: break-word !important;
+    }
+
+    :host-context(.message-container:not(.incoming)) .reaction-chip .reaction-tooltip {
+    min-width: 100px !important;
+    max-width: 100px !important;
+    white-space: normal !important;
+    word-break: break-word !important;
+    }
+}
+
 @media (max-width: 500px) {
   .reactions {
     .reaction-chip {
@@ -180,6 +210,25 @@
         word-wrap: break-word;
       }
     }
+  }
+}
+
+/* Small screen adjustments with incoming/outgoing scoped changes */
+@media (max-width: 500px) {
+  .reaction-chip .reaction-tooltip {
+    left: 5%;
+    border-radius: 15px 15px 15px 0;
+    padding: 8px 6px;
+    width: 88px;
+    min-width: auto;
+    white-space: normal;
+    word-break: break-word;
+  }
+
+  :host-context(.message-container:not(.incoming)) .reaction-chip .reaction-tooltip {
+    left: auto;
+    right: 5%;
+    border-radius: 15px 0 15px 15px;
   }
 }
 
