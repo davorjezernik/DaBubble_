@@ -7,6 +7,10 @@
   z-index: 10;
 }
 
+    :host ::ng-deep .emoji-mart-preview {
+      display: none;
+    }
+
 @media (max-width: 700px) {
   :host ::ng-deep {
     .emoji-mart {
@@ -32,10 +36,6 @@
 
     .emoji-mart-scroll {
       height: 100px !important;
-    }
-
-    .emoji-mart-preview {
-      display: none;
     }
 
     .emoji-picker-container {

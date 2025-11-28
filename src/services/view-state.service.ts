@@ -10,6 +10,11 @@ export class ViewStateService {
   currentView: ViewState = 'devspace';
   isMobileView: boolean = false;
 
+  currentChatId: string = '';
+
+  pageSizeUsers = 4;
+  maxVisible = this.pageSizeUsers;
+
   private closeThreadDrawerSource = new Subject<void>();
   private closeDevspaceDrawerSource = new Subject<void>();
 
