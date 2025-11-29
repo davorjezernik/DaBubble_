@@ -141,6 +141,11 @@ export class DevspaceSidenavContent implements OnInit, OnDestroy {
     });
   }
 
+  openNewDM() {
+  this.viewStateService.currentView = 'chat'; 
+  this.router.navigate(['/workspace/dm/new']);
+}
+
   // total count for channels //
   private buildTotalUnreadChannels(channels: any[], meUid: string | null) {
     this.totalUnreadChannelsSub?.unsubscribe();
@@ -390,33 +395,33 @@ export class DevspaceSidenavContent implements OnInit, OnDestroy {
   trackById = (_: number, u: User) => u.uid;
 
   openAddChannelDialog() {
-  const dialogRef = this.dialog.open(AddChannel, {
-    panelClass: 'sheet-400', 
-    width: '480px',
-    maxWidth: '95vw',
-  });
+    const dialogRef = this.dialog.open(AddChannel, {
+      panelClass: 'sheet-400',
+      width: '480px',
+      maxWidth: '95vw',
+    });
 
-  dialogRef.afterClosed().subscribe((result) => {
-    if (result && result.channelName) {
-      this.openAddUsersToChannelDialog(result);
-    }
-  });
-}
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result && result.channelName) {
+        this.openAddUsersToChannelDialog(result);
+      }
+    });
+  }
 
-openAddUsersToChannelDialog(result: any) {
-  const addUsersDialogRef = this.dialog.open(AddUsersToChannel, {
-    panelClass: 'sheet-400',  
-    width: '480px',
-    maxWidth: '95vw',
-    data: result,
-  });
+  openAddUsersToChannelDialog(result: any) {
+    const addUsersDialogRef = this.dialog.open(AddUsersToChannel, {
+      panelClass: 'sheet-400',
+      width: '480px',
+      maxWidth: '95vw',
+      data: result,
+    });
 
-  addUsersDialogRef.afterClosed().subscribe((dialogResult) => {
-    if (dialogResult) {
-      this.saveChannelData(dialogResult);
-    }
-  });
-}
+    addUsersDialogRef.afterClosed().subscribe((dialogResult) => {
+      if (dialogResult) {
+        this.saveChannelData(dialogResult);
+      }
+    });
+  }
 
   async saveChannelData(dialogResult: any) {
     const batch = writeBatch(this.firestore);
