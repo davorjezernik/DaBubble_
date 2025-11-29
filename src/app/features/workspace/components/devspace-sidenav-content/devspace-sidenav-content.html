@@ -16,7 +16,7 @@
       <img class="brand-logo" src="assets/icons/devspace-logo.svg" alt="Devspace Logo" />
       <h2 class="brand-name">Devspace</h2>
     </div>
-    <button class="trigger-message-btn" (click)="router.navigate(['/workspace/dm/new'])">
+    <button class="trigger-message-btn" (click)="openNewDM()">
       <svg
         class="message-trigger-icon"
         width="40"
@@ -60,7 +60,8 @@
   </div>
 </nav>
 
-<button class="mobile-edit-btn" matFab aria-label="edit-btn">
+<button class="mobile-edit-btn" mat-fab aria-label="edit-btn"  (click)="openNewDM()"
+  *ngIf="viewStateService.isMobileView">
   <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
     <mask
       id="mask0_237_472"
