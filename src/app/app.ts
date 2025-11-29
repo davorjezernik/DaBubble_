@@ -6,13 +6,13 @@ import {
   OnInit,
   HostListener,
   inject,
+  OnDestroy,
 } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { Router, NavigationEnd, RouterOutlet } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { MatDialog } from '@angular/material/dialog';
-import { MatIconModule } from '@angular/material/icon';
-import { filter } from 'rxjs';
+import { filter, Subscription } from 'rxjs';
 import { IntroOverlayComponent } from './core/intro-overlay/intro-overlay.component';
 import { AuthService } from '../services/auth-service';
 import { UserService } from '../services/user.service';
@@ -20,11 +20,11 @@ import { Auth } from '@angular/fire/auth';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, IntroOverlayComponent],
+  imports: [CommonModule, RouterOutlet, IntroOverlayComponent],
   templateUrl: './app.html',
   styleUrl: './app.scss',
 })
-export class App implements OnInit {
+export class App implements OnInit, OnDestroy {
   protected readonly title = signal('dabubble');
   private authService = inject(AuthService);
   private userService = inject(UserService);
@@ -36,8 +36,8 @@ export class App implements OnInit {
     @Inject(PLATFORM_ID) private platformId: Object
   ) {}
 
-  // intro //
   showIntro = true;
+  routeSub?: Subscription;
 
   ngOnInit(): void {
     if (!isPlatformBrowser(this.platformId)) return;
@@ -47,7 +47,7 @@ export class App implements OnInit {
     this.showIntro = !seen && this.router.url === '/';
     if (this.showIntro) document.body.classList.add('intro-active');
 
-    this.router.events
+    this.routeSub = this.router.events
       .pipe(filter((e): e is NavigationEnd => e instanceof NavigationEnd))
       .subscribe((e) => {
         const onLogin = e.urlAfterRedirects === '/';
@@ -64,6 +64,10 @@ export class App implements OnInit {
       });
   }
 
+  ngOnDestroy(): void {
+    this.routeSub?.unsubscribe();
+  }
+
   onIntroDone(): void {
     this.showIntro = false;
     document.body.classList.remove('intro-active');
@@ -71,16 +75,12 @@ export class App implements OnInit {
       localStorage.setItem('introSeen', '1');
     } catch {}
   }
-  // intro //
 
-  // sign out close window //
   @HostListener('window:beforeunload', ['$event'])
   onBeforeUnload(event: BeforeUnloadEvent) {
     const user = this.auth.currentUser;
     if (user) {
       this.userService.markOnline(false);
-      this.auth.signOut();
     }
   }
-  // sign out close window //
 }

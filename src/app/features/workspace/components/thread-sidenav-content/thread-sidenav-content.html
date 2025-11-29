@@ -4,7 +4,8 @@
       <h2 class="thread-name">Thread</h2>
       @if (collectionName === 'channels') {
       <span class="channel">
-        <svg class="hashtag-icon"
+        <svg
+          class="hashtag-icon"
           width="11"
           height="11"
           viewBox="0 0 11 11"
@@ -39,12 +40,15 @@
             ? message.user?.avatar || 'assets/img-profile/profile.png'
             : message.user?.avatar ?? 'assets/img-profile/profile.png'
         "
+        [authorId]="message.user?.id"
         [time]="message?.timestamp ? (message.timestamp.toDate() | date : 'HH:mm') + ' Uhr' : ''"
         [text]="message?.text ?? ''"
+        [edited]="message?.edited"
         [chatId]="chatId || ''"
         [messageId]="message?.id"
+        [parentMessageId]="messageId || ''"
         [reactionsMap]="message?.reactions"
-        collectionName="channels"
+        [collectionName]="collectionName"
         [context]="'thread'"
       ></app-message-bubble>
       } }
@@ -63,15 +67,23 @@
             ? senderAvatar
             : currentUserData.avatar ?? 'assets/img-profile/profile.png'
         "
+        [authorId]="senderId"
         [time]="messageTimestamp ? (messageTimestamp.toDate() | date : 'HH:mm') + ' Uhr' : ''"
         [text]="messageText ?? ''"
+        [edited]="messageEdited"
         [chatId]="chatId || ''"
-        [messageId]="currentUserData.id"
+        [messageId]="messageId || ''"
         [reactionsMap]="messageReactions"
+        [collectionName]="collectionName"
+        [context]="'thread'"
+        [lastReplyAt]="messages.length ? messages[messages.length - 1]?.timestamp : null"
       ></app-message-bubble>
     </section>
   </main>
   <footer class="footer">
-    <app-message-area-component (send)="handleNewMessage($event)"></app-message-area-component>
+    <app-message-area-component
+      class="thread-emoji-override"
+      (send)="handleNewMessage($event)"
+    ></app-message-area-component>
   </footer>
 </section>

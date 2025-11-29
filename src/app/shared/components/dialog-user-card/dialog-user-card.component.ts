@@ -16,7 +16,7 @@ import { take } from 'rxjs/operators';
   standalone: true,
   imports: [CommonModule, MatDialogModule],
   templateUrl: './dialog-user-card.component.html',
-  styleUrl: './dialog-user-card.component.scss',
+  styleUrls: ['./dialog-user-card.component.scss', './dialog-user-card.responsive.scss'],
 })
 export class DialogUserCardComponent implements OnInit {
   isSelf = false;

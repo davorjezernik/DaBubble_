@@ -7,10 +7,14 @@
   z-index: 10;
 }
 
+    :host ::ng-deep .emoji-mart-preview {
+      display: none;
+    }
+
 @media (max-width: 700px) {
   :host ::ng-deep {
     .emoji-mart {
-      width: 280px !important;
+      width: 240px !important;
     }
 
     .emoji-mart-scroll {
@@ -20,6 +24,22 @@
     .emoji-mart-anchors svg,
     .emoji-mart-anchors img {
       height: 14px;
+    }
+  }
+}
+
+@media (orientation: landscape) and (max-height: 500px) {
+    :host ::ng-deep {
+    .emoji-mart {
+      width: 350px !important;
+    }
+
+    .emoji-mart-scroll {
+      height: 100px !important;
+    }
+
+    .emoji-picker-container {
+      bottom: 32px;
     }
   }
 }

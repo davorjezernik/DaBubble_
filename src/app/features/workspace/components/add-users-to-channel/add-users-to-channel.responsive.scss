@@ -1,7 +1,6 @@
-@media (max-width: 400px) {
-
+@media (max-width: 500px) {
   .dialog-container {
-    padding: 30px 20px 50px 20px;     
+    padding: 30px 20px 20px 20px;
     gap: 20px;
     border-bottom-left-radius: 0px;
   }
@@ -29,20 +28,21 @@
     margin-bottom: 12px;
   }
 
+  .dialog-action-button {
+    margin-top: 20px;
+  }
+
   .options-group {
     gap: 14px;
   }
 
   .option-text,
   .dialog-link {
-    font-size: 16px;
     line-height: 1.2;
   }
 
-
   .input-wrapper {
     gap: 10px;
-    min-height: 55px;
   }
 
   .user-input-field {
@@ -51,6 +51,15 @@
   }
 
   .option-text {
-  margin-top: 5px;
-}
+    margin-top: 5px;
+  }
+
+  .dialog-content-wrapper {
+    max-height: 60vh;
+    overflow-y: auto;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
 }

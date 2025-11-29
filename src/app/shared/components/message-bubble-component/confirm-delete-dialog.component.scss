@@ -1,0 +1,70 @@
+@use 'mixins';
+
+.delete-dialog {
+  background:#fff;
+  color:#444DF2;
+  border-radius:28px 28px 28px 0;
+  padding:28px 28px;
+  max-width:80vw;
+  display:flex;
+  flex-direction:column;
+  gap:20px;
+  box-shadow:0 6px 14px rgba(0,0,0,.25);
+  font-family:'Nunito',sans-serif;
+}
+
+.delete-dialog__text {
+  margin:0;
+  font-size:20px;
+  font-weight:800;
+  text-align:center;
+}
+
+.delete-dialog__actions {
+  display:flex;
+  gap:12px;
+  justify-content:center;
+  flex-wrap:wrap;
+}
+
+.btn {
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  line-height:1;
+  text-decoration:none;
+  border:none;
+  cursor:pointer;
+  border-radius:25px;
+  padding:12px 25px;
+  font-family:'Nunito',sans-serif;
+  font-weight:700;
+  font-size:18px;
+  transition:background-color 125ms ease-in-out, color 125ms ease-in-out, border 125ms ease-in-out;
+}
+
+.btn--primary {
+  @include mixins.primary-button();
+}
+
+.btn--secondary {
+  @include mixins.secondary-button();
+}
+
+.btn:focus-visible {
+  outline:none;
+  box-shadow:0 0 0 3px rgba(68,77,242,0.35);
+}
+
+.btn:disabled,
+.btn[disabled] {
+  opacity:.6;
+  cursor:default;
+  box-shadow:none;
+}
+
+@media (max-width:500px) {
+  .delete-dialog { padding:18px 22px; }
+  .delete-dialog__text { font-size:18px; }
+  .btn { font-size:16px; padding:10px 22px; }
+}

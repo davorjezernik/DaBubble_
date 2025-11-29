@@ -1,0 +1,125 @@
+@use 'mixins';
+@use 'variables';
+@use '../../sidenav-shared' as *;
+
+.section-addon-button {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 125ms ease-in-out;
+  border-radius: 50%;
+  padding: 2px;
+
+  > svg {
+    width: 24px;
+    height: 24px;
+  }
+
+  &:hover {
+    background-color: $color-dm-hover;
+    svg > path {
+      fill: $color-brand;
+    }
+  }
+}
+
+.section-toggle-button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: all 125ms ease-in-out;
+
+  &:hover {
+    .section-toggle-arrow,
+    .section-title-icon {
+      path {
+        fill: $color-brand;
+      }
+    }
+
+    .section-title-text {
+      color: $color-brand;
+    }
+  }
+
+  &[aria-expanded='true'] {
+    .section-toggle-arrow {
+      transition: transform 125ms ease-in-out;
+      transform: rotate(-90deg);
+    }
+  }
+}
+
+.add-item-button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-left: 16px;
+  padding-left: 30px;
+  @include mixins.text-style(
+    $size: 18px,
+    $color: #000000,
+    $font-weight: 400,
+    $font-family: 'Nunito',
+    $line-height: 1
+  );
+
+  &:hover {
+    transition: all 125ms ease-in-out;
+    color: $color-brand;
+
+    > svg > path {
+      stroke-width: 0.5;
+    }
+  }
+}
+
+@media (max-width: 950px) {
+  .section-addon-button {
+    grid-column: 3 / 4;
+    justify-self: end;
+    svg {
+      width: 26px;
+      height: 26px;
+    }
+    svg > path {
+      fill: $color-brand;
+    }
+  }
+
+  .add-item-button {
+    @include mixins.text-style(
+      $size: 18px,
+      $color: $color-brand,
+      $font-weight: 400,
+      $font-family: 'Nunito',
+      $line-height: 1
+    );
+
+    > svg > path {
+      stroke-width: 0.6;
+    }
+
+    &:hover {
+      transition: all 125ms ease-in-out;
+      color: $color-brand;
+
+      > svg > path {
+        stroke-width: 0.6;
+      }
+    }
+  }
+}
+
+@media (max-width: 950px) {
+}
+
+@media (max-width: 730px) {
+}
+
+@media (max-width: 500px) {
+}
+
+@media (max-width: 400px) {
+}

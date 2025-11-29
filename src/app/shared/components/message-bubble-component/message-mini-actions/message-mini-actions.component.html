@@ -1,0 +1,45 @@
+<div
+  class="mini-actions"
+  [class.visible]="visible"
+  (mouseenter)="onMouseEnter()"
+  (mouseleave)="onMouseLeave($event)"
+  (click)="$event.stopPropagation()"
+>
+  <span [class.hidden]="isThreadView" class="mini-hit" (click)="onQuickReact('✅')">
+    <svg
+      class="mini-icon"
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      aria-label="Erledigt"
+      role="img"
+      focusable="false"
+    >
+      <circle cx="12" cy="12" r="10" fill="#22C55E" />
+      <path
+        d="M9.5 12.5l2 2 4-4"
+        stroke="#FFFFFF"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        fill="none"
+      />
+    </svg>
+  </span>
+  <span
+    [class.hidden]="isThreadView"
+    class="mini-hit"
+    title="Daumen hoch"
+    (click)="onQuickReact('👍')"
+  >
+    <span class="mini-emoji">👍</span>
+  </span>
+  <span class="mini-hit" (click)="onAddReactionClick($event)">
+    <img src="assets/icons/add_reaction.svg" alt="Add reaction" class="mini-icon" />
+  </span>
+  <span [class.hidden]="isThreadView" class="mini-hit" (click)="onReplyClick()">
+    <img src="assets/icons/comment.svg" alt="Comment" class="mini-icon" />
+  </span>
+
+  <ng-content select="[more-menu]"></ng-content>
+</div>

@@ -101,6 +101,12 @@
   }
 }
 
+@media (orientation: landscape) and (max-height: 500px) {
+  .mention-panel {
+    max-height: 120px;
+  }
+}
+
 @media (max-width: 550px) {
   .mention-panel {
     width: 230px;

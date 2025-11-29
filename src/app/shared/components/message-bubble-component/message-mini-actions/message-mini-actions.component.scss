@@ -1,0 +1,140 @@
+@use '../../../../../styles/mixins' as *;
+@use '../../../../../styles/variables' as *;
+
+.mini-actions {
+  position: absolute;
+  top: -8%;
+  left: 5%;
+  right: auto;
+  display: none;
+  align-items: center;
+  gap: 15px;
+  padding: 13px 25px 13px 30px;
+  background: #ffffff;
+  border: 1px solid #ADB0D9;
+  border-radius: 25px 25px 0px 25px;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.08);
+  z-index: 3;
+  overflow: visible;
+  transform: translateY(-8px);
+}
+
+.mini-actions.visible {
+  display: inline-flex;
+  animation: miniActionsSlideInLeft 150ms ease-out;
+}
+
+.mini-emoji {
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.mini-icon {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+}
+
+.mini-actions .mini-hit,
+.mini-actions .mini-icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  z-index: 0;
+}
+
+.mini-actions .mini-hit::after,
+.mini-actions .mini-icon-btn::after {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  background-color: transparent;
+  transition: background-color 0.15s ease;
+  z-index: -1;
+  pointer-events: none;
+}
+
+.mini-actions .mini-hit:hover::after,
+.mini-actions .mini-icon-btn:hover::after {
+  background-color: rgba(236, 238, 254, 1);
+}
+
+@keyframes miniActionsSlideInLeft {
+  from {
+    transform: translate(-30px, -8px);
+    opacity: 0;
+  }
+  to {
+    transform: translate(0, -8px);
+    opacity: 1;
+  }
+}
+
+@keyframes miniActionsSlideInRight {
+  from {
+    transform: translate(30px, -8px);
+    opacity: 0;
+  }
+  to {
+    transform: translate(0, -8px);
+    opacity: 1;
+  }
+}
+
+.hidden {
+  display: none !important;
+}
+
+.more-menu {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.mini-icon-btn {
+  display: inline-flex;
+  align-items: center;
+  left: 5%;
+  width: 22px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+.menu-dropdown {
+  position: absolute;
+  top: 50%;
+  left: calc(100% + 12px);
+  width: auto;
+  padding: 10px 12px;
+  background: #ffffff;
+  border: 1px solid #ADB0D9;
+  border-radius: 0 20px 20px 20px;
+  box-shadow: 0px 6px 14px 0px #00000033;
+  z-index: 5;
+  pointer-events: auto;
+}
+
+.menu-item {
+  width: auto;
+  text-align: center;
+  background: transparent;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-family: 'Nunito', sans-serif;
+  font-size: 18px;
+  line-height: 18px;
+  font-weight: 500;
+  color: #111827;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.menu-item:hover {
+  background: #f3f4f6;
+}

@@ -1,8 +1,9 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { Auth, confirmPasswordReset } from '@angular/fire/auth';
 import { NgIf, NgClass } from '@angular/common';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-confirm-new-password',
@@ -10,7 +11,7 @@ import { NgIf, NgClass } from '@angular/common';
   templateUrl: './confirm-new-password.component.html',
   styleUrl: './confirm-new-password.component.scss'
 })
-export class ConfirmNewPasswordComponent {
+export class ConfirmNewPasswordComponent implements OnInit, OnDestroy {
   private auth: Auth = inject(Auth);
   private router: Router = inject(Router);
   private route: ActivatedRoute = inject(ActivatedRoute);
@@ -22,11 +23,19 @@ export class ConfirmNewPasswordComponent {
   successMessage: string = '';
   errorMessage: string = '';
 
+  routeSub?: Subscription;
+
   ngOnInit() {
-    this.route.queryParams.subscribe(params => {
+    this.routeSub = this.route.queryParams.subscribe(params => {
       this.oobCode = params['oobCode'];
     });
   }
+
+  ngOnDestroy(): void {
+    this.routeSub?.unsubscribe();
+  }
+  
+
 
   async onSubmit() {
     if (!this.isPasswordMatching()) return;

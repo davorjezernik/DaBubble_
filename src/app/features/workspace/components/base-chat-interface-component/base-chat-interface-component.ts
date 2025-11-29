@@ -12,7 +12,7 @@ import {
   Timestamp,
 } from '@angular/fire/firestore';
 import { ActivatedRoute } from '@angular/router';
-import { map, Observable, of, Subscription, switchMap } from 'rxjs';
+import { map, Observable, of, shareReplay, Subscription, switchMap } from 'rxjs';
 import { AuthService } from '../../../../../services/auth-service';
 import { User } from '@angular/fire/auth';
 
@@ -31,6 +31,9 @@ export abstract class BaseChatInterfaceComponent implements OnInit, OnDestroy {
   protected routeSub?: Subscription;
   protected authSub?: Subscription;
   protected messagesSub?: Subscription;
+  /** Scroll behavior flags */
+  private scrollAfterMySend = false; // only scroll when I send via message area
+  private initialLoadPending = true; // keep autoscroll on first load
 
   constructor(
     protected route: ActivatedRoute,
@@ -48,7 +51,7 @@ export abstract class BaseChatInterfaceComponent implements OnInit, OnDestroy {
         try {
           this.currentUserProfile = await this.getUserData(user.uid);
           this.currentUserAvatar =
-          this.currentUserProfile?.avatar || 'assets/img-profile/profile.png';
+            this.currentUserProfile?.avatar || 'assets/img-profile/profile.png';
           this.currentUserDisplayName = this.currentUserProfile?.name || 'Unknown User';
         } catch {
           this.currentUserProfile = null;
@@ -104,16 +107,23 @@ export abstract class BaseChatInterfaceComponent implements OnInit, OnDestroy {
         if (!id) return of([]);
 
         this.chatId = id;
+        // When switching chats, allow one initial autoscroll
+        this.initialLoadPending = true;
         const messagesRef = collection(this.firestore, `${this.collectionName}/${id}/messages`);
         const q = query(messagesRef, orderBy('timestamp', 'desc'));
 
         return collectionData(q, { idField: 'id' }).pipe(
           map((messages: any[]) => this.processMessages(messages))
         );
-      })
+      }),
+      shareReplay(1)
     );
     this.messagesSub = this.messages$.subscribe(() => {
-      setTimeout(() => this.scrollToBottom(), 50);
+      if (this.initialLoadPending || this.scrollAfterMySend) {
+        setTimeout(() => this.scrollToBottom(), 50);
+        this.initialLoadPending = false;
+        this.scrollAfterMySend = false;
+      }
     });
   }
 
@@ -156,6 +166,8 @@ export abstract class BaseChatInterfaceComponent implements OnInit, OnDestroy {
       this.firestore,
       `${this.collectionName}/${this.chatId}/messages`
     );
+    // Mark that the next messages$ emission should trigger an autoscroll
+    this.scrollAfterMySend = true;
     await addDoc(messagesCollectionRef, messageData);
   }
 

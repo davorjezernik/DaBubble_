@@ -1,6 +1,6 @@
-import { Component, signal } from '@angular/core';
+import { Component, OnDestroy, OnInit, signal } from '@angular/core';
 import { NavigationEnd, Router, RouterModule } from '@angular/router';
-import { filter } from 'rxjs';
+import { filter, Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-auth-layout-component',
@@ -8,8 +8,10 @@ import { filter } from 'rxjs';
   templateUrl: './auth-layout-component.html',
   styleUrl: './auth-layout-component.scss',
 })
-export class AuthLayoutComponent {
+export class AuthLayoutComponent implements OnInit, OnDestroy{
   constructor(public router: Router) {}
+
+  routerSub?: Subscription;
 
   isLogin = signal(false);
 
@@ -19,12 +21,16 @@ export class AuthLayoutComponent {
     const isLoginPage = this.router.url.includes('login');
     this.isLogin.set(isLoginPage);
 
-    this.router.events
+    this.routerSub = this.router.events
       .pipe(filter((event): event is NavigationEnd => event instanceof NavigationEnd))
       .subscribe((event: NavigationEnd) => {
         const isLoginPage = event.urlAfterRedirects.includes('login');
         this.isLogin.set(isLoginPage);
         this.isAuth.set(true);
       });
+  }
+
+  ngOnDestroy(): void {
+    this.routerSub?.unsubscribe();
   }
 }

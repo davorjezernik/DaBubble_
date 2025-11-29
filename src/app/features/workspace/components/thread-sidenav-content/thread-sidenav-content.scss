@@ -20,6 +20,7 @@
   flex-direction: column-reverse;
   align-items: center;
   overflow-y: auto;
+  padding-top: 8px;
 
   > :first-child:not(.trigger-message-container) {
     margin-bottom: auto;
@@ -156,4 +157,102 @@
   width: 100%;
   box-sizing: border-box;
   margin-bottom: auto;
+}
+
+:host app-message-bubble ::ng-deep .emoji-picker-container,
+:host app-message-bubble ::ng-deep .emoji-mart {
+  border-radius: 5px !important;
+  overflow: hidden;
+  padding: 0;
+}
+
+:host ::ng-deep .emoji-mart-anchors {
+  display: none !important;
+}
+:host app-message-bubble ::ng-deep .emoji-mart-anchors {
+  display: none !important;
+}
+
+:host app-message-bubble ::ng-deep .emoji-picker-container {
+  bottom: 0 !important;
+  right: 0 !important;
+  left: auto !important;
+}
+
+:host app-message-bubble ::ng-deep .edit-actions .emoji-picker-container {
+  bottom: 0 !important;
+  left: 0 !important;
+  right: auto !important;
+}
+
+:host app-message-bubble ::ng-deep .emoji-mart-search {
+  display: none !important;
+}
+
+:host app-message-bubble ::ng-deep .emoji-mart-preview {
+  display: none !important;
+}
+
+:host app-message-bubble ::ng-deep .emoji-mart-scroll {
+  height: 104px !important;
+}
+
+:host app-message-bubble ::ng-deep .emoji-mart,
+:host app-message-bubble ::ng-deep .emoji-mart-scroll,
+:host app-message-bubble ::ng-deep .emoji-mart-anchors,
+:host app-message-bubble ::ng-deep .emoji-mart-preview,
+:host app-message-bubble ::ng-deep .emoji-mart-bar {
+  border: none !important;
+  box-shadow: none !important;
+}
+
+:host app-message-bubble ::ng-deep .emoji-mart-bar {
+  display: none !important;
+}
+
+:host app-message-bubble ::ng-deep .emoji-mart {
+  border: 1px solid #adb0d9 !important;
+}
+
+.thread-emoji-override {
+  ::ng-deep .emoji-picker-container .emoji-mart {
+    width: 200px !important;
+  }
+}
+
+@media (min-width: 950px) {
+:host app-message-bubble ::ng-deep .btn {
+  height: 40px !important;
+}
+
+:host app-message-bubble ::ng-deep .btn.btn--secondary {
+  min-width: 60px !important;
+  padding: 0 !important;
+  font-size: 0 !important;
+
+  &::before {
+    content: '✕';
+    font-size: 16px;
+    font-weight: 800;
+    color: #797ef3;
+    transition: color 0.15s;
+  }
+
+  &:hover::before {
+    color: #ffffff;
+  }
+}
+
+:host app-message-bubble ::ng-deep .btn.btn--primary {
+  min-width: 60px !important;
+  padding: 0 !important;
+  font-size: 0 !important;
+
+  &::before {
+    content: '✓';
+    font-size: 16px;
+    font-weight: 700;
+    color: #ffffff;
+  }
+}
 }

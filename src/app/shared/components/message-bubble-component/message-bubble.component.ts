@@ -6,85 +6,121 @@ import {
   EventEmitter,
   OnChanges,
   SimpleChanges,
-  ViewChild,
   ElementRef,
   OnDestroy,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ThreadPanelService } from '../../../../services/thread-panel.service';
-import { EmojiPickerComponent } from '../emoji-picker-component/emoji-picker-component';
-import {
-  Firestore,
-  doc,
-  updateDoc,
-  deleteDoc,
-  deleteField,
-  increment,
-  collection,
-  collectionData,
-} from '@angular/fire/firestore';
+import { Firestore, collection, collectionData } from '@angular/fire/firestore';
+import { UserService } from '../../../../services/user.service';
+import { MessageLogicService } from './message-logic.service';
+import { MessageReactionService } from './message-reaction.service';
+import { MessageInteractionService } from './message-interaction.service';
 import { ViewStateService } from '../../../../services/view-state.service';
+import { MatDialog } from '@angular/material/dialog';
+import { ConfirmDeleteDialogComponent } from './confirm-delete-dialog.component';
+import { DialogUserCardComponent } from '../dialog-user-card/dialog-user-card.component';
+import { MessageEditModeComponent } from './message-edit-mode/message-edit-mode.component';
+import { MessageMiniActionsComponent } from './message-mini-actions/message-mini-actions.component';
+import { MessageReactionsComponent } from './message-reactions/message-reactions.component';
+import { CloseOnOutsideClickDirective } from './directives/close-on-outside-click.directive';
+import { CloseOnEscapeDirective } from './directives/close-on-escape.directive';
 import { firstValueFrom, map, Subscription } from 'rxjs';
+import {
+  DELETED_PLACEHOLDER,
+  MAX_UNIQUE_REACTIONS,
+  isNarrowViewport,
+  isVeryNarrowViewport,
+  isMobileViewport,
+  normalizeTimestamp,
+} from './message-bubble.utils';
 
 @Component({
   selector: 'app-message-bubble',
   standalone: true,
-  imports: [CommonModule, EmojiPickerComponent],
+  imports: [
+    CommonModule,
+    MessageEditModeComponent,
+    MessageMiniActionsComponent,
+    MessageReactionsComponent,
+    CloseOnOutsideClickDirective,
+    CloseOnEscapeDirective,
+  ],
   templateUrl: './message-bubble.component.html',
   styleUrl: './message-bubble.component.scss',
+  providers: [MessageReactionService, MessageInteractionService],
 })
 export class MessageBubbleComponent implements OnChanges, OnDestroy {
-  @ViewChild('editEmojiPicker', { read: ElementRef }) editEmojiPickerRef?: ElementRef;
-  @ViewChild('editEmojiButton', { read: ElementRef }) editEmojiButtonRef?: ElementRef;
-
-  @Input() incoming: boolean = false; // when true, render as left-side/incoming message
+  @Input() incoming: boolean = false;
   @Input() name: string = 'Frederik Beck';
   @Input() time: string = '15:06 Uhr';
   @Input() avatar: string = 'assets/img-profile/frederik-beck.png';
   @Input() text: string =
     'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque blandit odio efficitur lectus vestibulum, quis accumsan ante vulputate. Quisque tristique iaculis erat, eu faucibus lacus iaculis ac.';
-  // Persistence wiring
   @Input() chatId?: string;
   @Input() messageId?: string;
-  @Input() reactionsMap?: Record<string, number> | null;
+  @Input() parentMessageId?: string;
+  @Input() reactionsMap?: Record<string, number | Record<string, true>> | null;
   @Input() collectionName: 'channels' | 'dms' = 'dms';
   @Input() lastReplyAt?: unknown;
   @Input() context: 'chat' | 'thread' = 'chat';
   @Input() isThreadView: boolean = false;
-
-  showEmojiPicker = false;
-  reactionsExpanded = false;
-  isMoreMenuOpen = false;
+  @Input() edited?: boolean;
+  @Input() authorId?: string;
   @Output() editMessage = new EventEmitter<void>();
 
+  showEmojiPicker = false;
+  isMoreMenuOpen = false;
   showMiniActions = false;
-  private miniActionsHideTimer: any;
   isEditing = false;
-  editText = '';
   isSaving = false;
   isDeleting = false;
-  editEmojiPickerVisible = false;
-
   lastTime: string = '';
   answersCount: number = 0;
+  reactions: Array<{
+    emoji: string;
+    count: number;
+    userIds: string[];
+    userNames: string[];
+    currentUserReacted: boolean;
+    isLegacyCount: boolean;
+  }> = [];
+  isNarrow = typeof window !== 'undefined' ? isNarrowViewport(window.innerWidth) : false;
+  isVeryNarrow = typeof window !== 'undefined' ? isVeryNarrowViewport(window.innerWidth) : false;
+  isMobile = typeof window !== 'undefined' ? isMobileViewport(window.innerWidth) : false;
+
+  currentUserId: string | null = null;
+  readonly DELETED_PLACEHOLDER = DELETED_PLACEHOLDER;
+  readonly MAX_UNIQUE_REACTIONS = MAX_UNIQUE_REACTIONS;
   lastTimeSub?: Subscription;
   answersCountSub?: Subscription;
+  private reactionStateSub = new Subscription();
 
-  /**
-   * Toggle the inline emoji picker for quick reactions.
-   * Uses: showEmojiPicker (boolean) – controls visibility of the picker.
-   */
-  toggleEmojiPicker() {
-    this.showEmojiPicker = !this.showEmojiPicker;
+  constructor(
+    private firestore: Firestore,
+    private threadPanel: ThreadPanelService,
+    private userService: UserService,
+    public el: ElementRef<HTMLElement>,
+    public viewStateService: ViewStateService,
+    private dialog: MatDialog,
+    private messageLogic: MessageLogicService,
+    public reactionService: MessageReactionService,
+    private interactionService: MessageInteractionService
+  ) {}
+
+  /** Build Firestore path via logic service */
+  private getMessagePath(): string | null {
+    return this.messageLogic.buildMessageDocPath(
+      this.collectionName,
+      this.chatId,
+      this.messageId,
+      this.isThreadView,
+      this.parentMessageId
+    );
   }
-
-  /**
-   * Open the reactions emoji picker and hide mini actions.
-   * Affects: showEmojiPicker (true), showMiniActions (false).
-   */
-  openEmojiPicker() {
-    this.showEmojiPicker = true;
-    this.showMiniActions = false;
+  /** Display name truncated per 12/12 rule (first and last name). */
+  get displayName(): string {
+    return this.truncateFullName(this.name || '');
   }
 
   /**
@@ -93,54 +129,20 @@ export class MessageBubbleComponent implements OnChanges, OnDestroy {
    * Side effects: updates reactions array and closes picker.
    */
   onEmojiSelected(emoji: string) {
-    this.addOrIncrementReaction(emoji);
-    this.showEmojiPicker = false;
+    if (this.isDeleted) return;
+    if (!this.currentUserId) return;
+    const path = this.getMessagePath();
+    void this.reactionService.addOrIncrementReaction(path, emoji, this.currentUserId);
   }
 
-  /**
-   * Close the reactions emoji picker.
-   */
-  onClosePicker() {
-    this.showEmojiPicker = false;
-  }
-
-  /**
-   * Toggle the edit-mode emoji picker next to the textarea.
-   * @param event Optional MouseEvent to stop propagation (prevents immediate close from document listener).
-   * Uses: editEmojiPickerVisible (boolean) – controls visibility in edit mode.
-   */
-  toggleEditEmojiPicker(event?: MouseEvent) {
-    event?.stopPropagation();
-    this.editEmojiPickerVisible = !this.editEmojiPickerVisible;
-  }
-
-  /**
-   * Close the edit-mode emoji picker.
-   */
-  closeEditEmojiPicker() {
-    this.editEmojiPickerVisible = false;
-  }
-
-  /**
-   * Add selected emoji into the edit textarea content.
-   * @param emoji The unicode emoji string to append to editText.
-   * Uses: editText (string) – current editable text buffer.
-   */
-  onEditEmojiSelected(emoji: string) {
-    this.editText = (this.editText || '') + emoji;
-    this.editEmojiPickerVisible = false;
-  }
-
-  reactions: { emoji: string; count: number }[] = [];
-  private readonly MAX_UNIQUE_REACTIONS = 20;
-  private readonly DEFAULT_COLLAPSE_THRESHOLD = 7;
-  private readonly NARROW_COLLAPSE_THRESHOLD = 6;
-
-  isNarrow = typeof window !== 'undefined' ? window.innerWidth <= 450 : false;
-
+  /** Update viewport flags when window is resized. */
   @HostListener('window:resize')
   onWindowResize() {
-    this.isNarrow = typeof window !== 'undefined' ? window.innerWidth <= 450 : this.isNarrow;
+    if (typeof window !== 'undefined') {
+      this.isNarrow = isNarrowViewport(window.innerWidth);
+      this.isVeryNarrow = isVeryNarrowViewport(window.innerWidth);
+      this.isMobile = isMobileViewport(window.innerWidth);
+    }
   }
 
   /**
@@ -148,129 +150,60 @@ export class MessageBubbleComponent implements OnChanges, OnDestroy {
    * Currently maps reactionsMap (Record<emoji, count>) into reactions array for rendering.
    * @param changes Angular SimpleChanges for this component.
    */
-
-  ngOnInit(): void {}
-
-  ngOnChanges(changes: SimpleChanges) {
-    if ('reactionsMap' in changes) {
-      const map = this.reactionsMap || {};
-      this.reactions = Object.entries(map)
-        .filter(([_, v]) => typeof v === 'number' && v > 0)
-        .map(([emoji, count]) => ({ emoji, count: Number(count) }));
-    }
-    this.getAnswersInfo();
-  }
-
-  ngOnDestroy(): void {
-    this.answersCountSub?.unsubscribe();
-  }
-
-  /**
-   * Add a new reaction or increment an existing one.
-   * @param emoji The emoji key to add/increment.
-   * Uses: reactions (local array), MAX_UNIQUE_REACTIONS, persistReactionDelta(...) for Firestore sync.
-   */
-  addOrIncrementReaction(emoji: string) {
-    const existing = this.reactions.find((r) => r.emoji === emoji);
-    if (existing) {
-      existing.count += 1;
-      this.persistReactionDelta(emoji, +1, existing.count);
-    } else {
-      if (this.reactions.length >= this.MAX_UNIQUE_REACTIONS) {
-        return;
-      }
-      this.reactions.push({ emoji, count: 1 });
-      this.persistReactionDelta(emoji, +1, 1);
-    }
-  }
-
-  /**
-   * Click handler for a reaction chip: decrements or removes when count hits zero.
-   * @param emoji The emoji key to decrement/remove.
-   */
-  onClickReaction(emoji: string) {
-    const idx = this.reactions.findIndex((r) => r.emoji === emoji);
-    if (idx > -1) {
-      const r = this.reactions[idx];
-      if (r.count > 1) {
-        r.count -= 1;
-        this.persistReactionDelta(emoji, -1, r.count);
-      } else {
-        this.reactions.splice(idx, 1);
-        this.persistReactionDelta(emoji, -1, 0);
-      }
-    }
-  }
-
-  /**
-   * Subset of reactions to display based on expansion state and width.
-   */
-  get visibleReactions() {
-    const total = this.reactions.length;
-    const limit = this.reactionsExpanded ? this.MAX_UNIQUE_REACTIONS : this.getCollapseThreshold();
-    return this.reactions.slice(0, Math.min(limit, total));
-  }
-
-  /**
-   * Whether there are hidden reactions beyond the collapsed limit.
-   */
-  get hasMore() {
-    return this.reactions.length > this.getCollapseThreshold();
-  }
-
-  /**
-   * Count of hidden reactions when collapsed (used in "+ n more").
-   */
-  get moreCount() {
-    return Math.max(
-      0,
-      Math.min(this.reactions.length, this.MAX_UNIQUE_REACTIONS) - this.getCollapseThreshold()
+  ngOnInit(): void {
+    this.messageLogic.onNamesUpdated = () => this.rebuildReactions();
+    this.userService.currentUser$().subscribe((u: any) => {
+      this.currentUserId = u?.uid ?? null;
+      this.rebuildReactions();
+    });
+    this.reactionStateSub.add(
+      this.reactionService.reactions$.subscribe((reactions) => (this.reactions = reactions))
+    );
+    this.reactionStateSub.add(
+      this.reactionService.showEmojiPicker$.subscribe((show) => (this.showEmojiPicker = show))
     );
   }
 
-  /** Expand the reactions list. */
-  showMore() {
-    this.reactionsExpanded = true;
-  }
-  /** Collapse the reactions list. */
-  showLess() {
-    this.reactionsExpanded = false;
-  }
-
-  /**
-   * Compute the collapse threshold depending on viewport width.
-   * Returns DEFAULT or NARROW threshold.
-   */
-  private getCollapseThreshold(): number {
-    return this.isNarrow ? this.NARROW_COLLAPSE_THRESHOLD : this.DEFAULT_COLLAPSE_THRESHOLD;
+  /** Handle input changes, rebuild reactions and update thread info. */
+  ngOnChanges(changes: SimpleChanges) {
+    if ('reactionsMap' in changes) {
+      this.rebuildReactions();
+    }
+    if (changes['messageId'] || changes['chatId'] || changes['collectionName']) {
+      this.getAnswersInfo();
+    }
   }
 
-  /**
-   * Center reactions on narrow viewports when at least two chips are visible.
-   */
-  get shouldCenterNarrow(): boolean {
-    return this.isNarrow && this.visibleReactions.length >= 2;
+  /** Cleanup subscriptions on component destruction. */
+  ngOnDestroy(): void {
+    this.answersCountSub?.unsubscribe();
+    this.reactionStateSub.unsubscribe();
   }
-  /**
-   * Normalize last reply timestamp to a Date.
-   * Accepts Date, Firestore Timestamp (with toDate), or ISO string/epoch number.
-   */
+
+  /** Rebuild reactions array from reactionsMap input. */
+  private rebuildReactions() {
+    this.reactionService.rebuildReactions(this.reactionsMap || {}, this.currentUserId);
+  }
+
+  /** Shorten first and last name separately to 12 chars each with ellipsis. */
+  private truncateFullName(name: string): string {
+    return this.messageLogic.truncateFullName(name);
+  }
+
+  /** Normalize last reply timestamp to a Date. */
   get lastReplyDate(): Date | null {
-    const v: any = this.lastReplyAt as any;
-    if (!v) return null;
-    if (v instanceof Date) return v;
-    if (typeof v?.toDate === 'function') {
-      try {
-        return v.toDate();
-      } catch {
-        return null;
-      }
-    }
-    if (typeof v === 'string' || typeof v === 'number') {
-      const d = new Date(v);
-      return isNaN(d.getTime()) ? null : d;
-    }
-    return null;
+    return normalizeTimestamp(this.lastReplyAt);
+  }
+
+  /** True when this message is a soft-deleted placeholder text. */
+  get isDeleted(): boolean {
+    const t = (this.text || '').trim();
+    return t === DELETED_PLACEHOLDER;
+  }
+
+  /** True when message has been edited (from input flag). */
+  get isEdited(): boolean {
+    return !!this.edited;
   }
 
   /**
@@ -278,6 +211,7 @@ export class MessageBubbleComponent implements OnChanges, OnDestroy {
    * @param event Optional MouseEvent to stop propagation and prevent default.
    */
   toggleMoreMenu(event?: MouseEvent) {
+    if (this.isDeleted) return;
     if (event) {
       event.stopPropagation();
       event.preventDefault();
@@ -285,159 +219,126 @@ export class MessageBubbleComponent implements OnChanges, OnDestroy {
     this.isMoreMenuOpen = !this.isMoreMenuOpen;
   }
 
-  /**
-   * Start inline edit mode for this message.
-   * Closes the menu and prepares editText buffer from current text.
-   */
+  /**  Closes the menu and prepares editText buffer from current text. */
   onEditMessage() {
+    if (this.isDeleted) return;
     this.isMoreMenuOpen = false;
     this.startEdit();
   }
 
-  @HostListener('document:click', ['$event'])
-  /**
-   * Global click handler:
-   * - Closes the 3-dots menu
-   * - Closes the edit-mode emoji picker if click is outside button/picker
-   * @param event The click event target to test containment.
-   */
-  onDocumentClick(event: Event) {
-    if (this.isMoreMenuOpen) {
-      this.isMoreMenuOpen = false;
-    }
-
-    if (this.editEmojiPickerVisible) {
-      const clickedInsideButton = this.editEmojiButtonRef?.nativeElement.contains(event.target);
-      const clickedInsidePicker = this.editEmojiPickerRef?.nativeElement.contains(event.target);
-
-      if (!clickedInsideButton && !clickedInsidePicker) {
-        this.closeEditEmojiPicker();
-      }
-    }
+  /** Close more menu when clicking outside (called by directive).*/
+  onCloseMoreMenu() {
+    this.isMoreMenuOpen = false;
   }
 
-  @HostListener('document:keydown.escape')
-  /**
-   * Global ESC handler: closes menus and emoji pickers.
-   */
-  onEscapeClose() {
-    if (this.isMoreMenuOpen || this.showEmojiPicker) {
-      this.isMoreMenuOpen = false;
-      this.showEmojiPicker = false;
-    }
-    if (this.editEmojiPickerVisible) {
-      this.editEmojiPickerVisible = false;
-    }
+  /** Close mini actions when clicking outside on mobile (called by directive).*/
+  onCloseMiniActions() {
+    this.showMiniActions = false;
+  }
+
+  /**Close menus and pickers when ESC key is pressed (called by directive).*/
+  onEscapePressed() {
+    this.isMoreMenuOpen = false;
+    this.reactionService.closeEmojiPicker();
   }
 
   /** Show mini actions when cursor enters the bubble. */
   onSpeechBubbleEnter() {
-    this.clearMiniActionsHideTimer();
+    if (this.isDeleted || this.isMobile) return;
     this.showMiniActions = true;
   }
 
-  /**
-   * Start timer to hide mini actions when cursor leaves.
-   * Also closes 3-dots menu and reaction picker.
-   */
-  onSpeechBubbleLeave() {
-    this.startMiniActionsHideTimer();
-    this.isMoreMenuOpen = false;
-    this.showEmojiPicker = false;
-  }
-
-  /** Keep mini actions visible while hovering over them. */
-  onMiniActionsEnter() {
-    this.clearMiniActionsHideTimer();
-    this.showMiniActions = true;
-  }
-
-  /** Hide mini actions shortly after leaving the mini actions area. */
-  onMiniActionsLeave() {
-    this.startMiniActionsHideTimer();
+  /** Hide mini actions when pointer truly leaves component (not moving into mini-actions). */
+  onSpeechBubbleLeave(event: MouseEvent) {
+    if (this.isMobile) return;
+    const host = this.el.nativeElement.querySelector('.message-container') as HTMLElement | null;
+    if (!host) return;
+    if (this.interactionService.isMovingToChild(event, host)) return;
+    this.showMiniActions = false;
     this.isMoreMenuOpen = false;
   }
 
-  /**
-   * Start a short timeout to hide the mini actions bar.
-   * @param delay Timeout in ms (default 180). Uses miniActionsHideTimer to manage the timer id.
-   */
-  private startMiniActionsHideTimer(delay = 180) {
-    this.clearMiniActionsHideTimer();
-    this.miniActionsHideTimer = setTimeout(() => {
-      this.showMiniActions = false;
-    }, delay);
+  /** Update mini actions visibility state from child component. */
+  onMiniActionsVisibilityChange(visible: boolean) {
+    this.showMiniActions = visible;
   }
 
-  /** Clear and reset the mini actions hide timer if running. */
-  private clearMiniActionsHideTimer() {
-    if (this.miniActionsHideTimer) {
-      clearTimeout(this.miniActionsHideTimer);
-      this.miniActionsHideTimer = undefined;
+  /** Close more menu when requested by mini actions component. */
+  onMiniActionsCloseMenu() {
+    this.isMoreMenuOpen = false;
+  }
+
+  /** Handle thread opening from mini actions component. */
+  onOpenThread(request: { chatId: string; messageId: string; collectionName: 'channels' | 'dms' }) {
+    this.viewStateService.requestCloseDevspaceDrawer();
+    this.viewStateService.currentView = 'thread';
+    this.threadPanel.openThread(request);
+  }
+
+  /** Toggle mini actions on mobile tap. */
+  onMessageClick() {
+    if (this.isMobile && !this.isDeleted) {
+      this.showMiniActions = !this.showMiniActions;
     }
   }
 
-  /**
-   * Enter editing mode: show textarea and preload editText with current text.
-   */
+  /** Enter editing mode: show edit component.*/
   startEdit() {
+    if (this.isDeleted) return;
     this.isEditing = true;
     this.showMiniActions = false;
-    this.editText = this.text || '';
   }
 
-  /** Exit editing mode without saving. */
+  /** Cancel edit mode without saving changes. */
   cancelEdit() {
     this.isEditing = false;
   }
 
-  /**
-   * Save the edited message text to Firestore (doc/updateDoc) if identifiers are present.
-   * Validates non-empty trimmed text; updates local UI optimistically.
-   */
-  async saveEdit() {
-    if (!this.chatId || !this.messageId) {
-      this.isEditing = false;
-      return;
-    }
-    const newText = (this.editText ?? '').trim();
-    if (!newText) {
+  /** Save the edited message text to Firestore.*/
+  async saveEdit(newText: string) {
+    const path = this.getMessagePath();
+    if (!path) {
       this.isEditing = false;
       return;
     }
     try {
       this.isSaving = true;
-      const ref = doc(
-        this.firestore,
-        `${this.collectionName}/${this.chatId}/messages/${this.messageId}`
-      );
-      await updateDoc(ref, { text: newText });
+      await this.messageLogic.saveEditedText(path, newText);
       this.text = newText;
+      this.edited = true;
       this.isEditing = false;
     } catch (e) {
+      console.error('Error saving message:', e);
     } finally {
       this.isSaving = false;
     }
   }
 
-  /**
-   * Delete this message from Firestore (doc/deleteDoc) after user confirmation.
-   * Uses isDeleting flag to disable buttons while in-flight.
-   */
-  async deleteMessage() {
-    if (!this.chatId || !this.messageId) return;
-    const confirmed =
-      typeof window !== 'undefined' ? window.confirm('Nachricht wirklich löschen?') : true;
-    if (!confirmed) return;
+  /** Delete this message from Firestore (doc/deleteDoc) after user confirmation.*/
+  openConfirmDelete() {
+    if (this.isDeleted) return;
+    this.isMoreMenuOpen = false;
+    const ref = this.dialog.open(ConfirmDeleteDialogComponent, {
+      panelClass: 'delete-confirm-dialog',
+      disableClose: true,
+      autoFocus: false,
+    });
+    ref.afterClosed().subscribe((confirmed) => {
+      if (confirmed) this.confirmDelete();
+    });
+  }
+
+  /** Execute soft delete after user confirmation. */
+  async confirmDelete() {
+    const path = this.getMessagePath();
+    if (!path) return;
     try {
       this.isDeleting = true;
-      const ref = doc(
-        this.firestore,
-        `${this.collectionName}/${this.chatId}/messages/${this.messageId}`
-      );
-      await deleteDoc(ref);
+      await this.messageLogic.softDeleteMessage(path, this.DELETED_PLACEHOLDER);
+      this.text = this.DELETED_PLACEHOLDER;
+      this.isMoreMenuOpen = false;
+      this.reactions = [];
     } catch (e) {
-      // noop
     } finally {
       this.isDeleting = false;
     }
@@ -445,29 +346,45 @@ export class MessageBubbleComponent implements OnChanges, OnDestroy {
 
   /** Quick-add a reaction via the mini actions bar and close the bar. */
   onQuickReact(emoji: string) {
-    this.addOrIncrementReaction(emoji);
-    this.showMiniActions = false;
+    if (this.isDeleted || !this.currentUserId) return;
+    const path = this.getMessagePath();
+    void this.reactionService.addOrIncrementReaction(path, emoji, this.currentUserId);
   }
 
-  /**
-   * Show the reactions emoji picker from the mini actions bar.
-   * @param event MouseEvent – stopped to avoid closing from document click.
-   * Uses setTimeout to open after mini actions hide state is applied.
-   */
-  onMiniAddReactionClick(event: MouseEvent) {
-    event.stopPropagation();
-    this.showMiniActions = false;
-    setTimeout(() => {
-      this.showEmojiPicker = true;
-    });
+  /** Show the reactions emoji picker from the mini actions bar.*/
+  onMiniAddReactionClick() {
+    this.reactionService.toggleEmojiPicker();
+  }
+
+  /** Handle reaction chip click to toggle user's reaction. */
+  onReactionClick(emoji: string) {
+    if (this.isDeleted) return;
+    if (!this.currentUserId) return;
+    const path = this.getMessagePath();
+    void this.reactionService.handleReactionClick(path, emoji, this.currentUserId);
+  }
+
+  /** Handle emoji selection from reactions component picker. */
+  onReactionsEmojiSelected(emoji: string) {
+    this.onEmojiSelected(emoji);
+  }
+
+  /** Toggle emoji picker from reactions component. */
+  onReactionsToggleEmojiPicker() {
+    this.reactionService.toggleEmojiPicker();
+  }
+
+  /** Close emoji picker from reactions component. */
+  onReactionsCloseEmojiPicker() {
+    this.reactionService.closeEmojiPicker();
   }
 
   /**
    * Open the side thread panel for this message.
    * @param event MouseEvent – stopped to prevent bubbling to container.
-   * Requires chatId and messageId; uses threadPanel.openThread(...).
    */
   onCommentClick(event: MouseEvent) {
+    if (this.isDeleted) return;
     event.stopPropagation();
     this.showMiniActions = false;
     if (!this.chatId || !this.messageId) return;
@@ -480,28 +397,51 @@ export class MessageBubbleComponent implements OnChanges, OnDestroy {
     });
   }
 
-  /**
-   * Persist reaction change to Firestore using atomic updates.
-   * @param emoji Emoji key in the map (stored as reactions.<emoji> field path).
-   * @param delta +1 to increment, -1 to decrement.
-   * @param newCount New local count after applying delta (<=0 removes the field).
-   */
-  private async persistReactionDelta(emoji: string, delta: number, newCount: number) {
-    if (!this.chatId || !this.messageId) return;
-    try {
-      const ref = doc(
-        this.firestore,
-        `${this.collectionName}/${this.chatId}/messages/${this.messageId}`
-      );
-      const fieldPath = `reactions.${emoji}`;
-      if (newCount <= 0) {
-        await updateDoc(ref, { [fieldPath]: deleteField() });
-      } else {
-        await updateDoc(ref, { [fieldPath]: increment(delta) });
-      }
-    } catch (e) {}
+  /** Open the user card dialog for the message author when clicking on the user name. */
+  async onUserNameClick(event?: MouseEvent) {
+    event?.stopPropagation();
+    if (!this.authorId) return;
+    const user = await firstValueFrom(this.userService.userById$(this.authorId));
+    if (!user) return;
+    this.dialog.open(DialogUserCardComponent, {
+      data: { user },
+      panelClass: 'user-card-dialog',
+      width: '90vw',
+      maxWidth: '500px',
+      maxHeight: '90vh',
+      autoFocus: false,
+      restoreFocus: true,
+    });
   }
 
+  /**
+   * Close pickers only when pointer leaves a padded area around the host (message-container).
+   * Adds ~12px tolerance, and keeps open when hovering the emoji picker itself.
+   */
+  @HostListener('document:mousemove', ['$event'])
+  onDocumentMouseMove(event: MouseEvent) {
+    if (!this.showEmojiPicker) return;
+
+    const container = this.el.nativeElement.querySelector(
+      '.message-container'
+    ) as HTMLElement | null;
+    const refEl = container ?? this.el.nativeElement;
+    const insidePadded = this.interactionService.isMouseWithinPaddedArea(
+      refEl,
+      event.clientX,
+      event.clientY
+    );
+    const overPicker = this.interactionService.isElementOrAncestor(
+      event.target as HTMLElement,
+      '.emoji-picker-container'
+    );
+
+    if (!insidePadded && !overPicker) {
+      this.reactionService.closeEmojiPicker();
+    }
+  }
+
+  /** Load thread answers count and last answer timestamp. */
   private async getAnswersInfo() {
     if (!this.chatId || !this.messageId) return;
 
@@ -513,7 +453,9 @@ export class MessageBubbleComponent implements OnChanges, OnDestroy {
     this.getLastAnswerTime(coll);
   }
 
+  /** Subscribe to thread messages count. */
   private async getAnswersAmount(coll: any) {
+    this.answersCountSub?.unsubscribe();
     this.answersCountSub = collectionData(coll)
       .pipe(map((docs) => docs.length))
       .subscribe((count) => {
@@ -521,12 +463,16 @@ export class MessageBubbleComponent implements OnChanges, OnDestroy {
       });
   }
 
+  /** Subscribe to latest thread answer timestamp. */
   private async getLastAnswerTime(coll: any) {
+    this.lastTimeSub?.unsubscribe();
     this.lastTimeSub = collectionData(coll)
       .pipe(
         map((messages) => {
           if (messages.length === 0) return '';
-          const timestamps = messages.map((msg: any) => msg.timestamp?.toMillis()).filter((ts: any): ts is number => typeof ts === 'number');
+          const timestamps = messages
+            .map((msg: any) => msg.timestamp?.toMillis())
+            .filter((ts: any): ts is number => typeof ts === 'number');
           if (timestamps.length === 0) return '';
           const latest = Math.max(...timestamps);
           const latestDate = new Date(latest);
@@ -537,15 +483,4 @@ export class MessageBubbleComponent implements OnChanges, OnDestroy {
         this.lastTime = timestamp;
       });
   }
-
-  /**
-   * DI constructor.
-   * @param firestore AngularFire Firestore instance used for message updates/deletes and reactions.
-   * @param threadPanel Service to open the thread side panel for a given message.
-   */
-  constructor(
-    private firestore: Firestore,
-    private threadPanel: ThreadPanelService,
-    public viewStateService: ViewStateService
-  ) {}
 }
