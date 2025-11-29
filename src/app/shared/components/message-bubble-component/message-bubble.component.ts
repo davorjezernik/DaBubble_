@@ -94,6 +94,7 @@ export class MessageBubbleComponent implements OnChanges, OnDestroy {
   readonly MAX_UNIQUE_REACTIONS = MAX_UNIQUE_REACTIONS;
   lastTimeSub?: Subscription;
   answersCountSub?: Subscription;
+  private userSub?: Subscription;
   private reactionStateSub = new Subscription();
 
   constructor(
@@ -152,7 +153,7 @@ export class MessageBubbleComponent implements OnChanges, OnDestroy {
    */
   ngOnInit(): void {
     this.messageLogic.onNamesUpdated = () => this.rebuildReactions();
-    this.userService.currentUser$().subscribe((u: any) => {
+    this.userSub = this.userService.currentUser$().subscribe((u: any) => {
       this.currentUserId = u?.uid ?? null;
       this.rebuildReactions();
     });
@@ -177,7 +178,9 @@ export class MessageBubbleComponent implements OnChanges, OnDestroy {
   /** Cleanup subscriptions on component destruction. */
   ngOnDestroy(): void {
     this.answersCountSub?.unsubscribe();
+    this.lastTimeSub?.unsubscribe();
     this.reactionStateSub.unsubscribe();
+    this.userSub?.unsubscribe();
   }
 
   /** Rebuild reactions array from reactionsMap input. */

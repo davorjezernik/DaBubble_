@@ -1,6 +1,7 @@
-import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { UserService } from '../../../../services/user.service';
+import { Subscription } from 'rxjs';
 
 export interface MentionUser {
   uid: string;
@@ -22,7 +23,7 @@ export interface MentionChannel {
   templateUrl: './mention-list.component.html',
   styleUrls: ['./mention-list.component.scss', './mention-list.component.responsiv..scss'],
 })
-export class MentionListComponent {
+export class MentionListComponent implements OnDestroy, OnInit {
   @Input() mode: 'users' | 'channels' = 'users';
   @Input() channels: MentionChannel[] = [];
   @Input() visible = false;
@@ -34,6 +35,8 @@ export class MentionListComponent {
   @Output() emailSelected = new EventEmitter<string>();
 
   private userService = inject(UserService);
+
+  currentUserSub?: Subscription;
   currentUserId: string | null = null;
 
   @Input() allowRawEmail = true;
@@ -83,9 +86,16 @@ export class MentionListComponent {
   }
 
   constructor() {
-    this.userService.currentUser$().subscribe((u) => {
+    this.currentUserSub?.unsubscribe();
+    this.currentUserSub = this.userService.currentUser$().subscribe((u) => {
       this.currentUserId = u?.uid ?? null;
     });
+  }
+
+  ngOnInit(): void {}
+
+  ngOnDestroy(): void {
+    this.currentUserSub?.unsubscribe();
   }
 
   private isValidEmail(v: string): boolean {
