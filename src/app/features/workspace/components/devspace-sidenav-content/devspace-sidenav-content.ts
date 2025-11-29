@@ -78,6 +78,11 @@ export class DevspaceSidenavContent implements OnInit, OnDestroy {
     });
   }
 
+  openNewDM() {
+    this.viewStateService.currentView = 'chat';
+    this.router.navigate(['/workspace/dm/new']);
+  }
+
   private subscribeToSearchControl(): void {
     this.searchCtrlSub = this.searchCtrl.valueChanges
       .pipe(debounceTime(250), distinctUntilChanged())
