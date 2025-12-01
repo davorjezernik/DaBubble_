@@ -11,7 +11,7 @@ import { ChannelShowMembersDialog } from '../../../../shared/components/channel-
 import { MatDialog } from '@angular/material/dialog';
 import { take } from 'rxjs/operators';
 import { EditChannel } from '../edit-channel/edit-channel';
-import { map, combineLatest, Observable, of } from 'rxjs';
+import { map, combineLatest, Observable, of, Subscription } from 'rxjs';
 import { UserService } from '../../../../../services/user.service';
 import { ChannelMember } from '../../../../shared/components/channel-show-members-dialog/channel-show-members-dialog';
 import { DialogIconAddMemberToChannel } from '../../../../shared/components/dialog-icon-add-member-to-channel/dialog-icon-add-member-to-channel';
@@ -30,10 +30,11 @@ export class ChannelInterfaceContent extends BaseChatInterfaceComponent {
   channelData: Channel | null = null;
   memberProfiles: Record<string, any> = {};
   private loadedProfileIds = new Set<string>();
-  private localMessagesSub?: any;
+  private localMessagesSub?: Subscription;
+  private channelSub?: Subscription;
 
   members$!: Observable<ChannelMember[]>;
-  avatarPreview$!: Observable<ChannelMember[]>; 
+  avatarPreview$!: Observable<ChannelMember[]>;
   memberCount$!: Observable<number>;
 
   constructor(
@@ -77,6 +78,7 @@ export class ChannelInterfaceContent extends BaseChatInterfaceComponent {
   override ngOnDestroy(): void {
     super.ngOnDestroy();
     this.localMessagesSub?.unsubscribe?.();
+    this.channelSub?.unsubscribe();
   }
 
   /**
@@ -84,7 +86,8 @@ export class ChannelInterfaceContent extends BaseChatInterfaceComponent {
    * Loads channel metadata and preloads member profiles so names/avatars are ready.
    */
   override onChatIdChanged(chatId: string): void {
-    this.channelService.getChannel(chatId).subscribe({
+    this.channelSub?.unsubscribe();
+    this.channelSub = this.channelService.getChannel(chatId).subscribe({
       next: (data) => {
         this.channelData = data;
         this.buildMembersStreams(data?.members ?? []);
@@ -101,12 +104,12 @@ export class ChannelInterfaceContent extends BaseChatInterfaceComponent {
   }
 
   override async handleNewMessage(text: string) {
-  if (this.chatId) this.read.bumpLastChannelMessage(this.chatId); // ⬅️ NEU: Optimistischer bump
-  await super.handleNewMessage(text);
-  if (this.chatId && this.currentUserId) {
-    await this.read.markChannelRead(this.chatId, this.currentUserId); // ⬅️ NEU
+    if (this.chatId) this.read.bumpLastChannelMessage(this.chatId); // ⬅️ NEU: Optimistischer bump
+    await super.handleNewMessage(text);
+    if (this.chatId && this.currentUserId) {
+      await this.read.markChannelRead(this.chatId, this.currentUserId); // ⬅️ NEU
+    }
   }
-}
 
   /**
    * Preload user profiles for given member IDs:
@@ -129,50 +132,86 @@ export class ChannelInterfaceContent extends BaseChatInterfaceComponent {
     }
   }
 
+  private normalizeMembers(members: Array<string | { uid?: string; displayName?: string }>) {
+    return (members || []).map((m) => (typeof m === 'string' ? { uid: m } : m ?? { uid: '' }));
+  }
+
+  private getUids(entries: Array<{ uid?: string }>) {
+    return entries.map((e) => e.uid).filter(Boolean) as string[];
+  }
+
+  private prioritizeCurrentUser(uids: string[]) {
+    if (this.currentUserId) {
+      const myIndex = uids.indexOf(this.currentUserId);
+      if (myIndex !== -1) {
+        uids.splice(myIndex, 1);
+        uids.unshift(this.currentUserId);
+      }
+    }
+    return uids;
+  }
+
+  private createProfileStreamFactory(entries: Array<{ uid?: string; displayName?: string }>) {
+    return (uid: string) =>
+      this.userService.userById$(uid).pipe(
+        map((u) => ({
+          id: uid,
+          name: u?.name ?? entries.find((e) => e.uid === uid)?.displayName ?? 'Unbekannt',
+          avatar: u?.avatar ?? 'assets/img-profile/profile.png',
+          online: !!u?.online,
+        }))
+      );
+  }
+
+  private buildAvatarPreview$(uids: string[], createProfile: (uid: string) => Observable<any>) {
+    const previewUids = uids.slice(0, 3);
+    const previewStreams = previewUids.map(createProfile);
+    return previewStreams.length ? combineLatest(previewStreams) : of([]);
+  }
+
+  private buildMembers$(uids: string[], createProfile: (uid: string) => Observable<any>) {
+    if (!uids.length) return of([]);
+    const allProfileStreams = uids.map(createProfile);
+    return combineLatest(allProfileStreams).pipe(
+      map((list) =>
+        list.sort((a, b) =>
+          a.id === this.currentUserId ? -1 : b.id === this.currentUserId ? 1 : 0
+        )
+      )
+    );
+  }
+
+  assignMemberStreams(uids: string[], createProfile: (uid: string) => Observable<any>) {
+    if (!uids.length) {
+      this.members$ = of([]);
+      this.avatarPreview$ = of([]);
+      return;
+    }
+    this.avatarPreview$ = this.buildAvatarPreview$(uids, createProfile);
+    this.members$ = this.buildMembers$(uids, createProfile);
+  }
+
   private buildMembersStreams(
     members: Array<string | { uid?: string; displayName?: string }> = []
   ) {
-    const entries = (members || []).map((m) =>
-      typeof m === 'string' ? { uid: m } : m ?? { uid: '' }
-    );
+    const entries = this.normalizeMembers(members);
+    let uids = this.getUids(entries);
 
-    const uids = entries.map((e) => e.uid).filter(Boolean) as string[];
+    uids = this.prioritizeCurrentUser(uids);
+    this.memberCount$ = of(uids.length);
 
-    if (!uids.length) {
-      this.members$ = of([]);
-    } else {
-      const profileStreams = uids.map((uid) =>
-        this.userService.userById$(uid).pipe(
-          map((u) => ({
-            id: uid,
-            name: u?.name ?? entries.find((e) => e.uid === uid)?.displayName ?? 'Unbekannt',
-            avatar: u?.avatar ?? 'assets/img-profile/profile.png',
-            online: !!u?.online,
-          }))
-        )
-      );
-
-      this.members$ = combineLatest(profileStreams).pipe(
-        map((list) =>
-          list.sort((a, b) =>
-            a.id === this.currentUserId ? -1 : b.id === this.currentUserId ? 1 : 0
-          )
-        )
-      );
-    }
-
-    this.avatarPreview$ = this.members$.pipe(map((ms) => ms.slice(0, 3)));
-    this.memberCount$ = this.members$.pipe(map((ms) => ms.length));
+    const createProfileStream = this.createProfileStreamFactory(entries);
+    this.assignMemberStreams(uids, createProfileStream);
   }
 
   onAddUserClick(ev: MouseEvent, anchor: HTMLElement) {
-  ev.stopPropagation();
-  if (window.innerWidth <= 950) {
-    this.openMembersDialog(ev, anchor);
-    return;
+    ev.stopPropagation();
+    if (window.innerWidth <= 950) {
+      this.openMembersDialog(ev, anchor);
+      return;
+    }
+    this.openAddMembersUnderIcon(ev, anchor);
   }
-  this.openAddMembersUnderIcon(ev, anchor);
-}
 
   // open ChannelShowMembersDialog //
   openMembersDialog(ev?: MouseEvent, anchor?: HTMLElement) {
@@ -200,6 +239,8 @@ export class ChannelInterfaceContent extends BaseChatInterfaceComponent {
       ref.componentInstance.addIconAnchor = anchor ?? null;
       sub.unsubscribe();
     });
+
+    ref.afterClosed().pipe(take(1)).subscribe(() => { sub.unsubscribe()});
 
     ref.componentInstance.close.subscribe(() => ref.close());
     ref.componentInstance.addMembersClick.subscribe(({ ev, anchor }) => {
@@ -267,18 +308,17 @@ export class ChannelInterfaceContent extends BaseChatInterfaceComponent {
   // Öffnet EditChannel als Modal
   openEditChannel(ev?: MouseEvent) {
     ev?.stopPropagation();
-      if (this.channelData?.name === 'everyone') {
-        return;
-      }
-      if (!this.channelData) return;
-      const ref = this.dialog.open(EditChannel, {
-        data: { channel: this.channelData },
-        autoFocus: false,
-      });
-      ref
+    if (this.channelData?.name === 'everyone') {
+      return;
+    }
+    if (!this.channelData) return;
+    const ref = this.dialog.open(EditChannel, {
+      data: { channel: this.channelData },
+      autoFocus: false,
+    });
+    ref
       .afterClosed()
       .pipe(take(1))
-      .subscribe((res) => {
-      });
+      .subscribe((res) => {});
   }
 }

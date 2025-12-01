@@ -50,7 +50,6 @@ export class LoginComponent {
 
   constructor(
     public router: Router,
-    private zone: NgZone,
     private authService: AuthService,
     private userService: UserService
   ) {

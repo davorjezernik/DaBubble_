@@ -6,14 +6,14 @@ import { UserService } from '../../../../../../../services/user.service';
 import { AuthService } from '../../../../../../../services/auth-service';
 import { ViewStateService } from '../../../../../../../services/view-state.service';
 import { ContactItem } from '../../../contact-item/contact-item';
-import { RouterLink } from '@angular/router';
+import { RouterModule } from '@angular/router';
 import { stringMatches } from '../../../../../../shared/utils/search-utils';
 import { ReadStateService } from '../../../../../../../services/read-state.service';
 import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-dm-list',
-  imports: [CommonModule, ContactItem, RouterLink],
+  imports: [CommonModule, ContactItem, RouterModule],
   templateUrl: './dm-list.html',
   styleUrl: './dm-list.scss',
 })
@@ -48,7 +48,7 @@ export class DmList implements OnInit, OnDestroy, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['users'] || changes['meUid']) {
+    if (changes['meUid']) {
       this.buildSortedUsers(this.users, this.meUid);
       this.buildTotalUnread(this.users, this.meUid);
     }
@@ -77,7 +77,6 @@ export class DmList implements OnInit, OnDestroy, OnChanges {
   private subscribeToUsers() {
     this.userService.users$().subscribe((users) => {
       this.users = users;
-      // Trigger updates
       this.buildSortedUsers(this.users, this.meUid);
       this.buildTotalUnread(this.users, this.meUid);
     });
@@ -132,8 +131,8 @@ export class DmList implements OnInit, OnDestroy, OnChanges {
 
     if (!meUid) return this.setSortedUsers(list);
 
-    const me = list.find((u) => (u.uid = meUid)) || null;
-    const others = list.filter((u) => u.uid != meUid);
+    const me = list.find((u) => (u.uid === meUid)) || null;
+    const others = list.filter((u) => u.uid !== meUid);
 
     if (!others.length) return this.computeSortedUsers(me);
 

@@ -3,7 +3,7 @@ import { MessageAreaComponent } from '../../../../shared/components/message-area
 import { Firestore, doc, getDoc } from '@angular/fire/firestore';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
-import { firstValueFrom } from 'rxjs';
+import { firstValueFrom, take } from 'rxjs';
 import { AuthService } from '../../../../../services/auth-service';
 import { MessageBubbleComponent } from '../../../../shared/components/message-bubble-component/message-bubble.component';
 import { BaseChatInterfaceComponent } from '../base-chat-interface-component/base-chat-interface-component';
@@ -51,10 +51,9 @@ export class DmInterfaceContent extends BaseChatInterfaceComponent {
     if (this.currentUserId) {
       this.read.markDmRead(chatId, this.currentUserId);
     } else {
-      const sub = this.authService.currentUser$.subscribe((u) => {
+      this.authService.currentUser$.pipe(take(1)).subscribe((u) => {
         if (u?.uid) {
           this.read.markDmRead(chatId, u.uid);
-          sub.unsubscribe();
         }
       });
     }

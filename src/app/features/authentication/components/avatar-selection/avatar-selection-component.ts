@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { CommonModule } from '@angular/common';
@@ -10,7 +10,6 @@ import {
   getDocs,
   query,
   setDoc,
-  updateDoc,
   where,
 } from '@angular/fire/firestore';
 import { Auth, createUserWithEmailAndPassword, updateProfile } from '@angular/fire/auth';
@@ -19,6 +18,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { SharedDataService } from '../../../../core/services/shared-data-service';
 import { Router } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-dialog-avatar-select-component',
@@ -34,12 +34,14 @@ import { MatCardModule } from '@angular/material/card';
   templateUrl: './avatar-selection-component.html',
   styleUrl: './avatar-selection-component.scss',
 })
-export class AvatarSelectComponent implements OnInit {
+export class AvatarSelectComponent implements OnInit, OnDestroy {
   firestore: Firestore = inject(Firestore);
   auth: Auth = inject(Auth);
   selectedAvatar: string | null = null;
   loading = false;
   userData: any = null;
+
+  snackBarSub?: Subscription;
 
   constructor(
     private snackBar: MatSnackBar,
@@ -53,6 +55,10 @@ export class AvatarSelectComponent implements OnInit {
       this.router.navigate(['/signup']);
       return;
     }
+  }
+
+  ngOnDestroy(): void {
+    this.snackBarSub?.unsubscribe();
   }
 
   selectAvatar(avatarPath: string) {
@@ -138,7 +144,7 @@ export class AvatarSelectComponent implements OnInit {
       horizontalPosition: 'end',
     });
 
-    snackBarRef.afterDismissed().subscribe(() => {
+    this.snackBarSub = snackBarRef.afterDismissed().subscribe(() => {
       this.router.navigate(['']);
     });
   }

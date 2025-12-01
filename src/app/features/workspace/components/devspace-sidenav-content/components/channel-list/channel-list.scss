@@ -1,6 +1,6 @@
 @use 'mixins';
 @use 'variables';
-@import '../../sidenav-shared';
+@use '../../sidenav-shared' as *;
 
 .section-addon-button {
   cursor: pointer;

@@ -1,46 +1,20 @@
-import { normalizeString, stringMatches } from '../../../../shared/utils/search-utils';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { CommonModule } from '@angular/common';
-import {
-  Subscription,
-  map,
-  combineLatest,
-  firstValueFrom,
-  auditTime,
-  debounceTime,
-  distinctUntilChanged,
-  filter,
-} from 'rxjs';
-import { UserService } from '../../../../../services/user.service';
+import { Subscription, debounceTime, distinctUntilChanged } from 'rxjs';
 import { User } from '../../../../../models/user.class';
-import {
-  Firestore,
-  collection,
-  doc,
-  serverTimestamp,
-  setDoc,
-  writeBatch,
-} from '@angular/fire/firestore';
 import { Router, RouterModule } from '@angular/router';
-import { AuthService } from '../../../../../services/auth-service';
 import { FormsModule, ReactiveFormsModule, FormControl } from '@angular/forms';
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { AddChannel } from '../add-channel/add-channel';
-import { AddUsersToChannel } from '../add-users-to-channel/add-users-to-channel';
-import { ChannelItem } from '../channel-item/channel-item';
-import { ChannelService } from '../../../../../services/channel-service';
-import { ContactItem } from '../contact-item/contact-item';
-import { ReadStateService } from '../../../../../services/read-state.service';
+import { MatDialogModule } from '@angular/material/dialog';
 import { SearchBusService } from '../../../../../services/search-bus.service';
 import { ViewStateService } from '../../../../../services/view-state.service';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
-import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { DmList } from './components/dm-list/dm-list';
 import { ChannelList } from './components/channel-list/channel-list';
+import { AuthService } from '../../../../../services/auth-service';
 
 @Component({
   selector: 'app-devspace-sidenav-content',
@@ -77,16 +51,17 @@ export class DevspaceSidenavContent implements OnInit, OnDestroy {
 
   activeIndex: number | null = null;
 
-
   private currentUserSub?: Subscription;
 
   constructor(
     private searchBus: SearchBusService,
     public viewStateService: ViewStateService,
+    private authService: AuthService,
     public router: Router
   ) {}
 
   ngOnInit(): void {
+    this.subscribeToCurrentUser();
     this.subscribeToSearchControl();
     this.subscribeToSearchBus();
   }
@@ -95,6 +70,17 @@ export class DevspaceSidenavContent implements OnInit, OnDestroy {
     this.currentUserSub?.unsubscribe();
     this.searchCtrlSub?.unsubscribe();
     this.searchBusSub?.unsubscribe();
+  }
+
+  private subscribeToCurrentUser(): void {
+    this.currentUserSub = this.authService.currentUser$.subscribe((user) => {
+      this.meUid = user ? user.uid : null;
+    });
+  }
+
+  openNewDM() {
+    this.viewStateService.currentView = 'chat';
+    this.router.navigate(['/workspace/dm/new']);
   }
 
   private subscribeToSearchControl(): void {

@@ -77,7 +77,9 @@ export class ThreadSidenavContent implements OnInit, OnDestroy, OnChanges, After
     public viewStateService: ViewStateService
   ) {}
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    this.subscribeToUserData();
+  }
 
   ngAfterViewChecked(): void {
     if (this.shouldScrollToBottom) {
@@ -88,7 +90,6 @@ export class ThreadSidenavContent implements OnInit, OnDestroy, OnChanges, After
 
   ngOnChanges(): void {
     this.accessTriggerMessageData();
-    this.getAnswersAmount();
     this.getAllThreadMessages();
     this.getCurrentChannelName();
   }
@@ -96,6 +97,7 @@ export class ThreadSidenavContent implements OnInit, OnDestroy, OnChanges, After
   private getCurrentChannelName() {
     if (this.collectionName !== 'channels' || !this.chatId) return;
     const channelDocRef = doc(this.firestore, `channels/${this.chatId}`);
+    this.channelNameSub?.unsubscribe();
     this.channelNameSub = docData(channelDocRef).subscribe((channelData: any) => {
       this.channelName = channelData.name || 'unknown-channel';
     });
@@ -106,6 +108,7 @@ export class ThreadSidenavContent implements OnInit, OnDestroy, OnChanges, After
     this.userDataSub?.unsubscribe();
     this.answersAmountSub?.unsubscribe();
     this.answersDataSub?.unsubscribe();
+    this.channelNameSub?.unsubscribe();
   }
 
   private async accessTriggerMessageData() {
@@ -115,6 +118,7 @@ export class ThreadSidenavContent implements OnInit, OnDestroy, OnChanges, After
   }
 
   private subscribeToMessageData() {
+    this.messageDataSub?.unsubscribe();
     const messageDocRef = doc(
       this.firestore,
       `${this.collectionName}/${this.chatId}/messages/${this.messageId}`
@@ -131,20 +135,11 @@ export class ThreadSidenavContent implements OnInit, OnDestroy, OnChanges, After
   }
 
   private subscribeToUserData() {
+    this.userDataSub?.unsubscribe();
     this.userDataSub = this.userService.currentUser$().subscribe((user: any) => {
       this.currentUserData.id = user?.uid || '';
       this.currentUserData.avatar = user?.avatar || '';
       this.currentUserData.displayName = user?.name || '';
-    });
-  }
-
-  private async getAnswersAmount() {
-    const colRef = collection(
-      this.firestore,
-      `${this.collectionName}/${this.chatId}/messages/${this.messageId}/thread`
-    );
-    collectionData(colRef).subscribe((data: any) => {
-      this.answersAmount = data.length;
     });
   }
 
@@ -163,17 +158,20 @@ export class ThreadSidenavContent implements OnInit, OnDestroy, OnChanges, After
   }
 
   private getAllThreadMessages() {
+    this.answersDataSub?.unsubscribe();
+
     const messagesRef = collection(
       this.firestore,
       `${this.collectionName}/${this.chatId}/messages/${this.messageId}/thread/`
     );
     const q = query(messagesRef, orderBy('timestamp', 'asc'));
 
-    collectionData(q, { idField: 'id' }).subscribe((data: any) => {
+    this.answersDataSub = collectionData(q, { idField: 'id' }).subscribe((data: any) => {
       if (data.length > this.messages.length) {
         this.shouldScrollToBottom = true;
       }
       this.messages = data;
+      this.answersAmount = data.length;
     });
   }
 
