@@ -11,7 +11,7 @@ import {
   serverTimestamp,
   Timestamp,
 } from '@angular/fire/firestore';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, ParamMap } from '@angular/router';
 import { map, Observable, of, shareReplay, Subscription, switchMap } from 'rxjs';
 import { AuthService } from '../../../../../services/auth-service';
 import { User } from '@angular/fire/auth';
@@ -45,22 +45,7 @@ export abstract class BaseChatInterfaceComponent implements OnInit, OnDestroy {
    * Initialize auth-dependent state and set up the reactive message stream and metadata loading.
    */
   ngOnInit(): void {
-    this.authSub = this.authService.currentUser$.subscribe(async (user: User | null) => {
-      this.currentUserId = user?.uid ?? null;
-      if (user?.uid) {
-        try {
-          this.currentUserProfile = await this.getUserData(user.uid);
-          this.currentUserAvatar =
-            this.currentUserProfile?.avatar || 'assets/img-profile/profile.png';
-          this.currentUserDisplayName = this.currentUserProfile?.name || 'Unknown User';
-        } catch {
-          this.currentUserProfile = null;
-        }
-      } else {
-        this.currentUserProfile = null;
-      }
-    });
-
+    this.subscribeToCurrentUser();
     this.initializeMessagesStream();
     this.loadChatMetadata();
   }
@@ -70,6 +55,31 @@ export abstract class BaseChatInterfaceComponent implements OnInit, OnDestroy {
     this.routeSub?.unsubscribe();
     this.authSub?.unsubscribe();
     this.messagesSub?.unsubscribe();
+  }
+
+  private subscribeToCurrentUser() {
+    this.authSub = this.authService.currentUser$.subscribe(async (user: User | null) => {
+      this.currentUserId = user?.uid ?? null;
+      if (user?.uid) {
+        await this.setCurrentUserProfile(user);
+      } else {
+        this.clearCurrentUserProfile();
+      }
+    });
+  }
+
+  private async setCurrentUserProfile(user: User) {
+    try {
+      this.currentUserProfile = await this.getUserData(user.uid);
+      this.currentUserAvatar = this.currentUserProfile?.avatar || 'assets/img-profile/profile.png';
+      this.currentUserDisplayName = this.currentUserProfile?.name || 'Unknown User';
+    } catch {
+      this.clearCurrentUserProfile();
+    }
+  }
+
+  private clearCurrentUserProfile() {
+    this.currentUserProfile = null;
   }
 
   /**
@@ -101,23 +111,36 @@ export abstract class BaseChatInterfaceComponent implements OnInit, OnDestroy {
    * - Auto-scrolls to bottom on updates
    */
   private initializeMessagesStream(): void {
+    this.setupMessageStream();
+    this.subscribeToMessagesAutoScroll();
+  }
+
+  private setupMessageStream() {
     this.messages$ = this.route.paramMap.pipe(
-      switchMap((params) => {
-        const id = params.get('id');
-        if (!id) return of([]);
-
-        this.chatId = id;
-        // When switching chats, allow one initial autoscroll
-        this.initialLoadPending = true;
-        const messagesRef = collection(this.firestore, `${this.collectionName}/${id}/messages`);
-        const q = query(messagesRef, orderBy('timestamp', 'desc'));
-
-        return collectionData(q, { idField: 'id' }).pipe(
-          map((messages: any[]) => this.processMessages(messages))
-        );
-      }),
+      switchMap((params) => this.loadMessagesForChat(params)),
       shareReplay(1)
     );
+  }
+
+  private loadMessagesForChat(params: ParamMap) {
+    const id = params.get('id');
+    if (!id) return of([]);
+
+    this.chatId = id;
+    this.allowAutoScroll();
+    const messagesRef = collection(this.firestore, `${this.collectionName}/${id}/messages`);
+    const q = query(messagesRef, orderBy('timestamp', 'desc'));
+
+    return collectionData(q, { idField: 'id' }).pipe(
+      map((messages: any[]) => this.processMessages(messages))
+    );
+  }
+
+  private allowAutoScroll() {
+    this.initialLoadPending = true;
+  }
+
+  private subscribeToMessagesAutoScroll(): void {
     this.messagesSub = this.messages$.subscribe(() => {
       if (this.initialLoadPending || this.scrollAfterMySend) {
         setTimeout(() => this.scrollToBottom(), 50);

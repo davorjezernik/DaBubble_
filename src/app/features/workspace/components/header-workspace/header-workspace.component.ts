@@ -1,4 +1,12 @@
-import { Component, EventEmitter, Output, OnDestroy, OnInit, inject, HostListener } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  Output,
+  OnDestroy,
+  OnInit,
+  inject,
+  HostListener,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -37,22 +45,17 @@ import { AuthService } from '../../../../../services/auth-service';
   templateUrl: './header-workspace.component.html',
   styleUrls: ['./header-workspace.component.scss', './header-workspace-component.responsive.scss'],
 })
-
 @HostListener('window:beforeunload')
-
 export class HeaderWorkspaceComponent implements OnInit, OnDestroy {
   private userService = inject(UserService);
   private dialog = inject(MatDialog);
   private bottomSheet = inject(MatBottomSheet);
   private searchBus = inject(SearchBusService);
-  private auth = inject(Auth);
   private router = inject(Router);
   private authService = inject(AuthService);
 
-  // Profile of the logged-in user //
   user$: Observable<User | null> = this.userService.currentUser$();
 
-  // input field //
   searchCtrl = new FormControl<string>('', { nonNullable: true });
   private sub?: Subscription;
   @Output() searchChange = new EventEmitter<string>();
@@ -67,12 +70,20 @@ export class HeaderWorkspaceComponent implements OnInit, OnDestroy {
       });
   }
 
-  // Mark when logging in online //
   async ngOnInit() {
     await this.userService.markOnline(true);
   }
 
-  // Menu for the top and from 400px below. //
+  ngOnDestroy() {
+    this.sub?.unsubscribe();
+
+    this.authService.currentUser$.pipe(take(1)).subscribe((user) => {
+      if (user && !user.isAnonymous) {
+        this.userService.markOnline(false);
+      }
+    });
+  }
+
   openUserMenu(evt: MouseEvent) {
     const trigger = evt.currentTarget as HTMLElement;
     const avatar = (trigger.querySelector('.avatar-wrap') as HTMLElement) ?? trigger;
@@ -98,7 +109,6 @@ export class HeaderWorkspaceComponent implements OnInit, OnDestroy {
       return;
     }
 
-    // normal dialog menu //
     let left = r.right - MENU_W;
     left = Math.max(MARGIN, Math.min(left, window.innerWidth - MENU_W - MARGIN));
     const top = r.bottom + GAP;
@@ -141,18 +151,8 @@ export class HeaderWorkspaceComponent implements OnInit, OnDestroy {
     if (user) {
       await this.userService.markOnline(false);
     }
-  
+
     await this.authService.logout();
     this.router.navigateByUrl('/');
-  }
-
-  ngOnDestroy() {
-    this.sub?.unsubscribe();
-
-    this.authService.currentUser$.pipe(take(1)).subscribe((user) => {
-      if (user && !user.isAnonymous) {
-        this.userService.markOnline(false);
-      }
-    });
   }
 }
