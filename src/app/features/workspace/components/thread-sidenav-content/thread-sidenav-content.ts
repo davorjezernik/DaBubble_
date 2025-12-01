@@ -22,6 +22,7 @@ import {
   orderBy,
   query,
   serverTimestamp,
+  limit,
 } from '@angular/fire/firestore';
 import { Subscription } from 'rxjs';
 import { MessageBubbleComponent } from '../../../../shared/components/message-bubble-component/message-bubble.component';
@@ -164,7 +165,11 @@ export class ThreadSidenavContent implements OnInit, OnDestroy, OnChanges, After
       this.firestore,
       `${this.collectionName}/${this.chatId}/messages/${this.messageId}/thread/`
     );
-    const q = query(messagesRef, orderBy('timestamp', 'asc'));
+    const q = query(
+      messagesRef, 
+      orderBy('timestamp', 'asc'),
+      limit(50)
+    );
 
     this.answersDataSub = collectionData(q, { idField: 'id' }).subscribe((data: any) => {
       if (data.length > this.messages.length) {

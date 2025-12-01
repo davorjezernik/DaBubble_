@@ -11,7 +11,7 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ThreadPanelService } from '../../../../services/thread-panel.service';
-import { Firestore, collection, collectionData } from '@angular/fire/firestore';
+import { Firestore, collection, collectionData, getCountFromServer, query } from '@angular/fire/firestore';
 import { UserService } from '../../../../services/user.service';
 import { MessageLogicService } from './message-logic.service';
 import { MessageReactionService } from './message-reaction.service';
@@ -453,14 +453,19 @@ export class MessageBubbleComponent implements OnChanges, OnDestroy {
     this.getLastAnswerTime(coll);
   }
 
-  /** Subscribe to thread messages count. */
+  /** Subscribe to thread messages count using efficient aggregation. */
   private async getAnswersAmount(coll: any) {
     this.answersCountSub?.unsubscribe();
-    this.answersCountSub = collectionData(coll)
-      .pipe(map((docs) => docs.length))
-      .subscribe((count) => {
-        this.answersCount = count;
-      });
+    
+    // Use getCountFromServer for efficient count without fetching all documents
+    const q = query(coll);
+    try {
+      const snapshot = await getCountFromServer(q);
+      this.answersCount = snapshot.data().count;
+    } catch (error) {
+      console.error('Error getting answers count:', error);
+      this.answersCount = 0;
+    }
   }
 
   /** Subscribe to latest thread answer timestamp. */

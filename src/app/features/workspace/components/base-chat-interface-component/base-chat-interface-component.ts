@@ -10,6 +10,7 @@ import {
   query,
   serverTimestamp,
   Timestamp,
+  limit,
 } from '@angular/fire/firestore';
 import { ActivatedRoute } from '@angular/router';
 import { map, Observable, of, shareReplay, Subscription, switchMap } from 'rxjs';
@@ -110,7 +111,11 @@ export abstract class BaseChatInterfaceComponent implements OnInit, OnDestroy {
         // When switching chats, allow one initial autoscroll
         this.initialLoadPending = true;
         const messagesRef = collection(this.firestore, `${this.collectionName}/${id}/messages`);
-        const q = query(messagesRef, orderBy('timestamp', 'desc'));
+        const q = query(
+          messagesRef, 
+          orderBy('timestamp', 'desc'),
+          limit(100) // Only load last 100 messages to reduce Firestore reads
+        );
 
         return collectionData(q, { idField: 'id' }).pipe(
           map((messages: any[]) => this.processMessages(messages))
