@@ -50,6 +50,10 @@ import {
   styleUrl: './message-bubble.component.scss',
   providers: [MessageReactionService, MessageInteractionService],
 })
+/**
+ * Visual representation of a single chat or thread message.
+ * Handles reactions, mini actions, editing and thread navigation.
+ */
 export class MessageBubbleComponent implements OnChanges, OnDestroy {
   @Input() incoming: boolean = false;
   @Input() name: string = 'Frederik Beck';
@@ -125,9 +129,9 @@ export class MessageBubbleComponent implements OnChanges, OnDestroy {
   }
 
   /**
-   * Handle a selected emoji from the reactions picker.
+   * Handle a selected emoji from the main emoji picker.
    * @param emoji The unicode emoji string to add or increment.
-   * Side effects: updates reactions array and closes picker.
+   * Side effects: updates reactions in Firestore via reaction service.
    */
   onEmojiSelected(emoji: string) {
     if (this.isDeleted) return;
@@ -147,9 +151,7 @@ export class MessageBubbleComponent implements OnChanges, OnDestroy {
   }
 
   /**
-   * React to input changes from parent.
-   * Currently maps reactionsMap (Record<emoji, count>) into reactions array for rendering.
-   * @param changes Angular SimpleChanges for this component.
+   * Initialize subscriptions for reaction state and current user.
    */
   ngOnInit(): void {
     this.messageLogic.onNamesUpdated = () => this.rebuildReactions();
@@ -165,7 +167,10 @@ export class MessageBubbleComponent implements OnChanges, OnDestroy {
     );
   }
 
-  /** Handle input changes, rebuild reactions and update thread info. */
+  /**
+   * Handle input changes, rebuild reactions and update thread info.
+   * @param changes Angular SimpleChanges for this component.
+   */
   ngOnChanges(changes: SimpleChanges) {
     if ('reactionsMap' in changes) {
       this.rebuildReactions();
@@ -300,21 +305,31 @@ export class MessageBubbleComponent implements OnChanges, OnDestroy {
   /** Save the edited message text to Firestore.*/
   async saveEdit(newText: string) {
     const path = this.getMessagePath();
-    if (!path) {
-      this.isEditing = false;
-      return;
-    }
+    if (!path) return this.setEditingState(false);
     try {
-      this.isSaving = true;
-      await this.messageLogic.saveEditedText(path, newText);
-      this.text = newText;
-      this.edited = true;
-      this.isEditing = false;
+      await this.saveEditedMessage(path, newText);
     } catch (e) {
       console.error('Error saving message:', e);
     } finally {
       this.isSaving = false;
     }
+  }
+
+  /**
+   * Persist edited text to Firestore using the logic service
+   * and update local message state.
+   */
+  private async saveEditedMessage(path: string, newText: string) {
+    this.isSaving = true;
+    await this.messageLogic.saveEditedText(path, newText);
+    this.text = newText;
+    this.edited = true;
+    this.setEditingState(false);
+  }
+
+  /** Update the local editing state flag. */
+  private setEditingState(isEditing: boolean) {
+    this.isEditing = isEditing;
   }
 
   /** Delete this message from Firestore (doc/deleteDoc) after user confirmation.*/
@@ -336,15 +351,19 @@ export class MessageBubbleComponent implements OnChanges, OnDestroy {
     const path = this.getMessagePath();
     if (!path) return;
     try {
-      this.isDeleting = true;
-      await this.messageLogic.softDeleteMessage(path, this.DELETED_PLACEHOLDER);
-      this.text = this.DELETED_PLACEHOLDER;
-      this.isMoreMenuOpen = false;
-      this.reactions = [];
+      await this.performDelete(path);
     } catch (e) {
     } finally {
       this.isDeleting = false;
     }
+  }
+
+  private async performDelete(path: string) {
+    this.isDeleting = true;
+    await this.messageLogic.softDeleteMessage(path, this.DELETED_PLACEHOLDER);
+    this.text = this.DELETED_PLACEHOLDER;
+    this.isMoreMenuOpen = false;
+    this.reactions = [];
   }
 
   /** Quick-add a reaction via the mini actions bar and close the bar. */
@@ -386,16 +405,23 @@ export class MessageBubbleComponent implements OnChanges, OnDestroy {
    * Open the side thread panel for this message.
    * @param event MouseEvent – stopped to prevent bubbling to container.
    */
-  onCommentClick(event: MouseEvent) {
+  public onCommentClick(event: MouseEvent) {
     if (this.isDeleted) return;
     event.stopPropagation();
     this.showMiniActions = false;
     if (!this.chatId || !this.messageId) return;
     this.viewStateService.requestCloseDevspaceDrawer();
     this.viewStateService.currentView = 'thread';
+    this.openThreadPanel(this.chatId, this.messageId);
+  }
+
+  /**
+   * Delegates the open-thread request to the `ThreadPanelService`.
+   */
+  private openThreadPanel(chatId: string, messageId: string) {
     this.threadPanel.openThread({
-      chatId: this.chatId,
-      messageId: this.messageId,
+      chatId,
+      messageId,
       collectionName: this.collectionName,
     });
   }
@@ -406,6 +432,11 @@ export class MessageBubbleComponent implements OnChanges, OnDestroy {
     if (!this.authorId) return;
     const user = await firstValueFrom(this.userService.userById$(this.authorId));
     if (!user) return;
+    this.openUserCardDialog(user);
+  }
+
+  /** Open the dialog that shows the full user card for the given user. */
+  private openUserCardDialog(user: any) {
     this.dialog.open(DialogUserCardComponent, {
       data: { user },
       panelClass: 'user-card-dialog',
@@ -425,23 +456,35 @@ export class MessageBubbleComponent implements OnChanges, OnDestroy {
   onDocumentMouseMove(event: MouseEvent) {
     if (!this.showEmojiPicker) return;
 
-    const container = this.el.nativeElement.querySelector(
-      '.message-container'
-    ) as HTMLElement | null;
-    const refEl = container ?? this.el.nativeElement;
-    const insidePadded = this.interactionService.isMouseWithinPaddedArea(
-      refEl,
-      event.clientX,
-      event.clientY
-    );
-    const overPicker = this.interactionService.isElementOrAncestor(
-      event.target as HTMLElement,
-      '.emoji-picker-container'
-    );
+    const refEl = this.getMessageContainerElement();
+    const insidePadded = this.isMouseInsidePaddedArea(event, refEl);
+    const overPicker = this.isMouseOverEmojiPicker(event);
 
     if (!insidePadded && !overPicker) {
       this.reactionService.closeEmojiPicker();
     }
+  }
+
+  /** Get the container element used as reference for pointer boundary checks. */
+  private getMessageContainerElement() {
+    const container = this.el.nativeElement.querySelector(
+      '.message-container'
+    ) as HTMLElement | null;
+    const refEl = container ?? this.el.nativeElement;
+    return refEl;
+  }
+
+  /** Check if the mouse is inside a padded area around the message container. */
+  private isMouseInsidePaddedArea(event: MouseEvent, refEl: HTMLElement) {
+    return this.interactionService.isMouseWithinPaddedArea(refEl, event.clientX, event.clientY);
+  }
+
+  /** Determine whether the mouse is currently over the emoji picker element. */
+  private isMouseOverEmojiPicker(event: MouseEvent) {
+    return this.interactionService.isElementOrAncestor(
+      event.target as HTMLElement,
+      '.emoji-picker-container'
+    );
   }
 
   /** Load thread answers count and last answer timestamp. */
@@ -470,20 +513,21 @@ export class MessageBubbleComponent implements OnChanges, OnDestroy {
   private async getLastAnswerTime(coll: any) {
     this.lastTimeSub?.unsubscribe();
     this.lastTimeSub = collectionData(coll)
-      .pipe(
-        map((messages) => {
-          if (messages.length === 0) return '';
-          const timestamps = messages
-            .map((msg: any) => msg.timestamp?.toMillis())
-            .filter((ts: any): ts is number => typeof ts === 'number');
-          if (timestamps.length === 0) return '';
-          const latest = Math.max(...timestamps);
-          const latestDate = new Date(latest);
-          return latestDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        })
-      )
+      .pipe(map((messages) => this.returnLastAnswerTime(messages)))
       .subscribe((timestamp) => {
         this.lastTime = timestamp;
       });
+  }
+
+  /** Extract the latest answer time from the thread messages. */
+  private returnLastAnswerTime(messages: any[]): string {
+    if (messages.length === 0) return '';
+    const timestamps = messages
+      .map((msg: any) => msg.timestamp?.toMillis())
+      .filter((ts: any): ts is number => typeof ts === 'number');
+    if (timestamps.length === 0) return '';
+    const latest = Math.max(...timestamps);
+    const latestDate = new Date(latest);
+    return latestDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   }
 }

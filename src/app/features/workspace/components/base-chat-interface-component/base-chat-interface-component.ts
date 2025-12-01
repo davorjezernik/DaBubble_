@@ -17,6 +17,10 @@ import { AuthService } from '../../../../../services/auth-service';
 import { User } from '@angular/fire/auth';
 
 @Directive()
+/**
+ * Base directive for chat interfaces (channels and DMs).
+ * Handles loading messages, current user profile and scroll behavior.
+ */
 export abstract class BaseChatInterfaceComponent implements OnInit, OnDestroy {
   abstract collectionName: 'channels' | 'dms';
 
@@ -57,6 +61,10 @@ export abstract class BaseChatInterfaceComponent implements OnInit, OnDestroy {
     this.messagesSub?.unsubscribe();
   }
 
+  /**
+   * Subscribe to the current user stream and keep profile-related
+   * fields (id, avatar, display name) in sync.
+   */
   private subscribeToCurrentUser() {
     this.authSub = this.authService.currentUser$.subscribe(async (user: User | null) => {
       this.currentUserId = user?.uid ?? null;
@@ -68,6 +76,11 @@ export abstract class BaseChatInterfaceComponent implements OnInit, OnDestroy {
     });
   }
 
+  /**
+   * Load and cache the current user's profile data from Firestore.
+   * Falls back to default values on error.
+   * @param user The authenticated Firebase user.
+   */
   private async setCurrentUserProfile(user: User) {
     try {
       this.currentUserProfile = await this.getUserData(user.uid);
@@ -78,6 +91,9 @@ export abstract class BaseChatInterfaceComponent implements OnInit, OnDestroy {
     }
   }
 
+  /**
+   * Reset current user profile-related fields back to neutral defaults.
+   */
   private clearCurrentUserProfile() {
     this.currentUserProfile = null;
   }
@@ -115,6 +131,10 @@ export abstract class BaseChatInterfaceComponent implements OnInit, OnDestroy {
     this.subscribeToMessagesAutoScroll();
   }
 
+  /**
+   * Create the observable pipeline for `messages$`, driven by
+   * the current route `id`.
+   */
   private setupMessageStream() {
     this.messages$ = this.route.paramMap.pipe(
       switchMap((params) => this.loadMessagesForChat(params)),
@@ -122,6 +142,11 @@ export abstract class BaseChatInterfaceComponent implements OnInit, OnDestroy {
     );
   }
 
+  /**
+   * Load messages for a specific chat id from Firestore
+   * and post-process them.
+   * @param params Route param map containing the chat `id`.
+   */
   private loadMessagesForChat(params: ParamMap) {
     const id = params.get('id');
     if (!id) return of([]);
@@ -136,10 +161,17 @@ export abstract class BaseChatInterfaceComponent implements OnInit, OnDestroy {
     );
   }
 
+  /**
+   * Enable auto-scroll on the next messages update.
+   */
   private allowAutoScroll() {
     this.initialLoadPending = true;
   }
 
+  /**
+   * Subscribes to `messages$` and automatically scrolls to the
+   * bottom on initial load or after sending a new message.
+   */
   private subscribeToMessagesAutoScroll(): void {
     this.messagesSub = this.messages$.subscribe(() => {
       if (this.initialLoadPending || this.scrollAfterMySend) {
