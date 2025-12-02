@@ -49,6 +49,10 @@ export class AvatarSelectComponent implements OnInit, OnDestroy {
     private sharedUser: SharedDataService
   ) {}
 
+  /**
+   * Lifecycle hook: initializes component state.
+   * Retrieves user data from shared service and redirects if missing.
+   */
   ngOnInit(): void {
     this.userData = this.sharedUser.getUser();
     if (!this.userData) {
@@ -57,14 +61,26 @@ export class AvatarSelectComponent implements OnInit, OnDestroy {
     }
   }
 
+  /**
+   * Lifecycle hook: cleans up subscriptions to avoid memory leaks.
+   */
   ngOnDestroy(): void {
     this.snackBarSub?.unsubscribe();
   }
 
+  /**
+   * Sets the currently selected avatar path.
+   *
+   * @param avatarPath - Path to the avatar image.
+   */
   selectAvatar(avatarPath: string) {
     this.selectedAvatar = avatarPath;
   }
 
+  /**
+   * Finalizes avatar selection and user registration.
+   * Registers the user, adds them to the "everyone" channel, saves profile, and shows success.
+   */
   async finishSelection() {
     if (this.isUserDataValid()) {
       this.loading = true;
@@ -81,6 +97,11 @@ export class AvatarSelectComponent implements OnInit, OnDestroy {
     }
   }
 
+  /**
+   * Adds the newly registered user to the "everyone" channel in Firestore.
+   *
+   * @param user - The Firebase user object.
+   */
   private async addNewUserToEveryoneChannel(user: any) {
     const channelsRef = collection(this.firestore, `channels`);
     const q = query(channelsRef, where('name', '==', 'everyone'));
@@ -90,10 +111,16 @@ export class AvatarSelectComponent implements OnInit, OnDestroy {
     const channelRef = doc(this.firestore, 'channels', channelDoc.id);
 
     const memberData = this.defineMemberData(user);
-    
+
     await setDoc(channelRef, { members: arrayUnion(memberData) }, { merge: true });
   }
 
+  /**
+   * Creates the member data object for the channel membership.
+   *
+   * @param user - Firebase user.
+   * @returns Member data with `uid` and `displayName`.
+   */
   private defineMemberData(user: any) {
     return {
       uid: user.uid,
@@ -101,12 +128,22 @@ export class AvatarSelectComponent implements OnInit, OnDestroy {
     };
   }
 
+  /**
+   * Validates whether required user data and selected avatar are present.
+   *
+   * @returns True if all required fields are set.
+   */
   private isUserDataValid(): boolean {
     return (
       this.selectedAvatar && this.userData.email && this.userData.password && this.userData.name
     );
   }
 
+  /**
+   * Registers the user with email and password and updates their profile.
+   *
+   * @returns The Firebase user object.
+   */
   private async registerUser() {
     const userCredential = await createUserWithEmailAndPassword(
       this.auth,
@@ -119,6 +156,11 @@ export class AvatarSelectComponent implements OnInit, OnDestroy {
     return user;
   }
 
+  /**
+   * Saves the user profile document to Firestore.
+   *
+   * @param user - Firebase user to persist.
+   */
   private async saveUserProfile(user: any) {
     const userProfile = {
       uid: user.uid,
@@ -131,11 +173,19 @@ export class AvatarSelectComponent implements OnInit, OnDestroy {
     await setDoc(userDocRef, userProfile);
   }
 
+  /**
+   * Handles registration errors by logging and resetting loading state.
+   *
+   * @param error - Error thrown during registration.
+   */
   private handleRegistrationError(error: any) {
     console.error('Error during final registration:', error);
     this.loading = false;
   }
 
+  /**
+   * Shows a success snackbar, then navigates to the home route when dismissed.
+   */
   showSuccessSnackbarAndProceed() {
     const snackBarRef = this.snackBar.open('Konto erfolgreich erstellt!', '', {
       duration: 2500,
@@ -149,6 +199,9 @@ export class AvatarSelectComponent implements OnInit, OnDestroy {
     });
   }
 
+  /**
+   * Navigates back to the signup route.
+   */
   goBack() {
     this.router.navigate(['/signup']);
   }

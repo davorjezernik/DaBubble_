@@ -1,4 +1,4 @@
-import { Component} from '@angular/core';
+import { Component } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { ReactiveFormsModule, FormGroup, FormControl, Validators } from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
@@ -46,6 +46,10 @@ export class SignupComponent {
 
   constructor(private router: Router, private sharedData: SharedDataService) {}
 
+  /**
+   * Proceeds to avatar selection if the signup form is valid.
+   * Collects form data and stores it via `SharedDataService`, then navigates.
+   */
   proceedToAvatarSelection() {
     if (this.signinForm.valid) {
       const userData = {
@@ -58,6 +62,9 @@ export class SignupComponent {
     }
   }
 
+  /**
+   * Navigates back to the login page.
+   */
   goBack(): void {
     this.router.navigate(['/login']);
   }

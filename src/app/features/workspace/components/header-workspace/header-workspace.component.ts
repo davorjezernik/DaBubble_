@@ -70,10 +70,16 @@ export class HeaderWorkspaceComponent implements OnInit, OnDestroy {
       });
   }
 
+  /**
+   * Lifecycle hook: marks the current user online when the header loads.
+   */
   async ngOnInit() {
     await this.userService.markOnline(true);
   }
 
+  /**
+   * Lifecycle hook: unsubscribes listeners and marks user offline (if not anonymous).
+   */
   ngOnDestroy() {
     this.sub?.unsubscribe();
 
@@ -84,6 +90,12 @@ export class HeaderWorkspaceComponent implements OnInit, OnDestroy {
     });
   }
 
+  /**
+   * Opens the user menu. Uses mobile bottom sheet for small screens,
+   * otherwise opens a positioned desktop dialog.
+   *
+   * @param evt - Mouse click event from the trigger.
+   */
   openUserMenu(evt: MouseEvent) {
     const { r, GAP, MARGIN, MENU_W } = this.getAvatarDialogDistance(evt);
 
@@ -95,6 +107,13 @@ export class HeaderWorkspaceComponent implements OnInit, OnDestroy {
     this.closeDesktopMenuDialog(ref);
   }
 
+  /**
+   * Opens the desktop version of the user menu dialog.
+   *
+   * @param left - Left position offset.
+   * @param top - Top position offset.
+   * @returns Dialog reference.
+   */
   private openDesktopMenuDialog(left: number, top: number) {
     return this.dialog.open(UserMenuDialogComponent, {
       data: {},
@@ -106,6 +125,11 @@ export class HeaderWorkspaceComponent implements OnInit, OnDestroy {
     });
   }
 
+  /**
+   * Subscribes to the dialog close event to perform actions.
+   *
+   * @param ref - Dialog reference of the opened user menu.
+   */
   private closeDesktopMenuDialog(ref: any) {
     ref
       .afterClosed()
@@ -116,6 +140,15 @@ export class HeaderWorkspaceComponent implements OnInit, OnDestroy {
       });
   }
 
+  /**
+   * Calculates dialog position within screen bounds from the avatar rect.
+   *
+   * @param r - Bounding rectangle of the avatar element.
+   * @param GAP - Gap from the trigger element.
+   * @param MARGIN - Screen margin.
+   * @param MENU_W - Menu width.
+   * @returns Calculated left/top coordinates.
+   */
   private defineMenuDialogPosition(r: DOMRect, GAP: number, MARGIN: number, MENU_W: number) {
     let left = r.right - MENU_W;
     left = Math.max(MARGIN, Math.min(left, window.innerWidth - MENU_W - MARGIN));
@@ -123,6 +156,9 @@ export class HeaderWorkspaceComponent implements OnInit, OnDestroy {
     return { left, top };
   }
 
+  /**
+   * Opens the mobile bottom sheet variant of the user menu.
+   */
   private openMobileMenuDialog() {
     const ref = this.bottomSheet.open(UserMenuDialogComponent, {
       data: {},
@@ -137,6 +173,12 @@ export class HeaderWorkspaceComponent implements OnInit, OnDestroy {
       });
   }
 
+  /**
+   * Computes geometry needed to position the menu relative to the avatar.
+   *
+   * @param evt - Mouse event from the trigger element.
+   * @returns Avatar rect and positioning constants.
+   */
   private getAvatarDialogDistance(evt: MouseEvent) {
     const trigger = evt.currentTarget as HTMLElement;
     const avatar = (trigger.querySelector('.avatar-wrap') as HTMLElement) ?? trigger;
@@ -147,6 +189,9 @@ export class HeaderWorkspaceComponent implements OnInit, OnDestroy {
     return { r, GAP, MARGIN, MENU_W };
   }
 
+  /**
+   * Opens the profile dialog for the current user.
+   */
   openProfil() {
     this.user$.pipe(take(1)).subscribe((user) => {
       if (!user) return;
@@ -162,6 +207,9 @@ export class HeaderWorkspaceComponent implements OnInit, OnDestroy {
     });
   }
 
+  /**
+   * Logs the user out, ensures online status is updated, and navigates home.
+   */
   async logout() {
     const user = await firstValueFrom(this.authService.currentUser$);
     if (user) {
