@@ -7,6 +7,7 @@
   closeOnEscape
   [isOpen]="isMoreMenuOpen || showEmojiPicker"
   (close)="onEscapePressed()"
+  appEmojiPickerCloseOnOutsideHoverDirective [isPickerOpen]="showEmojiPicker"
 >
   <div
     class="message-content"
@@ -103,12 +104,14 @@
       }
     </div>
 
-    @if (!isEditing) { @if (answersCount > 0) {
-    <div class="answers-info" (click)="onCommentClick($event)">
-      <span class="answers-amount">{{ answersCount }} Antworten</span>
-      <span class="last-answer-time">Letzte Antwort {{ lastTime }}</span>
-    </div>
-    }
+    @if (!isEditing) {
+    <app-message-thread-summary
+      [chatId]="chatId"
+      [messageId]="messageId"
+      [collectionName]="collectionName"
+      (openThread)="onCommentClick()"
+      >></app-message-thread-summary
+    >
     <app-message-reactions
       [reactions]="reactions"
       [isNarrow]="isNarrow"

@@ -11,7 +11,6 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ThreadPanelService } from '../../../../services/thread-panel.service';
-import { Firestore, collection, collectionData } from '@angular/fire/firestore';
 import { UserService } from '../../../../services/user.service';
 import { MessageLogicService } from './message-logic.service';
 import { MessageReactionService } from './message-reaction.service';
@@ -25,7 +24,7 @@ import { MessageMiniActionsComponent } from './message-mini-actions/message-mini
 import { MessageReactionsComponent } from './message-reactions/message-reactions.component';
 import { CloseOnOutsideClickDirective } from './directives/close-on-outside-click.directive';
 import { CloseOnEscapeDirective } from './directives/close-on-escape.directive';
-import { firstValueFrom, map, Subscription } from 'rxjs';
+import { firstValueFrom, Subscription } from 'rxjs';
 import {
   DELETED_PLACEHOLDER,
   MAX_UNIQUE_REACTIONS,
@@ -34,6 +33,8 @@ import {
   isMobileViewport,
   normalizeTimestamp,
 } from './message-bubble.utils';
+import { MessageThreadSummaryComponent } from './message-thread-summary/message-thread-summary.component.ts/message-thread-summary.component.ts';
+import { EmojiPickerCloseOnOutsideHoverDirective } from './directives/emoji-picker-close-on-outside-hover.directive';
 
 @Component({
   selector: 'app-message-bubble',
@@ -43,8 +44,10 @@ import {
     MessageEditModeComponent,
     MessageMiniActionsComponent,
     MessageReactionsComponent,
+    MessageThreadSummaryComponent,
     CloseOnOutsideClickDirective,
     CloseOnEscapeDirective,
+    EmojiPickerCloseOnOutsideHoverDirective
   ],
   templateUrl: './message-bubble.component.html',
   styleUrl: './message-bubble.component.scss',
@@ -79,8 +82,7 @@ export class MessageBubbleComponent implements OnChanges, OnDestroy {
   isEditing = false;
   isSaving = false;
   isDeleting = false;
-  lastTime: string = '';
-  answersCount: number = 0;
+
   reactions: Array<{
     emoji: string;
     count: number;
@@ -96,13 +98,10 @@ export class MessageBubbleComponent implements OnChanges, OnDestroy {
   currentUserId: string | null = null;
   readonly DELETED_PLACEHOLDER = DELETED_PLACEHOLDER;
   readonly MAX_UNIQUE_REACTIONS = MAX_UNIQUE_REACTIONS;
-  lastTimeSub?: Subscription;
-  answersCountSub?: Subscription;
   private userSub?: Subscription;
   private reactionStateSub = new Subscription();
 
   constructor(
-    private firestore: Firestore,
     private threadPanel: ThreadPanelService,
     private userService: UserService,
     public el: ElementRef<HTMLElement>,
@@ -175,15 +174,10 @@ export class MessageBubbleComponent implements OnChanges, OnDestroy {
     if ('reactionsMap' in changes) {
       this.rebuildReactions();
     }
-    if (changes['messageId'] || changes['chatId'] || changes['collectionName']) {
-      this.getAnswersInfo();
-    }
   }
 
   /** Cleanup subscriptions on component destruction. */
   ngOnDestroy(): void {
-    this.answersCountSub?.unsubscribe();
-    this.lastTimeSub?.unsubscribe();
     this.reactionStateSub.unsubscribe();
     this.userSub?.unsubscribe();
   }
@@ -405,9 +399,11 @@ export class MessageBubbleComponent implements OnChanges, OnDestroy {
    * Open the side thread panel for this message.
    * @param event MouseEvent – stopped to prevent bubbling to container.
    */
-  public onCommentClick(event: MouseEvent) {
+  public onCommentClick(event?: MouseEvent) {
     if (this.isDeleted) return;
-    event.stopPropagation();
+    if (event) {
+      event.stopPropagation();
+    }
     this.showMiniActions = false;
     if (!this.chatId || !this.messageId) return;
     this.viewStateService.requestCloseDevspaceDrawer();
@@ -446,88 +442,5 @@ export class MessageBubbleComponent implements OnChanges, OnDestroy {
       autoFocus: false,
       restoreFocus: true,
     });
-  }
-
-  /**
-   * Close pickers only when pointer leaves a padded area around the host (message-container).
-   * Adds ~12px tolerance, and keeps open when hovering the emoji picker itself.
-   */
-  @HostListener('document:mousemove', ['$event'])
-  onDocumentMouseMove(event: MouseEvent) {
-    if (!this.showEmojiPicker) return;
-
-    const refEl = this.getMessageContainerElement();
-    const insidePadded = this.isMouseInsidePaddedArea(event, refEl);
-    const overPicker = this.isMouseOverEmojiPicker(event);
-
-    if (!insidePadded && !overPicker) {
-      this.reactionService.closeEmojiPicker();
-    }
-  }
-
-  /** Get the container element used as reference for pointer boundary checks. */
-  private getMessageContainerElement() {
-    const container = this.el.nativeElement.querySelector(
-      '.message-container'
-    ) as HTMLElement | null;
-    const refEl = container ?? this.el.nativeElement;
-    return refEl;
-  }
-
-  /** Check if the mouse is inside a padded area around the message container. */
-  private isMouseInsidePaddedArea(event: MouseEvent, refEl: HTMLElement) {
-    return this.interactionService.isMouseWithinPaddedArea(refEl, event.clientX, event.clientY);
-  }
-
-  /** Determine whether the mouse is currently over the emoji picker element. */
-  private isMouseOverEmojiPicker(event: MouseEvent) {
-    return this.interactionService.isElementOrAncestor(
-      event.target as HTMLElement,
-      '.emoji-picker-container'
-    );
-  }
-
-  /** Load thread answers count and last answer timestamp. */
-  private async getAnswersInfo() {
-    if (!this.chatId || !this.messageId) return;
-
-    const coll = collection(
-      this.firestore,
-      `${this.collectionName}/${this.chatId}/messages/${this.messageId}/thread`
-    );
-    this.getAnswersAmount(coll);
-    this.getLastAnswerTime(coll);
-  }
-
-  /** Subscribe to thread messages count. */
-  private async getAnswersAmount(coll: any) {
-    this.answersCountSub?.unsubscribe();
-    this.answersCountSub = collectionData(coll)
-      .pipe(map((docs) => docs.length))
-      .subscribe((count) => {
-        this.answersCount = count;
-      });
-  }
-
-  /** Subscribe to latest thread answer timestamp. */
-  private async getLastAnswerTime(coll: any) {
-    this.lastTimeSub?.unsubscribe();
-    this.lastTimeSub = collectionData(coll)
-      .pipe(map((messages) => this.returnLastAnswerTime(messages)))
-      .subscribe((timestamp) => {
-        this.lastTime = timestamp;
-      });
-  }
-
-  /** Extract the latest answer time from the thread messages. */
-  private returnLastAnswerTime(messages: any[]): string {
-    if (messages.length === 0) return '';
-    const timestamps = messages
-      .map((msg: any) => msg.timestamp?.toMillis())
-      .filter((ts: any): ts is number => typeof ts === 'number');
-    if (timestamps.length === 0) return '';
-    const latest = Math.max(...timestamps);
-    const latestDate = new Date(latest);
-    return latestDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   }
 }
