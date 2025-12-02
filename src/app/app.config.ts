@@ -8,9 +8,14 @@ import { provideRouter } from '@angular/router';
 import { MAT_RIPPLE_GLOBAL_OPTIONS, RippleGlobalOptions } from '@angular/material/core';
 
 import { AuthRoutes } from './app.routes';
-import { initializeApp, provideFirebaseApp } from '@angular/fire/app';
+import { initializeApp, provideFirebaseApp, getApp } from '@angular/fire/app';
 import { getAuth, provideAuth } from '@angular/fire/auth';
-import { getFirestore, provideFirestore } from '@angular/fire/firestore';
+import { provideFirestore } from '@angular/fire/firestore';
+import {
+  initializeFirestore,
+  persistentLocalCache,
+  persistentMultipleTabManager,
+} from 'firebase/firestore';
 import { environment } from '../environments/environment.development';
 import { AppRoutingModule } from './app-routing-module';
 
@@ -24,12 +29,17 @@ export const appConfig: ApplicationConfig = {
     provideBrowserGlobalErrorListeners(),
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(AuthRoutes),
-    provideFirebaseApp(() =>
-      initializeApp(environment.firebase)
-    ),
+    provideFirebaseApp(() => initializeApp(environment.firebase)),
     provideAuth(() => getAuth()),
-    provideFirestore(() => getFirestore()),
-        {provide: MAT_RIPPLE_GLOBAL_OPTIONS, useValue: globalRippleConfig}
-
+    // Enable offline persistence to reduce Firestore reads
+    provideFirestore(() => {
+      const firestore = initializeFirestore(getApp(), {
+        localCache: persistentLocalCache({
+          tabManager: persistentMultipleTabManager(),
+        }),
+      });
+      return firestore;
+    }),
+    {provide: MAT_RIPPLE_GLOBAL_OPTIONS, useValue: globalRippleConfig}
   ],
 };

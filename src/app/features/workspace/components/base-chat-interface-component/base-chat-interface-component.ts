@@ -13,7 +13,7 @@ import {
   limit,
 } from '@angular/fire/firestore';
 import { ActivatedRoute } from '@angular/router';
-import { map, Observable, of, shareReplay, Subscription, switchMap } from 'rxjs';
+import { BehaviorSubject, combineLatest, map, Observable, of, shareReplay, Subscription, switchMap } from 'rxjs';
 import { AuthService } from '../../../../../services/auth-service';
 import { User } from '@angular/fire/auth';
 
@@ -24,6 +24,9 @@ export abstract class BaseChatInterfaceComponent implements OnInit, OnDestroy {
   @ViewChild('messagesContainer') messagesContainer!: ElementRef;
 
   messages$: Observable<any[]> = of([]);
+  hasMore$: Observable<boolean> = of(false);
+  private messageLimitSubject = new BehaviorSubject<number>(50);
+  private readonly MESSAGE_PAGE_SIZE = 50;
   chatId: string | null = null;
   currentUserId: string | null = null;
   currentUserAvatar: string = 'assets/img-profile/profile.png';
@@ -32,6 +35,7 @@ export abstract class BaseChatInterfaceComponent implements OnInit, OnDestroy {
   protected routeSub?: Subscription;
   protected authSub?: Subscription;
   protected messagesSub?: Subscription;
+  private subscriptions = new Subscription(); // Centralized subscription management
   /** Scroll behavior flags */
   private scrollAfterMySend = false; // only scroll when I send via message area
   private initialLoadPending = true; // keep autoscroll on first load
@@ -61,6 +65,7 @@ export abstract class BaseChatInterfaceComponent implements OnInit, OnDestroy {
         this.currentUserProfile = null;
       }
     });
+    this.subscriptions.add(this.authSub);
 
     this.initializeMessagesStream();
     this.loadChatMetadata();
@@ -68,6 +73,7 @@ export abstract class BaseChatInterfaceComponent implements OnInit, OnDestroy {
 
   /** Clean up subscriptions created by this base class. */
   ngOnDestroy(): void {
+    this.subscriptions.unsubscribe();
     this.routeSub?.unsubscribe();
     this.authSub?.unsubscribe();
     this.messagesSub?.unsubscribe();
@@ -84,6 +90,7 @@ export abstract class BaseChatInterfaceComponent implements OnInit, OnDestroy {
         this.onChatIdChanged(this.chatId);
       }
     });
+    this.subscriptions.add(this.routeSub);
   }
 
   /**
@@ -102,25 +109,42 @@ export abstract class BaseChatInterfaceComponent implements OnInit, OnDestroy {
    * - Auto-scrolls to bottom on updates
    */
   private initializeMessagesStream(): void {
-    this.messages$ = this.route.paramMap.pipe(
-      switchMap((params) => {
+    this.messages$ = combineLatest([
+      this.route.paramMap,
+      this.messageLimitSubject
+    ]).pipe(
+      switchMap(([params, currentLimit]) => {
         const id = params.get('id');
         if (!id) return of([]);
 
         this.chatId = id;
-        // When switching chats, allow one initial autoscroll
+        // When switching chats, reset to initial page size
+        if (this.chatId !== id) {
+          this.messageLimitSubject.next(this.MESSAGE_PAGE_SIZE);
+        }
         this.initialLoadPending = true;
         const messagesRef = collection(this.firestore, `${this.collectionName}/${id}/messages`);
         const q = query(
           messagesRef, 
           orderBy('timestamp', 'desc'),
-          limit(100) // Only load last 100 messages to reduce Firestore reads
+          limit(currentLimit)
         );
 
+        // collectionData returns an Observable that auto-unsubscribes when the outer switchMap switches
+        // This prevents memory leaks from old chat listeners
         return collectionData(q, { idField: 'id' }).pipe(
           map((messages: any[]) => this.processMessages(messages))
         );
       }),
+      shareReplay(1) // Cache the latest result to prevent duplicate listeners
+    );
+
+    // Determine if there are more messages to load
+    this.hasMore$ = combineLatest([
+      this.messages$,
+      this.messageLimitSubject
+    ]).pipe(
+      map(([messages, currentLimit]) => messages.length >= currentLimit),
       shareReplay(1)
     );
     this.messagesSub = this.messages$.subscribe(() => {
@@ -130,6 +154,7 @@ export abstract class BaseChatInterfaceComponent implements OnInit, OnDestroy {
         this.scrollAfterMySend = false;
       }
     });
+    this.subscriptions.add(this.messagesSub);
   }
 
   /**
@@ -237,5 +262,14 @@ export abstract class BaseChatInterfaceComponent implements OnInit, OnDestroy {
       top: el.scrollHeight,
       behavior: 'smooth',
     });
+  }
+
+  /**
+   * Load more messages by increasing the limit.
+   * This will trigger a new Firestore query with the increased limit.
+   */
+  loadMoreMessages(): void {
+    const currentLimit = this.messageLimitSubject.value;
+    this.messageLimitSubject.next(currentLimit + this.MESSAGE_PAGE_SIZE);
   }
 }

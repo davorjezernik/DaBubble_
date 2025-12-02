@@ -9,9 +9,9 @@ import { CommonModule, DatePipe } from '@angular/common';
 import { MessageBubbleComponent } from '../../../../shared/components/message-bubble-component/message-bubble.component';
 import { ChannelShowMembersDialog } from '../../../../shared/components/channel-show-members-dialog/channel-show-members-dialog';
 import { MatDialog } from '@angular/material/dialog';
-import { take } from 'rxjs/operators';
+import { take, switchMap } from 'rxjs/operators';
 import { EditChannel } from '../edit-channel/edit-channel';
-import { map, combineLatest, Observable, of, Subscription } from 'rxjs';
+import { map, combineLatest, Observable, of } from 'rxjs';
 import { UserService } from '../../../../../services/user.service';
 import { ChannelMember } from '../../../../shared/components/channel-show-members-dialog/channel-show-members-dialog';
 import { DialogIconAddMemberToChannel } from '../../../../shared/components/dialog-icon-add-member-to-channel/dialog-icon-add-member-to-channel';
@@ -27,11 +27,9 @@ import { ReadStateService } from '../../../../../services/read-state.service';
 })
 export class ChannelInterfaceContent extends BaseChatInterfaceComponent {
   override collectionName: 'channels' | 'dms' = 'channels';
-  channelData: Channel | null = null;
+  channel$: Observable<Channel | null> = of(null);
   memberProfiles: Record<string, any> = {};
   private loadedProfileIds = new Set<string>();
-  private localMessagesSub?: Subscription;
-  private channelSub?: Subscription;
 
   members$!: Observable<ChannelMember[]>;
   avatarPreview$!: Observable<ChannelMember[]>;
@@ -52,48 +50,57 @@ export class ChannelInterfaceContent extends BaseChatInterfaceComponent {
   /**
    * Channel-specific init.
    * - Calls base init (auth, route, messages$ stream, auto-scroll).
-   * - Subscribes to messages$ to collect authorIds and preload their profiles,
-   *   so incoming avatars render even if authors aren't listed in channelData.members.
+   * - Sets up channel$ observable that auto-loads when route changes.
+   * - Sets up message author profile preloading.
    */
   override ngOnInit(): void {
     super.ngOnInit();
-    this.localMessagesSub = this.messages$.subscribe((messages) => {
-      const authorIds = new Set<string>();
-      for (const m of messages || []) {
-        if (m?.authorId && m.authorId !== this.currentUserId) {
-          authorIds.add(m.authorId);
+    
+    // Set up channel$ observable for async pipe
+    this.channel$ = this.route.paramMap.pipe(
+      map(params => params.get('id')),
+      switchMap(id => id ? this.channelService.getChannel(id) : of(null))
+    );
+    
+    // Preload message author profiles using async pattern
+    this.messages$.pipe(
+      map(messages => {
+        const authorIds = new Set<string>();
+        for (const m of messages || []) {
+          if (m?.authorId && m.authorId !== this.currentUserId) {
+            authorIds.add(m.authorId);
+          }
         }
-      }
-      if (authorIds.size) {
-        this.preloadMemberProfiles(Array.from(authorIds));
+        return Array.from(authorIds);
+      })
+    ).subscribe(authorIds => {
+      if (authorIds.length) {
+        this.preloadMemberProfiles(authorIds);
       }
     });
   }
 
   /**
-   * Cleanup for the local messages subscription.
-   * The base hook disposes route/auth/messages subscriptions; here we dispose
-   * the additional subscription used for author profile preloading.
+   * Cleanup managed by base class and async pipe.
+   * No manual subscriptions to clean up.
    */
   override ngOnDestroy(): void {
     super.ngOnDestroy();
-    this.localMessagesSub?.unsubscribe?.();
-    this.channelSub?.unsubscribe();
   }
 
   /**
    * Triggered when the route chatId changes.
-   * Loads channel metadata and preloads member profiles so names/avatars are ready.
+   * Loads member streams and marks channel as read.
    */
   override onChatIdChanged(chatId: string): void {
-    this.channelSub?.unsubscribe();
-    this.channelSub = this.channelService.getChannel(chatId).subscribe({
+    // Subscribe to channel data to build member streams
+    this.channel$.pipe(take(1)).subscribe({
       next: (data) => {
-        this.channelData = data;
         this.buildMembersStreams(data?.members ?? []);
       },
       error: (err) => console.error('Error fetching channel data:', err),
     });
+    
     if (this.currentUserId) {
       this.read.markChannelRead(chatId, this.currentUserId);
     } else {
@@ -235,7 +242,12 @@ export class ChannelInterfaceContent extends BaseChatInterfaceComponent {
     const sub = this.members$.subscribe((ms) => {
       ref.componentInstance.members = ms;
       ref.componentInstance.currentUserId = this.currentUserId ?? '';
-      ref.componentInstance.channelName = this.channelData?.name ?? '';
+      
+      // Get current channel name from observable
+      this.channel$.pipe(take(1)).subscribe(channel => {
+        ref.componentInstance.channelName = channel?.name ?? '';
+      });
+      
       ref.componentInstance.addIconAnchor = anchor ?? null;
       sub.unsubscribe();
     });
@@ -256,69 +268,76 @@ export class ChannelInterfaceContent extends BaseChatInterfaceComponent {
     const GAP = 5;
     const DLG_W = 480;
 
-    const memberUids = (this.channelData?.members ?? [])
-      .map((m: any) => (typeof m === 'string' ? m : m.uid))
-      .filter((x: any) => !!x);
+    // Get current channel data
+    this.channel$.pipe(take(1)).subscribe(channelData => {
+      const memberUids = (channelData?.members ?? [])
+        .map((m: any) => (typeof m === 'string' ? m : m.uid))
+        .filter((x: any) => !!x);
 
-    this.userService
-      .users$()
-      .pipe(take(1))
-      .subscribe((allUsers) => {
-        const candidates: AddableUser[] = allUsers
-          .filter((u) => !memberUids.includes(u.uid))
-          .map((u) => ({
-            uid: u.uid,
-            name: u.name,
-            avatar: u.avatar,
-            online: u.online,
-          }));
+      this.userService
+        .users$()
+        .pipe(take(1))
+        .subscribe((allUsers) => {
+          const candidates: AddableUser[] = allUsers
+            .filter((u) => !memberUids.includes(u.uid))
+            .map((u) => ({
+              uid: u.uid,
+              name: u.name,
+              avatar: u.avatar,
+              online: u.online,
+            }));
 
-        const top = rect.bottom + window.scrollY + GAP;
-        const left = Math.max(8, rect.right + window.scrollX - DLG_W);
+          const top = rect.bottom + window.scrollY + GAP;
+          const left = Math.max(8, rect.right + window.scrollX - DLG_W);
 
-        const ref = this.dialog.open(DialogIconAddMemberToChannel, {
-          panelClass: 'add-members-dialog-panel',
-          hasBackdrop: true,
-          autoFocus: false,
-          restoreFocus: true,
-          width: `${DLG_W}px`,
-          position: { top: `${top}px`, left: `${left}px` },
+          const ref = this.dialog.open(DialogIconAddMemberToChannel, {
+            panelClass: 'add-members-dialog-panel',
+            hasBackdrop: true,
+            autoFocus: false,
+            restoreFocus: true,
+            width: `${DLG_W}px`,
+            position: { top: `${top}px`, left: `${left}px` },
+          });
+
+          ref.componentInstance.channelName = channelData?.name ?? '';
+          ref.componentInstance.candidates = candidates;
+
+          ref.componentInstance.add.subscribe((users: AddableUser[]) => {
+            if (!channelData?.id) {
+              console.warn('keine channel id');
+              ref.close();
+              return;
+            }
+
+            this.channelService
+              .addMembersToChannel(channelData.id, users)
+              .catch((err) => console.error(err))
+              .finally(() => ref.close());
+          });
+
+          ref.componentInstance.close.subscribe(() => ref.close());
         });
-
-        ref.componentInstance.channelName = this.channelData?.name ?? '';
-        ref.componentInstance.candidates = candidates;
-
-        ref.componentInstance.add.subscribe((users: AddableUser[]) => {
-          if (!this.channelData?.id) {
-            console.warn('keine channel id');
-            ref.close();
-            return;
-          }
-
-          this.channelService
-            .addMembersToChannel(this.channelData.id, users)
-            .catch((err) => console.error(err))
-            .finally(() => ref.close());
-        });
-
-        ref.componentInstance.close.subscribe(() => ref.close());
-      });
+    });
   }
 
   // Öffnet EditChannel als Modal
   openEditChannel(ev?: MouseEvent) {
     ev?.stopPropagation();
-    if (this.channelData?.name === 'everyone') {
-      return;
-    }
-    if (!this.channelData) return;
-    const ref = this.dialog.open(EditChannel, {
-      data: { channel: this.channelData },
-      autoFocus: false,
+    
+    this.channel$.pipe(take(1)).subscribe(channelData => {
+      if (channelData?.name === 'everyone') {
+        return;
+      }
+      if (!channelData) return;
+      
+      const ref = this.dialog.open(EditChannel, {
+        data: { channel: channelData },
+        autoFocus: false,
+      });
+      ref
+        .afterClosed()
+        .pipe(take(1))
+        .subscribe((res) => {});
     });
-    ref
-      .afterClosed()
-      .pipe(take(1))
-      .subscribe((res) => {});
   }
 }

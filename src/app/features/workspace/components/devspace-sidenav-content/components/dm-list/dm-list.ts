@@ -108,13 +108,19 @@ export class DmList implements OnInit, OnDestroy, OnChanges {
   }
 
   private subscribeToDmUnreadCounts(others: User[], meUid: string) {
-    const streams = others.map((u) => {
+    // Only load unread counts for visible DMs to reduce Firestore listeners
+    const visibleOthers = others.slice(0, this.viewStateService.maxVisible);
+    
+    const streams = visibleOthers.map((u) => {
       const dmId = this.calculateDmId(u);
       return this.read.unreadDmCount$(dmId, meUid);
     });
 
     this.totalUnreadSub = combineLatest(streams)
-      .pipe(map((arr) => arr.reduce((sum, n) => sum + (n || 0), 0)))
+      .pipe(
+        auditTime(500), // Debounce rapid updates
+        map((arr) => arr.reduce((sum, n) => sum + (n || 0), 0))
+      )
       .subscribe((sum) => (this.totalUnread = sum));
   }
 

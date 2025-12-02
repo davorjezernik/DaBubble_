@@ -25,6 +25,10 @@ import {
   combineLatest,
   map,
   switchMap,
+  auditTime,
+  shareReplay,
+  catchError,
+  of,
 } from 'rxjs';
 
 type ReadDoc = { lastReadAt?: Timestamp } | undefined;
@@ -39,6 +43,10 @@ export class ReadStateService {
 
   // Last message bumps per thread //
   private bumpMap = new Map<string, BehaviorSubject<number>>();
+
+  // Cache for unread count observables to prevent duplicate listeners //
+  private unreadChannelCache = new Map<string, Observable<number>>();
+  private unreadDmCache = new Map<string, Observable<number>>();
 
   // Executes fn in a valid injection context against AngularFire warnings //
   private withCtx<T>(fn: () => T): T {
@@ -79,6 +87,14 @@ export class ReadStateService {
     return this.bumpMap.get(threadId)!;
   }
 
+  // Clear all caches (call on logout or when needed) //
+  clearCache(): void {
+    this.unreadChannelCache.clear();
+    this.unreadDmCache.clear();
+    this.optim$.clear();
+    this.bumpMap.clear();
+  }
+
   // DMs
 
   private readDoc(dmId: string, uid: string) {
@@ -100,11 +116,19 @@ export class ReadStateService {
 
   // Number of unread DM messages from other authors //
   unreadDmCount$(dmId: string, uid: string): Observable<number> {
+    const cacheKey = `${dmId}|${uid}`;
+    
+    // Return cached observable if exists
+    if (this.unreadDmCache.has(cacheKey)) {
+      return this.unreadDmCache.get(cacheKey)!;
+    }
+
     const myReadRef = this.readDoc(dmId, uid);
     const fs$ = this.docData$<ReadDoc>(myReadRef); 
     const opt$ = this.getOptimistic$(dmId, uid);
 
-    return combineLatest([fs$, opt$]).pipe(
+    const unread$ = combineLatest([fs$, opt$]).pipe(
+      auditTime(300), // Debounce rapid updates
       switchMap(([read, opt]) => {
         const fsSince =
           read?.lastReadAt instanceof Timestamp
@@ -120,13 +144,20 @@ export class ReadStateService {
         const qy = query(
           messagesRef,
           where('timestamp', '>', since),
-          orderBy('timestamp', 'asc')
+          orderBy('timestamp', 'asc'),
+          limit(100) // Limit to prevent excessive reads
         );
 
         return this.collectionData$<any>(qy, { idField: 'id' });
       }),
-      map((msgs) => msgs.filter((m) => m?.authorId !== uid).length)
+      map((msgs) => msgs.filter((m) => m?.authorId !== uid).length),
+      shareReplay(1), // Share single listener across multiple subscribers
+      catchError(() => of(0))
     );
+
+    // Cache it
+    this.unreadDmCache.set(cacheKey, unread$);
+    return unread$;
   }
 
   // Last message time from Firestore //
@@ -200,12 +231,20 @@ export class ReadStateService {
 
   // Number of unread channel messages from other authors //
   unreadChannelCount$(channelId: string, uid: string): Observable<number> {
+    const cacheKey = `${channelId}|${uid}`;
+    
+    // Return cached observable if exists
+    if (this.unreadChannelCache.has(cacheKey)) {
+      return this.unreadChannelCache.get(cacheKey)!;
+    }
+
     const fs$ = this.docData$<ReadDoc>(
       this.readDocGeneric('channels', channelId, uid)
     );
     const opt$ = this.getOptimistic$(channelId, uid);
 
-    return combineLatest([fs$, opt$]).pipe(
+    const unread$ = combineLatest([fs$, opt$]).pipe(
+      auditTime(300), // Debounce rapid updates
       switchMap(([read, opt]) => {
         const fsSince =
           read?.lastReadAt instanceof Timestamp
@@ -216,13 +255,20 @@ export class ReadStateService {
         const qy = query(
           this.msgsRef('channels', channelId),
           where('timestamp', '>', since),
-          orderBy('timestamp', 'asc')
+          orderBy('timestamp', 'asc'),
+          limit(100) // Limit to prevent excessive reads
         );
 
         return this.collectionData$<any>(qy);
       }),
-      map((msgs) => msgs.filter((m) => m?.authorId !== uid).length)
+      map((msgs) => msgs.filter((m) => m?.authorId !== uid).length),
+      shareReplay(1), // Share single listener across multiple subscribers
+      catchError(() => of(0))
     );
+
+    // Cache it
+    this.unreadChannelCache.set(cacheKey, unread$);
+    return unread$;
   }
 
   // Client-side bump upon new channel message //

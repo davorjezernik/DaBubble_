@@ -90,11 +90,16 @@ export class DevspaceSidenavContent implements OnInit, OnDestroy {
   }
 
   private subscribeToSearchBus(): void {
-    this.searchBusSub = this.searchBus.query$.subscribe((q) => {
-      this.search = q;
-      if (q !== this.searchCtrl.value) {
-        this.searchCtrl.setValue(q, { emitEvent: false });
-      }
-    });
+    this.searchBusSub = this.searchBus.query$
+      .pipe(
+        debounceTime(300),
+        distinctUntilChanged()
+      )
+      .subscribe((q) => {
+        this.search = q;
+        if (q !== this.searchCtrl.value) {
+          this.searchCtrl.setValue(q, { emitEvent: false });
+        }
+      });
   }
 }

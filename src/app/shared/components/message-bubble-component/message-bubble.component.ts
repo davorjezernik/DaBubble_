@@ -11,7 +11,7 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ThreadPanelService } from '../../../../services/thread-panel.service';
-import { Firestore, collection, collectionData, getCountFromServer, query } from '@angular/fire/firestore';
+import { Firestore, collection, collectionData, getCountFromServer, query, orderBy, limit } from '@angular/fire/firestore';
 import { UserService } from '../../../../services/user.service';
 import { MessageLogicService } from './message-logic.service';
 import { MessageReactionService } from './message-reaction.service';
@@ -95,6 +95,7 @@ export class MessageBubbleComponent implements OnChanges, OnDestroy {
   lastTimeSub?: Subscription;
   answersCountSub?: Subscription;
   private reactionStateSub = new Subscription();
+  private subscriptions = new Subscription(); // Centralized subscription management
 
   constructor(
     private firestore: Firestore,
@@ -152,10 +153,14 @@ export class MessageBubbleComponent implements OnChanges, OnDestroy {
    */
   ngOnInit(): void {
     this.messageLogic.onNamesUpdated = () => this.rebuildReactions();
-    this.userService.currentUser$().subscribe((u: any) => {
-      this.currentUserId = u?.uid ?? null;
-      this.rebuildReactions();
-    });
+    
+    this.subscriptions.add(
+      this.userService.currentUser$().subscribe((u: any) => {
+        this.currentUserId = u?.uid ?? null;
+        this.rebuildReactions();
+      })
+    );
+    
     this.reactionStateSub.add(
       this.reactionService.reactions$.subscribe((reactions) => (this.reactions = reactions))
     );
@@ -176,7 +181,9 @@ export class MessageBubbleComponent implements OnChanges, OnDestroy {
 
   /** Cleanup subscriptions on component destruction. */
   ngOnDestroy(): void {
+    this.subscriptions.unsubscribe();
     this.answersCountSub?.unsubscribe();
+    this.lastTimeSub?.unsubscribe();
     this.reactionStateSub.unsubscribe();
   }
 
@@ -471,16 +478,18 @@ export class MessageBubbleComponent implements OnChanges, OnDestroy {
   /** Subscribe to latest thread answer timestamp. */
   private async getLastAnswerTime(coll: any) {
     this.lastTimeSub?.unsubscribe();
-    this.lastTimeSub = collectionData(coll)
+    
+    // Only fetch the single most recent message instead of all messages
+    const q = query(coll, orderBy('timestamp', 'desc'), limit(1));
+    
+    this.lastTimeSub = collectionData(q)
       .pipe(
         map((messages) => {
           if (messages.length === 0) return '';
-          const timestamps = messages
-            .map((msg: any) => msg.timestamp?.toMillis())
-            .filter((ts: any): ts is number => typeof ts === 'number');
-          if (timestamps.length === 0) return '';
-          const latest = Math.max(...timestamps);
-          const latestDate = new Date(latest);
+          const msg: any = messages[0];
+          const ts = msg.timestamp?.toMillis();
+          if (typeof ts !== 'number') return '';
+          const latestDate = new Date(ts);
           return latestDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
         })
       )

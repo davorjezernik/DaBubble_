@@ -10,7 +10,25 @@
     </button>
   </header>
   <main #messagesContainer class="chat-content" [class.empty]="(messages$ | async)?.length === 0">
-    @if (messages$ | async; as messages) { @for (message of messages; track message.id) {
+    @if (hasMore$ | async) {
+    <div class="load-more-container">
+      <button class="load-more-btn" (click)="loadMoreMessages()" type="button">
+        <svg
+          width="20"
+          height="20"
+          viewBox="0 0 20 20"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M10 14L6 10L7.4 8.6L10 11.2L12.6 8.6L14 10L10 14ZM10 8L6 4L7.4 2.6L10 5.2L12.6 2.6L14 4L10 8Z"
+            fill="#535AF1"
+          />
+        </svg>
+        Ältere Nachrichten laden
+      </button>
+    </div>
+    } @if (messages$ | async; as messages) { @for (message of messages; track message.id) {
 
     <div class="message-item">
       @if (message.showDateSeparator) {

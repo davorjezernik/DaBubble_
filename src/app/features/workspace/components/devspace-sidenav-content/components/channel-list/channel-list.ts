@@ -1,6 +1,7 @@
 import { Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
 import { ChannelItem } from '../../../channel-item/channel-item';
 import { combineLatest, firstValueFrom, map, Subscription } from 'rxjs';
+import { auditTime } from 'rxjs/operators';
 import { User } from '../../../../../../../models/user.class';
 import { stringMatches } from '../../../../../../shared/utils/search-utils';
 import { collection, doc, Firestore, serverTimestamp, writeBatch } from '@angular/fire/firestore';
@@ -143,9 +144,15 @@ export class ChannelList implements OnInit, OnDestroy, OnChanges {
   }
 
   private subscribeToChannelUnreadCounts(myChannels: any[], meUid: string) {
-    const streams = myChannels.map((c) => this.read.unreadChannelCount$(c.id, meUid));
+    // Only load unread counts for visible channels to reduce Firestore listeners
+    const visibleChannels = myChannels.slice(0, this.maxVisibleChannels);
+    
+    const streams = visibleChannels.map((c) => this.read.unreadChannelCount$(c.id, meUid));
     this.totalUnreadChannelsSub = combineLatest(streams)
-      .pipe(map((arr) => arr.reduce((s, n) => s + (n || 0), 0)))
+      .pipe(
+        auditTime(500), // Debounce rapid updates
+        map((arr) => arr.reduce((s, n) => s + (n || 0), 0))
+      )
       .subscribe((sum) => (this.totalUnreadChannels = sum));
   }
 

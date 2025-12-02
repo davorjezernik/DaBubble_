@@ -1,6 +1,8 @@
 import { Injectable } from '@angular/core';
 import { Firestore, doc, updateDoc, deleteField } from '@angular/fire/firestore';
 import { UserService } from '../../../../services/user.service';
+import { Subject } from 'rxjs';
+import { debounceTime } from 'rxjs/operators';
 
 export interface MessageReaction {
   emoji: string;
@@ -15,10 +17,17 @@ export interface MessageReaction {
 export class MessageLogicService {
   private nameCache = new Map<string, string>();
   private subscribedUids = new Set<string>();
+  private userLoadQueue = new Set<string>();
+  private userLoadSubject = new Subject<void>();
   /** Callback invoked when new user names arrive so component can rebuild reactions */
   onNamesUpdated?: () => void;
 
-  constructor(private firestore: Firestore, private userService: UserService) {}
+  constructor(private firestore: Firestore, private userService: UserService) {
+    // Process batched user lookups every 300ms to reduce Firestore reads
+    this.userLoadSubject
+      .pipe(debounceTime(300))
+      .subscribe(() => this.processBatchedUserLoads());
+  }
 
   /**
    * Build the Firestore document path for a message.
@@ -101,12 +110,33 @@ export class MessageLogicService {
 
   /**
    * Ensure user names are loaded for given user IDs.
+   * Batches requests to reduce Firestore reads.
    * @param uids Array of user IDs to load names for.
-   * Side effects: subscribes to user data, updates nameCache, triggers onNamesUpdated callback.
+   * Side effects: queues user loads, triggers batch processing after debounce.
    */
   private ensureNamesLoaded(uids: string[]) {
     for (const id of uids) {
       if (this.nameCache.has(id) || this.subscribedUids.has(id)) continue;
+      // Queue for batched loading instead of immediate subscription
+      this.userLoadQueue.add(id);
+    }
+    // Trigger debounced batch processing
+    if (this.userLoadQueue.size > 0) {
+      this.userLoadSubject.next();
+    }
+  }
+
+  /**
+   * Process batched user loads to minimize Firestore reads.
+   * Subscribes to all queued user IDs at once.
+   * Side effects: subscribes to user data, updates nameCache, triggers onNamesUpdated callback.
+   */
+  private processBatchedUserLoads(): void {
+    const uids = Array.from(this.userLoadQueue);
+    this.userLoadQueue.clear();
+
+    for (const id of uids) {
+      if (this.subscribedUids.has(id)) continue;
       this.subscribedUids.add(id);
       this.userService.userById$(id).subscribe((u: any) => {
         if (u) this.nameCache.set(id, String(u.name ?? ''));

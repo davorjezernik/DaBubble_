@@ -1,7 +1,7 @@
 <section class="chat-container">
   <header class="chat-header">
     <section>
-      <button class="channel-info-btn" [class.basic-chat]="channelData?.name === 'everyone'">
+      <button class="channel-info-btn" [class.basic-chat]="(channel$ | async)?.name === 'everyone'">
         <svg
           class="info-hashtag"
           width="32"
@@ -16,7 +16,7 @@
           />
         </svg>
         <span class="channel-name" (click)="openEditChannel($event)" title="Kanal bearbeiten">{{
-          channelData?.name
+          (channel$ | async)?.name
         }}</span>
         <svg
           class="info-arrow"
@@ -90,9 +90,27 @@
     *ngIf="messages$ | async as messages"
     [class.empty]="messages.length === 0"
   >
-    @if (messages.length === 0) {
+    @if (hasMore$ | async) {
+    <div class="load-more-container">
+      <button class="load-more-btn" (click)="loadMoreMessages()" type="button">
+        <svg
+          width="20"
+          height="20"
+          viewBox="0 0 20 20"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M10 14L6 10L7.4 8.6L10 11.2L12.6 8.6L14 10L10 14ZM10 8L6 4L7.4 2.6L10 5.2L12.6 2.6L14 4L10 8Z"
+            fill="#535AF1"
+          />
+        </svg>
+        Ältere Nachrichten laden
+      </button>
+    </div>
+    } @if (messages.length === 0) {
     <section>
-      <button class="channel-info-btn" [class.basic-chat]="channelData?.name === 'everyone'">
+      <button class="channel-info-btn" [class.basic-chat]="(channel$ | async)?.name === 'everyone'">
         <svg
           class="info-hashtag"
           width="32"
@@ -106,7 +124,7 @@
             fill="black"
           />
         </svg>
-        <span class="channel-name">{{ channelData?.name }}</span>
+        <span class="channel-name">{{ (channel$ | async)?.name }}</span>
         <svg
           class="info-arrow arrow-visibility"
           width="30"
@@ -125,7 +143,7 @@
         Channel wurde erstellt. Das ist der Anfang des Channels&nbsp;
         <span class="current-channel">
           <img src="assets/icons/small-hashtag.svg" alt="hashtag" />
-          <span>{{ channelData?.name }}</span>
+          <span>{{ (channel$ | async)?.name }}</span>
         </span>
         .
       </p>
@@ -173,7 +191,7 @@
   </main>
   <footer class="footer">
     <app-message-area-component
-      [channelName]="channelData?.name || ''"
+      [channelName]="(channel$ | async)?.name || ''"
       (send)="handleNewMessage($event)"
     ></app-message-area-component>
   </footer>

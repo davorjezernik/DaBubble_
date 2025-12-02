@@ -66,6 +66,7 @@ export class ThreadSidenavContent implements OnInit, OnDestroy, OnChanges, After
   answersAmountSub?: Subscription;
   answersDataSub?: Subscription;
   channelNameSub?: Subscription;
+  private subscriptions = new Subscription(); // Centralized subscription management
 
   messages: any[] = [];
 
@@ -105,6 +106,7 @@ export class ThreadSidenavContent implements OnInit, OnDestroy, OnChanges, After
   }
 
   ngOnDestroy(): void {
+    this.subscriptions.unsubscribe();
     this.messageDataSub?.unsubscribe();
     this.userDataSub?.unsubscribe();
     this.answersAmountSub?.unsubscribe();

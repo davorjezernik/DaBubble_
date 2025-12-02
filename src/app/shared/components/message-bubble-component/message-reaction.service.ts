@@ -2,7 +2,8 @@ import { Injectable } from '@angular/core';
 import { Firestore, doc, updateDoc, deleteField } from '@angular/fire/firestore';
 import { UserService } from '../../../../services/user.service';
 import { MessageLogicService, MessageReaction } from './message-logic.service';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, Subject } from 'rxjs';
+import { debounceTime } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -18,11 +19,24 @@ export class MessageReactionService {
   private _editEmojiPickerVisible = new BehaviorSubject<boolean>(false);
   public editEmojiPickerVisible$ = this._editEmojiPickerVisible.asObservable();
   
+  private reactionClickSubject = new Subject<{
+    path: string;
+    emoji: string;
+    currentUserId: string;
+  }>();
+  
   constructor(
     private firestore: Firestore,
     private userService: UserService,
     private messageLogic: MessageLogicService
-  ) { }
+  ) {
+    // Debounce reaction clicks to prevent rapid Firestore writes
+    this.reactionClickSubject
+      .pipe(debounceTime(300))
+      .subscribe(({ path, emoji, currentUserId }) => {
+        this.processReactionClick(path, emoji, currentUserId);
+      });
+  }
 
   /**
    * Rebuild reactions array from Firestore reactionsMap.
@@ -98,6 +112,17 @@ export class MessageReactionService {
   async handleReactionClick(path: string | null, emoji: string, currentUserId: string) {
     if (!path) return;
     
+    // Debounce via Subject to prevent rapid clicks
+    this.reactionClickSubject.next({ path, emoji, currentUserId });
+  }
+
+  /**
+   * Process the debounced reaction click.
+   * @param path The Firestore document path for the message.
+   * @param emoji The unicode emoji string being toggled.
+   * @param currentUserId The current user's ID.
+   */
+  private async processReactionClick(path: string, emoji: string, currentUserId: string) {
     const currentReactions = this._reactions.getValue();
     const reaction = currentReactions.find(r => r.emoji === emoji);
 

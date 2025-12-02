@@ -223,6 +223,39 @@
   margin-left: 24px;
 }
 
+.load-more-container {
+  display: flex;
+  justify-content: center;
+  padding: 20px 0;
+}
+
+.load-more-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background-color: #eceefe;
+  border-radius: 25px;
+  font-family: 'Nunito', sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  color: #535af1;
+  transition: all 150ms ease-in-out;
+
+  &:hover {
+    background-color: #535af1;
+    color: white;
+
+    svg path {
+      fill: white;
+    }
+  }
+
+  svg {
+    transition: all 150ms ease-in-out;
+  }
+}
+
 @media (orientation: landscape) and (max-height: 500px) {
   .footer {
   padding: 0 35px 20px 35px;
