@@ -22,9 +22,9 @@ export class EmojiPickerComponent {
   }
 
   @HostListener('document:click', ['$event'])
+  /** Close picker when clicking outside the picker container or trigger button. */
   clickOutside(event: MouseEvent) {
     const target = event.target as HTMLElement;
-    /** Close picker when clicking outside the picker container or trigger button. */
     if (!target.closest('.emoji-picker-container') && !target.closest('.icon-btn')) {
       this.closePicker.emit();
     }

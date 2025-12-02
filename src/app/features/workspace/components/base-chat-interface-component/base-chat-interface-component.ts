@@ -208,7 +208,20 @@ export abstract class BaseChatInterfaceComponent implements OnInit, OnDestroy {
   async handleNewMessage(messageText: string): Promise<void> {
     if (!this.chatId || !this.currentUserId) return;
 
-    const messageData = {
+    const messageData = this.getMessageData(messageText);
+
+    const messagesCollectionRef = this.getMessagesCollectionRef();
+    this.scrollAfterMySend = true;
+    await addDoc(messagesCollectionRef, messageData);
+  }
+
+  /**
+   * Prepare the message data object for sending.
+   * @param messageText Plain text content of the message.
+   * @returns The message data object to be stored in Firestore.
+   */
+  private getMessageData(messageText: string) {
+    return {
       text: messageText,
       timestamp: serverTimestamp(),
       sortAt: Timestamp.now(),
@@ -216,14 +229,14 @@ export abstract class BaseChatInterfaceComponent implements OnInit, OnDestroy {
       authorAvatar: this.currentUserAvatar,
       authorName: this.currentUserDisplayName,
     };
+  }
 
-    const messagesCollectionRef = collection(
+  /** Get the Firestore collection reference for messages in the current chat. */
+  private getMessagesCollectionRef() {
+    return collection(
       this.firestore,
       `${this.collectionName}/${this.chatId}/messages`
     );
-    // Mark that the next messages$ emission should trigger an autoscroll
-    this.scrollAfterMySend = true;
-    await addDoc(messagesCollectionRef, messageData);
   }
 
   /**

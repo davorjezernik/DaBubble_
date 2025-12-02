@@ -85,35 +85,18 @@ export class HeaderWorkspaceComponent implements OnInit, OnDestroy {
   }
 
   openUserMenu(evt: MouseEvent) {
-    const trigger = evt.currentTarget as HTMLElement;
-    const avatar = (trigger.querySelector('.avatar-wrap') as HTMLElement) ?? trigger;
-    const r = avatar.getBoundingClientRect();
+    const { r, GAP, MARGIN, MENU_W } = this.getAvatarDialogDistance(evt);
 
-    const GAP = 8;
-    const MARGIN = 16;
-    const MENU_W = window.innerWidth <= 880 ? 350 : 300;
+    if (window.innerWidth <= 400) return this.openMobileMenuDialog();
 
-    // if smaller than 400px //
-    if (window.innerWidth <= 400) {
-      const ref = this.bottomSheet.open(UserMenuDialogComponent, {
-        data: {},
-        panelClass: 'user-menu-bottom',
-      });
-      ref
-        .afterDismissed()
-        .pipe(take(1))
-        .subscribe((action) => {
-          if (action === 'profile') this.openProfil();
-          if (action === 'logout') this.logout();
-        });
-      return;
-    }
+    const { left, top } = this.defineMenuDialogPosition(r, GAP, MARGIN, MENU_W);
 
-    let left = r.right - MENU_W;
-    left = Math.max(MARGIN, Math.min(left, window.innerWidth - MENU_W - MARGIN));
-    const top = r.bottom + GAP;
+    const ref = this.openDesktopMenuDialog(left, top);
+    this.closeDesktopMenuDialog(ref);
+  }
 
-    const ref = this.dialog.open(UserMenuDialogComponent, {
+  private openDesktopMenuDialog(left: number, top: number) {
+    return this.dialog.open(UserMenuDialogComponent, {
       data: {},
       panelClass: 'user-menu-dialog',
       hasBackdrop: true,
@@ -121,14 +104,47 @@ export class HeaderWorkspaceComponent implements OnInit, OnDestroy {
       restoreFocus: true,
       position: { top: `${top}px`, left: `${left}px` },
     });
+  }
 
+  private closeDesktopMenuDialog(ref: any) {
     ref
       .afterClosed()
       .pipe(take(1))
-      .subscribe((action) => {
+      .subscribe((action: 'profile' | 'logout' | undefined) => {
         if (action === 'profile') this.openProfil();
         if (action === 'logout') this.logout();
       });
+  }
+
+  private defineMenuDialogPosition(r: DOMRect, GAP: number, MARGIN: number, MENU_W: number) {
+    let left = r.right - MENU_W;
+    left = Math.max(MARGIN, Math.min(left, window.innerWidth - MENU_W - MARGIN));
+    const top = r.bottom + GAP;
+    return { left, top };
+  }
+
+  private openMobileMenuDialog() {
+    const ref = this.bottomSheet.open(UserMenuDialogComponent, {
+      data: {},
+      panelClass: 'user-menu-bottom',
+    });
+    ref
+      .afterDismissed()
+      .pipe(take(1))
+      .subscribe((action: 'profile' | 'logout' | undefined) => {
+        if (action === 'profile') this.openProfil();
+        if (action === 'logout') this.logout();
+      });
+  }
+
+  private getAvatarDialogDistance(evt: MouseEvent) {
+    const trigger = evt.currentTarget as HTMLElement;
+    const avatar = (trigger.querySelector('.avatar-wrap') as HTMLElement) ?? trigger;
+    const r = avatar.getBoundingClientRect();
+    const GAP = 8;
+    const MARGIN = 16;
+    const MENU_W = window.innerWidth <= 880 ? 350 : 300;
+    return { r, GAP, MARGIN, MENU_W };
   }
 
   openProfil() {
