@@ -12,6 +12,10 @@ export class ContactChip {
   @Input() usersSelected!: MentionUser[];
   @Input() isRemovable: boolean = true;
 
+  /**
+   * Remove a user by uid from the selected users list if removable.
+   * @param uid The user id to remove
+   */
   removeAddedUser(uid: string) {
     if (this.usersSelected && this.isRemovable) {
       const index = this.usersSelected.findIndex((user) => user.uid === uid);

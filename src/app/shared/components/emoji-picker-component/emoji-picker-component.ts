@@ -13,6 +13,10 @@ export class EmojiPickerComponent {
   @Output() emojiSelected = new EventEmitter<string>();
   @Output() closePicker = new EventEmitter<void>();
 
+  /**
+   * Emit the selected emoji's unicode string from emoji-mart picker event.
+   * @param event Emoji-mart selection event containing `emoji.native`
+   */
   addEmoji(event: any) {
     this.emojiSelected.emit(event.emoji.native);
   }
@@ -20,8 +24,7 @@ export class EmojiPickerComponent {
   @HostListener('document:click', ['$event'])
   clickOutside(event: MouseEvent) {
     const target = event.target as HTMLElement;
-
-    // If click is not on the picker or the button, close picker
+    /** Close picker when clicking outside the picker container or trigger button. */
     if (!target.closest('.emoji-picker-container') && !target.closest('.icon-btn')) {
       this.closePicker.emit();
     }

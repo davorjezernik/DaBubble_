@@ -42,7 +42,18 @@ export class MentionListComponent implements OnDestroy, OnInit {
   @Input() allowRawEmail = true;
   @Input() showEmail = false;
 
+  ngOnInit(): void {}
+
+  /** Clean up current user subscription. */
+  ngOnDestroy(): void {
+    this.currentUserSub?.unsubscribe();
+  }
+
   private _users: MentionUser[] = [];
+  /**
+   * Visible users computed from the backing list, search term, and selected users.
+   * Current user is prioritized to the top when present.
+   */
   get users(): MentionUser[] {
     this.sanitizeSearchTerm();
     const filteredUsers = this.filterByInputValue();
@@ -51,6 +62,7 @@ export class MentionListComponent implements OnDestroy, OnInit {
     return this.returnSortedUsers(alreadySelectedUsers);
   }
 
+  /** Normalize search term: trim and remove leading '@' or '#' mention prefixes. */
   private sanitizeSearchTerm() {
     if (this.searchTerm) {
       const trimmed = (this.searchTerm = this.searchTerm.trim());
@@ -62,6 +74,7 @@ export class MentionListComponent implements OnDestroy, OnInit {
     }
   }
 
+  /** Filter backing users by case-insensitive name or email match against `searchTerm`. */
   private filterByInputValue() {
     const q = (this.searchTerm || '').toLowerCase();
     return this._users.filter(
@@ -69,12 +82,14 @@ export class MentionListComponent implements OnDestroy, OnInit {
     );
   }
 
+  /** Exclude users that are already selected from the filtered result. */
   private filterAlreadyChosen(filteredUsers: MentionUser[]) {
     return filteredUsers.filter(
       (u) => u.uid !== this.allSelectedUsers.find((su) => su.uid === u.uid)?.uid
     );
   }
 
+  /** Sort users so that the current user (if present) appears first. */
   returnSortedUsers(filteredUsers: MentionUser[]) {
     return [...filteredUsers].sort((a, b) =>
       a.uid === this.currentUserId ? -1 : b.uid === this.currentUserId ? 1 : 0
@@ -85,6 +100,7 @@ export class MentionListComponent implements OnDestroy, OnInit {
     this._users = value ?? [];
   }
 
+  /** Subscribe to current user to prioritize self in lists. */
   constructor() {
     this.currentUserSub?.unsubscribe();
     this.currentUserSub = this.userService.currentUser$().subscribe((u) => {
@@ -92,16 +108,14 @@ export class MentionListComponent implements OnDestroy, OnInit {
     });
   }
 
-  ngOnInit(): void {}
-
-  ngOnDestroy(): void {
-    this.currentUserSub?.unsubscribe();
-  }
-
+  /** Basic email format validation. */
   private isValidEmail(v: string): boolean {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test((v || '').trim());
   }
 
+  /**
+   * Provide a raw email option when allowed and not already present in users.
+   */
   get noUserEmailOption(): string | null {
     const q = (this.searchTerm || '').trim();
     if (!this.allowRawEmail || !this.isValidEmail(q)) return null;
@@ -109,19 +123,23 @@ export class MentionListComponent implements OnDestroy, OnInit {
     return exists ? null : q;
   }
 
+  /** Emit mention token for a picked user. */
   onPickUser(u: MentionUser) {
     this.pick.emit(`@${u.name} `);
   }
 
+  /** Emit mention token for a picked channel and propagate selection. */
   onPickChannel(c: MentionChannel) {
     this.pick.emit(`#${c.name} `);
     this.channelSelected.emit(c);
   }
 
+  /** Emit full user selection for multi-select contexts. */
   onUserSelected(u: MentionUser) {
     this.userSelected.emit(u);
   }
 
+  /** Channels view filtered by the current search term (supports '#' prefix). */
   get channelsView(): MentionChannel[] {
     const qRaw = (this.searchTerm || '').trim();
     const q = (qRaw.startsWith('#') ? qRaw.slice(1) : qRaw).toLowerCase();

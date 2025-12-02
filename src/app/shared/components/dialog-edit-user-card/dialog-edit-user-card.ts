@@ -11,11 +11,14 @@ import { User } from './../../../../models/user.class';
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, MatDialogModule, MatInputModule, MatButtonModule],
   templateUrl: './dialog-edit-user-card.html',
-  styleUrl: './dialog-edit-user-card.scss'
+  styleUrl: './dialog-edit-user-card.scss',
 })
 export class DialogEditUserCardComponent {
   nameCtrl = new FormControl<string>('');
 
+  /**
+   * Initialize the name control with the current user's name.
+   */
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: { user: User },
     private dialogRef: MatDialogRef<DialogEditUserCardComponent>
@@ -23,13 +26,21 @@ export class DialogEditUserCardComponent {
     this.nameCtrl.setValue(data.user.name || '');
   }
 
+  /** Close the dialog without returning a value. */
   close() {
     this.dialogRef.close();
   }
 
+  /**
+   * Trim and validate the input, then close dialog returning the new name.
+   * Closes without value when the input is empty.
+   */
   save() {
     const newName = (this.nameCtrl.value ?? '').trim();
-    if (!newName) { this.dialogRef.close(); return; }
+    if (!newName) {
+      this.dialogRef.close();
+      return;
+    }
     this.dialogRef.close(newName);
   }
 }
