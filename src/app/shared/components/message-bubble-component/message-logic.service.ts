@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Firestore, doc, updateDoc, deleteField } from '@angular/fire/firestore';
 import { UserService } from '../../../../services/user.service';
+import { Subject, debounceTime } from 'rxjs';
 
 export interface MessageReaction {
   emoji: string;
@@ -15,10 +16,20 @@ export interface MessageReaction {
 export class MessageLogicService {
   private nameCache = new Map<string, string>();
   private subscribedUids = new Set<string>();
+  
+  // Batched User Loading (TIER 4, Fix 14)
+  private userLoadQueue = new Set<string>();
+  private userLoadSubject = new Subject<void>();
+  
   /** Callback invoked when new user names arrive so component can rebuild reactions */
   onNamesUpdated?: () => void;
 
-  constructor(private firestore: Firestore, private userService: UserService) {}
+  constructor(private firestore: Firestore, private userService: UserService) {
+    // Batch-Verarbeitung alle 300ms (TIER 4, Fix 14)
+    this.userLoadSubject.pipe(
+      debounceTime(300)
+    ).subscribe(() => this.processBatchedUserLoads());
+  }
 
   /**
    * Build the Firestore document path for a message.
@@ -101,12 +112,33 @@ export class MessageLogicService {
 
   /**
    * Ensure user names are loaded for given user IDs.
+   * Uses batched loading with 300ms debounce (TIER 4, Fix 14)
    * @param uids Array of user IDs to load names for.
-   * Side effects: subscribes to user data, updates nameCache, triggers onNamesUpdated callback.
+   * Side effects: queues users for batch loading, updates nameCache, triggers onNamesUpdated callback.
    */
   private ensureNamesLoaded(uids: string[]) {
     for (const id of uids) {
       if (this.nameCache.has(id) || this.subscribedUids.has(id)) continue;
+      // Zur Batch-Queue hinzufügen statt sofort zu laden (TIER 4, Fix 14)
+      this.userLoadQueue.add(id);
+    }
+    // Batch-Verarbeitung triggern (TIER 4, Fix 14)
+    if (this.userLoadQueue.size > 0) {
+      this.userLoadSubject.next();
+    }
+  }
+
+  /**
+   * Batch-Verarbeitung für User-Loading (TIER 4, Fix 14)
+   * Lädt alle Users aus der Queue in einem Batch
+   * Side effects: subscribes to user data, updates nameCache, clears queue, triggers onNamesUpdated callback.
+   */
+  private processBatchedUserLoads(): void {
+    const uids = Array.from(this.userLoadQueue);
+    this.userLoadQueue.clear();
+
+    for (const id of uids) {
+      if (this.subscribedUids.has(id)) continue;
       this.subscribedUids.add(id);
       this.userService.userById$(id).subscribe((u: any) => {
         if (u) this.nameCache.set(id, String(u.name ?? ''));

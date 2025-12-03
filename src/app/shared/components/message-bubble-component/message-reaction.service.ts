@@ -2,7 +2,8 @@ import { Injectable } from '@angular/core';
 import { Firestore, doc, updateDoc, deleteField } from '@angular/fire/firestore';
 import { UserService } from '../../../../services/user.service';
 import { MessageLogicService, MessageReaction } from './message-logic.service';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, Subject } from 'rxjs';
+import { debounceTime } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -17,12 +18,32 @@ export class MessageReactionService {
 
   private _editEmojiPickerVisible = new BehaviorSubject<boolean>(false);
   public editEmojiPickerVisible$ = this._editEmojiPickerVisible.asObservable();
+
+  // Debouncing for reaction clicks
+  private reactionClickSubject = new Subject<{
+    path: string;
+    emoji: string;
+    currentUserId: string;
+    action: 'add' | 'remove';
+    isLegacyCount?: boolean;
+  }>();
   
   constructor(
     private firestore: Firestore,
     private userService: UserService,
     private messageLogic: MessageLogicService
-  ) { }
+  ) {
+    // Process reaction clicks with 300ms debounce to prevent rapid-fire writes
+    this.reactionClickSubject.pipe(
+      debounceTime(300)
+    ).subscribe(async ({ path, emoji, currentUserId, action, isLegacyCount }) => {
+      if (action === 'add') {
+        await this.messageLogic.addReaction(path, emoji, currentUserId, isLegacyCount);
+      } else {
+        await this.messageLogic.removeReaction(path, emoji, currentUserId, isLegacyCount);
+      }
+    });
+  }
 
   /**
    * Rebuild reactions array from Firestore reactionsMap.
@@ -93,7 +114,7 @@ export class MessageReactionService {
    * @param path The Firestore document path for the message.
    * @param emoji The unicode emoji string being toggled.
    * @param currentUserId The current user's ID.
-   * Side effects: adds reaction if not reacted, removes if already reacted.
+   * Side effects: queues reaction to be processed with debouncing.
    */
   async handleReactionClick(path: string | null, emoji: string, currentUserId: string) {
     if (!path) return;
@@ -102,14 +123,34 @@ export class MessageReactionService {
     const reaction = currentReactions.find(r => r.emoji === emoji);
 
     if (!reaction) {
-      await this.messageLogic.addReaction(path, emoji, currentUserId);
+      // Queue the add action with debouncing
+      this.reactionClickSubject.next({
+        path,
+        emoji,
+        currentUserId,
+        action: 'add'
+      });
       return;
     }
 
     if (reaction.currentUserReacted) {
-      await this.messageLogic.removeReaction(path, emoji, currentUserId, reaction.isLegacyCount);
+      // Queue the remove action with debouncing
+      this.reactionClickSubject.next({
+        path,
+        emoji,
+        currentUserId,
+        action: 'remove',
+        isLegacyCount: reaction.isLegacyCount
+      });
     } else {
-      await this.messageLogic.addReaction(path, emoji, currentUserId, reaction.isLegacyCount);
+      // Queue the add action with debouncing
+      this.reactionClickSubject.next({
+        path,
+        emoji,
+        currentUserId,
+        action: 'add',
+        isLegacyCount: reaction.isLegacyCount
+      });
     }
   }
 }

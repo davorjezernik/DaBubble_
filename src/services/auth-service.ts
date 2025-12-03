@@ -18,13 +18,20 @@ import { environment } from '../environments/environment';
 export class AuthService {
   private auth: Auth = inject(Auth);
   private env = inject(EnvironmentInjector);
-  public readonly currentUser$: Observable<User | null>;
+  private _currentUser$?: Observable<User | null>;
+
+  // Lazy initialization mit Getter (verhindert Injection Context Warnung)
+  public get currentUser$(): Observable<User | null> {
+    if (!this._currentUser$) {
+      this._currentUser$ = runInInjectionContext(this.env, () => 
+        authState(this.auth)
+      );
+    }
+    return this._currentUser$;
+  }
 
   constructor() {
-    // Injection Context Wrapper (TIER 3, Fix 10)
-    this.currentUser$ = runInInjectionContext(this.env, () => 
-      authState(this.auth)
-    );
+    // Empty constructor - currentUser$ wird beim ersten Zugriff initialisiert
   }
 
   loginWithEmail(email: string, password: string): Promise<any> {

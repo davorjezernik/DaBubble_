@@ -34,7 +34,7 @@ export const appConfig: ApplicationConfig = {
       const firestore = initializeFirestore(getApp(), {
         localCache: persistentLocalCache({
           tabManager: persistentMultipleTabManager(),
-          cacheSizeBytes: 1 * 1024 * 1024, // 1 MB Cache-Limit
+          cacheSizeBytes: 10 * 1024 * 1024, // 1 MB Cache-Limit
         }),
       });
       return firestore;
