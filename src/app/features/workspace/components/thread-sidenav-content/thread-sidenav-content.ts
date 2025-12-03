@@ -77,10 +77,16 @@ export class ThreadSidenavContent implements OnInit, OnDestroy, OnChanges, After
     public viewStateService: ViewStateService
   ) {}
 
+  /**
+   * Lifecycle hook: subscribes to current user data on component init.
+   */
   ngOnInit(): void {
     this.subscribeToUserData();
   }
 
+  /**
+   * Lifecycle hook: auto-scrolls to bottom after view checks when flagged.
+   */
   ngAfterViewChecked(): void {
     if (this.shouldScrollToBottom) {
       this.scrollToBottom();
@@ -88,12 +94,20 @@ export class ThreadSidenavContent implements OnInit, OnDestroy, OnChanges, After
     }
   }
 
+  /**
+   * Lifecycle hook: reacts to input changes by loading the trigger message,
+   * thread messages, and current channel name.
+   */
   ngOnChanges(): void {
     this.accessTriggerMessageData();
     this.getAllThreadMessages();
     this.getCurrentChannelName();
   }
 
+  /**
+   * Subscribes to channel name if the collection is `channels` and a `chatId` exists.
+   * Updates `channelName` reactively.
+   */
   private getCurrentChannelName() {
     if (this.collectionName !== 'channels' || !this.chatId) return;
     const channelDocRef = doc(this.firestore, `channels/${this.chatId}`);
@@ -103,6 +117,9 @@ export class ThreadSidenavContent implements OnInit, OnDestroy, OnChanges, After
     });
   }
 
+  /**
+   * Lifecycle hook: unsubscribes all active subscriptions to prevent leaks.
+   */
   ngOnDestroy(): void {
     this.messageDataSub?.unsubscribe();
     this.userDataSub?.unsubscribe();
@@ -111,12 +128,20 @@ export class ThreadSidenavContent implements OnInit, OnDestroy, OnChanges, After
     this.channelNameSub?.unsubscribe();
   }
 
+  /**
+   * Loads the selected trigger message and subscribes to its data and the current user.
+   * No-op when `chatId` or `messageId` is missing.
+   */
   private async accessTriggerMessageData() {
     if (!this.chatId || !this.messageId) return;
     this.subscribeToMessageData();
     this.subscribeToUserData();
   }
 
+  /**
+   * Subscribes to the selected message document and updates message details
+   * like text, author, avatar, timestamp, reactions, and edit state.
+   */
   private subscribeToMessageData() {
     this.messageDataSub?.unsubscribe();
     const messageDocRef = doc(
@@ -134,6 +159,9 @@ export class ThreadSidenavContent implements OnInit, OnDestroy, OnChanges, After
     });
   }
 
+  /**
+   * Subscribes to the current user and stores basic user info needed for threading.
+   */
   private subscribeToUserData() {
     this.userDataSub?.unsubscribe();
     this.userDataSub = this.userService.currentUser$().subscribe((user: any) => {
@@ -143,6 +171,12 @@ export class ThreadSidenavContent implements OnInit, OnDestroy, OnChanges, After
     });
   }
 
+  /**
+   * Handles posting a new thread message beneath the trigger message.
+   * No-op if `chatId` or `messageId` is missing.
+   *
+   * @param textMessage - The content of the thread message.
+   */
   public async handleNewMessage(textMessage: string) {
     if (!this.chatId || !this.messageId) return;
 
@@ -157,6 +191,10 @@ export class ThreadSidenavContent implements OnInit, OnDestroy, OnChanges, After
     });
   }
 
+  /**
+   * Subscribes to all thread messages for the current trigger message,
+   * keeps them ordered by timestamp, tracks count, and auto-scrolls on new entries.
+   */
   private getAllThreadMessages() {
     this.answersDataSub?.unsubscribe();
 
@@ -175,11 +213,17 @@ export class ThreadSidenavContent implements OnInit, OnDestroy, OnChanges, After
     });
   }
 
+  /**
+   * Emits close event and switches the view state back to the main chat.
+   */
   public onClose() {
     this.close.emit();
     this.viewStateService.currentView = 'chat';
   }
 
+  /**
+   * Smoothly scrolls the thread content container to the bottom.
+   */
   private scrollToBottom(): void {
     if (this.chatContent) {
       const element = this.chatContent.nativeElement;

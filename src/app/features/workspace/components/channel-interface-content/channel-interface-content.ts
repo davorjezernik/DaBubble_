@@ -565,17 +565,10 @@ export class ChannelInterfaceContent extends BaseChatInterfaceComponent {
    */
   openEditChannel(ev?: MouseEvent) {
     ev?.stopPropagation();
-    if (this.channelData?.name === 'everyone') {
-      return;
-    }
-    if (!this.channelData) return;
-    const ref = this.dialog.open(EditChannel, {
+    if (this.channelData?.name === 'everyone' || !this.channelData) return;
+    this.dialog.open(EditChannel, {
       data: { channel: this.channelData },
       autoFocus: false,
     });
-    ref
-      .afterClosed()
-      .pipe(take(1))
-      .subscribe((res) => {});
   }
 }

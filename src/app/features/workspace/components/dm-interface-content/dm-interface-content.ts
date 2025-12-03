@@ -45,6 +45,12 @@ export class DmInterfaceContent extends BaseChatInterfaceComponent {
     super(route, firestore, authService);
   }
 
+  /**
+   * Reacts to DM chatId changes by loading recipient metadata and
+   * marking the conversation as read for the current user.
+   *
+   * @param chatId - The DM chat document ID.
+   */
   override onChatIdChanged(chatId: string): void {
     this.loadRecipientData(chatId);
 
@@ -59,7 +65,12 @@ export class DmInterfaceContent extends BaseChatInterfaceComponent {
     }
   }
 
-  // for the message count //
+  /**
+   * Handles sending a new DM message and updates read/bump state accordingly.
+   *
+   * @param text - Message text content to send.
+   * @returns Promise resolved when the message is processed.
+   */
   override async handleNewMessage(text: string) {
     if (!this.chatId) return;
 
@@ -71,8 +82,7 @@ export class DmInterfaceContent extends BaseChatInterfaceComponent {
       await this.read.markDmRead(this.chatId, this.currentUserId);
     }
   }
-  // for the message count //
-  
+
   /**
    * Load the DM recipient's profile for the given chat.
    * - Determines if this is a self-DM (user messages themselves).
@@ -84,24 +94,54 @@ export class DmInterfaceContent extends BaseChatInterfaceComponent {
     const user = await firstValueFrom(this.authService.currentUser$);
     if (!user) return;
     this.isOwnDm = chatId === `${user.uid}-${user.uid}`;
-    const dmRef = doc(this.firestore, `dms/${chatId}`);
-    const dmSnap = await getDoc(dmRef);
+    const dmSnap = await this.getDmSnap(chatId);
 
     if (dmSnap.exists()) {
-      const dmData = dmSnap.data();
-      const members = dmData['members'] as string[];
-      const recipientId = members.find((id) => id !== user.uid);
-
-      if (recipientId) {
-        this.recipientData = await this.getUserData(recipientId);
-      } else if (this.isOwnDm) {
-        this.recipientData = await this.getUserData(user.uid);
-      } else {
-        this.recipientData = null;
-      }
+      const recipientId = this.getRecipientId(dmSnap, user);
+      await this.setRecipientData(recipientId, user);
     } else {
       this.recipientData = null;
     }
+  }
+
+  /**
+   * Resolves and sets `recipientData` based on recipientId and self-DM status.
+   *
+   * @param recipientId - UID of the other member in the DM.
+   * @param user - Current authenticated user.
+   */
+  private async setRecipientData(recipientId: string | undefined, user: any) {
+    if (recipientId) {
+      this.recipientData = await this.getUserData(recipientId);
+    } else if (this.isOwnDm) {
+      this.recipientData = await this.getUserData(user.uid);
+    } else {
+      this.recipientData = null;
+    }
+  }
+
+  /**
+   * Determines the recipient UID from the DM snapshot excluding the current user.
+   *
+   * @param dmSnap - Firestore document snapshot of the DM.
+   * @param user - Current user used for exclusion.
+   * @returns The recipient's UID if found.
+   */
+  private getRecipientId(dmSnap: any, user: any) {
+    const dmData = dmSnap.data();
+    const members = dmData['members'] as string[];
+    return members.find((id) => id !== user.uid);
+  }
+
+  /**
+   * Fetches the DM document snapshot from Firestore by chatId.
+   *
+   * @param chatId - The DM document ID.
+   * @returns Promise resolving to the document snapshot.
+   */
+  private async getDmSnap(chatId: string) {
+    const dmRef = doc(this.firestore, `dms/${chatId}`);
+    return getDoc(dmRef);
   }
 
   /**
