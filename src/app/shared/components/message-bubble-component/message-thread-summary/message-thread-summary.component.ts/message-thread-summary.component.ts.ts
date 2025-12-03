@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, OnChanges, OnDestroy, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnDestroy, Output, EnvironmentInjector, inject } from '@angular/core';
+import { runInInjectionContext } from '@angular/core';
 import { collection, Firestore, query, orderBy, limit, getCountFromServer, getDocs } from '@angular/fire/firestore';
 import { Subscription } from 'rxjs';
 
@@ -17,8 +18,23 @@ export class MessageThreadSummaryComponent implements OnDestroy, OnChanges {
 
   lastTime: string = '';
   answersCount: number = 0;
+  private env = inject(EnvironmentInjector);
 
   constructor(private firestore: Firestore) {}
+
+  /**
+   * Wrapper for getCountFromServer to run within injection context
+   */
+  private async getCountFromServer$(query: any): Promise<any> {
+    return runInInjectionContext(this.env, () => getCountFromServer(query));
+  }
+
+  /**
+   * Wrapper for getDocs to run within injection context
+   */
+  private async getDocs$(query: any): Promise<any> {
+    return runInInjectionContext(this.env, () => getDocs(query));
+  }
 
   ngOnDestroy(): void {
     // Keine Subscriptions mehr zu cleanup
@@ -53,7 +69,7 @@ export class MessageThreadSummaryComponent implements OnDestroy, OnChanges {
    */
   private async getAnswersAmount(coll: any) {
     try {
-      const snapshot = await getCountFromServer(query(coll));
+      const snapshot = await this.getCountFromServer$(query(coll));
       this.answersCount = snapshot.data().count;
     } catch (error) {
       console.warn('Failed to get thread count:', error);
@@ -68,7 +84,7 @@ export class MessageThreadSummaryComponent implements OnDestroy, OnChanges {
   private async getLastAnswerTime(coll: any) {
     try {
       const q = query(coll, orderBy('timestamp', 'desc'), limit(1));
-      const snapshot = await getDocs(q);
+      const snapshot = await this.getDocs$(q);
       
       if (!snapshot.empty) {
         const docData = snapshot.docs[0].data() as any;

@@ -2,13 +2,16 @@ import {
   AfterViewChecked,
   Component,
   ElementRef,
+  EnvironmentInjector,
   EventEmitter,
+  inject,
   Input,
   OnChanges,
   OnDestroy,
   OnInit,
   Output,
   ViewChild,
+  runInInjectionContext,
 } from '@angular/core';
 import { MessageAreaComponent } from '../../../../shared/components/message-area-component/message-area-component';
 import {
@@ -52,6 +55,21 @@ export class ThreadSidenavContent implements OnInit, OnDestroy, OnChanges, After
   messageReactions?: Record<string, number>;
   messageEdited: boolean = false;
   channelName: string = '';
+  private env = inject(EnvironmentInjector);
+
+  /**
+   * Wrapper for docData to run within injection context
+   */
+  private docData$<T>(docRef: any): any {
+    return runInInjectionContext(this.env, () => docData(docRef));
+  }
+
+  /**
+   * Wrapper for collectionData to run within injection context
+   */
+  private collectionData$<T>(query: any, options?: any): any {
+    return runInInjectionContext(this.env, () => collectionData(query, options));
+  }
 
   currentUserData = {
     id: '',
@@ -150,7 +168,7 @@ export class ThreadSidenavContent implements OnInit, OnDestroy, OnChanges, After
       this.firestore,
       `${this.collectionName}/${this.chatId}/messages/${this.messageId}`
     );
-    this.messageDataSub = docData(messageDocRef).subscribe((messageData: any) => {
+    this.messageDataSub = this.docData$(messageDocRef).subscribe((messageData: any) => {
       this.messageText = messageData.text || '';
       this.senderId = messageData.authorId || '';
       this.senderAvatar = messageData.authorAvatar || 'assets/img-profile/profile.png';
@@ -206,7 +224,7 @@ export class ThreadSidenavContent implements OnInit, OnDestroy, OnChanges, After
     );
     const q = query(messagesRef, orderBy('timestamp', 'asc'));
 
-    this.answersDataSub = collectionData(q, { idField: 'id' }).subscribe((data: any) => {
+    this.answersDataSub = this.collectionData$(q, { idField: 'id' }).subscribe((data: any) => {
       if (data.length > this.messages.length) {
         this.shouldScrollToBottom = true;
       }

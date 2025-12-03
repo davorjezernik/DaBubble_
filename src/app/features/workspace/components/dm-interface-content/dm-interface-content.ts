@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { Component, EnvironmentInjector, inject } from '@angular/core';
+import { runInInjectionContext } from '@angular/core';
 import { MessageAreaComponent } from '../../../../shared/components/message-area-component/message-area-component';
 import { Firestore, doc, getDoc } from '@angular/fire/firestore';
 import { CommonModule } from '@angular/common';
@@ -141,7 +142,7 @@ export class DmInterfaceContent extends BaseChatInterfaceComponent {
    */
   private async getDmSnap(chatId: string) {
     const dmRef = doc(this.firestore, `dms/${chatId}`);
-    return getDoc(dmRef);
+    return runInInjectionContext(this.env, () => getDoc(dmRef));
   }
 
   /**

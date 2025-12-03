@@ -1,4 +1,4 @@
-import { Directive, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { Directive, ElementRef, OnDestroy, OnInit, ViewChild, EnvironmentInjector, inject, runInInjectionContext } from '@angular/core';
 import {
   addDoc,
   collection,
@@ -38,6 +38,23 @@ export abstract class BaseChatInterfaceComponent implements OnInit, OnDestroy {
   /** Scroll behavior flags */
   private scrollAfterMySend = false; // only scroll when I send via message area
   private initialLoadPending = true; // keep autoscroll on first load
+  protected env = inject(EnvironmentInjector);
+
+  /**
+   * Wrapper to run Firebase API calls within injection context
+   */
+  private collectionData$<T>(query: any, options?: any): Observable<T[]> {
+    return runInInjectionContext(this.env, () => 
+      collectionData(query, options) as Observable<T[]>
+    );
+  }
+
+  /**
+   * Wrapper for getDoc to run within injection context
+   */
+  private async getDoc$<T>(docRef: any): Promise<any> {
+    return runInInjectionContext(this.env, () => getDoc(docRef));
+  }
 
   constructor(
     protected route: ActivatedRoute,
@@ -156,7 +173,7 @@ export abstract class BaseChatInterfaceComponent implements OnInit, OnDestroy {
     const messagesRef = collection(this.firestore, `${this.collectionName}/${id}/messages`);
     const q = query(messagesRef, orderBy('timestamp', 'desc'));
 
-    return collectionData(q, { idField: 'id' }).pipe(
+    return this.collectionData$(q, { idField: 'id' }).pipe(
       map((messages: any[]) => this.processMessages(messages))
     );
   }
@@ -246,7 +263,7 @@ export abstract class BaseChatInterfaceComponent implements OnInit, OnDestroy {
    */
   protected async getUserData(userId: string): Promise<any | null> {
     const userRef = doc(this.firestore, `users/${userId}`);
-    const userSnap = await getDoc(userRef);
+    const userSnap = await this.getDoc$(userRef);
     if (!userSnap.exists()) return null;
     const data: any = userSnap.data();
     data.avatar = this.normalizeAvatar(data?.avatar);
