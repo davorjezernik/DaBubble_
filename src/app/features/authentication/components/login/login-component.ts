@@ -48,6 +48,8 @@ export class LoginComponent {
   emailErrorMessage = signal('');
   passwordErrorMessage = signal('');
 
+  isLoading = true;
+
   constructor(
     public router: Router,
     private authService: AuthService,
@@ -58,11 +60,17 @@ export class LoginComponent {
       .subscribe(() => this.updateErrorMessages());
   }
 
+  /**
+   * Updates both email and password error messages based on form control state.
+   */
   updateErrorMessages() {
     this.updateEmailErrorMessage();
     this.updatePasswordErrorMessage();
   }
 
+  /**
+   * Sets a user-friendly error message for the email field.
+   */
   updateEmailErrorMessage() {
     const emailControl = this.loginForm.controls.email;
     if (emailControl.hasError('loginFailed')) {
@@ -74,6 +82,9 @@ export class LoginComponent {
     }
   }
 
+  /**
+   * Sets a user-friendly error message for the password field.
+   */
   updatePasswordErrorMessage() {
     const passwordControl = this.loginForm.controls.password;
     if (passwordControl.hasError('loginFailed')) {
@@ -85,41 +96,63 @@ export class LoginComponent {
     }
   }
 
-  isLoading = true;
-
+  /**
+   * Attempts to log in the user with email and password.
+   * On failure, marks controls with `loginFailed` error and updates messages.
+   */
   async login() {
     if (this.loginForm.invalid) return;
-
     const { email, password } = this.loginForm.getRawValue();
-
     try {
       await this.authService.loginWithEmail(email!, password!);
       await this.navigateToSelfDm();
     } catch (err: any) {
-      console.log(err);
-      this.loginForm.controls.email.setErrors({ loginFailed: true });
-      this.loginForm.controls.password.setErrors({ loginFailed: true });
-      this.updateErrorMessages();
+      this.setErrorMessages();
     }
   }
 
+  /**
+   * Marks form controls with a `loginFailed` error and updates the messages.
+   */
+  private setErrorMessages() {
+    this.loginForm.controls.email.setErrors({ loginFailed: true });
+    this.loginForm.controls.password.setErrors({ loginFailed: true });
+    this.updateErrorMessages();
+  }
+
+  /**
+   * Initiates Google sign-in and processes the resulting user state.
+   */
   async signInWithGoogle() {
     try {
       const userCredential = await this.authService.signInWithGoogle();
       const additionalInfo = getAdditionalUserInfo(userCredential);
-
-      if (additionalInfo?.isNewUser) {
-        if (userCredential.user) {
-          await deleteUser(userCredential.user);
-        }
-      } else {
-        await this.navigateToSelfDm();
-      }
+      this.processGoogleUser(additionalInfo, userCredential);
     } catch (error) {
       console.error('Google sign-in error', error);
     }
   }
 
+  /**
+   * Handles the Google user flow depending on whether the user is new or existing.
+   * Deletes newly created users (to prevent dangling accounts) or navigates to self-DM.
+   *
+   * @param additionalInfo - Additional info from Google sign-in.
+   * @param userCredential - Firebase user credential object.
+   */
+  private async processGoogleUser(additionalInfo: any, userCredential: any) {
+    if (additionalInfo?.isNewUser) {
+      if (userCredential.user) {
+        await deleteUser(userCredential.user);
+      }
+    } else {
+      await this.navigateToSelfDm();
+    }
+  }
+
+  /**
+   * Navigates to the user's self direct message chat.
+   */
   async navigateToSelfDm() {
     const user = await firstValueFrom(this.authService.currentUser$);
     const selfDmUid = `${user?.uid}-${user?.uid}`;
@@ -127,15 +160,16 @@ export class LoginComponent {
     this.router.navigate([`/workspace/dm/${selfDmUid}`]);
   }
 
-  // guest logIn //
+  /**
+   * Logs in as a guest, marks the user online, and navigates to self-DM.
+   */
   async loginAsGuest() {
     try {
-      const user = await this.authService.loginAsGuest();
+      await this.authService.loginAsGuest();
       await this.userService.markOnline(true);
       await this.navigateToSelfDm();
     } catch (err) {
       console.error('Guest login failed', err);
     }
   }
-  // guest logIn //
 }

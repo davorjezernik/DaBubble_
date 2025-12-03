@@ -35,33 +35,70 @@ import { MAT_BOTTOM_SHEET_DATA, MatBottomSheetRef } from '@angular/material/bott
     '../../../../shared/styles/form-field-styles.scss',
   ],
 })
+/**
+ * Dialog / bottom-sheet component used after creating a channel.
+ * Lets the user choose who should be added to the new channel.
+ */
 export class AddUsersToChannel implements OnInit {
+  /** Selected option: 'all' users or 'specific' users only. */
   selectedOption: string = 'all';
+  /** All users currently in the workspace (raw data). */
   users: any[] = [];
+  /** Cached list of all users, used when adding everyone. */
   allUsers: any[] = [];
+  /** Current text in the mention input field. */
   inputValue: string = '';
+  /** Users that have been selected to join the channel. */
   selectedUsers: MentionUser[] = [];
+  /** The currently logged-in user (always included by default). */
   currentUser: MentionUser | undefined;
 
+  /**
+   * Whether the mention dropdown should be shown.
+   * True when the user has typed at least one character.
+   */
   get showMention(): boolean {
     return this.inputValue.length > 0;
   }
 
+  /** Current mention mode (here we only use 'users'). */
   mentionMode: 'users' | 'channels' = 'users';
+  /** List of users that can be mentioned (excludes the current user). */
   mentionUsers: MentionUser[] = [];
 
+  /**
+   * Creates an instance of the AddUsersToChannel component.
+   * @param userService Service that provides user data.
+   * @param dialogRef Optional reference if opened as a dialog.
+   * @param sheetRef Optional reference if opened as a bottom sheet.
+   * @param dialogData Data passed when opened as a dialog (channel info).
+   * @param sheetData Data passed when opened as a bottom sheet (channel info).
+   */
   constructor(
     private userService: UserService,
     @Optional() public dialogRef: MatDialogRef<AddUsersToChannel>,
     @Optional() public sheetRef: MatBottomSheetRef<AddUsersToChannel>,
-    @Optional() @Inject(MAT_DIALOG_DATA) public dialogData: { channelName: string; description: string },
-    @Optional() @Inject(MAT_BOTTOM_SHEET_DATA) public sheetData: { channelName: string; description: string }
+    @Optional()
+    @Inject(MAT_DIALOG_DATA)
+    public dialogData: { channelName: string; description: string },
+    @Optional()
+    @Inject(MAT_BOTTOM_SHEET_DATA)
+    public sheetData: { channelName: string; description: string }
   ) {}
 
-    get data() {
+  /**
+   * Returns the injected data, independent of whether it came from a dialog
+   * or from a bottom sheet.
+   */
+  get data() {
     return this.dialogData ?? this.sheetData;
   }
 
+  /**
+   * Lifecycle hook that runs once after component creation.
+   * - Loads the current user and selects them by default
+   * - Loads all users and builds the list of mentionable users
+   */
   async ngOnInit() {
     const currentUserData = await firstValueFrom(this.userService.currentUser$());
     if (currentUserData) {
@@ -86,6 +123,12 @@ export class AddUsersToChannel implements OnInit {
       .filter((u) => u.uid !== this.currentUser?.uid);
   }
 
+  /**
+   * Confirms the selection.
+   * Depending on the selected option, creates a channel:
+   * - For specific users only
+   * - Or for all users in the workspace
+   */
   onConfirm() {
     if (this.selectedOption === 'specific') {
       this.createChannelWithSelectedUsers();
@@ -94,7 +137,11 @@ export class AddUsersToChannel implements OnInit {
     }
   }
 
-    public close(result?: any) {
+  /**
+   * Closes the dialog or bottom sheet with an optional result.
+   * @param result Data returned to the caller (channel + users).
+   */
+  public close(result?: any) {
     if (this.sheetRef) {
       this.sheetRef.dismiss(result);
     } else if (this.dialogRef) {
@@ -102,6 +149,11 @@ export class AddUsersToChannel implements OnInit {
     }
   }
 
+  /**
+   * Creates a result object containing the channel info and only the
+   * users picked by the creator, then closes the dialog/sheet.
+   * The current user is always included in `selectedUsers`.
+   */
   private createChannelWithSelectedUsers() {
     this.close({
       channel: {
@@ -115,6 +167,10 @@ export class AddUsersToChannel implements OnInit {
     });
   }
 
+  /**
+   * Creates a result object containing the channel info and all users
+   * in the workspace, then closes the dialog/sheet.
+   */
   private createChannelForAllUsers() {
     this.close({
       channel: {
@@ -128,6 +184,11 @@ export class AddUsersToChannel implements OnInit {
     });
   }
 
+  /**
+   * Adds a user to the list of selected users and clears the input field.
+   * Usually called when the user picks someone from the mention list.
+   * @param user The user to add to the selected list.
+   */
   addUserToChosen(user: MentionUser) {
     this.selectedUsers.unshift(user);
     this.inputValue = '';

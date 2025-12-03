@@ -1,4 +1,12 @@
-import { Component, EventEmitter, Output, OnDestroy, OnInit, inject, HostListener } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  Output,
+  OnDestroy,
+  OnInit,
+  inject,
+  HostListener,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -37,22 +45,17 @@ import { AuthService } from '../../../../../services/auth-service';
   templateUrl: './header-workspace.component.html',
   styleUrls: ['./header-workspace.component.scss', './header-workspace-component.responsive.scss'],
 })
-
 @HostListener('window:beforeunload')
-
 export class HeaderWorkspaceComponent implements OnInit, OnDestroy {
   private userService = inject(UserService);
   private dialog = inject(MatDialog);
   private bottomSheet = inject(MatBottomSheet);
   private searchBus = inject(SearchBusService);
-  private auth = inject(Auth);
   private router = inject(Router);
   private authService = inject(AuthService);
 
-  // Profile of the logged-in user //
   user$: Observable<User | null> = this.userService.currentUser$();
 
-  // input field //
   searchCtrl = new FormControl<string>('', { nonNullable: true });
   private sub?: Subscription;
   @Output() searchChange = new EventEmitter<string>();
@@ -67,43 +70,52 @@ export class HeaderWorkspaceComponent implements OnInit, OnDestroy {
       });
   }
 
-  // Mark when logging in online //
+  /**
+   * Lifecycle hook: marks the current user online when the header loads.
+   */
   async ngOnInit() {
     await this.userService.markOnline(true);
   }
 
-  // Menu for the top and from 400px below. //
+  /**
+   * Lifecycle hook: unsubscribes listeners and marks user offline (if not anonymous).
+   */
+  ngOnDestroy() {
+    this.sub?.unsubscribe();
+
+    this.authService.currentUser$.pipe(take(1)).subscribe((user) => {
+      if (user && !user.isAnonymous) {
+        this.userService.markOnline(false);
+      }
+    });
+  }
+
+  /**
+   * Opens the user menu. Uses mobile bottom sheet for small screens,
+   * otherwise opens a positioned desktop dialog.
+   *
+   * @param evt - Mouse click event from the trigger.
+   */
   openUserMenu(evt: MouseEvent) {
-    const trigger = evt.currentTarget as HTMLElement;
-    const avatar = (trigger.querySelector('.avatar-wrap') as HTMLElement) ?? trigger;
-    const r = avatar.getBoundingClientRect();
+    const { r, GAP, MARGIN, MENU_W } = this.getAvatarDialogDistance(evt);
 
-    const GAP = 8;
-    const MARGIN = 16;
-    const MENU_W = window.innerWidth <= 880 ? 350 : 300;
+    if (window.innerWidth <= 400) return this.openMobileMenuDialog();
 
-    // if smaller than 400px //
-    if (window.innerWidth <= 400) {
-      const ref = this.bottomSheet.open(UserMenuDialogComponent, {
-        data: {},
-        panelClass: 'user-menu-bottom',
-      });
-      ref
-        .afterDismissed()
-        .pipe(take(1))
-        .subscribe((action) => {
-          if (action === 'profile') this.openProfil();
-          if (action === 'logout') this.logout();
-        });
-      return;
-    }
+    const { left, top } = this.defineMenuDialogPosition(r, GAP, MARGIN, MENU_W);
 
-    // normal dialog menu //
-    let left = r.right - MENU_W;
-    left = Math.max(MARGIN, Math.min(left, window.innerWidth - MENU_W - MARGIN));
-    const top = r.bottom + GAP;
+    const ref = this.openDesktopMenuDialog(left, top);
+    this.closeDesktopMenuDialog(ref);
+  }
 
-    const ref = this.dialog.open(UserMenuDialogComponent, {
+  /**
+   * Opens the desktop version of the user menu dialog.
+   *
+   * @param left - Left position offset.
+   * @param top - Top position offset.
+   * @returns Dialog reference.
+   */
+  private openDesktopMenuDialog(left: number, top: number) {
+    return this.dialog.open(UserMenuDialogComponent, {
       data: {},
       panelClass: 'user-menu-dialog',
       hasBackdrop: true,
@@ -111,16 +123,75 @@ export class HeaderWorkspaceComponent implements OnInit, OnDestroy {
       restoreFocus: true,
       position: { top: `${top}px`, left: `${left}px` },
     });
+  }
 
+  /**
+   * Subscribes to the dialog close event to perform actions.
+   *
+   * @param ref - Dialog reference of the opened user menu.
+   */
+  private closeDesktopMenuDialog(ref: any) {
     ref
       .afterClosed()
       .pipe(take(1))
-      .subscribe((action) => {
+      .subscribe((action: 'profile' | 'logout' | undefined) => {
         if (action === 'profile') this.openProfil();
         if (action === 'logout') this.logout();
       });
   }
 
+  /**
+   * Calculates dialog position within screen bounds from the avatar rect.
+   *
+   * @param r - Bounding rectangle of the avatar element.
+   * @param GAP - Gap from the trigger element.
+   * @param MARGIN - Screen margin.
+   * @param MENU_W - Menu width.
+   * @returns Calculated left/top coordinates.
+   */
+  private defineMenuDialogPosition(r: DOMRect, GAP: number, MARGIN: number, MENU_W: number) {
+    let left = r.right - MENU_W;
+    left = Math.max(MARGIN, Math.min(left, window.innerWidth - MENU_W - MARGIN));
+    const top = r.bottom + GAP;
+    return { left, top };
+  }
+
+  /**
+   * Opens the mobile bottom sheet variant of the user menu.
+   */
+  private openMobileMenuDialog() {
+    const ref = this.bottomSheet.open(UserMenuDialogComponent, {
+      data: {},
+      panelClass: 'user-menu-bottom',
+    });
+    ref
+      .afterDismissed()
+      .pipe(take(1))
+      .subscribe((action: 'profile' | 'logout' | undefined) => {
+        if (action === 'profile') this.openProfil();
+        if (action === 'logout') this.logout();
+      });
+  }
+
+  /**
+   * Computes geometry needed to position the menu relative to the avatar.
+   *
+   * @param evt - Mouse event from the trigger element.
+   * @returns Avatar rect and positioning constants.
+   */
+  private getAvatarDialogDistance(evt: MouseEvent) {
+    const trigger = evt.currentTarget as HTMLElement;
+    const avatar = (trigger.querySelector('.avatar-wrap') as HTMLElement) ?? trigger;
+    const r = avatar.getBoundingClientRect();
+    const GAP = 8;
+    const MARGIN = 16;
+    const MENU_W = window.innerWidth <= 880 ? 350 : 300;
+    return { r, GAP, MARGIN, MENU_W };
+  }
+
+  /**
+   * Opens the profile dialog for the current user.
+   */
   openProfil() {
     this.user$.pipe(take(1)).subscribe((user) => {
       if (!user) return;
@@ -136,23 +207,16 @@ export class HeaderWorkspaceComponent implements OnInit, OnDestroy {
     });
   }
 
+  /**
+   * Logs the user out, ensures online status is updated, and navigates home.
+   */
   async logout() {
     const user = await firstValueFrom(this.authService.currentUser$);
     if (user) {
       await this.userService.markOnline(false);
     }
-  
+
     await this.authService.logout();
     this.router.navigateByUrl('/');
-  }
-
-  ngOnDestroy() {
-    this.sub?.unsubscribe();
-
-    this.authService.currentUser$.pipe(take(1)).subscribe((user) => {
-      if (user && !user.isAnonymous) {
-        this.userService.markOnline(false);
-      }
-    });
   }
 }

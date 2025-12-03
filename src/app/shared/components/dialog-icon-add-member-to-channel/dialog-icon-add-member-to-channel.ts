@@ -28,18 +28,29 @@ export class DialogIconAddMemberToChannel {
   selectedUsers: AddableUser[] = [];
 
   @ViewChild('userInput') userInput!: ElementRef<HTMLInputElement>;
-
+  /** Stop event propagation from inner controls. */
   stop(e: MouseEvent) {
     e.stopPropagation();
   }
+
+  /**
+   * Update query and filtered suggestions based on input value.
+   * @param val Current input value
+   */
   onInput(val: string) {
     this.query = val;
     const q = val.trim().toLowerCase();
 
-    if (!q) {
-      this.filtered = [];
-      return;
-    }
+    if (!q) return this.clearFilteredUsers();
+
+    this.showFilteredUsers(q);
+  }
+
+  /**
+   * Build the filtered suggestions list excluding already selected users.
+   * @param q Lowercased query string
+   */
+  private showFilteredUsers(q: string) {
     const already = new Set(this.selectedUsers.map((u) => u.uid));
     this.filtered = this.candidates
       .filter((u) => !already.has(u.uid))
@@ -47,6 +58,14 @@ export class DialogIconAddMemberToChannel {
       .slice(0, 5);
   }
 
+  /** Reset filtered suggestions to empty. */
+  private clearFilteredUsers() {
+    this.filtered = [];
+  }
+
+  /**
+   * Add a candidate to the selection and refocus the input.
+   */
   selectCandidate(u: AddableUser) {
     if (!this.selectedUsers.find((x) => x.uid === u.uid)) {
       this.selectedUsers.push(u);
@@ -57,31 +76,24 @@ export class DialogIconAddMemberToChannel {
     setTimeout(() => this.userInput?.nativeElement.focus(), 0);
   }
 
+  /**
+   * Remove a selected user chip.
+   * @param u User to remove
+   * @param e Optional event to stop propagation
+   */
   removeChip(u: AddableUser, e?: MouseEvent) {
     e?.stopPropagation();
     this.selectedUsers = this.selectedUsers.filter((x) => x.uid !== u.uid);
   }
 
+  /** Emit selected users and close when selection is non-empty. */
   submit() {
-    if (this.selectedUsers.length > 0) {
-      this.add.emit(this.selectedUsers);
-      this.close.emit();
-      return;
-    }
-    const text = this.query.trim();
-    if (!text) return;
-
-    this.add.emit([
-      {
-        uid: '',
-        name: text,
-        avatar: '',
-        online: false,
-      },
-    ]);
+    if (this.selectedUsers.length < 1) return;
+    this.add.emit(this.selectedUsers);
     this.close.emit();
   }
 
+  /** Delegate Enter key submission to the standard submit flow. */
   submitFromEnter() {
     this.submit();
   }

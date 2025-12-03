@@ -1,6 +1,7 @@
-import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { UserService } from '../../../../services/user.service';
+import { Subscription } from 'rxjs';
 
 export interface MentionUser {
   uid: string;
@@ -22,7 +23,7 @@ export interface MentionChannel {
   templateUrl: './mention-list.component.html',
   styleUrls: ['./mention-list.component.scss', './mention-list.component.responsiv..scss'],
 })
-export class MentionListComponent {
+export class MentionListComponent implements OnDestroy, OnInit {
   @Input() mode: 'users' | 'channels' = 'users';
   @Input() channels: MentionChannel[] = [];
   @Input() visible = false;
@@ -34,12 +35,25 @@ export class MentionListComponent {
   @Output() emailSelected = new EventEmitter<string>();
 
   private userService = inject(UserService);
+
+  currentUserSub?: Subscription;
   currentUserId: string | null = null;
 
   @Input() allowRawEmail = true;
   @Input() showEmail = false;
 
+  ngOnInit(): void {}
+
+  /** Clean up current user subscription. */
+  ngOnDestroy(): void {
+    this.currentUserSub?.unsubscribe();
+  }
+
   private _users: MentionUser[] = [];
+  /**
+   * Visible users computed from the backing list, search term, and selected users.
+   * Current user is prioritized to the top when present.
+   */
   get users(): MentionUser[] {
     this.sanitizeSearchTerm();
     const filteredUsers = this.filterByInputValue();
@@ -48,6 +62,7 @@ export class MentionListComponent {
     return this.returnSortedUsers(alreadySelectedUsers);
   }
 
+  /** Normalize search term: trim and remove leading '@' or '#' mention prefixes. */
   private sanitizeSearchTerm() {
     if (this.searchTerm) {
       const trimmed = (this.searchTerm = this.searchTerm.trim());
@@ -59,6 +74,7 @@ export class MentionListComponent {
     }
   }
 
+  /** Filter backing users by case-insensitive name or email match against `searchTerm`. */
   private filterByInputValue() {
     const q = (this.searchTerm || '').toLowerCase();
     return this._users.filter(
@@ -66,12 +82,14 @@ export class MentionListComponent {
     );
   }
 
+  /** Exclude users that are already selected from the filtered result. */
   private filterAlreadyChosen(filteredUsers: MentionUser[]) {
     return filteredUsers.filter(
       (u) => u.uid !== this.allSelectedUsers.find((su) => su.uid === u.uid)?.uid
     );
   }
 
+  /** Sort users so that the current user (if present) appears first. */
   returnSortedUsers(filteredUsers: MentionUser[]) {
     return [...filteredUsers].sort((a, b) =>
       a.uid === this.currentUserId ? -1 : b.uid === this.currentUserId ? 1 : 0
@@ -82,16 +100,22 @@ export class MentionListComponent {
     this._users = value ?? [];
   }
 
+  /** Subscribe to current user to prioritize self in lists. */
   constructor() {
-    this.userService.currentUser$().subscribe((u) => {
+    this.currentUserSub?.unsubscribe();
+    this.currentUserSub = this.userService.currentUser$().subscribe((u) => {
       this.currentUserId = u?.uid ?? null;
     });
   }
 
+  /** Basic email format validation. */
   private isValidEmail(v: string): boolean {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test((v || '').trim());
   }
 
+  /**
+   * Provide a raw email option when allowed and not already present in users.
+   */
   get noUserEmailOption(): string | null {
     const q = (this.searchTerm || '').trim();
     if (!this.allowRawEmail || !this.isValidEmail(q)) return null;
@@ -99,19 +123,23 @@ export class MentionListComponent {
     return exists ? null : q;
   }
 
+  /** Emit mention token for a picked user. */
   onPickUser(u: MentionUser) {
     this.pick.emit(`@${u.name} `);
   }
 
+  /** Emit mention token for a picked channel and propagate selection. */
   onPickChannel(c: MentionChannel) {
     this.pick.emit(`#${c.name} `);
     this.channelSelected.emit(c);
   }
 
+  /** Emit full user selection for multi-select contexts. */
   onUserSelected(u: MentionUser) {
     this.userSelected.emit(u);
   }
 
+  /** Channels view filtered by the current search term (supports '#' prefix). */
   get channelsView(): MentionChannel[] {
     const qRaw = (this.searchTerm || '').trim();
     const q = (qRaw.startsWith('#') ? qRaw.slice(1) : qRaw).toLowerCase();

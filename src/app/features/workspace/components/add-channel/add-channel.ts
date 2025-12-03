@@ -27,23 +27,43 @@ import { MatBottomSheetModule, MatBottomSheetRef } from '@angular/material/botto
     '../../../../shared/styles/form-field-styles.scss',
   ],
 })
+/**
+ * Dialog / bottom-sheet component to create a new channel.
+ * Handles channel name + description and basic validation.
+ */
 export class AddChannel {
+  /** Flag to track if the modal is open (used by template). */
   isModalOpen = false;
 
+  /** True if a channel with the same name already exists. */
   namingConflict = false;
 
+  /** Name of the new channel entered by the user. */
   channelName: string = '';
+  /** Optional description of the new channel. */
   description: string = '';
 
+  /** Template reference to the channel name input for validation. */
   @ViewChild('channelNameInput') channelNameInput?: NgModel;
+  /** Container that will be scrolled after a valid name is entered. */
   @ViewChild('scrollContainer') scrollContainer?: ElementRef;
 
+  /**
+   * Creates an instance of the AddChannel component.
+   * @param channelService Service used to load existing channels.
+   * @param dialogRef Optional reference if opened as a dialog.
+   * @param sheetRef Optional reference if opened as a bottom sheet.
+   */
   constructor(
     private channelService: ChannelService,
     @Optional() public dialogRef: MatDialogRef<AddChannel>,
     @Optional() public sheetRef: MatBottomSheetRef<AddChannel>
   ) {}
 
+  /**
+   * Closes the dialog or bottom sheet with an optional result payload.
+   * @param result Data returned to the caller (e.g. channel info).
+   */
   close(result?: any) {
     if (this.sheetRef) {
       this.sheetRef.dismiss(result);
@@ -52,6 +72,12 @@ export class AddChannel {
     }
   }
 
+  /**
+   * Confirms the creation of a channel if validation passes.
+   * - Trims user input
+   * - Checks for name collisions
+   * - Closes with channel data when valid
+   */
   async onConfirm() {
     this.channelName = this.channelName.trim();
     this.description = this.description.trim();
@@ -70,11 +96,20 @@ export class AddChannel {
     }
   }
 
+  /**
+   * Checks if a channel with the same name already exists.
+   * @returns Promise that resolves to true if a matching channel is found.
+   */
   async doesChannelExists(): Promise<boolean> {
     const channels = await firstValueFrom(this.channelService.getChannels());
     return channels.some((channel) => channel.name === this.channelName);
   }
 
+  /**
+   * Called when the channel name input loses focus.
+   * If the name is valid, scrolls the container to reveal the rest of the form.
+   * @param input The Angular form control for the channel name.
+   */
   public onNameBlur(input: NgModel) {
     if (input.valid && this.scrollContainer) {
       const element = this.scrollContainer.nativeElement;
@@ -82,7 +117,7 @@ export class AddChannel {
       element.scrollTo({
         top: element.scrollHeight,
         behavior: 'smooth',
-      })
+      });
     }
   }
 }

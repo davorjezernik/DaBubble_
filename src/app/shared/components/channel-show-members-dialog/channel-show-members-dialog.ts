@@ -1,11 +1,7 @@
-import { Component, EventEmitter, Input, Output, HostListener } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatDialog } from '@angular/material/dialog';
 import { DialogUserCardComponent } from '../dialog-user-card/dialog-user-card.component';
-import {
-  DialogIconAddMemberToChannel,
-  AddableUser,
-} from '../dialog-icon-add-member-to-channel/dialog-icon-add-member-to-channel';
 
 export interface ChannelMember {
   id: string;
@@ -44,7 +40,7 @@ export class ChannelShowMembersDialog {
     this.dialog.open(DialogUserCardComponent, {
       data: {
         user: member,
-        isSelf, 
+        isSelf,
       },
       panelClass: 'user-card-dialog',
       width: '90vw',

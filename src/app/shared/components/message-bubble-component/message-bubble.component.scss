@@ -296,42 +296,6 @@
   }
 }
 
-.answers-info {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-  cursor: pointer;
-
-  &:hover {
-    .answers-amount {
-      font-weight: 700;
-    }
-    .last-answer-time {
-      color:#000000;
-    }
-  }
-}
-
-.answers-amount {
-  @include mixins.text-style(
-    $size: variables.$basic-text-size,
-    $color: #535AF1,
-    $font-weight: 400,
-    $font-family: 'Nunito',
-    $line-height: 1.4
-  );
-}
-
-.last-answer-time {
-  @include mixins.text-style(
-    $size: 14px,
-    $color: #686868,
-    $font-weight: 400,
-    $font-family: 'Nunito',
-    $line-height: 1.4
-  );
-}
-
 @media (max-width: 700px) {
   :host ::ng-deep .emoji-mart {
     width: 150px !important;
@@ -392,12 +356,6 @@
     width: 108%;
     margin-left: -14px;
     margin-right: -14px
-  }
-
-  .answers-info {
-    gap: 8px;
-    flex-direction: column;
-    align-items: flex-start;
   }
 }
 
