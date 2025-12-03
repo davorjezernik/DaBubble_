@@ -1,9 +1,4 @@
-import {
-  Injectable,
-  inject,
-  EnvironmentInjector,
-  runInInjectionContext,
-} from '@angular/core';
+import { Injectable, inject, EnvironmentInjector, runInInjectionContext } from '@angular/core';
 import {
   Firestore,
   doc,
@@ -38,39 +33,57 @@ export class ReadStateService {
   private firestore = inject(Firestore);
   private env = inject(EnvironmentInjector);
 
-  // lastRead values per thread+user //
   private optim$ = new Map<string, BehaviorSubject<Timestamp>>();
 
-  // Last message bumps per thread //
   private bumpMap = new Map<string, BehaviorSubject<number>>();
 
-  // Observable Caching (TIER 2, Fix 5a)
   private unreadChannelCache = new Map<string, Observable<number>>();
   private unreadDmCache = new Map<string, Observable<number>>();
 
-  // Executes fn in a valid injection context against AngularFire warnings //
+  /**
+   * Executes a function within a valid injection context to prevent AngularFire warnings.
+   * @param fn The function to execute.
+   * @returns The result of the function execution.
+   */
   private withCtx<T>(fn: () => T): T {
     return runInInjectionContext(this.env, fn);
   }
 
-  // Wrapper around docData with a valid injection context //
+  /**
+   * Wraps docData with a valid injection context.
+   * @param ref The document reference.
+   * @returns An observable of the document data.
+   */
   private docData$<T>(ref: any): Observable<T> {
     return this.withCtx(() => docData(ref) as Observable<T>);
   }
 
-  // Wrapper around collectionData with a valid injection context //
+  /**
+   * Wraps collectionData with a valid injection context.
+   * @param q The query.
+   * @param options The options.
+   * @returns An observable of the collection data.
+   */
   private collectionData$<T>(q: any, options?: any): Observable<T[]> {
-    return this.withCtx(
-      () => collectionData(q, options) as Observable<T[]>
-    );
+    return this.withCtx(() => collectionData(q, options) as Observable<T[]>);
   }
 
-  // Key for maps: threadId|uid reused for DMs & channels //
+  /**
+   * Generates a key for maps based on thread ID and user ID.
+   * @param threadId The thread ID.
+   * @param uid The user ID.
+   * @returns The generated key.
+   */
   private key(threadId: string, uid: string) {
     return `${threadId}|${uid}`;
   }
 
-  // Get/create optimistic Timestamp Subject instance //
+  /**
+   * Gets or creates an optimistic Timestamp Subject instance.
+   * @param threadId The thread ID.
+   * @param uid The user ID.
+   * @returns The optimistic Timestamp Subject.
+   */
   private getOptimistic$(threadId: string, uid: string) {
     const k = this.key(threadId, uid);
     if (!this.optim$.has(k)) {
@@ -79,7 +92,11 @@ export class ReadStateService {
     return this.optim$.get(k)!;
   }
 
-  // Get/create last message Bump Subject instance //
+  /**
+   * Gets or creates a last message Bump Subject instance.
+   * @param threadId The thread ID.
+   * @returns The last message Bump Subject.
+   */
   private getLastBump$(threadId: string) {
     if (!this.bumpMap.has(threadId)) {
       this.bumpMap.set(threadId, new BehaviorSubject<number>(0));
@@ -87,18 +104,29 @@ export class ReadStateService {
     return this.bumpMap.get(threadId)!;
   }
 
-  // DMs
-
+  /**
+   * Gets the read document reference for a DM.
+   * @param dmId The DM ID.
+   * @param uid The user ID.
+   * @returns The document reference.
+   */
   private readDoc(dmId: string, uid: string) {
     return doc(this.firestore, `dms/${dmId}/reads/${uid}`);
   }
 
-  // Client-side bump for new DM message sorting //
+  /**
+   * Bumps the last message timestamp for a DM on the client side.
+   * @param dmId The DM ID.
+   */
   bumpLastMessage(dmId: string) {
     this.getLastBump$(dmId).next(Date.now());
   }
 
-  // Mark DM as read //
+  /**
+   * Marks a DM as read.
+   * @param dmId The DM ID.
+   * @param uid The user ID.
+   */
   async markDmRead(dmId: string, uid: string) {
     this.getOptimistic$(dmId, uid).next(Timestamp.now());
 
@@ -107,8 +135,10 @@ export class ReadStateService {
   }
 
   /**
-   * Number of unread DM messages from other authors
-   * Mit Observable Caching, limit(100) und auditTime (TIER 2, Fix 5)
+   * Gets the number of unread DM messages from other authors.
+   * @param dmId The DM ID.
+   * @param uid The user ID.
+   * @returns An observable of the number of unread messages.
    */
   unreadDmCount$(dmId: string, uid: string): Observable<number> {
     const cacheKey = this.key(dmId, uid);
@@ -117,43 +147,99 @@ export class ReadStateService {
       return this.unreadDmCache.get(cacheKey)!;
     }
 
-    const myReadRef = this.readDoc(dmId, uid);
-    const fs$ = this.docData$<ReadDoc>(myReadRef);
-    const opt$ = this.getOptimistic$(dmId, uid);
-
-    const unread$ = combineLatest([fs$, opt$]).pipe(
-      switchMap(([read, opt]) => {
-        const fsSince =
-          read?.lastReadAt instanceof Timestamp
-            ? read.lastReadAt
-            : Timestamp.fromMillis(0);
-        const since = fsSince.toMillis() > opt.toMillis() ? fsSince : opt;
-
-        const messagesRef = collection(
-          this.firestore,
-          `dms/${dmId}/messages`
-        ) as CollectionReference<any>;
-
-        const qy = query(
-          messagesRef,
-          where('timestamp', '>', since),
-          orderBy('timestamp', 'asc'),
-          limit(100) // ← Limit 100 unread messages (TIER 2, Fix 5b)
-        );
-
-        return this.collectionData$<any>(qy, { idField: 'id' });
-      }),
-      map((msgs) => msgs.filter((m) => m?.authorId !== uid).length),
-      auditTime(300), // ← Nur alle 300ms aktualisieren (TIER 2, Fix 5b)
-      shareReplay({ bufferSize: 1, refCount: true }), // ← Caching (TIER 2, Fix 5a)
-      catchError(() => of(0))
-    );
+    const unread$ = this.buildUnreadStream(dmId, uid);
 
     this.unreadDmCache.set(cacheKey, unread$);
     return unread$;
   }
 
-  // Last message time from Firestore //
+  /**
+   * Builds the unread stream for a DM.
+   * @param dmId The DM ID.
+   * @param uid The user ID.
+   * @returns An observable of the number of unread messages.
+   */
+  private buildUnreadStream(dmId: string, uid: string): Observable<number> {
+    const fs$ = this.getFirestoreRead$(dmId, uid);
+    const opt$ = this.getOptimistic$(dmId, uid);
+
+    return combineLatest([fs$, opt$]).pipe(
+      switchMap(([read, opt]) => this.queryUnreadMessages(dmId, read, opt)),
+      map((msgs) => this.countMsgsNotByUser(msgs, uid)),
+      auditTime(300),
+      shareReplay({ bufferSize: 1, refCount: true }),
+      catchError(() => of(0))
+    );
+  }
+
+  /**
+   * Counts messages not authored by the user.
+   * @param msgs The messages.
+   * @param uid The user ID.
+   * @returns The count of messages.
+   */
+  private countMsgsNotByUser(msgs: any[], uid: string): number {
+    return msgs.filter((m) => m?.authorId !== uid).length;
+  }
+
+  /**
+   * Gets the Firestore read document for a DM.
+   * @param dmId The DM ID.
+   * @param uid The user ID.
+   * @returns An observable of the read document.
+   */
+  private getFirestoreRead$(dmId: string, uid: string): Observable<ReadDoc | null> {
+    const myReadRef = this.readDoc(dmId, uid);
+    return this.docData$<ReadDoc>(myReadRef);
+  }
+
+  /**
+   * Queries unread messages for a DM.
+   * @param dmId The DM ID.
+   * @param read The read document.
+   * @param opt The optimistic timestamp.
+   * @returns An observable of the unread messages.
+   */
+  private queryUnreadMessages(
+    dmId: string,
+    read: ReadDoc | null,
+    opt: Timestamp
+  ): Observable<any[]> {
+    const since = this.resolveSinceTimestamp(read, opt);
+
+    const messagesRef = collection(
+      this.firestore,
+      `dms/${dmId}/messages`
+    ) as CollectionReference<any>;
+
+    const qy = query(
+      messagesRef,
+      where('timestamp', '>', since),
+      orderBy('timestamp', 'asc'),
+      limit(100)
+    );
+
+    return this.collectionData$<any>(qy, { idField: 'id' });
+  }
+
+  /**
+   * Resolves the timestamp to query messages since.
+   * @param read The read document.
+   * @param opt The optimistic timestamp.
+   * @returns The resolved timestamp.
+   */
+  private resolveSinceTimestamp(read: ReadDoc | null, opt: Timestamp): Timestamp {
+    const fsSince =
+      read?.lastReadAt instanceof Timestamp ? read.lastReadAt : Timestamp.fromMillis(0);
+
+    return fsSince.toMillis() > opt.toMillis() ? fsSince : opt;
+  }
+
+  /**
+   * Gets the last message time from Firestore for a DM.
+   * @param dmId The DM ID.
+   * @returns An observable of the last message time in milliseconds.
+   */
   private lastMessageAtFs$(dmId: string): Observable<number> {
     const messagesRef = collection(
       this.firestore,
@@ -170,23 +256,31 @@ export class ReadStateService {
     );
   }
 
-  // Last news update including optimistic bump //
+  /**
+   * Gets the last message time for a DM, including optimistic bumps.
+   * @param dmId The DM ID.
+   * @returns An observable of the last message time in milliseconds.
+   */
   lastMessageAt$(dmId: string): Observable<number> {
-    return combineLatest([
-      this.lastMessageAtFs$(dmId),
-      this.getLastBump$(dmId),
-    ]).pipe(map(([fsMillis, bumpMillis]) => Math.max(fsMillis, bumpMillis)));
+    return combineLatest([this.lastMessageAtFs$(dmId), this.getLastBump$(dmId)]).pipe(
+      map(([fsMillis, bumpMillis]) => Math.max(fsMillis, bumpMillis))
+    );
   }
 
-  // Combined meta for DMs Unread + last timestamp for sorting //
-  dmMeta$(dmId: string, uid: string): Observable<{
+  /**
+   * Gets combined metadata for a DM (unread count and last message time).
+   * @param dmId The DM ID.
+   * @param uid The user ID.
+   * @returns An observable of the DM metadata.
+   */
+  dmMeta$(
+    dmId: string,
+    uid: string
+  ): Observable<{
     unread: number;
     lastMessageAt: number;
   }> {
-    return combineLatest([
-      this.unreadDmCount$(dmId, uid),
-      this.lastMessageAt$(dmId),
-    ]).pipe(
+    return combineLatest([this.unreadDmCount$(dmId, uid), this.lastMessageAt$(dmId)]).pipe(
       map(([unread, lastMessageAt]) => ({
         unread,
         lastMessageAt,
@@ -194,28 +288,33 @@ export class ReadStateService {
     );
   }
 
-  // Channels
-  
-  // Message collection for DMs/Channels //
-  private msgsRef(
-    kind: 'dms' | 'channels',
-    id: string
-  ): CollectionReference<any> {
-    return collection(
-      this.firestore,
-      `${kind}/${id}/messages`
-    ) as CollectionReference<any>;
+  /**
+   * Gets the message collection reference for DMs or channels.
+   * @param kind The kind of collection ('dms' or 'channels').
+   * @param id The ID of the DM or channel.
+   * @returns The collection reference.
+   */
+  private msgsRef(kind: 'dms' | 'channels', id: string): CollectionReference<any> {
+    return collection(this.firestore, `${kind}/${id}/messages`) as CollectionReference<any>;
   }
 
-  private readDocGeneric(
-    kind: 'dms' | 'channels',
-    id: string,
-    uid: string
-  ) {
+  /**
+   * Gets the read document reference for DMs or channels.
+   * @param kind The kind of collection ('dms' or 'channels').
+   * @param id The ID of the DM or channel.
+   * @param uid The user ID.
+   * @returns The document reference.
+   */
+  private readDocGeneric(kind: 'dms' | 'channels', id: string, uid: string) {
     return doc(this.firestore, `${kind}/${id}/reads/${uid}`);
   }
 
-  // Mark channel as read //
+  /**
+   * Marks a channel as read.
+   * @param channelId The channel ID.
+   * @param uid The user ID.
+   * @returns A promise that resolves when the operation is complete.
+   */
   markChannelRead(channelId: string, uid: string) {
     this.getOptimistic$(channelId, uid).next(Timestamp.now());
     const ref = this.readDocGeneric('channels', channelId, uid);
@@ -223,8 +322,10 @@ export class ReadStateService {
   }
 
   /**
-   * Number of unread channel messages from other authors
-   * Mit Observable Caching, limit(100) und auditTime (TIER 2, Fix 5)
+   * Gets the number of unread channel messages from other authors.
+   * @param channelId The channel ID.
+   * @param uid The user ID.
+   * @returns An observable of the number of unread messages.
    */
   unreadChannelCount$(channelId: string, uid: string): Observable<number> {
     const cacheKey = this.key(channelId, uid);
@@ -233,52 +334,91 @@ export class ReadStateService {
       return this.unreadChannelCache.get(cacheKey)!;
     }
 
-    const fs$ = this.docData$<ReadDoc>(
-      this.readDocGeneric('channels', channelId, uid)
-    );
-    const opt$ = this.getOptimistic$(channelId, uid);
-
-    const unread$ = combineLatest([fs$, opt$]).pipe(
-      switchMap(([read, opt]) => {
-        const fsSince =
-          read?.lastReadAt instanceof Timestamp
-            ? read.lastReadAt
-            : Timestamp.fromMillis(0);
-        const since = fsSince.toMillis() > opt.toMillis() ? fsSince : opt;
-
-        const qy = query(
-          this.msgsRef('channels', channelId),
-          where('timestamp', '>', since),
-          orderBy('timestamp', 'asc'),
-          limit(100) // ← Limit 100 unread messages (TIER 2, Fix 5b)
-        );
-
-        return this.collectionData$<any>(qy);
-      }),
-      map((msgs) => msgs.filter((m) => m?.authorId !== uid).length),
-      auditTime(300), // ← Nur alle 300ms aktualisieren (TIER 2, Fix 5b)
-      shareReplay({ bufferSize: 1, refCount: true }), // ← Caching (TIER 2, Fix 5a)
-      catchError(() => of(0))
-    );
+    const unread$ = this.buildUnreadChannelStream(channelId, uid);
 
     this.unreadChannelCache.set(cacheKey, unread$);
     return unread$;
   }
 
-  // Client-side bump upon new channel message //
+  /**
+   * Builds the unread stream for a channel.
+   * @param channelId The channel ID.
+   * @param uid The user ID.
+   * @returns An observable of the number of unread messages.
+   */
+  private buildUnreadChannelStream(channelId: string, uid: string): Observable<number> {
+    const fs$ = this.getChannelReadDoc$(channelId, uid);
+    const opt$ = this.getOptimistic$(channelId, uid);
+
+    return combineLatest([fs$, opt$]).pipe(
+      switchMap(([read, opt]) => this.queryUnreadChannelMessages(channelId, read, opt)),
+      map((msgs) => this.countUnreadMessages(msgs, uid)),
+      auditTime(300),
+      shareReplay({ bufferSize: 1, refCount: true }),
+      catchError(() => of(0))
+    );
+  }
+
+  /**
+   * Gets the Firestore read document for a channel.
+   * @param channelId The channel ID.
+   * @param uid The user ID.
+   * @returns An observable of the read document.
+   */
+  private getChannelReadDoc$(channelId: string, uid: string): Observable<ReadDoc | null> {
+    const ref = this.readDocGeneric('channels', channelId, uid);
+    return this.docData$<ReadDoc>(ref);
+  }
+
+  /**
+   * Queries unread messages for a channel.
+   * @param channelId The channel ID.
+   * @param read The read document.
+   * @param opt The optimistic timestamp.
+   * @returns An observable of the unread messages.
+   */
+  private queryUnreadChannelMessages(
+    channelId: string,
+    read: ReadDoc | null,
+    opt: Timestamp
+  ): Observable<any[]> {
+    const since = this.resolveSinceTimestamp(read, opt);
+
+    const qy = query(
+      this.msgsRef('channels', channelId),
+      where('timestamp', '>', since),
+      orderBy('timestamp', 'asc'),
+      limit(100)
+    );
+
+    return this.collectionData$<any>(qy);
+  }
+
+  /**
+   * Counts unread messages not authored by the user.
+   * @param msgs The messages.
+   * @param uid The user ID.
+   * @returns The count of messages.
+   */
+  private countUnreadMessages(msgs: any[], uid: string): number {
+    return msgs.filter((m) => m?.authorId !== uid).length;
+  }
+
+  /**
+   * Bumps the last channel message timestamp on the client side.
+   * @param channelId The channel ID.
+   */
   bumpLastChannelMessage(channelId: string) {
     this.getLastBump$(channelId).next(Date.now());
   }
 
-  // Last channel message time from Firestore //
-  private lastChannelMessageAtFs$(
-    channelId: string
-  ): Observable<number> {
-    const qy = query(
-      this.msgsRef('channels', channelId),
-      orderBy('timestamp', 'desc'),
-      limit(1)
-    );
+  /**
+   * Gets the last channel message time from Firestore.
+   * @param channelId The channel ID.
+   * @returns An observable of the last message time in milliseconds.
+   */
+  private lastChannelMessageAtFs$(channelId: string): Observable<number> {
+    const qy = query(this.msgsRef('channels', channelId), orderBy('timestamp', 'desc'), limit(1));
 
     return this.collectionData$<any>(qy).pipe(
       map((rows) => {
@@ -288,7 +428,11 @@ export class ReadStateService {
     );
   }
 
-  // Last channel message time including bump //
+  /**
+   * Gets the last channel message time, including optimistic bumps.
+   * @param channelId The channel ID.
+   * @returns An observable of the last message time in milliseconds.
+   */
   lastChannelMessageAt$(channelId: string): Observable<number> {
     return combineLatest([
       this.lastChannelMessageAtFs$(channelId),
@@ -296,8 +440,16 @@ export class ReadStateService {
     ]).pipe(map(([fsMillis, bump]) => Math.max(fsMillis, bump)));
   }
 
-  // for sorting channels (unread + last timestamp) //
-  channelMeta$(channelId: string, uid: string): Observable<{
+  /**
+   * Gets combined metadata for a channel (unread count and last message time).
+   * @param channelId The channel ID.
+   * @param uid The user ID.
+   * @returns An observable of the channel metadata.
+   */
+  channelMeta$(
+    channelId: string,
+    uid: string
+  ): Observable<{
     unread: number;
     lastMessageAt: number;
   }> {
@@ -313,7 +465,7 @@ export class ReadStateService {
   }
 
   /**
-   * Löscht den Observable-Cache für Unread Counts (TIER 2, Fix 5a)
+   * Clears the observable cache for unread counts.
    */
   clearCache(): void {
     this.unreadChannelCache.clear();
