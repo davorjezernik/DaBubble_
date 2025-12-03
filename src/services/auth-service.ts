@@ -1,4 +1,4 @@
-import { inject, Injectable } from '@angular/core';
+import { inject, Injectable, EnvironmentInjector, runInInjectionContext } from '@angular/core';
 import {
   Auth,
   authState,
@@ -17,10 +17,14 @@ import { environment } from '../environments/environment';
 })
 export class AuthService {
   private auth: Auth = inject(Auth);
+  private env = inject(EnvironmentInjector);
   public readonly currentUser$: Observable<User | null>;
 
   constructor() {
-    this.currentUser$ = authState(this.auth);
+    // Injection Context Wrapper (TIER 3, Fix 10)
+    this.currentUser$ = runInInjectionContext(this.env, () => 
+      authState(this.auth)
+    );
   }
 
   loginWithEmail(email: string, password: string): Promise<any> {

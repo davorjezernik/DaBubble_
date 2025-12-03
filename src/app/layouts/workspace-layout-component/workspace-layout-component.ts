@@ -7,6 +7,7 @@ import { RouterModule } from '@angular/router';
 import { ThreadPanelService, ThreadOpenRequest } from '../../../services/thread-panel.service';
 import { BreakpointObserver } from '@angular/cdk/layout';
 import { Observable, Subscription } from 'rxjs';
+import { distinctUntilChanged } from 'rxjs/operators';
 import { ViewStateService } from '../../../services/view-state.service';
 import { UserService } from '../../../services/user.service';
 import { MatIconModule } from '@angular/material/icon';
@@ -90,12 +91,15 @@ export class WorkspaceLayoutComponent implements OnInit, OnDestroy, OnChanges {
 
   subscribeUserService() {
     this.userSub?.unsubscribe();
-    this.userSub = this.userService.currentUser$().subscribe((user) => {
-      this.user = user;
-      if (this.user) {
-        this.userService.markOnline(true);
-      }
-    });
+    this.userSub = this.userService
+      .currentUser$()
+      .pipe(distinctUntilChanged((prev, curr) => prev?.uid === curr?.uid))
+      .subscribe((user) => {
+        this.user = user;
+        if (this.user) {
+          this.userService.markOnline(true);
+        }
+      });
   }
 
   private initializeDrawerListeners(): void {

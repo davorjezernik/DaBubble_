@@ -21,7 +21,7 @@ import {
   updateProfile,
 } from '@angular/fire/auth';
 import { Observable, of } from 'rxjs';
-import { map, switchMap, catchError } from 'rxjs/operators';
+import { map, switchMap, catchError, shareReplay } from 'rxjs/operators';
 import { User } from '../models/user.class';
 
 @Injectable({ providedIn: 'root' })
@@ -29,6 +29,10 @@ export class UserService {
   private firestore = inject(Firestore);
   private auth = inject(Auth);
   private injector = inject(EnvironmentInjector);
+
+  // Observable Caching (TIER 1, Fix 2)
+  private usersCache$?: Observable<User[]>;
+  private userByIdCache = new Map<string, Observable<User | null>>();
 
   async markOnline(online: boolean) {
     const u = this.auth.currentUser;
@@ -48,51 +52,60 @@ export class UserService {
   }
 
   users$(): Observable<User[]> {
-    return runInInjectionContext(this.injector, () => {
-      const ref = collection(this.firestore, 'users');
-      const q = query(ref, orderBy('name'));
+    if (!this.usersCache$) {
+      this.usersCache$ = runInInjectionContext(this.injector, () => {
+        const ref = collection(this.firestore, 'users');
+        const q = query(ref, orderBy('name'));
 
-      return collectionData(q, { idField: 'uid' }).pipe(
-        map((docs: any[]) =>
-          docs
-            .map(
-              (d) =>
-                new User({
-                  ...d,
-                  name: String(d?.name ?? ''),
-                  avatar: this.normalizeAvatar(d?.avatar),
-                  online: !!d?.online,
-                })
-            )
-            .sort((a, b) =>
-              String(a.name ?? '').localeCompare(
-                String(b.name ?? ''),
-                undefined,
-                { sensitivity: 'base' }
+        return collectionData(q, { idField: 'uid' }).pipe(
+          map((docs: any[]) =>
+            docs
+              .map(
+                (d) =>
+                  new User({
+                    ...d,
+                    name: String(d?.name ?? ''),
+                    avatar: this.normalizeAvatar(d?.avatar),
+                    online: !!d?.online,
+                  })
               )
-            )
-        )
-      );
-    });
+              .sort((a, b) =>
+                String(a.name ?? '').localeCompare(
+                  String(b.name ?? ''),
+                  undefined,
+                  { sensitivity: 'base' }
+                )
+              )
+          ),
+          shareReplay({ bufferSize: 1, refCount: true })
+        );
+      });
+    }
+    return this.usersCache$;
   }
 
   userById$(uid: string): Observable<User | null> {
-    return runInInjectionContext(this.injector, () => {
-      const ref = doc(this.firestore, 'users', uid);
+    if (!this.userByIdCache.has(uid)) {
+      const user$ = runInInjectionContext(this.injector, () => {
+        const ref = doc(this.firestore, 'users', uid);
 
-      return docData(ref, { idField: 'uid' }).pipe(
-        map((d: any | undefined) =>
-          d
-            ? new User({
-                ...d,
-                avatar: this.normalizeAvatar(d.avatar),
-                online: !!d.online,
-              })
-            : null
-        ),
-        catchError(() => of(null))
-      );
-    });
+        return docData(ref, { idField: 'uid' }).pipe(
+          map((d: any | undefined) =>
+            d
+              ? new User({
+                  ...d,
+                  avatar: this.normalizeAvatar(d.avatar),
+                  online: !!d.online,
+                })
+              : null
+          ),
+          catchError(() => of(null)),
+          shareReplay({ bufferSize: 1, refCount: true })
+        );
+      });
+      this.userByIdCache.set(uid, user$);
+    }
+    return this.userByIdCache.get(uid)!;
   }
 
   currentUser$(): Observable<User | null> {
@@ -129,7 +142,18 @@ export class UserService {
       if (this.auth.currentUser) {
         await updateProfile(this.auth.currentUser, { displayName: newName });
       }
+
+      // Cache-Invalidierung
+      this.userByIdCache.delete(uid);
     });
+  }
+
+  /**
+   * Löscht den Observable-Cache (TIER 1, Fix 2)
+   */
+  clearCache(): void {
+    this.usersCache$ = undefined;
+    this.userByIdCache.clear();
   }
 
   private normalizeAvatar(raw?: string): string {

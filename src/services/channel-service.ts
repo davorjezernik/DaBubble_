@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject, EnvironmentInjector, runInInjectionContext } from '@angular/core';
 import {
   Firestore,
   collection,
@@ -10,7 +10,7 @@ import {
   deleteDoc,
   getDoc
 } from '@angular/fire/firestore';
-import { Observable } from 'rxjs';
+import { Observable, shareReplay, map } from 'rxjs';
 import { arrayUnion } from '@angular/fire/firestore';
 
 export interface Channel {
@@ -24,18 +24,51 @@ export interface Channel {
   providedIn: 'root',
 })
 export class ChannelService {
-  constructor(private firestore: Firestore) {}
+  private firestore = inject(Firestore);
+  private env = inject(EnvironmentInjector);
 
-  // Get all documents in 'channels' collection
-  getChannels(): Observable<Channel[]> {
-    const channelsRef = collection(this.firestore, 'channels');
-    return collectionData(channelsRef, { idField: 'id' }) as Observable<Channel[]>;
+  // Observable Caching (TIER 1, Fix 2c)
+  private channelsCache$?: Observable<Channel[]>;
+  private channelCache = new Map<string, Observable<Channel>>();
+
+  // Injection Context Wrapper (TIER 3, Fix 10)
+  private withCtx<T>(fn: () => T): T {
+    return runInInjectionContext(this.env, fn);
   }
 
-  // Get single document by ID
+  // Get all documents in 'channels' collection with caching
+  getChannels(): Observable<Channel[]> {
+    if (!this.channelsCache$) {
+      const channelsRef = collection(this.firestore, 'channels');
+      this.channelsCache$ = this.withCtx(() =>
+        collectionData(channelsRef, { idField: 'id' })
+      ).pipe(
+        map((data) => data as Channel[]),
+        shareReplay({ bufferSize: 1, refCount: true })
+      );
+    }
+    return this.channelsCache$;
+  }
+
+  // Get single document by ID with caching
   getChannel(id: string): Observable<Channel> {
-    const channelDocRef = doc(this.firestore, `channels/${id}`);
-    return docData(channelDocRef, { idField: 'id' }) as Observable<Channel>;
+    if (!this.channelCache.has(id)) {
+      const channelDocRef = doc(this.firestore, `channels/${id}`);
+      const channel$ = this.withCtx(() =>
+        docData(channelDocRef, { idField: 'id' })
+      ).pipe(
+        map((data) => data as Channel),
+        shareReplay({ bufferSize: 1, refCount: true })
+      );
+      this.channelCache.set(id, channel$);
+    }
+    return this.channelCache.get(id)!;
+  }
+
+  // Clear cache (call after updates)
+  clearCache(): void {
+    this.channelsCache$ = undefined;
+    this.channelCache.clear();
   }
 
   // Add a new document
@@ -47,12 +80,17 @@ export class ChannelService {
   // Update an existing document
   updateChannel(id: string, data: Partial<Channel>) {
     const channelDocRef = doc(this.firestore, `channels/${id}`);
+    // Invalidate cache after update
+    this.channelCache.delete(id);
+    this.channelsCache$ = undefined;
     return updateDoc(channelDocRef, data);
   }
 
   // Delete a document
   deleteChannel(id: string) {
     const channelDocRef = doc(this.firestore, `channels/${id}`);
+    // Invalidate cache after delete
+    this.clearCache();
     return deleteDoc(channelDocRef);
   }
 
@@ -91,5 +129,9 @@ export class ChannelService {
     await updateDoc(ref, {
       members: updatedMembers,
     });
+
+    // Invalidate cache after member update
+    this.channelCache.delete(channelId);
+    this.channelsCache$ = undefined;
   }
 }

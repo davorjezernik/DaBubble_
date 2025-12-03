@@ -1,18 +1,16 @@
 export const environment = {
-  production: false,
+  production: true,
   firebase: {
-    apiKey: 'AIzaSyBT81psRiMumvUIdzN1EAwK8NjKIEYUPM0',
-    authDomain: 'dabubble-69d59.firebaseapp.com',
-    databaseURL: 'https://dabubble-69d59-default-rtdb.europe-west1.firebasedatabase.app',
-    projectId: 'dabubble-69d59',
-    storageBucket: 'dabubble-69d59.firebasestorage.app',
-    messagingSenderId: '69214031220',
-    appId: '1:69214031220:web:3d2480569252b62ac03021',
+    apiKey: 'AIzaSyBgzlivjXRHhWstjaKcbPakPTq5u9yzmz4',
+    authDomain: 'test2dabubble.firebaseapp.com',
+    projectId: 'test2dabubble',
+    storageBucket: 'test2dabubble.firebasestorage.app',
+    messagingSenderId: '1075467886964',
+    appId: '1:1075467886964:web:6bc24e58e00a8902f20c21',
   },
   guest: {
     email: 'guest@example.com',
     password: 'guest1234',
-    uid: 'ZADXT0hXHmMwluwQFiT9qXCgK8E2'
+    uid: '3bV8AoQjVfYni1m20UCuUOQEAL62'
   }
-  // gast selber anlegen auf der firebase in authetication und database//
 };

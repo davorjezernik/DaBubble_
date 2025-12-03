@@ -25,6 +25,10 @@ import {
   combineLatest,
   map,
   switchMap,
+  shareReplay,
+  auditTime,
+  catchError,
+  of,
 } from 'rxjs';
 
 type ReadDoc = { lastReadAt?: Timestamp } | undefined;
@@ -39,6 +43,10 @@ export class ReadStateService {
 
   // Last message bumps per thread //
   private bumpMap = new Map<string, BehaviorSubject<number>>();
+
+  // Observable Caching (TIER 2, Fix 5a)
+  private unreadChannelCache = new Map<string, Observable<number>>();
+  private unreadDmCache = new Map<string, Observable<number>>();
 
   // Executes fn in a valid injection context against AngularFire warnings //
   private withCtx<T>(fn: () => T): T {
@@ -98,13 +106,22 @@ export class ReadStateService {
     await setDoc(ref, { lastReadAt: serverTimestamp() }, { merge: true });
   }
 
-  // Number of unread DM messages from other authors //
+  /**
+   * Number of unread DM messages from other authors
+   * Mit Observable Caching, limit(100) und auditTime (TIER 2, Fix 5)
+   */
   unreadDmCount$(dmId: string, uid: string): Observable<number> {
+    const cacheKey = this.key(dmId, uid);
+
+    if (this.unreadDmCache.has(cacheKey)) {
+      return this.unreadDmCache.get(cacheKey)!;
+    }
+
     const myReadRef = this.readDoc(dmId, uid);
-    const fs$ = this.docData$<ReadDoc>(myReadRef); 
+    const fs$ = this.docData$<ReadDoc>(myReadRef);
     const opt$ = this.getOptimistic$(dmId, uid);
 
-    return combineLatest([fs$, opt$]).pipe(
+    const unread$ = combineLatest([fs$, opt$]).pipe(
       switchMap(([read, opt]) => {
         const fsSince =
           read?.lastReadAt instanceof Timestamp
@@ -120,13 +137,20 @@ export class ReadStateService {
         const qy = query(
           messagesRef,
           where('timestamp', '>', since),
-          orderBy('timestamp', 'asc')
+          orderBy('timestamp', 'asc'),
+          limit(100) // ← Limit 100 unread messages (TIER 2, Fix 5b)
         );
 
         return this.collectionData$<any>(qy, { idField: 'id' });
       }),
-      map((msgs) => msgs.filter((m) => m?.authorId !== uid).length)
+      map((msgs) => msgs.filter((m) => m?.authorId !== uid).length),
+      auditTime(300), // ← Nur alle 300ms aktualisieren (TIER 2, Fix 5b)
+      shareReplay({ bufferSize: 1, refCount: true }), // ← Caching (TIER 2, Fix 5a)
+      catchError(() => of(0))
     );
+
+    this.unreadDmCache.set(cacheKey, unread$);
+    return unread$;
   }
 
   // Last message time from Firestore //
@@ -198,14 +222,23 @@ export class ReadStateService {
     return setDoc(ref, { lastReadAt: serverTimestamp() }, { merge: true });
   }
 
-  // Number of unread channel messages from other authors //
+  /**
+   * Number of unread channel messages from other authors
+   * Mit Observable Caching, limit(100) und auditTime (TIER 2, Fix 5)
+   */
   unreadChannelCount$(channelId: string, uid: string): Observable<number> {
+    const cacheKey = this.key(channelId, uid);
+
+    if (this.unreadChannelCache.has(cacheKey)) {
+      return this.unreadChannelCache.get(cacheKey)!;
+    }
+
     const fs$ = this.docData$<ReadDoc>(
       this.readDocGeneric('channels', channelId, uid)
     );
     const opt$ = this.getOptimistic$(channelId, uid);
 
-    return combineLatest([fs$, opt$]).pipe(
+    const unread$ = combineLatest([fs$, opt$]).pipe(
       switchMap(([read, opt]) => {
         const fsSince =
           read?.lastReadAt instanceof Timestamp
@@ -216,13 +249,20 @@ export class ReadStateService {
         const qy = query(
           this.msgsRef('channels', channelId),
           where('timestamp', '>', since),
-          orderBy('timestamp', 'asc')
+          orderBy('timestamp', 'asc'),
+          limit(100) // ← Limit 100 unread messages (TIER 2, Fix 5b)
         );
 
         return this.collectionData$<any>(qy);
       }),
-      map((msgs) => msgs.filter((m) => m?.authorId !== uid).length)
+      map((msgs) => msgs.filter((m) => m?.authorId !== uid).length),
+      auditTime(300), // ← Nur alle 300ms aktualisieren (TIER 2, Fix 5b)
+      shareReplay({ bufferSize: 1, refCount: true }), // ← Caching (TIER 2, Fix 5a)
+      catchError(() => of(0))
     );
+
+    this.unreadChannelCache.set(cacheKey, unread$);
+    return unread$;
   }
 
   // Client-side bump upon new channel message //
@@ -270,5 +310,13 @@ export class ReadStateService {
         lastMessageAt,
       }))
     );
+  }
+
+  /**
+   * Löscht den Observable-Cache für Unread Counts (TIER 2, Fix 5a)
+   */
+  clearCache(): void {
+    this.unreadChannelCache.clear();
+    this.unreadDmCache.clear();
   }
 }

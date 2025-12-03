@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, OnChanges, OnDestroy, Output } from '@angular/core';
-import { collection, collectionData, Firestore } from '@angular/fire/firestore';
-import { map, Subscription } from 'rxjs';
+import { collection, Firestore, query, orderBy, limit, getCountFromServer, getDocs } from '@angular/fire/firestore';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-message-thread-summary',
@@ -17,14 +17,11 @@ export class MessageThreadSummaryComponent implements OnDestroy, OnChanges {
 
   lastTime: string = '';
   answersCount: number = 0;
-  lastTimeSub?: Subscription;
-  answersCountSub?: Subscription;
 
   constructor(private firestore: Firestore) {}
 
   ngOnDestroy(): void {
-    this.answersCountSub?.unsubscribe();
-    this.lastTimeSub?.unsubscribe();
+    // Keine Subscriptions mehr zu cleanup
   }
 
   ngOnChanges(changes: any): void {
@@ -46,39 +43,52 @@ export class MessageThreadSummaryComponent implements OnDestroy, OnChanges {
       this.firestore,
       `${this.collectionName}/${this.chatId}/messages/${this.messageId}/thread`
     );
-    this.getAnswersAmount(coll);
-    this.getLastAnswerTime(coll);
+    await this.getAnswersAmount(coll);
+    await this.getLastAnswerTime(coll);
   }
 
-  /** Subscribe to thread messages count. */
+  /**
+   * One-time Read für Thread Count (TIER 1, Fix 4)
+   * Verwendet getCountFromServer() statt Real-time Listener
+   */
   private async getAnswersAmount(coll: any) {
-    this.answersCountSub?.unsubscribe();
-    this.answersCountSub = collectionData(coll)
-      .pipe(map((docs) => docs.length))
-      .subscribe((count) => {
-        this.answersCount = count;
-      });
+    try {
+      const snapshot = await getCountFromServer(query(coll));
+      this.answersCount = snapshot.data().count;
+    } catch (error) {
+      console.warn('Failed to get thread count:', error);
+      this.answersCount = 0;
+    }
   }
 
-  /** Subscribe to latest thread answer timestamp. */
+  /**
+   * One-time Read für letzten Thread-Timestamp (TIER 1, Fix 4)
+   * Verwendet getDocs() mit limit(1) statt Real-time Listener
+   */
   private async getLastAnswerTime(coll: any) {
-    this.lastTimeSub?.unsubscribe();
-    this.lastTimeSub = collectionData(coll)
-      .pipe(map((messages) => this.returnLastAnswerTime(messages)))
-      .subscribe((timestamp) => {
-        this.lastTime = timestamp;
-      });
+    try {
+      const q = query(coll, orderBy('timestamp', 'desc'), limit(1));
+      const snapshot = await getDocs(q);
+      
+      if (!snapshot.empty) {
+        const docData = snapshot.docs[0].data() as any;
+        const timestamp = docData['timestamp'];
+        this.lastTime = this.formatTimestamp(timestamp);
+      } else {
+        this.lastTime = '';
+      }
+    } catch (error) {
+      console.warn('Failed to get last thread time:', error);
+      this.lastTime = '';
+    }
   }
 
-  /** Extract the latest answer time from the thread messages. */
-  private returnLastAnswerTime(messages: any[]): string {
-    if (messages.length === 0) return '';
-    const timestamps = messages
-      .map((msg: any) => msg.timestamp?.toMillis())
-      .filter((ts: any): ts is number => typeof ts === 'number');
-    if (timestamps.length === 0) return '';
-    const latest = Math.max(...timestamps);
-    const latestDate = new Date(latest);
-    return latestDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  /** Format Firestore timestamp to time string. */
+  private formatTimestamp(timestamp: any): string {
+    if (!timestamp) return '';
+    const millis = timestamp?.toMillis ? timestamp.toMillis() : timestamp;
+    if (typeof millis !== 'number') return '';
+    const date = new Date(millis);
+    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   }
 }

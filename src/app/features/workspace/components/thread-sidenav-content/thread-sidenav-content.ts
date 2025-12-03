@@ -26,6 +26,7 @@ import {
 import { Subscription } from 'rxjs';
 import { MessageBubbleComponent } from '../../../../shared/components/message-bubble-component/message-bubble.component';
 import { UserService } from '../../../../../services/user.service';
+import { ChannelService } from '../../../../../services/channel.service';
 import { DatePipe } from '@angular/common';
 import { ViewStateService } from '../../../../../services/view-state.service';
 
@@ -74,6 +75,7 @@ export class ThreadSidenavContent implements OnInit, OnDestroy, OnChanges, After
   constructor(
     private firestore: Firestore,
     private userService: UserService,
+    private channelService: ChannelService,
     public viewStateService: ViewStateService
   ) {}
 
@@ -106,14 +108,14 @@ export class ThreadSidenavContent implements OnInit, OnDestroy, OnChanges, After
 
   /**
    * Subscribes to channel name if the collection is `channels` and a `chatId` exists.
-   * Updates `channelName` reactively.
+   * Uses cached ChannelService instead of direct docData listener (TIER 2, Fix 6)
    */
   private getCurrentChannelName() {
     if (this.collectionName !== 'channels' || !this.chatId) return;
-    const channelDocRef = doc(this.firestore, `channels/${this.chatId}`);
+    
     this.channelNameSub?.unsubscribe();
-    this.channelNameSub = docData(channelDocRef).subscribe((channelData: any) => {
-      this.channelName = channelData.name || 'unknown-channel';
+    this.channelNameSub = this.channelService.getChannel(this.chatId).subscribe((channelData: any) => {
+      this.channelName = channelData?.name || 'unknown-channel';
     });
   }
 

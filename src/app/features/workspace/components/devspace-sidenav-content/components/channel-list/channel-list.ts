@@ -1,6 +1,6 @@
 import { Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
 import { ChannelItem } from '../../../channel-item/channel-item';
-import { combineLatest, firstValueFrom, map, Subscription } from 'rxjs';
+import { combineLatest, firstValueFrom, map, Subscription, auditTime } from 'rxjs';
 import { stringMatches } from '../../../../../../shared/utils/search-utils';
 import { collection, doc, Firestore, serverTimestamp, writeBatch } from '@angular/fire/firestore';
 import { AuthService } from '../../../../../../../services/auth-service';
@@ -141,11 +141,23 @@ export class ChannelList implements OnInit, OnDestroy, OnChanges {
   /**
    * Subscribes to unread-count streams for each of the user's channels
    * and sums the values into `totalUnreadChannels`.
+   * Only subscribes to visible channels (TIER 3, Fix 8)
    */
   private subscribeToChannelUnreadCounts(myChannels: any[], meUid: string) {
-    const streams = myChannels.map((c) => this.read.unreadChannelCount$(c.id, meUid));
+    // Nur sichtbare Channels laden (TIER 3, Fix 8)
+    const visibleChannels = myChannels.slice(0, this.maxVisibleChannels);
+    const streams = visibleChannels.map((c) => this.read.unreadChannelCount$(c.id, meUid));
+    
+    if (!streams.length) {
+      this.totalUnreadChannels = 0;
+      return;
+    }
+    
     this.totalUnreadChannelsSub = combineLatest(streams)
-      .pipe(map((arr) => arr.reduce((s, n) => s + (n || 0), 0)))
+      .pipe(
+        auditTime(500), // ← Debouncing (TIER 3, Fix 8)
+        map((arr) => arr.reduce((s, n) => s + (n || 0), 0))
+      )
       .subscribe((sum) => (this.totalUnreadChannels = sum));
   }
 
@@ -209,12 +221,15 @@ export class ChannelList implements OnInit, OnDestroy, OnChanges {
 
   /**
    * Increases the number of visible channels by one "page".
+   * Reloads unread counts for newly visible items (TIER 3, Fix 8)
    */
   public loadMoreChannels() {
     this.maxVisibleChannels = Math.min(
       this.maxVisibleChannels + this.pageSizeChannels,
       this.channels.length
     );
+    // Unread Counts für neue sichtbare Channels laden
+    this.buildTotalUnreadChannels(this.channels, this.meUid);
   }
   /**
    * Opens the "add channel" flow, using a dialog on desktop

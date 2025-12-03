@@ -115,12 +115,15 @@ export class DmList implements OnInit, OnDestroy, OnChanges {
 
   /**
    * Increases the number of visible users by one "page".
+   * Reloads unread counts for newly visible items (TIER 3, Fix 8)
    */
   public loadMore(): void {
     this.viewStateService.maxVisible = Math.min(
       this.viewStateService.maxVisible + this.viewStateService.pageSizeUsers,
       this.users.length
     );
+    // Unread Counts für neue sichtbare DMs laden
+    this.buildTotalUnread(this.users, this.meUid);
   }
 
   /**
@@ -157,17 +160,31 @@ export class DmList implements OnInit, OnDestroy, OnChanges {
   /**
    * Subscribes to unread-count streams for each DM and sums them up
    * into `totalUnread`.
+   * Only subscribes to visible DMs (TIER 3, Fix 8)
    * @param others Users that can be DM'ed (excluding the current user).
    * @param meUid UID of the current user.
    */
   private subscribeToDmUnreadCounts(others: User[], meUid: string) {
-    const streams = others.map((u) => {
+    // Nur sichtbare DMs laden (TIER 3, Fix 8)
+    const base = this.sortedUsers.length ? this.sortedUsers : others;
+    const visibleOthers = base.slice(0, Math.min(this.viewStateService.maxVisible, base.length));
+    const visibleNonMe = visibleOthers.filter((u) => u.uid !== meUid);
+    
+    const streams = visibleNonMe.map((u) => {
       const dmId = this.calculateDmId(u);
       return this.read.unreadDmCount$(dmId, meUid);
     });
 
+    if (!streams.length) {
+      this.totalUnread = 0;
+      return;
+    }
+
     this.totalUnreadSub = combineLatest(streams)
-      .pipe(map((arr) => arr.reduce((sum, n) => sum + (n || 0), 0)))
+      .pipe(
+        auditTime(500), // ← Debouncing (TIER 3, Fix 8)
+        map((arr) => arr.reduce((sum, n) => sum + (n || 0), 0))
+      )
       .subscribe((sum) => (this.totalUnread = sum));
   }
 
