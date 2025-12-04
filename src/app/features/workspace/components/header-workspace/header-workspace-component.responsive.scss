@@ -84,12 +84,12 @@
 @media (max-width: 560px) {
   .go-to-devspace {
     .logo-icon {
-      height: 48px;
+      height: 40px;
       width: auto;
     }
 
     span {
-      font-size: 22px;
+      font-size: 20px;
     }
 
     > img {
@@ -106,7 +106,7 @@
   }
 
   .name {
-    font-size: 24px;
+    font-size: 20px;
   }
 
   .avatar-wrap {
@@ -120,14 +120,39 @@
   }
 }
 
-@media (max-width: 400px) {
+@media (max-width: 400px), (orientation: landscape) and (max-height: 600px) {
+    .go-to-devspace {
+    .logo-icon {
+      height: 40px;
+      width: auto;
+    }
+
+    span {
+      font-size: 20px;
+    }
+
+    > img {
+      margin-right: 4px;
+    }
+  }
+
   .mobile-header {
     padding: 8px 10px;
     height: 12vh;
   }
 
     .brand .logo {
-    height: 50px;
+    height: 42px;
+  }
+
+  .avatar-wrap{
+    height: 46px;
+    width: 46px;
+    
+    .status {
+      width: 8px;
+      height: 8px;
+    }
   }
 
 }
