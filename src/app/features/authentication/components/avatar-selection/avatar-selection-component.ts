@@ -32,7 +32,7 @@ import { Subscription } from 'rxjs';
     MatCardModule,
   ],
   templateUrl: './avatar-selection-component.html',
-  styleUrl: './avatar-selection-component.scss',
+  styleUrls: ['./avatar-selection-component.scss', './avatar-selection-component.responsive.scss']
 })
 export class AvatarSelectComponent implements OnInit, OnDestroy {
   firestore: Firestore = inject(Firestore);

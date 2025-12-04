@@ -21,12 +21,18 @@ export class ViewStateService {
   closeThreadDrawer$ = this.closeThreadDrawerSource.asObservable();
   closeDevspaceDrawer$ = this.closeDevspaceDrawerSource.asObservable();
 
+  /**
+   * Requests to close the thread drawer if the window width is less than or equal to 1320px.
+   */
   requestCloseThreadDrawer() {
     if (window.innerWidth <= 1320) {
       this.closeThreadDrawerSource.next();
     }
   }
 
+  /**
+   * Requests to close the devspace drawer if the window width is less than or equal to 1320px.
+   */
   requestCloseDevspaceDrawer() {
     if (window.innerWidth <= 1320) {
       this.closeDevspaceDrawerSource.next();

@@ -5,9 +5,7 @@ import {
   GoogleAuthProvider,
   signInWithEmailAndPassword,
   signInWithPopup,
-  signInAnonymously,
   User,
-  deleteUser,
 } from '@angular/fire/auth';
 import { Observable } from 'rxjs';
 import { environment } from '../environments/environment';
@@ -20,41 +18,61 @@ export class AuthService {
   private env = inject(EnvironmentInjector);
   private _currentUser$?: Observable<User | null>;
 
-  // Lazy initialization mit Getter (verhindert Injection Context Warnung)
+  /**
+   * Lazy initialization with getter to prevent Injection Context warning.
+   * @returns An observable of the current user or null.
+   */
   public get currentUser$(): Observable<User | null> {
     if (!this._currentUser$) {
-      this._currentUser$ = runInInjectionContext(this.env, () => 
-        authState(this.auth)
-      );
+      this._currentUser$ = runInInjectionContext(this.env, () => authState(this.auth));
     }
     return this._currentUser$;
   }
 
-  constructor() {
-    // Empty constructor - currentUser$ wird beim ersten Zugriff initialisiert
-  }
+  constructor() {}
 
+  /**
+   * Logs in a user with email and password.
+   * @param email The user's email.
+   * @param password The user's password.
+   * @returns A promise that resolves with the user credentials.
+   */
   loginWithEmail(email: string, password: string): Promise<any> {
     return signInWithEmailAndPassword(this.auth, email, password);
   }
 
+  /**
+   * Signs in a user with Google.
+   * @returns A promise that resolves with the user credentials.
+   */
   signInWithGoogle(): Promise<any> {
     const provider = new GoogleAuthProvider();
     return signInWithPopup(this.auth, provider);
   }
 
-  // guest logIn //
+  /**
+   * Logs in as a guest user.
+   * @returns A promise that resolves with the guest user.
+   */
   async loginAsGuest(): Promise<User> {
     const { email, password } = environment.guest;
     const cred = await signInWithEmailAndPassword(this.auth, email, password);
     return cred.user;
   }
 
+  /**
+   * Checks if the user is a guest.
+   * @param user The user to check.
+   * @returns True if the user is a guest, false otherwise.
+   */
   isGuest(user: User | null): boolean {
     return !!user && user.uid === environment.guest.uid;
   }
-  // guest logIn //
 
+  /**
+   * Logs out the current user.
+   * @returns A promise that resolves when the operation is complete.
+   */
   async logout(): Promise<void> {
     await this.auth.signOut();
   }

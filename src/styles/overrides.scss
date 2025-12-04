@@ -1,4 +1,3 @@
-// intro //
 app-auth-layout-component .header .logo img {
   opacity: 1;
   transform: translateY(0);
@@ -76,9 +75,6 @@ body.intro-active app-auth-layout-component .header .logo img {
   color: #f5f5f7 !important;
 }
 
-/* These ensure `.custom-form-field` elements get consistent background, outline
-   and placeholder behavior across the app without using ::ng-deep in components.
-*/
 .custom-form-field .mat-mdc-form-field-flex {
   background-color: var(--purple-light);
   border-radius: 100px;
@@ -191,7 +187,7 @@ body.intro-active app-auth-layout-component .header .logo img {
 .dialog-authentication-back-arrow {
   position: relative;
   top: 0px;
-  font-size: 24px;
+  font-size: 28px;
   cursor: pointer;
   color: black;
   z-index: 3;
@@ -208,7 +204,6 @@ body.intro-active app-auth-layout-component .header .logo img {
   margin-top: 24px;
 }
 
-//user-menu-dialog.coponent //
 .user-menu-dialog .mat-mdc-dialog-container,
 .user-menu-dialog .mat-mdc-dialog-container .mdc-dialog__surface,
 .user-menu-bottom .mat-bottom-sheet-container {
@@ -218,9 +213,7 @@ body.intro-active app-auth-layout-component .header .logo img {
   padding: 0 !important;
   overflow: visible !important;
 }
-//user-menu-dialog.coponent //
 
-//dialog-user-card.component //
 .user-card-dialog .mat-mdc-dialog-container,
 .user-card-dialog .mat-mdc-dialog-container .mdc-dialog__surface {
   background: transparent !important;
@@ -249,9 +242,7 @@ body.intro-active app-auth-layout-component .header .logo img {
   overflow: visible !important;
   padding: 0 !important;
 }
-//dialog-user-card.component //
 
-//user-edit-dialog.component //
 .user-edit-dialog .mat-mdc-dialog-container,
 .user-edit-dialog .mat-mdc-dialog-container .mdc-dialog__surface {
   display: flex;
@@ -298,7 +289,6 @@ body.intro-active app-auth-layout-component .header .logo img {
   border-color: #535af1 !important;
 }
 
-/* Channel-show-user-dialog */
 .members-dialog-panel .mat-mdc-dialog-container {
   padding: 0;
   --mdc-dialog-container-color: transparent;
@@ -318,7 +308,6 @@ body.intro-active app-auth-layout-component .header .logo img {
   transform: none;
   opacity: 1;
 }
-/* dialog-icon-add-member-to-channel */
 
 .transparent-backdrop {
   background: transparent;
@@ -341,7 +330,6 @@ body.intro-active app-auth-layout-component .header .logo img {
   overflow: visible;
 }
 
-// responsiv for add-channel and add-user-to-channel //
 @media (max-width: 400px) {
   .cdk-overlay-pane.sheet-400 {
     align-self: flex-end;
@@ -359,9 +347,6 @@ body.intro-active app-auth-layout-component .header .logo img {
     overflow: hidden;
   }
 }
-// responsiv for add-channel and add-user-to-channel //
-
-// other things//
 
 .mdc-text-field--outlined {
   padding: 0 !important;
@@ -372,4 +357,21 @@ mat-bottom-sheet-container {
   max-height: 100vh !important;
   padding: 0 !important;
   overflow: hidden !important;
+}
+
+.mdc-checkbox {
+  flex: 0 0 10px !important;
+}
+
+.mat-mdc-checkbox-checked .mdc-checkbox__background {
+  background-color: #535af1 !important;
+  border-color: #535af1 !important;
+}
+
+.mdc-checkbox__background {
+  border-color: #535af1 !important;
+}
+
+.mdc-checkbox__ripple {
+  background-color: transparent !important;
 }

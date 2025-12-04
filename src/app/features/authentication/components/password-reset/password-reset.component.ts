@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, HostListener, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { Auth, sendPasswordResetEmail } from '@angular/fire/auth';
@@ -108,5 +108,29 @@ export class PasswordResetComponent {
     } else {
       return 'Ein Fehler ist aufgetreten. Bitte versuchen Sie es später erneut.';
     }
+  }
+
+  /**
+   * HostListener that fires whenever the browser window is resized.
+   * The method body is intentionally left empty because the resize
+   * event itself is enough to trigger Angular's change detection,
+   * causing dependent getters (such as the placeholder getter) to
+   * be re-evaluated.
+   */
+  @HostListener('window:resize')
+  onResize(): void {}
+  /**
+   * Returns the appropriate email placeholder depending on the current
+   * window width. Angular re-evaluates this getter whenever change
+   * detection runs (for example when `onResize` is triggered).
+   *
+   * - For screens ≤ 420px, a short example email is used.
+   * - For larger screens, a longer example email is shown.
+   *
+   * @readonly
+   * @returns {string} The email placeholder string based on screen size.
+   */
+  public get getEmailPlaceholder() {
+    return window.innerWidth <= 420 ? 'beispiel@gmx.com' : 'beispielname@example.com';
   }
 }

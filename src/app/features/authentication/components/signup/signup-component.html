@@ -34,14 +34,16 @@
           type="email"
           name="email"
           formControlName="email"
-          placeholder="beispielname@email.com"
+          [placeholder]="getEmailPlaceholder"
           [errorStateMatcher]="matcher"
           pattern="[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}"
           required
         />
         @if (signinForm.get('email')?.hasError('pattern') &&
-            !signinForm.get('email')?.hasError('required')) {
-          <mat-error>Das Format der E-Mail-Adresse ist ungültig.</mat-error>
+        !signinForm.get('email')?.hasError('required')) {
+        <mat-error>Das Format der E-Mail-Adresse ist ungültig.</mat-error>
+        } @else if(signinForm.get('email')?.hasError('required')) {
+        <mat-error>Bitte gib deine Email.</mat-error>
         }
       </mat-form-field>
 
@@ -56,15 +58,25 @@
         />
         @if (signinForm.get('passwort')?.hasError('required')) {
         <mat-error>Bitte gib ein Passwort ein.</mat-error>
-        }
-        @if (signinForm.get('passwort')?.hasError('minlength')) {
+        } @if (signinForm.get('passwort')?.hasError('minlength')) {
         <mat-error>Passwort muss mindestens 8 Zeichen lang sein.</mat-error>
         }
       </mat-form-field>
 
-      <mat-checkbox formControlName="privacyPolicy" color="primary">
-        <span>Ich stimme der <a href="/privacy-policy" target="_blank">Datenschutzerklärung</a> zu.</span>
-      </mat-checkbox>
+      <div class="privacy-wrapper">
+        <mat-checkbox formControlName="privacyPolicy" color="primary">
+          Ich stimme der
+        </mat-checkbox>
+
+        <a
+          class="privacy-link"
+          [routerLink]="['/privacy-policy']"
+          (click)="$event.stopPropagation()"
+        >
+          Datenschutzerklärung
+        </a>
+        <span>zu.</span>
+      </div>
     </mat-card-content>
 
     <mat-card-actions class="dialog-authentication-actions">

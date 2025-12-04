@@ -1,4 +1,4 @@
-import { Component, NgZone, signal } from '@angular/core';
+import { Component, HostListener, NgZone, signal } from '@angular/core';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -37,7 +37,7 @@ import { UserService } from '../../../../../services/user.service';
     ReactiveFormsModule,
   ],
   templateUrl: './login-component.html',
-  styleUrl: './login-component.scss',
+  styleUrls: ['./login-component.scss', './login-component.responsive.scss'],
 })
 export class LoginComponent {
   loginForm = new FormGroup({
@@ -171,5 +171,29 @@ export class LoginComponent {
     } catch (err) {
       console.error('Guest login failed', err);
     }
+  }
+
+  /**
+   * HostListener that fires whenever the browser window is resized.
+   * The method body is intentionally left empty because the resize
+   * event itself is enough to trigger Angular's change detection,
+   * causing dependent getters (such as the placeholder getter) to
+   * be re-evaluated.
+   */
+  @HostListener('window:resize')
+  onResize(): void {}
+  /**
+   * Returns the appropriate email placeholder depending on the current
+   * window width. Angular re-evaluates this getter whenever change
+   * detection runs (for example when `onResize` is triggered).
+   *
+   * - For screens ≤ 420px, a short example email is used.
+   * - For larger screens, a longer example email is shown.
+   *
+   * @readonly
+   * @returns {string} The email placeholder string based on screen size.
+   */
+  public get getEmailPlaceholder() {
+    return window.innerWidth <= 420 ? 'beispiel@gmx.com' : 'beispielname@example.com';
   }
 }
