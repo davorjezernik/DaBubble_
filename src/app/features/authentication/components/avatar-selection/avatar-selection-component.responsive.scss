@@ -1,0 +1,132 @@
+@media (max-height: 1050px) {
+  .avatar-select-card {
+    width: 520px;
+    margin-top: 0px;
+  }
+
+  .dialog-authentication-header {
+    height: 76px;
+    width: 218px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .dialog-authentication-title {
+    font-size: 36px;
+  }
+
+  .avatar-list-title {
+    margin-left: 40px;
+  }
+
+  .avatar-image {
+    width: 52px;
+    height: 52px;
+  }
+}
+
+@media (max-width: 750px) {
+  .avatar-select-card {
+    width: 480px;
+  }
+
+  .dialog-authentication-header {
+    height: 76px;
+    width: 218px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .dialog-authentication-title {
+    font-size: 36px;
+  }
+
+  .avatar-list-title {
+    margin-left: 40px;
+  }
+
+  .avatar-image {
+    width: 52px;
+    height: 52px;
+  }
+}
+
+@media (max-width: 600px) {
+  .avatar-select-card {
+    width: clamp(300px, 90vw, 500px);
+  }
+
+  .dialog-authentication-header {
+    height: 76px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  mat-card-actions {
+    margin-top: 40px;
+  }
+
+  mat-card-content {
+    width: 100%;
+  }
+
+  .dialog-authentication-title {
+    font-size: 32px;
+
+    span {
+      display: block;
+    }
+  }
+
+  .avatar-list-title {
+    font-size: 20px;
+    margin-left: 20px;
+  }
+}
+
+@media (max-width: 440px) {
+  .avatar-select-card {
+    width: clamp(300px, 97vw, 500px);
+    padding: 20px 10px;
+  }
+
+  .profile-picture-container {
+    margin-top: 20px;
+    margin-bottom: 20px;
+  }
+
+  mat-card-actions {
+    margin-right: 40px;
+    margin-top: 20px;
+  }
+
+  mat-card-content {
+    width: 380px;
+  }
+
+  .dialog-authentication-title {
+    font-size: 30px;
+  }
+}
+
+@media (max-width: 395px) {
+
+  .dialog-authentication-back-arrow {
+    left: 8px;
+    top: 45px;
+  }
+
+  .profile-picture-container {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    overflow: hidden;
+  }
+
+  mat-card-content {
+    width: 300px;
+  }
+}

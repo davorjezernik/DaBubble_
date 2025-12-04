@@ -3,13 +3,13 @@
   <p class="dialog-login__subtitle">
     Wir empfehlen dir, die E-Mail-Adresse zu nutzen, die du bei der Arbeit verwendest.
   </p>
-  <form [formGroup]="loginForm" (submit)="login()">
+  <form [formGroup]="loginForm" (submit)="login()" class="inputs-form-block">
     <mat-card-content class="form-group">
       <mat-form-field class="custom-form-field" appearance="outline">
         <mat-icon matPrefix class="material-icons-outlined">mail</mat-icon>
         <input
           matInput
-          placeholder="beispielname@example.com"
+          [placeholder]="getEmailPlaceholder"
           formControlName="email"
           (blur)="updateErrorMessages()"
           required
