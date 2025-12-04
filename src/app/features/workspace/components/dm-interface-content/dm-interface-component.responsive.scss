@@ -13,8 +13,46 @@
   }
 }
 
-@media (orientation: landscape) and (max-height: 500px) {
-    .chat-header {
+@media (max-width: 560px) {
+  .header-person-name {
+    font-size: 20px;
+  }
+  .chat-header {
+    height: 64px;
+    padding: 0 8px 0 8px;
+  }
+
+  .footer {
+    width: 100%;
+    padding: 0 8px 20px 8px;
+  }
+}
+
+@media (orientation: landscape) and (max-height: 600px) {
+  .chat-header {
     height: 56px;
+  }
+
+  .footer {
+  padding: 0 35px 4px 35px;
+  }
+}
+
+@media (orientation: landscape) and (max-height: 400px) {
+    .header-avatar-wrapper {
+      width: 28px;
+      height: 28px;
+  }
+
+    .header-person-name {
+      font-size: 14px;
+  }
+
+    .chat-header {
+    height: 42px;
+  }
+
+  .timestamp-block{
+    margin: 0 !important;
   }
 }

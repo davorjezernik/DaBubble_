@@ -1,7 +1,7 @@
 .mention-panel {
   width: 350px;
   max-height: 400px;
-  overflow: hidden;
+  overflow: scroll;
   background: #fff;
   border: 1px solid #adb0d9;
   border-bottom-right-radius: 20px;
@@ -101,23 +101,3 @@
   }
 }
 
-@media (orientation: landscape) and (max-height: 500px) {
-  .mention-panel {
-    max-height: 120px;
-  }
-}
-
-@media (max-width: 550px) {
-  .mention-panel {
-    width: 230px;
-    max-height: 200px;
-    overflow: hidden;
-    background: #fff;
-    border: 1px solid #adb0d9;
-    border-bottom-right-radius: 20px;
-    border-top-left-radius: 20px;
-    border-top-right-radius: 20px;
-    box-shadow: 0 8px 10px rgba(0, 0, 0, 0.08);
-    padding: 0px 10px 0px 0px;
-  }
-}
