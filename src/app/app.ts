@@ -55,6 +55,12 @@ export class App implements OnInit, OnDestroy {
    */
   private setupIntro() {
     if (!isPlatformBrowser(this.platformId)) return;
+    if (this.showIntro) document.body.classList.add('intro-active');
+    /** 
+     * 
+     * FUNCTION REMOVED TO FIX INTRO OVERLAY NOT SHOWING
+     * 
+    if (!isPlatformBrowser(this.platformId)) return;
     const seen = localStorage.getItem('introSeen') === '1';
     this.showIntro = !seen && this.router.url === '/';
     if (this.showIntro) document.body.classList.add('intro-active');
@@ -62,6 +68,7 @@ export class App implements OnInit, OnDestroy {
     this.routeSub = this.router.events
       .pipe(filter((e): e is NavigationEnd => e instanceof NavigationEnd))
       .subscribe((e) => this.updateIntroVisibility(e));
+     */
   }
 
   /**
