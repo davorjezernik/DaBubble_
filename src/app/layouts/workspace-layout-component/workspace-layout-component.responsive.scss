@@ -12,7 +12,7 @@
 
   .main-content {
     height: 90vh;
-    overflow-y: auto;
+    overflow-y: hidden;
 
     &::-webkit-scrollbar {
       display: none;

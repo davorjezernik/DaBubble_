@@ -415,12 +415,11 @@ export class ChannelInterfaceContent extends BaseChatInterfaceComponent {
    * @returns Subscription that is immediately unsubscribed after first emit.
    */
   private setInitialDialogData(ref: any, anchor?: HTMLElement | null) {
-    const sub = this.members$.subscribe((ms) => {
+    const sub = this.members$.pipe(take(1)).subscribe((ms) => {
       ref.componentInstance.members = ms;
       ref.componentInstance.currentUserId = this.currentUserId ?? '';
       ref.componentInstance.channelName = this.channelData?.name ?? '';
       ref.componentInstance.addIconAnchor = anchor ?? null;
-      sub.unsubscribe();
     });
     return sub;
   }

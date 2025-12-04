@@ -1,11 +1,15 @@
 @media (max-width: 950px) {
   .chat-header {
     border-radius: 0;
-    padding: 10px;
+    padding: 0px;
   }
 
   .avatar-stack{
     display: none;
+  }
+
+  .add-user-btn{
+    margin-right: 12px;
   }
 
   .footer {
@@ -14,8 +18,41 @@
   }
 }
 
-@media (orientation: landscape) and (max-height: 500px) {
-    .chat-header {
+@media (max-width: 560px) {
+  .header-person-name {
+    font-size: 20px;
+  }
+  .chat-header {
+    height: 64px;
+    padding: 0 8px 0 8px;
+  }
+
+  .footer {
+    width: 100%;
+    padding: 0 8px 20px 8px;
+  }
+}
+@media (orientation: landscape) and (max-height: 600px) {
+  .chat-header {
     height: 56px;
+  }
+
+  .footer {
+  padding: 0 35px 4px 35px;
+  }
+}
+
+@media (orientation: landscape) and (max-height: 400px) {
+    .channel-info-btn {
+      transform: scale(0.7);
+      margin: -8px -36px;
+  }
+
+  .add-user-btn {
+      transform: scale(0.7);
+  }
+
+    .chat-header {
+    height: 42px;
   }
 }

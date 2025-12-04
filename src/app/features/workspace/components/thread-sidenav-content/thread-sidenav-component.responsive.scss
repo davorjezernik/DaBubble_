@@ -50,18 +50,21 @@
 
 @media (max-width: 950px) {
   .chat-container {
-    height: 89vh;
+    height: 92vh;
   }
 
   .chat-header {
     border-top-left-radius: 0;
     border-top-right-radius: 0;
+    padding: 0 35.5px;
   }
 
   .footer {
-    padding: 0 15px 20px;
+    padding: 0 16px 40px 16px;
   }
 }
+
+
 @media (max-width: 700px) {
   :host app-message-bubble ::ng-deep .emoji-mart {
     width: 170px !important;
@@ -69,12 +72,26 @@
 }
 
 @media (max-width: 560px) {
+
+  .chat-container {
+    height: 90vh;
+  }
+
   .thread-name {
     font-size: 20px;
   }
 
   .channel-name {
     max-width: 120px;
+  }
+    .chat-header {
+    height: 64px;
+    padding: 0 8px 0 8px;
+  }
+
+  .footer {
+    width: 100%;
+    padding: 0 8px 30px 8px;
   }
 }
 
@@ -84,14 +101,42 @@
   }
 }
 
-@media (max-width: 400px) {
+@media (max-width: 400px), (orientation: landscape) and (max-height: 600px) {
+  .chat-container {
+    height: 88vh;
+  }
+}
+
+@media (orientation: landscape) and (max-height: 600px) {
   .chat-header {
-    padding: 20px 10px;
+    height: 56px;
   }
 
+  .footer {
+  padding: 0 35px 24px 35px;
+  }
+}
+
+@media (max-width: 400px) {
   .channel-name {
     max-width: 100px;
   }
 }
 
+@media (orientation: landscape) and (max-height: 400px) {
+    .channel-info-thread-container{
+      transform: scale(0.7);
+  }
+
+    .chat-header {
+    height: 42px;
+  }
+
+  .chat-content{
+    transform: scale(0.7) !important;
+    padding: 0 !important;
+    gap: 0 !important;
+    margin: -40px -32px -20px 0px !important;
+  }
+}
 
