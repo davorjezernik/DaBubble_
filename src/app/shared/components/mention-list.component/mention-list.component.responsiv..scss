@@ -1,10 +1,4 @@
-
 @media (max-width: 550px) {
-  .mention-panel {
-    width: 230px;
-    max-height: 200px;
-    padding: 0px 10px 0px 0px;
-  }
 }
 
 @media (max-width: 500px) {
@@ -12,10 +6,7 @@
     box-sizing: border-box;
     width: 100%;
     max-height: 100%;
-  }
-
-  .list {
-    max-height: 100%;
+    padding: 15px 16px 15px 16px;
   }
 }
 
@@ -24,7 +15,6 @@
     max-height: 150px;
   }
 }
-
 
 @media (max-width: 400px) {
   .mention-panel {
@@ -44,5 +34,9 @@
     align-items: center;
     gap: 15px;
     padding: 8px 0px;
+  }
+
+  .mention-panel .list {
+    max-height: 200px;
   }
 }

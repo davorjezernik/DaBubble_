@@ -41,9 +41,9 @@
       </mat-radio-group>
     </mat-dialog-content>
     @if (selectedOption === 'specific') {
-    <mat-form-field appearance="outline" class="form-field with-padding">
+    <mat-form-field appearance="outline" class="form-field">
       <div class="input-wrapper">
-        <input
+        <input (blur)="inputValue = ''"
           [(ngModel)]="inputValue"
           matInput
           [placeholder]="selectedUsers.length === 0 ? 'Name eingeben' : ''"

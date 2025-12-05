@@ -4,11 +4,11 @@
     padding: 0px;
   }
 
-  .avatar-stack{
+  .avatar-stack {
     display: none;
   }
 
-  .add-user-btn{
+  .add-user-btn {
     margin-right: 12px;
   }
 
@@ -29,30 +29,46 @@
 
   .footer {
     width: 100%;
-    padding: 0 8px 20px 8px;
+    padding: 0 8px 8px 8px;
+  }
+
+  .channel-info-btn {
+    &:hover:not(.basic-chat) {
+      .channel-name {
+        max-width: 160px;
+      }
+    }
+    .channel-name {
+      max-width: 160px;
+    }
   }
 }
+
+@media (max-width: 400px) {
+  .channel-info-btn {
+    &:hover:not(.basic-chat) {
+      .channel-name {
+        max-width: 120px;
+      }
+    }
+    .channel-name {
+      max-width: 120px;
+    }
+  }
+}
+
 @media (orientation: landscape) and (max-height: 600px) {
   .chat-header {
     height: 56px;
   }
 
   .footer {
-  padding: 0 35px 4px 35px;
+    padding: 0 35px 4px 35px;
   }
 }
 
 @media (orientation: landscape) and (max-height: 400px) {
-    .channel-info-btn {
-      transform: scale(0.7);
-      margin: -8px -36px;
-  }
-
-  .add-user-btn {
-      transform: scale(0.7);
-  }
-
-    .chat-header {
-    height: 42px;
+  .chat-header {
+    height: 50px;
   }
 }

@@ -384,6 +384,7 @@ export class MessageAreaComponent {
    */
   addEmojiToText(emoji: string) {
     this.text += emoji;
+    this.showEmojiPicker = false;
   }
 
   /**

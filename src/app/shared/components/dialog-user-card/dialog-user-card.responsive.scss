@@ -5,6 +5,11 @@
     gap: 25px;
   }
 
+  .close-icon {
+    width: 18px;
+    height: 18px;
+  }
+
   .edit-text {
     display: none;
   }
@@ -66,11 +71,6 @@
     h2 {
       font-size: 20px;
     }
-
-    .close-icon {
-      height: 18px;
-      width: 18px;
-    }
   }
 
   .user-name-edit {
@@ -100,6 +100,17 @@
 @media (max-width: 360px) {
   .dialog-user-card-container {
     width: 260px;
+    padding: 10px 30px;
+  }
+
+  .info-email-container {
+    gap: 10px;
+    margin-bottom: 10px;
+    margin-top: 10px;
+  }
+
+  .user-status {
+    margin-top: 4px;
   }
 }
 

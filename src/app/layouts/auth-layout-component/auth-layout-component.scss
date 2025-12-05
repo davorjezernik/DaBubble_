@@ -123,9 +123,9 @@
 
 @media (max-width: 750px) {
   .header {
+    margin-top: 20px;
     justify-content: center;
     align-items: center;
-    margin-top: 20px;
   }
 
   .logo {
@@ -149,6 +149,7 @@
     display: flex;
     gap: 8px;
     padding: 0 20px 12px;
+    margin-top: 30px;
     align-items: center;
 
     p {
@@ -164,7 +165,6 @@
 @media (max-width: 750px) {
   .header {
     justify-content: center;
-    margin-top: 72px;
     height: 56px;
   }
 }

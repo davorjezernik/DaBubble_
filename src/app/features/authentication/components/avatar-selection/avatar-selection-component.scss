@@ -63,9 +63,14 @@ mat-card-content {
 }
 
 .user-name {
+  padding: 10px;
   font-size: 32px;
   font-weight: 700;
   font-family: 'Nunito', sans-serif;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
 }
 
 .avatar-list-title {
