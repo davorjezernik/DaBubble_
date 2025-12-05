@@ -7,7 +7,8 @@
   closeOnEscape
   [isOpen]="isMoreMenuOpen || showEmojiPicker"
   (close)="onEscapePressed()"
-  appEmojiPickerCloseOnOutsideHoverDirective [isPickerOpen]="showEmojiPicker"
+  appEmojiPickerCloseOnOutsideHoverDirective
+  [isPickerOpen]="showEmojiPicker"
 >
   <div
     class="message-content"
@@ -40,6 +41,7 @@
         [messageId]="messageId"
         [collectionName]="collectionName"
         [currentUserId]="currentUserId"
+        [recentEmojis]="currentUserRecentEmojis"
         (quickReact)="onQuickReact($event)"
         (addReaction)="onMiniAddReactionClick()"
         (openThread)="onOpenThread($event)"
@@ -117,7 +119,7 @@
       [isNarrow]="isNarrow"
       [isVeryNarrow]="isVeryNarrow"
       [isMobile]="isMobile"
-      [maxReactions]="MAX_UNIQUE_REACTIONS"
+      [maxReactions]="7"
       [isDeleted]="isDeleted"
       [showEmojiPicker]="showEmojiPicker"
       [defaultCollapseThreshold]="7"

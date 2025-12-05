@@ -31,6 +31,7 @@ export class MessageMiniActionsComponent {
   @Input() collectionName: 'channels' | 'dms' = 'dms';
   @Input() messagePath: string | null = null;
   @Input() currentUserId: string | null = null;
+  @Input() recentEmojis: string[] = [];
   @Output() quickReact = new EventEmitter<string>();
   @Output() addReaction = new EventEmitter<void>();
   @Output() openThread = new EventEmitter<ThreadOpenRequest>();

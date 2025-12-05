@@ -5,7 +5,14 @@
   (mouseleave)="onMouseLeave($event)"
   (click)="$event.stopPropagation()"
 >
-  <span [class.hidden]="isThreadView" class="mini-hit" (click)="onQuickReact('✅')">
+  <span
+    [class.hidden]="isThreadView"
+    class="mini-hit"
+    (click)="onQuickReact(recentEmojis[0] || '✅')"
+  >
+    @if (recentEmojis[0]) {
+    <span class="mini-emoji">{{ recentEmojis[0] }}</span>
+    } @else {
     <svg
       class="mini-icon"
       width="18"
@@ -25,14 +32,35 @@
         fill="none"
       />
     </svg>
+    }
   </span>
   <span
     [class.hidden]="isThreadView"
     class="mini-hit"
-    title="Daumen hoch"
-    (click)="onQuickReact('👍')"
+    [title]="
+      recentEmojis[1] && recentEmojis[1] !== recentEmojis[0]
+        ? recentEmojis[1]
+        : recentEmojis[0] === '👍'
+        ? '✅'
+        : 'Daumen hoch'
+    "
+    (click)="
+      onQuickReact(
+        recentEmojis[1] && recentEmojis[1] !== recentEmojis[0]
+          ? recentEmojis[1]
+          : recentEmojis[0] === '👍'
+          ? '✅'
+          : '👍'
+      )
+    "
   >
-    <span class="mini-emoji">👍</span>
+    <span class="mini-emoji">{{
+      recentEmojis[1] && recentEmojis[1] !== recentEmojis[0]
+        ? recentEmojis[1]
+        : recentEmojis[0] === '👍'
+        ? '✅'
+        : '👍'
+    }}</span>
   </span>
   <span class="mini-hit" (click)="onAddReactionClick($event)">
     <img src="assets/icons/add_reaction.svg" alt="Add reaction" class="mini-icon" />

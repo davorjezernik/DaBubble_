@@ -153,7 +153,7 @@ export class MessageLogicService {
    * @param emoji The unicode emoji string to add.
    * @param currentUserId The current user's ID.
    * @param legacy Whether to use legacy format (replaces entire emoji object).
-   * Side effects: updates Firestore document.
+   * Side effects: updates Firestore document and tracks emoji usage.
    */
   async addReaction(path: string | null, emoji: string, currentUserId: string, legacy = false): Promise<void> {
     if (!path) return;
@@ -164,6 +164,7 @@ export class MessageLogicService {
       } else {
         await updateDoc(ref, { [`reactions.${emoji}.${currentUserId}`]: true });
       }
+      await this.userService.updateRecentEmojis(currentUserId, emoji);
     } catch {}
   }
 
@@ -213,5 +214,15 @@ export class MessageLogicService {
       const ref = doc(this.firestore, path);
       await updateDoc(ref, { text: deletedPlaceholder, deleted: true, reactions: deleteField() });
     } catch {}
+  }
+
+  /**
+   * Check if a message text is a deleted placeholder.
+   * @param text The message text to check.
+   * @param deletedPlaceholder The placeholder text for deleted messages.
+   * @returns True if the message is deleted.
+   */
+  isMessageDeleted(text: string, deletedPlaceholder: string): boolean {
+    return (text || '').trim() === deletedPlaceholder;
   }
 }

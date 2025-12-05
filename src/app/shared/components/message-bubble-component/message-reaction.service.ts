@@ -1,9 +1,7 @@
 import { Injectable } from '@angular/core';
-import { Firestore, doc, updateDoc, deleteField } from '@angular/fire/firestore';
 import { UserService } from '../../../../services/user.service';
 import { MessageLogicService, MessageReaction } from './message-logic.service';
-import { BehaviorSubject, Subject } from 'rxjs';
-import { debounceTime } from 'rxjs/operators';
+import { BehaviorSubject } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -16,34 +14,16 @@ export class MessageReactionService {
   private _showEmojiPicker = new BehaviorSubject<boolean>(false);
   public showEmojiPicker$ = this._showEmojiPicker.asObservable();
 
-  private _editEmojiPickerVisible = new BehaviorSubject<boolean>(false);
-  public editEmojiPickerVisible$ = this._editEmojiPickerVisible.asObservable();
+  private _isMoreMenuOpen = new BehaviorSubject<boolean>(false);
+  public isMoreMenuOpen$ = this._isMoreMenuOpen.asObservable();
 
-  // Debouncing for reaction clicks
-  private reactionClickSubject = new Subject<{
-    path: string;
-    emoji: string;
-    currentUserId: string;
-    action: 'add' | 'remove';
-    isLegacyCount?: boolean;
-  }>();
+  private _showMiniActions = new BehaviorSubject<boolean>(false);
+  public showMiniActions$ = this._showMiniActions.asObservable();
   
   constructor(
-    private firestore: Firestore,
     private userService: UserService,
     private messageLogic: MessageLogicService
-  ) {
-    // Process reaction clicks with 300ms debounce to prevent rapid-fire writes
-    this.reactionClickSubject.pipe(
-      debounceTime(300)
-    ).subscribe(async ({ path, emoji, currentUserId, action, isLegacyCount }) => {
-      if (action === 'add') {
-        await this.messageLogic.addReaction(path, emoji, currentUserId, isLegacyCount);
-      } else {
-        await this.messageLogic.removeReaction(path, emoji, currentUserId, isLegacyCount);
-      }
-    });
-  }
+  ) {}
 
   /**
    * Rebuild reactions array from Firestore reactionsMap.
@@ -81,32 +61,37 @@ export class MessageReactionService {
   }
 
   /**
-   * Toggle the edit mode emoji picker visibility.
-   * Side effects: updates editEmojiPickerVisible$ observable.
+   * Toggle the more menu visibility.
+   * Side effects: updates isMoreMenuOpen$ observable.
    */
-  toggleEditEmojiPicker() {
-    this._editEmojiPickerVisible.next(!this._editEmojiPickerVisible.value);
+  toggleMoreMenu() {
+    this._isMoreMenuOpen.next(!this._isMoreMenuOpen.value);
   }
 
   /**
-   * Close the edit mode emoji picker.
-   * Side effects: updates editEmojiPickerVisible$ to false.
+   * Close the more menu.
+   * Side effects: updates isMoreMenuOpen$ to false.
    */
-  closeEditEmojiPicker() {
-    this._editEmojiPickerVisible.next(false);
+  closeMoreMenu() {
+    this._isMoreMenuOpen.next(false);
   }
 
   /**
-   * Add or increment a reaction from the emoji picker.
-   * @param path The Firestore document path for the message.
-   * @param emoji The unicode emoji string to add.
-   * @param currentUserId The current user's ID.
-   * Side effects: updates Firestore, closes emoji picker.
+   * Set mini actions visibility.
+   * @param visible Whether mini actions should be visible.
    */
-  async addOrIncrementReaction(path: string | null, emoji: string, currentUserId: string) {
-    if (!path) return;
-    await this.messageLogic.addReaction(path, emoji, currentUserId);
+  setMiniActionsVisible(visible: boolean) {
+    this._showMiniActions.next(visible);
+  }
+
+  /**
+   * Close all UI elements (menus, pickers).
+   * Side effects: closes emoji picker, more menu, and mini actions.
+   */
+  closeAll() {
     this.closeEmojiPicker();
+    this.closeMoreMenu();
+    this.setMiniActionsVisible(false);
   }
 
   /**
@@ -114,7 +99,7 @@ export class MessageReactionService {
    * @param path The Firestore document path for the message.
    * @param emoji The unicode emoji string being toggled.
    * @param currentUserId The current user's ID.
-   * Side effects: queues reaction to be processed with debouncing.
+   * Side effects: directly updates Firestore.
    */
   async handleReactionClick(path: string | null, emoji: string, currentUserId: string) {
     if (!path) return;
@@ -123,34 +108,14 @@ export class MessageReactionService {
     const reaction = currentReactions.find(r => r.emoji === emoji);
 
     if (!reaction) {
-      // Queue the add action with debouncing
-      this.reactionClickSubject.next({
-        path,
-        emoji,
-        currentUserId,
-        action: 'add'
-      });
+      await this.messageLogic.addReaction(path, emoji, currentUserId);
       return;
     }
 
     if (reaction.currentUserReacted) {
-      // Queue the remove action with debouncing
-      this.reactionClickSubject.next({
-        path,
-        emoji,
-        currentUserId,
-        action: 'remove',
-        isLegacyCount: reaction.isLegacyCount
-      });
+      await this.messageLogic.removeReaction(path, emoji, currentUserId, reaction.isLegacyCount);
     } else {
-      // Queue the add action with debouncing
-      this.reactionClickSubject.next({
-        path,
-        emoji,
-        currentUserId,
-        action: 'add',
-        isLegacyCount: reaction.isLegacyCount
-      });
+      await this.messageLogic.addReaction(path, emoji, currentUserId, reaction.isLegacyCount);
     }
   }
 }

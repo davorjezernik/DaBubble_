@@ -48,7 +48,6 @@
         [chatId]="chatId || ''"
         [messageId]="message.id"
         [reactionsMap]="message.reactions"
-        [lastReplyAt]="message.lastReplyAt"
       ></app-message-bubble>
     </div>
     } @empty { @if (isOwnDm) {
