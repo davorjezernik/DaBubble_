@@ -99,9 +99,6 @@
 }
 
 @media (max-width: 400px), (orientation: landscape) and (max-height: 600px) {
-  .chat-container {
-    height: 88vh;
-  }
 }
 
 @media (orientation: landscape) and (max-height: 600px) {
@@ -110,7 +107,7 @@
   }
 
   .footer {
-    padding: 0 35px 24px 35px;
+    padding: 0 15px 50px 15px;
   }
 }
 
@@ -122,17 +119,12 @@
 
 @media (orientation: landscape) and (max-height: 400px) {
   .channel-info-thread-container {
-    transform: scale(0.7);
   }
 
   .chat-header {
-    height: 42px;
+    height: 50px;
   }
 
   .chat-content {
-    transform: scale(0.7) !important;
-    padding: 0 !important;
-    gap: 0 !important;
-    margin: -40px -32px -20px 0px !important;
   }
 }

@@ -9,6 +9,10 @@
   border-top-right-radius: 20px;
   box-shadow: 0 8px 10px rgba(0, 0, 0, 0.08);
   padding: 20px 21px 20px 21px;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 .panel-title {
