@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, inject, Inject, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   MatDialog,
@@ -10,6 +10,9 @@ import { User } from './../../../../models/user.class';
 import { UserService } from './../../../../services/user.service';
 import { DialogEditUserCardComponent } from '../dialog-edit-user-card/dialog-edit-user-card';
 import { take } from 'rxjs/operators';
+import { pipe, Subscription } from 'rxjs';
+import { ReadStateService } from '../../../../services/read-state.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-dialog-user-card',
@@ -18,14 +21,22 @@ import { take } from 'rxjs/operators';
   templateUrl: './dialog-user-card.component.html',
   styleUrls: ['./dialog-user-card.component.scss', './dialog-user-card.responsive.scss'],
 })
-export class DialogUserCardComponent implements OnInit {
+export class DialogUserCardComponent implements OnInit, OnDestroy {
+  private read = inject(ReadStateService);
+
+  unread = 0;
   isSelf = false;
+
+  meUid: string | null = null;
+
+  private unreadDmCountSub?: Subscription;
 
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: { user: User },
     public dialogRef: MatDialogRef<DialogUserCardComponent>,
     private dialog: MatDialog,
-    private userService: UserService
+    private userService: UserService,
+    private router: Router
   ) {}
 
   /**
@@ -37,10 +48,15 @@ export class DialogUserCardComponent implements OnInit {
       .currentUser$()
       .pipe(take(1))
       .subscribe((me) => {
+        this.meUid = me?.uid ?? null;
         const u: any = this.data.user;
         const targetId = u.uid ?? u.id;
         this.isSelf = !!me && !!targetId && me.uid === targetId;
       });
+  }
+
+  ngOnDestroy(): void {
+    this.unreadDmCountSub?.unsubscribe();
   }
 
   /**
@@ -96,5 +112,23 @@ export class DialogUserCardComponent implements OnInit {
     const img = evt.target as HTMLImageElement;
     img.onerror = null;
     img.src = 'assets/img-profile/profile.png';
+  }
+
+  public moveToUserDm() {
+    if (!this.meUid || !this.data.user?.uid) return;
+    const dmId = this.calculateDmId(this.data.user);
+    this.unreadDmCountSub = this.read
+      .unreadDmCount$(dmId, this.meUid)
+      .pipe(take(1))
+      .subscribe((c: any) => (this.unread = c));
+    this.router.navigate(['/workspace/dm', dmId]);
+    this.dialogRef.close();
+  }
+
+  public calculateDmId(otherUser: User): string {
+    if (!this.meUid) return '';
+    const uid1 = this.meUid;
+    const uid2 = otherUser.uid;
+    return uid1 < uid2 ? `${uid1}-${uid2}` : `${uid2}-${uid1}`;
   }
 }
