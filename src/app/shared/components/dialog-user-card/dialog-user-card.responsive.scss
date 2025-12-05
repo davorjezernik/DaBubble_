@@ -5,6 +5,10 @@
     gap: 25px;
   }
 
+  .user-mail {
+    margin-left: 0 !important;
+  }
+
   .close-icon {
     width: 18px;
     height: 18px;
@@ -69,7 +73,7 @@
 
   .dialog-user-card-header-container {
     h2 {
-      font-size: 20px;
+      font-size: 24px !important;
     }
   }
 
@@ -100,7 +104,7 @@
 @media (max-width: 360px) {
   .dialog-user-card-container {
     width: 260px;
-    padding: 10px 30px;
+    padding: 32px 30px;
   }
 
   .info-email-container {
@@ -126,5 +130,116 @@
     justify-content: flex-start;
     gap: 0px;
     width: 100%;
+  }
+}
+
+@media (max-width: 1000px) and (orientation: landscape) {
+  .dialog-user-card-container {
+    padding: 32px;
+    width: auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto auto;
+    gap: 16px;
+  }
+
+  .dialog-user-card-header-container {
+    grid-column: 1 / span 2;
+    grid-row: 1;
+  }
+
+  .user-profil-image-container {
+    grid-column: 1;
+    grid-row: 2;
+    justify-self: center;
+    margin: 0 0 5px 0;
+    img {
+      height: 160px;
+      width: 160px;
+    }
+  }
+
+  .mat-typography {
+    grid-column: 2;
+    grid-row: 2;
+  }
+
+  .user-name-edit {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+
+    > h3 {
+      max-width: 260px;
+    }
+  }
+
+  .edit-btn {
+    margin-left: 0;
+  }
+
+  .user-mail {
+    margin-left: 0 !important;
+    max-width: 90%;
+  }
+
+  .edit-text {
+    display: block;
+  }
+
+  .edit-icon {
+    display: none;
+  }
+
+  .info-email-container {
+    margin-top: 24px;
+  }
+
+  .user-status {
+    margin: 6px 0px 12px;
+  }
+}
+
+@media (max-width: 700px) and (orientation: landscape) {
+  .user-name-edit {
+    flex-direction: row;
+    gap: 10px;
+    > h3 {
+      max-width: 210px;
+    }
+  }
+  .edit-text {
+    display: none;
+  }
+
+  .edit-icon {
+    display: block;
+  }
+
+  .mat-dialog-actions {
+    padding: 0;
+    grid-column: 1 / span 2;
+    justify-content: center;
+    margin-top: -6px;
+  }
+}
+
+@media (max-width: 560px) and (orientation: landscape) {
+  .dialog-user-card-container {
+    padding: 20px;
+    grid-template-columns: 0.7fr 0.7fr;
+  }
+
+  .user-profil-image-container {
+    img {
+      height: 120px;
+      width: 120px;
+    }
+  }
+
+  .user-name-edit {
+    h3 {
+      font-size: 28px;
+    }
   }
 }

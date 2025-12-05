@@ -68,7 +68,7 @@ $offline: #b7bcc5;
   display: flex;
   align-items: center;
   gap: 15px;
-  padding: 3px 10px;
+  padding: 3px 20px;
   border-radius: 30px;
   cursor: pointer;
   transition: background 125ms ease, color 125ms ease;
@@ -126,6 +126,10 @@ $offline: #b7bcc5;
   font-family: 'Nunito', sans-serif;
   font-size: 18px;
   font-weight: 400;
+  max-width: 220px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .you {
@@ -177,20 +181,59 @@ $offline: #b7bcc5;
 }
 
 @media (max-width: 460px) {
+  .dlg-header {
+    h3 {
+      margin-left: 20px;
+    }
+  }
   .members-dialog {
     width: 360px;
+  }
+
+  .member-name {
+    max-width: 180px;
+  }
+
+  .members-dialog {
+    padding: 32px;
+  }
+
+  .add-members-btn {
+    font-size: 16px;
+    white-space: nowrap;
   }
 }
 
 @media (max-width: 400px) {
+  .member-name {
+    max-width: 150px;
+  }
+
   .members-dialog {
-    width: 285px;
-    padding: 20px;
+    width: 300px;
+    padding: 18px;
   }
 
   .member-row {
-  gap: 10px;
-  padding: 3px 0px;
-}
+    gap: 10px;
+  }
 }
 
+@media (max-width: 374px) {
+  .members-dialog {
+    max-height: 300px;
+  }
+}
+
+@media (max-width: 600px) and (orientation: landscape) {
+  .members-dialog {
+    max-height: 180px;
+    padding: 15px;
+    gap: 10px;
+  }
+
+  .dlg-header {
+    margin-left: 20px;
+  }
+
+}

@@ -58,6 +58,10 @@ $online: #5cd65c;
     font-weight: 400;
     font-size: 18px;
     color: $brand;
+    max-width: 90%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 }
 
@@ -72,7 +76,7 @@ $online: #5cd65c;
   border: 1.5px solid #c9c9f0;
   border-radius: 35px;
   display: flex;
-  flex-wrap: wrap;   
+  flex-wrap: wrap;
   align-items: center;
   gap: 10px;
   padding: 4px 14px;
