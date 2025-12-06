@@ -114,6 +114,10 @@ export class DialogUserCardComponent implements OnInit, OnDestroy {
     img.src = 'assets/img-profile/profile.png';
   }
 
+  /**
+   * Navigates to the direct message channel with the selected user.
+   * Closes all open dialogs before navigation.
+   */
   public moveToUserDm() {
     if (!this.meUid || !this.data.user?.uid) return;
     const dmId = this.calculateDmId(this.data.user);
@@ -125,6 +129,12 @@ export class DialogUserCardComponent implements OnInit, OnDestroy {
     this.dialogRef.close();
   }
 
+  /**
+   * Generates a consistent DM ID based on the current user's ID and the other user's ID.
+   * The ID is formed by sorting the two UIDs alphabetically to ensure uniqueness regardless of who initiates.
+   * @param otherUser The user to start a DM with.
+   * @returns The generated DM ID string.
+   */
   public calculateDmId(otherUser: User): string {
     if (!this.meUid) return '';
     const uid1 = this.meUid;
