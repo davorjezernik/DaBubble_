@@ -35,7 +35,13 @@
         <span class="emoji">{{ r.emoji }}</span>
         } @if (!r.isLegacyCount) {
         <div class="reaction-tooltip">
-          <div class="reacter-emoji">{{ r.emoji }}</div>
+          <div class="reacter-emoji">
+            @if (r.emoji === '✅') {
+            <img src="assets/icons/check-green.svg" alt="Erledigt" class="emoji-svg" />
+            } @else {
+            <span>{{ r.emoji }}</span>
+            }
+          </div>
           <div class="reacter-names">
             @for (uid of r.userIds; track uid; let i = $index) {
             <span>{{ r.userNames[i] || '...' }}</span

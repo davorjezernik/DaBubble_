@@ -10,40 +10,15 @@
     class="mini-hit"
     (click)="onQuickReact(recentEmojis[0] || '✅')"
   >
-    @if (recentEmojis[0]) {
-    <span class="mini-emoji">{{ recentEmojis[0] }}</span>
+    @if (!recentEmojis[0] || recentEmojis[0] === '✅') {
+    <img src="assets/icons/check-green.svg" alt="Erledigt" class="mini-icon" />
     } @else {
-    <svg
-      class="mini-icon"
-      width="18"
-      height="18"
-      viewBox="0 0 24 24"
-      aria-label="Erledigt"
-      role="img"
-      focusable="false"
-    >
-      <circle cx="12" cy="12" r="10" fill="#22C55E" />
-      <path
-        d="M9.5 12.5l2 2 4-4"
-        stroke="#FFFFFF"
-        stroke-width="2"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        fill="none"
-      />
-    </svg>
+    <span class="mini-emoji">{{ recentEmojis[0] }}</span>
     }
   </span>
   <span
     [class.hidden]="isThreadView"
     class="mini-hit"
-    [title]="
-      recentEmojis[1] && recentEmojis[1] !== recentEmojis[0]
-        ? recentEmojis[1]
-        : recentEmojis[0] === '👍'
-        ? '✅'
-        : 'Daumen hoch'
-    "
     (click)="
       onQuickReact(
         recentEmojis[1] && recentEmojis[1] !== recentEmojis[0]
@@ -54,13 +29,14 @@
       )
     "
   >
+    @if ( (recentEmojis[1] && recentEmojis[1] !== recentEmojis[0] && recentEmojis[1] !== '✅') ||
+    (!recentEmojis[1] && recentEmojis[0] !== '👍') ) {
     <span class="mini-emoji">{{
-      recentEmojis[1] && recentEmojis[1] !== recentEmojis[0]
-        ? recentEmojis[1]
-        : recentEmojis[0] === '👍'
-        ? '✅'
-        : '👍'
+      recentEmojis[1] && recentEmojis[1] !== recentEmojis[0] ? recentEmojis[1] : '👍'
     }}</span>
+    } @else {
+    <img src="assets/icons/check-green.svg" alt="Erledigt" class="mini-icon" />
+    }
   </span>
   <span class="mini-hit" (click)="onAddReactionClick($event)">
     <img src="assets/icons/add_reaction.svg" alt="Add reaction" class="mini-icon" />
