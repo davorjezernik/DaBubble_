@@ -25,27 +25,54 @@
 }
 
 .header {
+  box-sizing: border-box;
   display: flex;
+  align-items: center;
   justify-content: space-between;
   width: 100%;
   margin-top: 75px;
+  padding-left: 75px;
+  padding-right: 75px;
+}
+
+.logo-wrapper {
+  display: flex;
+  align-items: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.5s ease-in-out;
+
+  &.show {
+    opacity: 1;
+    pointer-events: all;
+  }
 }
 
 .logo {
-  margin: 0px;
-  padding-left: 75px;
+  width: 72px;
+  height: 72px;
+  z-index: 7;
+}
+
+.text {
+  @include mixins.text-style(
+    $size: 24px,
+    $color: black,
+    $font-weight: 700,
+    $font-family: 'Nunito',
+    $line-height: 1.2
+  );
+  padding-left: 20px;
+  white-space: nowrap;
+  opacity: 1;
+}
+
+.text-mask {
+  overflow: hidden;
+  height: 120px;
+  width: auto;
   display: flex;
   align-items: center;
-
-  img {
-    width: 242px;
-    height: 70px;
-    cursor: pointer;
-    transition: transform 0.125s ease;
-    &:hover {
-      transform: scale(1.1);
-    }
-  }
 }
 
 .footer {
@@ -64,7 +91,6 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding-right: 75px;
 
   > p {
     margin: 0;

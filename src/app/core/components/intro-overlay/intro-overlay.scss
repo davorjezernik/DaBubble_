@@ -1,0 +1,143 @@
+@use 'mixins';
+
+.intro-container {
+  background: linear-gradient(to bottom, rgb(121 126 243), rgb(84 90 241), rgb(68 77 242));
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  animation: fadeOutBackground 0.1s ease-in-out 2.7s forwards;
+}
+
+.logo-wrapper {
+  position: absolute;
+  top: 75px;
+  left: 75px;
+  display: flex;
+  align-items: center;
+
+  transform: translate(calc(50vw - 135px), calc(50vh - 135px));
+
+  animation: slideLogoLeft 1s ease-in-out 0.5s forwards,
+    moveFromCenterToCorner 1s ease-in-out 2.5s forwards;
+}
+
+.logo {
+  width: 120px;
+  height: 120px;
+  z-index: 7;
+  animation: shrinkLogo 1s ease-in-out 2.6s forwards;
+}
+
+.text {
+  @include mixins.text-style(
+    $size: 42px,
+    $color: white,
+    $font-weight: 700,
+    $font-family: 'Nunito',
+    $line-height: 1.2
+  );
+  padding-left: 20px;
+  white-space: nowrap;
+  transform: translateX(-100%);
+  opacity: 0;
+  animation: slideInText 1s ease-in-out 1.5s forwards,
+    turnTextToBlack 0.5s ease-in-out 2.5s forwards, shrinkText 1s ease-in-out 2.6s forwards;
+}
+
+.text-mask {
+  overflow: hidden;
+  height: 120px;
+  width: 0;
+  display: flex;
+  align-items: center;
+
+  animation: openSpace 1s ease-in-out 0.5s forwards;
+}
+
+@keyframes defineLogoStartPosition {
+}
+
+@keyframes slideLogoLeft {
+  from {
+    transform: translate(calc(50vw - 135px), calc(50vh - 135px));
+  }
+  to {
+    transform: translate(calc(50vw - 270px), calc(50vh - 135px));
+  }
+}
+
+@keyframes openSpace {
+  from {
+    width: 0;
+  }
+  to {
+    width: 250px;
+  }
+}
+
+@keyframes slideInText {
+  from {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes moveFromCenterToCorner {
+  0% {
+    transform: translate(calc(50vw - 270px), calc(50vh - 135px));
+  }
+  90% {
+    transform: translate(0, 0);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(0, 0);
+    opacity: 0;
+  }
+}
+
+@keyframes fadeOutBackground {
+  to {
+    background: transparent;
+    pointer-events: none;
+  }
+}
+
+@keyframes turnTextToBlack {
+  from {
+    color: white;
+  }
+  to {
+    color: #000000;
+  }
+}
+
+@keyframes shrinkLogo {
+  from {
+    width: 120px;
+    height: auto;
+  }
+  to {
+    width: 72px;
+    height: auto;
+  }
+}
+
+@keyframes shrinkText {
+  from {
+    font-size: 42px;
+  }
+  to {
+    font-size: 24px;
+  }
+}
+
+// logo should first move half the text to left before the text appears

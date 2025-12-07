@@ -1,15 +1,20 @@
+<app-intro-overlay (done)="hideIntro()"></app-intro-overlay>
 <section class="auth-section">
   <header class="header">
-    <figure class="logo">
-      <a routerLink="/"><img src="assets/icons/static-logo.svg" alt="Backdrop Image" /></a>
-    </figure>
+
+    <section [class.show]="!showIntro" routerLink="/" class="logo-wrapper">
+      <img class="logo" src="assets/icons/logo.svg" alt="Logo" class="logo" />
+      <div class="text-mask">
+        <span class="text">DABubble</span>
+      </div>
+    </section>
 
     <!-- Desktop -->
     @if (isLogin()) {
-      <hgroup class="signup-text signup-text--desktop">
-        <p>Neu bei DABubble?</p>
-        <a routerLink="/signup" class="nav-link">Konto erstellen</a>
-      </hgroup>
+    <hgroup class="signup-text signup-text--desktop">
+      <p>Neu bei DABubble?</p>
+      <a routerLink="/signup" class="nav-link">Konto erstellen</a>
+    </hgroup>
     }
   </header>
 
@@ -19,16 +24,16 @@
 
   <!-- Mobile -->
   @if (isLogin()) {
-    <hgroup class="signup-text signup-text--mobile">
-      <p>Neu bei DABubble?</p>
-      <a routerLink="/signup" class="nav-link nav-link--primary">Konto erstellen</a>
-    </hgroup>
+  <hgroup class="signup-text signup-text--mobile">
+    <p>Neu bei DABubble?</p>
+    <a routerLink="/signup" class="nav-link nav-link--primary">Konto erstellen</a>
+  </hgroup>
   }
 
   <footer class="footer">
     @if (isAuth()) {
-      <a routerLink="/imprint">Impressum</a>
-      <a routerLink="/privacy-policy">Datenschutz</a>
+    <a routerLink="/imprint">Impressum</a>
+    <a routerLink="/privacy-policy">Datenschutz</a>
     }
   </footer>
 </section>
