@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, HostListener } from '@angular/core';
 import { MessageAreaComponent } from '../../../../shared/components/message-area-component/message-area-component';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { Channel, ChannelService } from '../../../../../services/channel-service';
@@ -569,5 +569,10 @@ export class ChannelInterfaceContent extends BaseChatInterfaceComponent {
       data: { channel: this.channelData },
       autoFocus: false,
     });
+  }
+
+  @HostListener('window:resize', ['$event'])
+  onResize(event: any) {
+    this.dialog.closeAll();
   }
 }

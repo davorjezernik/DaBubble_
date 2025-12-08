@@ -16,6 +16,7 @@
 @media (max-width: 560px) {
   .header-person-name {
     font-size: 20px;
+    max-width: 200px;
   }
   .chat-header {
     height: 64px;
@@ -24,7 +25,41 @@
 
   .footer {
     width: 100%;
-    padding: 0 8px 20px 8px;
+    padding: 0 8px 8px 8px;
+  }
+}
+
+@media (max-width: 500px) {
+  .avatar-wrapper {
+    width: 80px;
+    height: 80px;
+  }
+
+  .avatar-figure {
+    gap: 8px;
+  }
+
+  .avatar-caption {
+    font-size: 21px;
+    max-width: 180px;
+  }
+
+  .recipient-tag {
+    max-width: 200px;
+  }
+
+  .chat-info {
+    font-size: 17px;
+  }
+
+  .footer {
+    padding: 0 8px 10px 8px;
+  }
+}
+
+@media (max-width: 360px) {
+  .recipient-tag {
+    max-width: 140px;
   }
 }
 
@@ -34,25 +69,24 @@
   }
 
   .footer {
-  padding: 0 35px 4px 35px;
+    padding: 0 35px 4px 35px;
   }
 }
 
 @media (orientation: landscape) and (max-height: 400px) {
-    .header-avatar-wrapper {
-      width: 28px;
-      height: 28px;
+  .chat-header {
+    height: 50px;
   }
 
-    .header-person-name {
-      font-size: 14px;
-  }
-
-    .chat-header {
-    height: 42px;
-  }
-
-  .timestamp-block{
+  .timestamp-block {
     margin: 0 !important;
+  }
+
+  .header-person-name {
+    max-width: 300px;
+  }
+
+  .avatar-caption {
+    max-width: 200px;
   }
 }

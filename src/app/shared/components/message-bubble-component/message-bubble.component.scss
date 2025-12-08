@@ -209,6 +209,7 @@
   right: 5%;
   left: auto;
   transform: translateY(-8px);
+  z-index: 6;
 }
 
 .message-container.incoming ::ng-deep app-message-mini-actions .mini-actions.visible {
@@ -366,5 +367,9 @@
       height: 50px;
       margin-left: 8px;
     }
+  }
+
+  .message-container {
+    padding-top: 32px;
   }
 }

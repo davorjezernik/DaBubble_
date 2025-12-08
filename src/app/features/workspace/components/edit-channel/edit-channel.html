@@ -13,7 +13,7 @@
             <div class="modal-channel">
                 <div class="width-chanel">
                     <ng-container *ngIf="!isEditingName">
-                        <p># <span>{{ data?.channel?.name || '' }}</span></p>
+                        <p class="channel-name"># <span>{{ data?.channel?.name || '' }}</span></p>
                     </ng-container>
                     <ng-container *ngIf="isEditingName">
                         <div class="edit-input-container">
@@ -48,7 +48,7 @@
             </div>
             <div class="modal-info">
                 <p>Made from</p>
-                <b>{{ data?.channel?.createdBy || 'Unknown' }}</b>
+                <b class="channel-creator">{{ data?.channel?.createdBy || 'Unknown' }}</b>
             </div>
         </div>
         <div class="button-container">

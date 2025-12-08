@@ -4,6 +4,7 @@
   z-index: 9999;
   display: grid;
   place-items: center;
+  display: none;
 }
 
 .overlay-bg {
@@ -63,9 +64,13 @@ $cluster-delay: $logo-delay + $logo-dur + $title-dur; // startet nach logo+title
 @keyframes cluster-fly {
   from { transform: translate(-50%, -50%) scale(1); }
   to {
-    transform: translate(calc(-50% - (50vw - 207px)),
-                         calc(-50% - (50vh - 110px))) scale(0.35);
+    transform: translate(calc(-50% - (50vw - 207px)),calc(-50% - (50vh - 110px))) scale(0.35);
   }
+}
+
+@keyframes cluster-fly-mobile {
+  from { transform: translate(-50%, -50%) scale(1); }
+  to { transform: translate(-50%, calc(-50% - 40vh)) scale(0.35); }
 }
 
 @keyframes title-color {
@@ -109,4 +114,23 @@ $cluster-delay: $logo-delay + $logo-dur + $title-dur; // startet nach logo+title
   .title { opacity: 1; transform: none; color: #000; }
   .cluster { transform: translate(calc(-50% - (50vw - 207px)), calc(-50% - (50vh - 110px))) scale(0.35); }
   .overlay-bg { opacity: 0; }
+}
+
+@media screen and (max-width: 751px) {
+  .cluster {
+    transform-origin: center center;
+  }
+  
+  /* On small screens, use the mobile keyframes to keep cluster centered horizontally
+     and move it up ('middle above' instead of right corner) */
+  .overlay.animate .cluster {
+    animation: cluster-fly-mobile $cluster-dur ease-in $cluster-delay forwards;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .overlay.animate .cluster {
+      animation: none !important;
+    }
+    .cluster { transform: translate(-50%, calc(-50% - 40vh)) scale(0.35); }
+  }
 }

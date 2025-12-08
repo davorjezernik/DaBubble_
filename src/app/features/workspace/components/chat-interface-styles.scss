@@ -61,6 +61,7 @@
     width: 100%;
     height: 1px;
     background-color: #d9d9d9;
+    z-index: 5;
   }
 
   .timestamp-block {
@@ -74,6 +75,8 @@
     border-radius: 30px;
     padding: 5px 15px;
     border: 1px solid #adb0d9;
+    background-color: white;
+    z-index: 5;
   }
 
   .message {
@@ -163,17 +166,23 @@
     cursor: pointer;
     padding: 0;
   }
-}
 
-@media (orientation: landscape) and (max-height: 400px) {
-.chat-content{
-  transform: scale(0.7);
-  padding: 0;
-  gap: 0;
-  margin: -40px -32px -20px 0px;
-}
+  @media (max-width: 500px) {
+    .chat-content.empty {
+      &.empty {
+        padding-left: 20px;
+      }
+    }
+  }
 
-.timestamp-block {
-  margin: 0 0 -16px 0 !important; 
-}
+  @media (orientation: landscape) and (max-height: 400px) {
+    .chat-content {
+      padding: 5px;
+      gap: 0;
+    }
+
+    .timestamp-block {
+      margin: 0 0 -16px 0 !important;
+    }
+  }
 }

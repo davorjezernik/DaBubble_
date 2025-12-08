@@ -4,7 +4,7 @@ section {
     background-color: rgb(236, 238, 254);   
     display: flex;
     justify-content: center;
-    font-family: "nunito";
+    font-family: "Nunito";
 }
 
 .main-container {
@@ -104,5 +104,16 @@ section {
         p {
             font-size: 17px;
         }  
+    }
+}
+
+@media (max-width: 370px) {
+    .inner-container {
+        width: 100%;
+        height: 100%;
+    }
+
+    .inner-container-content {
+        height: 95%;
     }
 }

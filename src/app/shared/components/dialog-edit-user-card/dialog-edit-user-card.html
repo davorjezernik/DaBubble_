@@ -19,7 +19,7 @@
         <img src="assets/icons/account_circle.svg" alt="User Icon" />
         <span>Vollständiger Name</span>
       </div>
-      <input
+      <input id="nameInput"
         type="text"
         [formControl]="nameCtrl"
         placeholder="Dein Name hier"
@@ -29,6 +29,6 @@
 
   <footer class="edit-actions">
     <button class="cancel-btn" (click)="close()">Abbrechen</button>
-    <button class="save-btn" (click)="save()">Speichern</button>
+    <button class="save-btn" [class.disabled]="!nameCtrl.value || nameCtrl.value.trim().length === 0" (click)="save()">Speichern</button>
   </footer>
 </div>

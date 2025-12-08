@@ -59,6 +59,10 @@
     $font-family: 'Nunito',
     $line-height: 1
   );
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  max-width: 300px;
 }
 
 .channel-actions {
@@ -103,6 +107,11 @@
   );
   transition: color 125ms ease-in-out;
 
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 300px;
+
   &:hover {
     color: #535af1;
   }
@@ -144,6 +153,11 @@
     $font-family: 'Nunito',
     $line-height: 1.4
   );
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 300px;
 
   &:hover {
     font-weight: 700;
@@ -216,10 +230,9 @@
 .timestamp-bubble {
   border-radius: 30px;
   padding: 5px 15px;
-  border: 1px solid #ADB0D9;
+  border: 1px solid #adb0d9;
 }
 
 .message {
   margin-left: 24px;
 }
-

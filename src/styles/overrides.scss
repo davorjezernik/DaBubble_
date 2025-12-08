@@ -20,8 +20,15 @@ body.intro-active app-auth-layout-component .header .logo img {
 .mat-mdc-form-field-icon-suffix > .mat-icon,
 .mat-mdc-form-field-prefix .material-icons-outlined,
 .mat-mdc-form-field-suffix .material-icons-outlined {
-  padding: 0 24px !important;
+  padding: 0 8px !important;
   color: #6b6b6b;
+}
+
+.mdc-text-field--no-label:not(.mdc-text-field--textarea)
+  .mat-mdc-form-field-input-control.mdc-text-field__input,
+.mat-mdc-text-field-wrapper .mat-mdc-form-field-input-control {
+  width: 90% !important;
+  margin-right: 12px !important;
 }
 
 .mat-mdc-form-field-prefix,

@@ -39,12 +39,12 @@
         <img src="assets/icons/mail.svg" alt="Mail Icon" />
         <h3>E-Mail-Adresse</h3>
       </section>
-      <a [href]="'mailto:' + data.user.email">{{ data.user.email }}</a>
+      <a class="user-mail" [href]="'mailto:' + data.user.email">{{ data.user.email }}</a>
     </section>
   </main>
 
-  <mat-dialog-actions *ngIf="!isSelf">
-    <button class="user-card-btn" matButton>
+  <mat-dialog-actions class="mat-dialog-actions" *ngIf="!isSelf">
+    <button (click)="moveToUserDm()" class="user-card-btn" matButton>
       <img src="assets/icons/message-icon.svg" alt="Message Icon" />Nachricht
     </button>
   </mat-dialog-actions>

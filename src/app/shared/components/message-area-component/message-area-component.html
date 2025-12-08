@@ -7,16 +7,20 @@
 >
   <textarea
     #ta
+    id="ta"
     [(ngModel)]="text"
     [disabled]="disabled"
     (input)="autoResize(ta)"
     (focus)="focused = true"
     (blur)="focused = false"
     (click)="onTextareaClick()"
-    [attr.placeholder]="hintText"
     rows="1"
     (keydown)="onKeyDown($event)"
   ></textarea>
+  @if (focused || text.length > 0) {
+  } @else {
+  <span class="textarea-placeholder">{{ hintText }}</span>
+  }
 
   <section class="bottom-row" aria-hidden="false">
     <div class="left-icons">

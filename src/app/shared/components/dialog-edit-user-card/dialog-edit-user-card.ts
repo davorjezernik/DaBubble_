@@ -14,7 +14,7 @@ import { User } from './../../../../models/user.class';
   styleUrl: './dialog-edit-user-card.scss',
 })
 export class DialogEditUserCardComponent {
-  nameCtrl = new FormControl<string>('');
+  nameCtrl = new FormControl<any>('');
 
   /**
    * Initialize the name control with the current user's name.
