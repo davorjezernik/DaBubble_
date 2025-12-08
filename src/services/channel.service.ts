@@ -10,11 +10,14 @@ export interface Channel {
 @Injectable({ providedIn: 'root' })
 export class ChannelService {
   private firestore = inject(Firestore);
-
-  // Observable Caching (TIER 1, Fix 2)
   private channelsCache$?: Observable<Channel[]>;
   private channelCache = new Map<string, Observable<Channel | null>>();
 
+  /**
+   * Fetch all channels ordered by name with caching.
+   * Uses `shareReplay(1)` to cache the latest list; subsequent calls reuse it.
+   * @returns Observable that emits the array of channels `{ id, name }`.
+   */
   channels$(): Observable<Channel[]> {
     if (!this.channelsCache$) {
       const ref = collection(this.firestore, 'channels');
@@ -30,7 +33,9 @@ export class ChannelService {
   }
 
   /**
-   * Holt einen einzelnen Channel mit Caching (TIER 1, Fix 2)
+   * Holt einen einzelnen Channel mit Caching.
+   * @param id Die Channel-ID, die geladen werden soll.
+   * @returns Observable, das den Channel `{ id, name }` oder `null` liefert.
    */
   getChannel(id: string): Observable<Channel | null> {
     if (!this.channelCache.has(id)) {
@@ -47,7 +52,8 @@ export class ChannelService {
   }
 
   /**
-   * Löscht den Observable-Cache (TIER 1, Fix 2)
+   * Löscht den Observable-Cache.
+   * Setzt `channelsCache$` zurück und leert den per-ID Cache.
    */
   clearCache(): void {
     this.channelsCache$ = undefined;
