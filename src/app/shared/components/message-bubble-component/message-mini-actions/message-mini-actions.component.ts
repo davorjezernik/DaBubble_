@@ -56,7 +56,6 @@ export class MessageMiniActionsComponent {
     if (this.isDeleted) return;
     this.visibilityChange.emit(false);
     if (!this.chatId || !this.messageId) return;
-    
     this.openThread.emit({
       chatId: this.chatId,
       messageId: this.messageId,
@@ -74,11 +73,8 @@ export class MessageMiniActionsComponent {
   onMouseLeave(event: MouseEvent) {
     if (this.isMobile) return;
     const next = event.relatedTarget as HTMLElement | null;
-    
-    // Check if moving to parent message-container
     const parentComponent = this.el.nativeElement.closest('.message-container') as HTMLElement | null;
     if (next && parentComponent && parentComponent.contains(next)) return;
-    
     this.visibilityChange.emit(false);
     this.closeMoreMenu.emit();
   }

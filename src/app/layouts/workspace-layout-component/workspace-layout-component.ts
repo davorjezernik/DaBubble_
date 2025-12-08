@@ -33,9 +33,7 @@ export class WorkspaceLayoutComponent implements OnInit, OnDestroy, OnChanges {
 
   user: User | null = null;
   user$: Observable<User | null>;
-
   threadContext?: ThreadOpenRequest;
-
   breakpointSub?: Subscription;
   userSub?: Subscription;
 
@@ -51,6 +49,11 @@ export class WorkspaceLayoutComponent implements OnInit, OnDestroy, OnChanges {
     this.user$ = this.userService.currentUser$();
   }
 
+  /**
+   * Initialize component state and UI wiring.
+   * Sets up user subscription, breakpoint observation, thread panel handling,
+   * and drawer close listeners.
+   */
   ngOnInit(): void {
     this.subscribeUserService();
     this.initializeBreakpointObserver();
@@ -58,16 +61,29 @@ export class WorkspaceLayoutComponent implements OnInit, OnDestroy, OnChanges {
     this.initializeDrawerListeners();
   }
 
+  /**
+   * Resubscribe to user stream when component inputs change.
+   * Ensures `user` stays current across input-driven updates.
+   */
   ngOnChanges(): void {
     this.subscribeUserService();
   }
 
+  /**
+   * Cleanup resources and subscriptions.
+   * Unsubscribes all active streams to prevent memory leaks.
+   */
   ngOnDestroy(): void {
     this.userSub?.unsubscribe();
     this.breakpointSub?.unsubscribe();
     this.drawerSubscriptions.unsubscribe();
   }
 
+  /**
+   * Observe viewport breakpoints and update layout state.
+   * Closes thread/devspace drawers when width <= 1320px; marks mobile at 950px.
+   * @param result BreakpointState provided to the subscription callback with matched flags.
+   */
   private initializeBreakpointObserver(): void {
     this.breakpointSub = this.breakpointObserver
       .observe(['(max-width: 950px)', '(max-width: 1320px)'])
@@ -81,6 +97,11 @@ export class WorkspaceLayoutComponent implements OnInit, OnDestroy, OnChanges {
       });
   }
 
+  /**
+   * Subscribe to thread open events and open the thread drawer.
+   * Stores the `ThreadOpenRequest` context and triggers drawer animation.
+   * @param req ThreadOpenRequest received in the subscription callback for context (ids/view).
+   */
   private initializeThreadPanelSubscription(): void {
     const sub = this.threadPanel.open$.subscribe((req: ThreadOpenRequest) => {
       this.threadContext = req;
@@ -89,6 +110,11 @@ export class WorkspaceLayoutComponent implements OnInit, OnDestroy, OnChanges {
     this.drawerSubscriptions.add(sub);
   }
 
+  /**
+   * Subscribe to the current user stream and update presence.
+   * Marks the user online when a user object is present.
+   * @param user The authenticated user (or null) received in the subscription callback.
+   */
   subscribeUserService() {
     this.userSub?.unsubscribe();
     this.userSub = this.userService
@@ -102,6 +128,10 @@ export class WorkspaceLayoutComponent implements OnInit, OnDestroy, OnChanges {
       });
   }
 
+  /**
+   * Listen for drawer close events and close drawers accordingly.
+   * Reacts to `closeThreadDrawer$` and `closeDevspaceDrawer$` signals.
+   */
   private initializeDrawerListeners(): void {
     const threadSub = this.viewStateService.closeThreadDrawer$.subscribe(() => {
       this.threadDrawer?.close();

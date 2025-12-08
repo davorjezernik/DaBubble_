@@ -102,8 +102,7 @@ export class MessageReactionService {
    * Side effects: directly updates Firestore.
    */
   async handleReactionClick(path: string | null, emoji: string, currentUserId: string) {
-    if (!path) return;
-    
+    if (!path) return; 
     const currentReactions = this._reactions.getValue();
     const reaction = currentReactions.find(r => r.emoji === emoji);
 

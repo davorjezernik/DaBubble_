@@ -20,7 +20,6 @@ export class UserService {
   private firestore = inject(Firestore);
   private auth = inject(Auth);
   private injector = inject(EnvironmentInjector);
-
   private usersCache$?: Observable<User[]>;
   private userByIdCache = new Map<string, Observable<User | null>>();
 

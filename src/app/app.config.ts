@@ -30,11 +30,10 @@ export const appConfig: ApplicationConfig = {
     ),
     provideAuth(() => getAuth()),
     provideFirestore(() => {
-      // Offline Persistence mit 1MB Cache (TIER 2, Fix 7)
       const firestore = initializeFirestore(getApp(), {
         localCache: persistentLocalCache({
           tabManager: persistentMultipleTabManager(),
-          cacheSizeBytes: 10 * 1024 * 1024, // 1 MB Cache-Limit
+          cacheSizeBytes: 10 * 1024 * 1024,
         }),
       });
       return firestore;

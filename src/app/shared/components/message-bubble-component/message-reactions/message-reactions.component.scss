@@ -5,7 +5,7 @@
   justify-content: flex-end;
   padding: 0px;
   gap: 8px;
-  width: 100%;
+  width: 98%;
 
   .reaction-list {
     display: flex;
@@ -185,8 +185,10 @@
 
 @media (max-width: 400px) {
   .reactions {
-    width: calc(100% + 32px);
-    margin-left: -16px;
-    margin-right: -16px;
+    width: calc(100% + 38px);
+  }
+
+    .reactions .reaction-trigger {
+    margin-left: 0;
   }
 }

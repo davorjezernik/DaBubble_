@@ -2,7 +2,6 @@
 
 :host {
   position: relative;
-  // z-index: auto;
   display: flex;
   flex-direction: column;
   min-height: 100vh;
@@ -130,7 +129,7 @@
 }
 
 .main-content-wrapper {
-  margin-left: 20px; // spacing from left drawer
+  margin-left: 20px;
   margin-right: 20px;
   height: 100%;
   display: flex;

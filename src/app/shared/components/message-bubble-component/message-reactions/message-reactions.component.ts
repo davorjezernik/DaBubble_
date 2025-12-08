@@ -26,9 +26,9 @@ export class MessageReactionsComponent {
   @Input() maxReactions = 20;
   @Input() isDeleted = false;
   @Input() showEmojiPicker = false;
-  @Input() defaultCollapseThreshold = 7;
-  @Input() narrowCollapseThreshold = 6;
-  @Input() veryNarrowCollapseThreshold = 4;
+  @Input() defaultCollapseThreshold = 20;
+  @Input() narrowCollapseThreshold = 7;
+  @Input() veryNarrowCollapseThreshold = 7;
 
   @Output() reactionClick = new EventEmitter<string>();
   @Output() emojiSelected = new EventEmitter<string>();
@@ -42,9 +42,11 @@ export class MessageReactionsComponent {
    * Subset of reactions to display based on expansion state and width.
    */
   get visibleReactions() {
-    const total = this.reactions.length;
-    const limit = this.reactionsExpanded ? this.maxReactions : this.getCollapseThreshold();
-    return this.reactions.slice(0, Math.min(limit, total));
+    if (this.reactionsExpanded) {
+      return this.reactions;
+    }
+    const limit = this.getCollapseThreshold();
+    return this.reactions.slice(0, Math.min(limit, this.reactions.length));
   }
 
   /**
@@ -58,10 +60,8 @@ export class MessageReactionsComponent {
    * Count of hidden reactions when collapsed (used in "+ n more").
    */
   get moreCount() {
-    return Math.max(
-      0,
-      Math.min(this.reactions.length, this.maxReactions) - this.getCollapseThreshold()
-    );
+    if (this.reactionsExpanded) return 0;
+    return Math.max(0, this.reactions.length - this.getCollapseThreshold());
   }
 
   /**
