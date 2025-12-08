@@ -49,6 +49,13 @@
   }
 }
 
+.editable-avatar:hover {
+  opacity: 0.8;
+  img {
+    cursor: pointer;
+  }
+}
+
 .mat-typography {
   padding: 0px;
   width: 100%;

@@ -13,11 +13,12 @@ import { take } from 'rxjs/operators';
 import { pipe, Subscription } from 'rxjs';
 import { ReadStateService } from '../../../../services/read-state.service';
 import { Router } from '@angular/router';
+import { AvatarSelectComponent } from '../../../features/authentication/components/avatar-selection/avatar-selection-component';
 
 @Component({
   selector: 'app-dialog-user-card',
   standalone: true,
-  imports: [CommonModule, MatDialogModule],
+  imports: [CommonModule, MatDialogModule, AvatarSelectComponent],
   templateUrl: './dialog-user-card.component.html',
   styleUrls: ['./dialog-user-card.component.scss', './dialog-user-card.responsive.scss'],
 })
@@ -140,5 +141,13 @@ export class DialogUserCardComponent implements OnInit, OnDestroy {
     const uid1 = this.meUid;
     const uid2 = otherUser.uid;
     return uid1 < uid2 ? `${uid1}-${uid2}` : `${uid2}-${uid1}`;
+  }
+
+  openEditAvatar(ev?: MouseEvent) {
+    ev?.stopPropagation();
+    this.dialog.open(AvatarSelectComponent, {
+      data: { user: this.data.user },
+      autoFocus: false,
+    });
   }
 }
