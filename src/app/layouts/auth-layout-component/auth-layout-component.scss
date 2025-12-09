@@ -25,27 +25,53 @@
 }
 
 .header {
+  box-sizing: border-box;
   display: flex;
+  align-items: center;
   justify-content: space-between;
   width: 100%;
   margin-top: 75px;
+  padding: 0 75px 0;
+}
+
+.logo-wrapper {
+  display: flex;
+  align-items: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.5s ease-in-out;
+
+  &.show {
+    opacity: 1;
+    pointer-events: all;
+  }
 }
 
 .logo {
-  margin: 0px;
-  padding-left: 75px;
+  width: 72px;
+  height: 72px;
+  z-index: 7;
+}
+
+.text {
+  @include mixins.text-style(
+    $size: 24px,
+    $color: black,
+    $font-weight: 700,
+    $font-family: 'Nunito',
+    $line-height: 1.2
+  );
+  padding-left: 20px;
+  white-space: nowrap;
+  opacity: 1;
+}
+
+.text-mask {
+  overflow: hidden;
+  height: 120px;
+  width: 230px;
   display: flex;
   align-items: center;
-
-  img {
-    width: 242px;
-    height: 70px;
-    cursor: pointer;
-    transition: transform 0.125s ease;
-    &:hover {
-      transform: scale(1.1);
-    }
-  }
 }
 
 .footer {
@@ -64,11 +90,9 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding-right: 75px;
 
   > p {
     margin: 0;
-    margin-right: 30px;
     margin-bottom: 10px;
     @include mixins.text-style(
       $size: 18px,
@@ -114,18 +138,25 @@
   }
 }
 
-@media (max-width: 1090px) {
-  .signup-text {
-    padding-right: 35px;
-    padding-bottom: 5px;
+@media (max-width: 860px) {
+  .header {
+    margin-top: 50px;
+    padding: 0 50px;
   }
 }
 
 @media (max-width: 750px) {
+  .auth-section {
+    gap: 20px;
+  }
+
   .header {
-    margin-top: 20px;
+    padding: 0;
+    margin-top: 50px;
     justify-content: center;
     align-items: center;
+    justify-content: center;
+    height: 72px;
   }
 
   .logo {
@@ -145,11 +176,16 @@
     margin: 0px;
   }
 
+  .text-mask {
+    height: 72px;
+    width: 180px;
+  }
+
   .signup-text--mobile {
     display: flex;
     gap: 8px;
-    padding: 0 20px 12px;
-    margin-top: 30px;
+    padding: 0 20px 0;
+    margin: 0 0 20px;
     align-items: center;
 
     p {
@@ -159,12 +195,5 @@
 
   .footer {
     display: none;
-  }
-}
-
-@media (max-width: 750px) {
-  .header {
-    justify-content: center;
-    height: 56px;
   }
 }
