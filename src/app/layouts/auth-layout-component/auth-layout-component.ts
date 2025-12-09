@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit, signal } from '@angular/core';
+import { Component, HostListener, OnDestroy, OnInit, signal } from '@angular/core';
 import { NavigationEnd, Router, RouterModule } from '@angular/router';
 import { filter, Subscription } from 'rxjs';
 import { IntroOverlay } from "../../core/components/intro-overlay/intro-overlay";
@@ -38,5 +38,10 @@ export class AuthLayoutComponent implements OnInit, OnDestroy{
 
   hideIntro(): void {
     this.showIntro = false;
+  }
+
+  @HostListener('window:resize')
+  onResize(): void {
+    this.hideIntro();
   }
 }

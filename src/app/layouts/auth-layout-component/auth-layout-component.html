@@ -1,7 +1,10 @@
+@if (showIntro) {
 <app-intro-overlay (done)="hideIntro()"></app-intro-overlay>
+
+}
+
 <section class="auth-section">
   <header class="header">
-
     <section [class.show]="!showIntro" routerLink="/" class="logo-wrapper">
       <img class="logo" src="assets/icons/logo.svg" alt="Logo" class="logo" />
       <div class="text-mask">
