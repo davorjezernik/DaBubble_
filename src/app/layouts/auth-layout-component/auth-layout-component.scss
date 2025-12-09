@@ -31,8 +31,7 @@
   justify-content: space-between;
   width: 100%;
   margin-top: 75px;
-  padding-left: 75px;
-  padding-right: 75px;
+  padding: 0 75px 0;
 }
 
 .logo-wrapper {
@@ -94,7 +93,6 @@
 
   > p {
     margin: 0;
-    margin-right: 30px;
     margin-bottom: 10px;
     @include mixins.text-style(
       $size: 18px,
@@ -140,18 +138,25 @@
   }
 }
 
-@media (max-width: 1090px) {
-  .signup-text {
-    padding-right: 35px;
-    padding-bottom: 5px;
+@media (max-width: 860px) {
+  .header {
+    margin-top: 50px;
+    padding: 0 50px;
   }
 }
 
 @media (max-width: 750px) {
+  .auth-section {
+    gap: 20px;
+  }
+
   .header {
-    margin-top: 20px;
+    padding: 0;
+    margin-top: 50px;
     justify-content: center;
     align-items: center;
+    justify-content: center;
+    height: 72px;
   }
 
   .logo {
@@ -171,11 +176,16 @@
     margin: 0px;
   }
 
+  .text-mask {
+    height: 72px;
+    width: 180px;
+  }
+
   .signup-text--mobile {
     display: flex;
     gap: 8px;
-    padding: 0 20px 12px;
-    margin-top: 30px;
+    padding: 0 20px 0;
+    margin: 0 0 20px;
     align-items: center;
 
     p {
@@ -185,12 +195,5 @@
 
   .footer {
     display: none;
-  }
-}
-
-@media (max-width: 750px) {
-  .header {
-    justify-content: center;
-    height: 56px;
   }
 }

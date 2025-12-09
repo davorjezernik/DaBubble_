@@ -58,9 +58,7 @@
   animation: openSpace 1s ease-in-out 0.5s forwards;
 }
 
-@keyframes defineLogoStartPosition {
-}
-
+/* KEYFRAMES */
 @keyframes slideLogoLeft {
   from {
     transform: translate(calc(50vw - 135px), calc(50vh - 135px));
@@ -140,4 +138,105 @@
   }
 }
 
-// logo should first move half the text to left before the text appears
+// MOBILE KEYFRAMES
+@keyframes slideInTextMobile {
+  from {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes openSpace {
+  from {
+    width: 0;
+  }
+  to {
+    width: 180px;
+  }
+}
+
+@keyframes slideLogoLeftMobile {
+  from {
+    transform: translate(-50%, -50%);
+  }
+  to {
+    transform: translate(-50%, -50%);
+  }
+}
+
+@keyframes moveFromCenterUp {
+  0% {
+    transform: translate(-50%, -50%);
+  }
+  90% {
+    transform: translate(-50%, calc(-50vh + 50px));
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, calc(-50vh + 50px));
+    opacity: 0;
+  }
+}
+
+@keyframes shrinkTextMobile {
+  from {
+    font-size: 32px;
+  }
+  to {
+    font-size: 24px;
+  }
+}
+
+@keyframes shrinkLogoMobile {
+  from {
+    width: 80px;
+    height: auto;
+  }
+  to {
+    width: 72px;
+    height: auto;
+  }
+}
+
+/* MEDIA QUERIES */
+
+@media (max-width: 860px) {
+  .logo-wrapper {
+    top: 50px;
+    left: 50px;
+  }
+}
+@media (max-width: 750px) {
+  .logo-wrapper {
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+
+    animation: slideLogoLeftMobile 1s ease-in-out 0.5s forwards,
+      moveFromCenterUp 1s ease-in-out 2.5s forwards;
+  }
+
+  .logo {
+    height: 80px;
+    width: 80px;
+    animation: shrinkLogoMobile 1s ease-in-out 2.6s forwards;
+  }
+
+  .text {
+    font-size: 32px;
+    animation: slideInTextMobile 1s ease-in-out 1.5s forwards,
+      turnTextToBlack 0.5s ease-in-out 2.5s forwards, shrinkTextMobile 1s ease-in-out 2.6s forwards;
+  }
+
+  .text-mask {
+    height: 72px;
+    animation: openSpace 1s ease-in-out 0.5s forwards;
+  }
+}
+
+// Need to be more up & right on smaller screens
+// smaller starting animation
