@@ -18,7 +18,7 @@ import { AvatarSelectComponent } from '../../../features/authentication/componen
 @Component({
   selector: 'app-dialog-user-card',
   standalone: true,
-  imports: [CommonModule, MatDialogModule, AvatarSelectComponent],
+  imports: [CommonModule, MatDialogModule],
   templateUrl: './dialog-user-card.component.html',
   styleUrls: ['./dialog-user-card.component.scss', './dialog-user-card.responsive.scss'],
 })
