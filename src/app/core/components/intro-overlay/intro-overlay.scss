@@ -73,7 +73,7 @@
     width: 0;
   }
   to {
-    width: 250px;
+    width: 230px;
   }
 }
 
@@ -150,7 +150,7 @@
   }
 }
 
-@keyframes openSpace {
+@keyframes openSpaceMobile {
   from {
     width: 0;
   }
@@ -234,7 +234,7 @@
 
   .text-mask {
     height: 72px;
-    animation: openSpace 1s ease-in-out 0.5s forwards;
+    animation: openSpaceMobile 1s ease-in-out 0.5s forwards;
   }
 }
 
