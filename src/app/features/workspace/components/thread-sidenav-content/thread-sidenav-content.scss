@@ -256,3 +256,29 @@
   }
 }
 }
+
+.thread-emoji-override ::ng-deep .mention-panel {
+  width: 260px;        
+  max-height: 250px;     
+  overflow: visible;     
+  padding: 12px 14px;   
+}
+
+.thread-emoji-override ::ng-deep .mention-panel .list {
+  max-height: 220px;    
+  overflow-y: auto;
+}
+
+.thread-emoji-override ::ng-deep .mention-panel .item {
+  gap: 8px;
+  padding: 4px 10px;
+}
+
+.thread-emoji-override ::ng-deep .mention-panel .avatar-wrap {
+  width: 50px;
+  height: 50px;
+}
+
+.thread-emoji-override ::ng-deep .mention-panel .name {
+  font-size: 18px;
+}
