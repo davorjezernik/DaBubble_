@@ -8,6 +8,8 @@ import {
 import { FormsModule } from '@angular/forms';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { ChannelService } from '../../../../../services/channel-service';
+import { UserService } from '../../../../../services/user.service';
+import { take, pipe, firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-edit-channel',
@@ -27,7 +29,8 @@ export class EditChannel implements OnInit {
     public dialogRef: MatDialogRef<EditChannel>,
     @Inject(MAT_DIALOG_DATA) public data: any,
     private channelService: ChannelService,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private userService: UserService
   ) {}
 
   ngOnInit() {
@@ -35,7 +38,12 @@ export class EditChannel implements OnInit {
     this.editedDescription = this.data?.channel?.description || '';
   }
 
-  closeModal() {
+  public leaveChannel() {
+    this.removeUserFromChannelMembers();
+    //this.closeModal();
+  }
+
+  public closeModal() {
     this.dialogRef.close(this.hasChanges);
   }
 
@@ -93,5 +101,15 @@ export class EditChannel implements OnInit {
   private resetEditingState() {
     this.isEditingName = false;
     this.isEditingDescription = false;
+  }
+
+  private async removeUserFromChannelMembers() {
+    const currentUser = await firstValueFrom(this.userService.currentUser$());
+    const currentUserId = currentUser?.uid;
+    if (!currentUserId || !this.data?.channel?.id) return;
+    const channelId = this.data.channel.id;
+    await this.channelService.leaveChannel(channelId, currentUserId);
+    await this.channelService.redirectToBasicChannel();
+    this.closeModal();
   }
 }
