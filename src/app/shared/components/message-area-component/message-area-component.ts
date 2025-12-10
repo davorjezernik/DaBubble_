@@ -6,6 +6,11 @@ import {
   ViewChild,
   ElementRef,
   HostListener,
+  OnInit,
+  AfterViewInit,
+  OnDestroy,
+  afterNextRender,
+  Injector,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -19,9 +24,9 @@ import {
   MentionChannel,
 } from '../mention-list.component/mention-list.component';
 import { AuthService } from './../../../../services/auth-service';
-import { Router } from '@angular/router';
+import { NavigationEnd, Router } from '@angular/router';
 import { Firestore, doc, setDoc } from '@angular/fire/firestore';
-import { firstValueFrom } from 'rxjs';
+import { firstValueFrom, Subscription } from 'rxjs';
 import { filter, take } from 'rxjs/operators';
 import { User } from '@angular/fire/auth';
 
@@ -38,7 +43,7 @@ import { User } from '@angular/fire/auth';
   templateUrl: './message-area-component.html',
   styleUrl: './message-area-component.scss',
 })
-export class MessageAreaComponent {
+export class MessageAreaComponent implements OnInit, AfterViewInit, OnDestroy {
   @Input() disabled = false;
   @Input() maxHeight = 240;
   @Output() send = new EventEmitter<string>();
@@ -58,6 +63,7 @@ export class MessageAreaComponent {
   mentionUsers: MentionUser[] = [];
   mentionChannels: MentionChannel[] = [];
 
+  private routerSub?: Subscription;
   private pendingPrefix: '@' | '#' | null = null;
 
   /**
@@ -74,8 +80,18 @@ export class MessageAreaComponent {
     private channelsService: ChannelService,
     private router: Router,
     private firestore: Firestore,
-    private authService: AuthService
+    private authService: AuthService,
+    private injector: Injector
   ) {}
+
+  private focusTextareaOnNavigationEnd() {
+    this.routerSub?.unsubscribe();
+    this.routerSub = this.router.events
+      .pipe(filter((e) => e instanceof NavigationEnd))
+      .subscribe(() => {
+        this.focusTextarea();
+      });
+  }
 
   /**
    * Check whether a channel member entry contains the provided uid.
@@ -86,6 +102,21 @@ export class MessageAreaComponent {
   private memberHasUid(m: any, uid: string): boolean {
     if (typeof m === 'string') return m === uid;
     return m?.uid === uid || m?.userId === uid || m?.user?.uid === uid;
+  }
+
+  ngOnDestroy(): void {
+    this.routerSub?.unsubscribe();
+  }
+
+  ngAfterViewInit(): void {
+    afterNextRender(
+      () => {
+        this.focusTextarea();
+      },
+      { injector: this.injector }
+    );
+    this.focusTextarea();
+    this.focusTextareaOnNavigationEnd();
   }
 
   /**
@@ -415,5 +446,11 @@ export class MessageAreaComponent {
     this.showMention = false;
     this.pendingPrefix = null;
     this.router.navigate(['/workspace', 'channel', c.id]);
+  }
+
+  /** Focus the textarea element. */
+  private focusTextarea() {
+    const el = this.ta?.nativeElement;
+    if (el) el.focus();
   }
 }
