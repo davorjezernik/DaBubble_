@@ -43,6 +43,7 @@ export class NewMessageComponent implements OnInit {
   openOnFreeText = true;
   minTokenLen = 2;
   pendingPrefix: '@' | '#' | null = null;
+  isPicking = false;
 
   selectedTargets: Target[] = [];
 
@@ -168,6 +169,7 @@ export class NewMessageComponent implements OnInit {
   // onRecipientBlur: blur schließt Liste + löscht @/# wenn leer
   onRecipientBlur() {
     setTimeout(() => {
+      if (this.isPicking) return;
       this.recipientFocused = false;
       this.showMention = false;
       this.revertPendingPrefixIfAny();
@@ -192,6 +194,15 @@ export class NewMessageComponent implements OnInit {
       /(^|\s)(?:[@#][^\s@#]*|[^\s@]+@[^\s@]+\.[^\s@]+|[^\s]+)$/i,
       (_m, g1) => `${g1}${insertValue}`
     );
+    const t = this.resolveTargetFromRecipient();
+    if (t) {
+      if (t.kind === 'dm') {
+        this.addTargetIfNotExists({ kind: 'dm', id: t.userUid, label: t.label });
+      } else {
+        this.addTargetIfNotExists({ kind: 'channel', id: t.channelId, label: t.label });
+      }
+      this.recipientText = '';
+    }
     this.showMention = false;
     this.pendingPrefix = null;
   }
@@ -355,5 +366,17 @@ export class NewMessageComponent implements OnInit {
       authorId: myUid,
       timestamp: serverTimestamp(),
     });
+  }
+
+  get filteredMentionUsers() {
+    return this.mentionUsers.filter(
+      (u) => !this.selectedTargets.some((t) => t.kind === 'dm' && t.id === u.uid)
+    );
+  }
+
+  get filteredMentionChannels() {
+    return this.mentionChannels.filter(
+      (c) => !this.selectedTargets.some((t) => t.kind === 'channel' && t.id === c.id)
+    );
   }
 }
