@@ -235,13 +235,16 @@
 }
 
 @media screen and (max-width: 901px) {
+  .modal {
+    overflow: hidden;
+  }
+  
   .modal-content {
     width: 80%;
   }
 }
 
 @media (max-width: 360px) {
-
   .modal-content {
     width: 100svw;
     overflow-y: auto;
@@ -258,6 +261,18 @@
   }
 
   .button-container {
-    margin: 16px 0px 0px 8px !important;
+    margin: 16px 0px 0px 8px;
+  }
+}
+
+@media (orientation: landscape) and (max-width: 1200px) {
+  .modal-content {
+    height: 100svh;
+    overflow-y: auto;
+    border-radius: 0;
+    width: 100svw;
+    &::-webkit-scrollbar {
+      display: none;
+    }
   }
 }
