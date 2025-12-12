@@ -58,6 +58,7 @@ export class MessageAreaComponent implements OnInit, AfterViewInit, OnDestroy {
   text = '';
   focused = false;
   showMention = false;
+  mentionSearchTerm = '';
 
   mentionMode: 'users' | 'channels' = 'users';
   mentionUsers: MentionUser[] = [];
@@ -289,19 +290,20 @@ export class MessageAreaComponent implements OnInit, AfterViewInit, OnDestroy {
       this.text += value;
       return;
     }
-    const start = el.selectionStart ?? this.text.length;
-    const end = el.selectionEnd ?? this.text.length;
 
-    let from = start,
-      to = end;
-    if (from > 0 && (this.text[from - 1] === '@' || this.text[from - 1] === '#')) {
-      from = from - 1;
-    }
-    this.text = this.text.slice(0, from) + value + this.text.slice(to);
+    const pos = el.selectionStart ?? this.text.length;
+    const textBeforeCursor = this.text.substring(0, pos);
+    const wordStart = textBeforeCursor.lastIndexOf(' ') + 1;
+
+    const before = this.text.substring(0, wordStart);
+    const after = this.text.substring(pos);
+
+    this.text = before + value + after;
+
     queueMicrotask(() => {
       el.focus();
-      const pos = from + value.length;
-      el.setSelectionRange(pos, pos);
+      const newPos = (before + value).length;
+      el.setSelectionRange(newPos, newPos);
       this.autoResize(el);
     });
   }
@@ -418,6 +420,12 @@ export class MessageAreaComponent implements OnInit, AfterViewInit, OnDestroy {
     this.showEmojiPicker = false;
   }
 
+  /** Focus the textarea element. */
+  private focusTextarea() {
+    const el = this.ta?.nativeElement;
+    if (el) el.focus();
+  }
+
   /**
    * Ensure DM exists for selected user and navigate to it.
    * @param u Mentioned user to DM
@@ -432,7 +440,7 @@ export class MessageAreaComponent implements OnInit, AfterViewInit, OnDestroy {
 
       this.showMention = false;
       this.pendingPrefix = null;
-      this.router.navigate(['/workspace', 'dm', dmId]);
+      //this.router.navigate(['/workspace', 'dm', dmId]);
     } catch (e) {
       console.error('openDmFromMention failed', e);
     }
@@ -445,12 +453,29 @@ export class MessageAreaComponent implements OnInit, AfterViewInit, OnDestroy {
   openChannelFromMention(c: MentionChannel) {
     this.showMention = false;
     this.pendingPrefix = null;
-    this.router.navigate(['/workspace', 'channel', c.id]);
+    //this.router.navigate(['/workspace', 'channel', c.id]);
   }
 
-  /** Focus the textarea element. */
-  private focusTextarea() {
+  public onInput() {
     const el = this.ta?.nativeElement;
-    if (el) el.focus();
+    const text = el.value;
+    const pos = el.selectionStart;
+    if (pos === null) {
+      this.showMention = false;
+      return;
+    }
+    const wordStart = text.lastIndexOf(' ', pos - 1) + 1;
+    const currentWord = text.substring(wordStart, pos);
+    if (currentWord.startsWith('@')) {
+      this.mentionMode = 'users';
+      this.showMention = true;
+      this.mentionSearchTerm = currentWord.substring(1);
+    } else if (currentWord.startsWith('#')) {
+      this.mentionMode = 'channels';
+      this.showMention = true;
+      this.mentionSearchTerm = currentWord.substring(1);
+    } else {
+      this.showMention = false;
+    }
   }
 }

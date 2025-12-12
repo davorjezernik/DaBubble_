@@ -10,7 +10,7 @@
     id="ta"
     [(ngModel)]="text"
     [disabled]="disabled"
-    (input)="autoResize(ta)"
+    (input)="autoResize(ta); onInput()"
     (focus)="focused = true"
     (blur)="focused = false"
     (click)="onTextareaClick()"
@@ -51,7 +51,7 @@
 
   <section class="mention-anchor">
     <app-mention-list
-      [searchTerm]="text"
+      [searchTerm]="mentionSearchTerm"
       [visible]="showMention"
       [mode]="mentionMode"
       [users]="mentionUsers"
