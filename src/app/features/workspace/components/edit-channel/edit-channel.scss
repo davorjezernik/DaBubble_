@@ -239,3 +239,25 @@
     width: 80%;
   }
 }
+
+@media (max-width: 360px) {
+
+  .modal-content {
+    width: 100svw;
+    overflow-y: auto;
+    height: 90svh;
+    border-radius: 0;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
+
+  .modal-header h3 {
+    margin: 8px 0;
+  }
+
+  .button-container {
+    margin: 16px 0px 0px 8px !important;
+  }
+}
