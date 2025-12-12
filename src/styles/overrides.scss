@@ -323,6 +323,7 @@ body.intro-active app-auth-layout-component .header .logo img {
 .add-members-dialog-panel .mat-mdc-dialog-container {
   padding: 0;
 }
+
 .add-members-dialog-panel .mdc-dialog__surface {
   max-width: 514px !important;
   padding: 0;
@@ -381,4 +382,21 @@ mat-bottom-sheet-container {
 
 .mdc-checkbox__ripple {
   background-color: transparent !important;
+}
+
+@media (orientation: landscape) and (max-width: 1200px) {
+  .cdk-overlay-pane.mat-mdc-dialog-panel {
+    max-width: 100svw !important;
+    width: 100svw !important;
+    height: 100svh !important;
+  }
+
+  .mdc-dialog--open .mat-mdc-dialog-surface {
+    border-radius: 0px !important;
+  }
+
+  .mat-mdc-dialog-content {
+    height: 100% !important;
+    max-height: 100% !important;
+  }
 }

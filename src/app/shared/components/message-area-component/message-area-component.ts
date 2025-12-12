@@ -478,4 +478,14 @@ export class MessageAreaComponent implements OnInit, AfterViewInit, OnDestroy {
       this.showMention = false;
     }
   }
+
+  /** Handle focus event on textarea. */
+  onFocus() {
+    queueMicrotask(() => (this.focused = true));
+  }
+
+  /** Handle blur event on textarea. */
+  onBlur() {
+    queueMicrotask(() => (this.focused = false));
+  }
 }

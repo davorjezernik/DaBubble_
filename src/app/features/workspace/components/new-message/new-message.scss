@@ -87,15 +87,18 @@ main {
   display: flex;
   justify-content: flex-start;
   align-items: center;
+  row-gap: 6px;
   margin-bottom: 8px;
   font-size: 18px;
   font-family: 'Nunito', sans-serif;
-  color: #5371F5;
-  
+  color: #5371f5;
+  flex-wrap: wrap;
+
   .chip {
     display: inline-flex;
     align-items: center;
     padding: 2px 8px;
+    margin-left: 8px;
     gap: 4px;
     border-radius: 16px;
     border: 1px solid #dcdcdc;
@@ -112,3 +115,27 @@ main {
     line-height: 1;
   }
 }
+
+.info-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  padding: 32px;
+  background-color: rgb(248, 248, 248);
+  border-radius: 30px;
+  transform: translate(-50%, -50%);
+  @include mixins.text-style(
+  $size: 24px,
+  $color: #000000,
+  $font-weight: 400,
+  $font-family: 'Nunito',
+  $line-height: 120%
+);
+line-height: 120%;
+width: clamp(260px, 75%, 400px);
+}
+
+// the chip should not wrap
+// if not enough space, it should be cut off with ellipsis / put next line
+// no duplicates
+// all should be clickable
