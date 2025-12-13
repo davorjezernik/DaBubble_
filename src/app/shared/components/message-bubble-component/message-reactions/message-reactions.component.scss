@@ -1,3 +1,7 @@
+:host {
+  width: 85%;
+}
+
 .reactions {
   display: flex;
   flex-direction: row;
@@ -5,7 +9,6 @@
   justify-content: flex-end;
   padding: 0px;
   gap: 8px;
-  width: 98%;
 
   .reaction-list {
     display: flex;
@@ -170,12 +173,19 @@
 .reactions.center-narrow .reaction-list {
   justify-content: center;
 }
+@media (max-width: 600px) {
+    .reactions {
+      .reaction-chip {
+        .reaction-tooltip {
+        min-width: 80px !important;
+        max-width: 80px !important;
+  }}}
+}
 
 @media (max-width: 500px) {
   .reactions {
     .reaction-chip {
       .reaction-tooltip {
-        min-width: 88px;
         white-space: normal;
         word-wrap: break-word;
       }
@@ -190,5 +200,10 @@
 
     .reactions .reaction-trigger {
     margin-left: 0;
+  }
+
+      .reactions .reaction-chip .reaction-tooltip {
+    max-width: 60px !important;
+    min-width: 60px !important;
   }
 }
