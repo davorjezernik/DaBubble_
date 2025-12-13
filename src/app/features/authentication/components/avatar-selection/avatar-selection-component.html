@@ -70,7 +70,7 @@
       [disabled]="!selectedAvatar"
       (click)="finishSelection()"
     >
-      Weiter
+      {{ isEditMode ? 'Speichern' : 'Weiter' }}
     </button>
   </mat-card-actions>
 
