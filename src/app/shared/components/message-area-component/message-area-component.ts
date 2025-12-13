@@ -30,6 +30,8 @@ import { firstValueFrom, Subscription } from 'rxjs';
 import { filter, take } from 'rxjs/operators';
 import { User } from '@angular/fire/auth';
 
+let nextTextareaId = 0;
+
 @Component({
   selector: 'app-message-area-component',
   standalone: true,
@@ -51,6 +53,8 @@ export class MessageAreaComponent implements OnInit, AfterViewInit, OnDestroy {
   @Input() channelName = '';
   @Input() mode: 'channel' | 'thread' = 'channel';
   @Input() placeholder: string = '';
+  @Input() textareaId?: string;
+  taId!: string;
 
   @ViewChild('ta') ta!: ElementRef<HTMLTextAreaElement>;
   @ViewChild('root') root!: ElementRef<HTMLElement>;
@@ -125,6 +129,8 @@ export class MessageAreaComponent implements OnInit, AfterViewInit, OnDestroy {
    * Loads all users, resolves current user, and filters channels by membership.
    */
   async ngOnInit() {
+    this.taId = this.textareaId ?? `ta-${nextTextareaId++}`;
+
     const users = await firstValueFrom(this.usersService.users$());
     this.mentionUsers = users.map((u) => ({
       uid: u.uid,

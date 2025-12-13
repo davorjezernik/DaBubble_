@@ -7,7 +7,8 @@
 >
   <textarea
     #ta
-    id="ta"
+    [id]="taId"
+    [attr.name]="taId"
     [(ngModel)]="text"
     [disabled]="disabled"
     (input)="autoResize(ta); onInput()"
@@ -17,8 +18,7 @@
     rows="1"
     (keydown)="onKeyDown($event)"
   ></textarea>
-  @if (focused || text.length > 0) {
-  } @else {
+  @if (focused || text.length > 0) { } @else {
   <span class="textarea-placeholder">{{ hintText }}</span>
   }
 
