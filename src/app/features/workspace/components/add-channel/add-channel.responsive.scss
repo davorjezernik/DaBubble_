@@ -1,17 +1,20 @@
 @media (max-width: 700px) {
   .dialog-content-wrapper {
+    max-height: 70svh;
     overflow-y: auto;
-    max-height: 80vh;
-
     &::-webkit-scrollbar {
       display: none;
     }
-  } 
+  }
 }
 
 @media (max-width: 500px) {
   .dialog {
-    padding: 10px 20px 20px;
+    padding: 20px 20px 20px;
+  }
+
+  .dialog-header {
+    margin-bottom: 20px;
   }
 
   .dialog-description {
@@ -28,9 +31,14 @@
 }
 
 @media (max-width: 400px) {
+  .dialog-content-wrapper {
+    max-height: 80svh;
+  }
+
   .dialog {
     padding-bottom: 0;
   }
+
   .sheet-handle {
     display: block;
     width: 62px;
@@ -41,11 +49,20 @@
   }
 
   .dialog-header {
-    margin-bottom: 0;
     padding: 0;
   }
 
   .dialog-content {
-    padding: 8px 24px;
+    padding: 12px 0 0;
+  }
+}
+
+@media (orientation: landscape) and (max-width: 1200px) {
+  .dialog {
+    overflow-y: auto;
+  }
+
+  .dialog-content-wrapper {
+    max-height: unset;
   }
 }

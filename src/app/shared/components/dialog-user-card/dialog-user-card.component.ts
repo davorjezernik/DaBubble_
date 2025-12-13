@@ -143,6 +143,9 @@ export class DialogUserCardComponent implements OnInit, OnDestroy {
     return uid1 < uid2 ? `${uid1}-${uid2}` : `${uid2}-${uid1}`;
   }
 
+  /** Opens the avatar selection dialog to change the user's avatar.
+   * @param ev Optional mouse event to stop propagation.
+   */
   openEditAvatar(ev?: MouseEvent) {
     ev?.stopPropagation();
     this.dialog.open(AvatarSelectComponent, {
