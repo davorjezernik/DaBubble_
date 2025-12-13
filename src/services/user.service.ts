@@ -195,7 +195,6 @@ export class UserService {
   }
 
   /**
-<<<<<<< HEAD
    * Updates a user's avatar (photoURL) in Firestore and the auth profile.
    * @param uid The user ID to update.
    * @param avatar The avatar path or URL.
@@ -204,15 +203,22 @@ export class UserService {
     const avatarVal = String(avatar ?? '').trim();
 
     return runInInjectionContext(this.injector, async () => {
-      const userRef = doc(this.firestore, `users/${uid}`);
-      await updateDoc(userRef, { avatar: avatarVal });
+      try {
+        const userRef = doc(this.firestore, `users/${uid}`);
+        await updateDoc(userRef, { avatar: avatarVal });
 
-      if (this.auth.currentUser) {
-        await updateProfile(this.auth.currentUser, { photoURL: avatarVal });
+        if (this.auth.currentUser) {
+          await updateProfile(this.auth.currentUser, { photoURL: avatarVal });
+        }
+
+        this.userByIdCache.delete(uid);
+      } catch (e) {
+        console.warn('updateUserAvatar failed', e);
       }
+    });
+  }
 
-      this.userByIdCache.delete(uid);
-=======
+  /**
    * Updates the user's recent emojis list.
    * Adds the emoji to the front, removes duplicates, and keeps max 2 emojis.
    * @param userId The user ID.
@@ -239,7 +245,6 @@ export class UserService {
       } catch (e) {
         console.warn('updateRecentEmojis failed', e);
       }
->>>>>>> aab1618843c12da6990d745e551405aca4ce9824
     });
   }
 
