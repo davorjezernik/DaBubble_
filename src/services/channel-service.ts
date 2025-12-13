@@ -8,10 +8,13 @@ import {
   addDoc,
   updateDoc,
   deleteDoc,
-  getDoc
+  getDoc,
+  query,
+  where,
+  getDocs,
 } from '@angular/fire/firestore';
+import { Router } from '@angular/router';
 import { Observable, shareReplay, map } from 'rxjs';
-import { arrayUnion } from '@angular/fire/firestore';
 
 export interface Channel {
   id?: string;
@@ -36,13 +39,13 @@ export class ChannelService {
     return runInInjectionContext(this.env, fn);
   }
 
+  constructor(private router: Router) {}
+
   // Get all documents in 'channels' collection with caching
   getChannels(): Observable<Channel[]> {
     if (!this.channelsCache$) {
       const channelsRef = collection(this.firestore, 'channels');
-      this.channelsCache$ = this.withCtx(() =>
-        collectionData(channelsRef, { idField: 'id' })
-      ).pipe(
+      this.channelsCache$ = this.withCtx(() => collectionData(channelsRef, { idField: 'id' })).pipe(
         map((data) => data as Channel[]),
         shareReplay({ bufferSize: 1, refCount: true })
       );
@@ -54,9 +57,7 @@ export class ChannelService {
   getChannel(id: string): Observable<Channel> {
     if (!this.channelCache.has(id)) {
       const channelDocRef = doc(this.firestore, `channels/${id}`);
-      const channel$ = this.withCtx(() =>
-        docData(channelDocRef, { idField: 'id' })
-      ).pipe(
+      const channel$ = this.withCtx(() => docData(channelDocRef, { idField: 'id' })).pipe(
         map((data) => data as Channel),
         shareReplay({ bufferSize: 1, refCount: true })
       );
@@ -117,7 +118,7 @@ export class ChannelService {
       .filter((u) => !!u.uid && !existingUids.has(u.uid))
       .map((u) => ({
         uid: u.uid,
-        displayName: u.name ?? ''
+        displayName: u.name ?? '',
       }));
 
     if (!newMemberObjs.length) return;
@@ -133,5 +134,46 @@ export class ChannelService {
     // Invalidate cache after member update
     this.channelCache.delete(channelId);
     this.channelsCache$ = undefined;
+  }
+
+  async leaveChannel(channelId: string, userId: string) {
+    const { channelRef, snap } = await this.getChannelRefAndSnap(channelId);
+    if (!snap.exists()) return;
+    const data = snap.data() as Channel;
+    const members = data.members ?? [];
+    await this.updateMembersDoc(channelRef, channelId, members, userId);
+  }
+
+  private async getChannelRefAndSnap(id: string) {
+    const channelRef = doc(this.firestore, `channels/${id}`);
+    const snap = await getDoc(channelRef);
+    return { channelRef, snap };
+  }
+
+  private async updateMembersDoc(
+    channelRef: any, channelId: string,
+    members: Array<string | { uid: string }>,
+    userId: string
+  ) {
+    const updatedMembers = members.filter((member) =>
+      typeof member === 'string' ? member !== userId : member?.uid !== userId
+    );
+    if (updatedMembers.length === members.length) return;
+
+    await updateDoc(channelRef, {
+      members: updatedMembers,
+    });
+
+    this.channelCache.delete(channelId);
+    this.channelsCache$ = undefined;
+  }
+
+  async redirectToBasicChannel() {
+    const channelsRef = collection(this.firestore, 'channels');
+    const q = query(channelsRef, where('name', '==', 'everyone'));
+    const snap = await getDocs(q);
+    if (snap.empty) return undefined;
+    const channelDoc = snap.docs[0];
+    this.router.navigate([`/workspace/channel/${channelDoc.id}`]);
   }
 }

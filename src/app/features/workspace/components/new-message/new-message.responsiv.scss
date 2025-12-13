@@ -1,10 +1,23 @@
+
 @media (max-width: 550px) {
   .chat-header {
     padding: 0 20px 0;
+    height: 120px;
+    gap: 12px;
   }
-
+  
+  .info-text {
+    font-size: 20px;
+  }
+  
   .footer {
     width: 100%;
-    padding: 0 16px 30px 16px;
+    padding: 0 8px 8px 8px;
+  }
+}
+
+@media (max-width: 350px) {
+  .info-text {
+    font-size: 18px;
   }
 }

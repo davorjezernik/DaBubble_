@@ -1,13 +1,17 @@
+import { Location } from '@angular/common';
 import { Component } from '@angular/core';
-import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-imprint-layout',
   standalone: true,
-  imports: [RouterLink],
+  imports: [],
   templateUrl: './imprint-layout.component.html',
   styleUrl: './imprint-layout.component.scss',
 })
 export class ImprintLayoutComponent {
+  constructor(private location: Location) {}
 
+  goBack() {
+    this.location.back();
+  }
 }

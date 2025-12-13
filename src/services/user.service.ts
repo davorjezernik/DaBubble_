@@ -11,7 +11,7 @@ import {
   serverTimestamp,
 } from '@angular/fire/firestore';
 import { Auth, authState, updateProfile } from '@angular/fire/auth';
-import { Observable, of } from 'rxjs';
+import { Observable, of, firstValueFrom } from 'rxjs';
 import { map, switchMap, catchError, shareReplay } from 'rxjs/operators';
 import { User } from '../models/user.class';
 
@@ -20,7 +20,6 @@ export class UserService {
   private firestore = inject(Firestore);
   private auth = inject(Auth);
   private injector = inject(EnvironmentInjector);
-
   private usersCache$?: Observable<User[]>;
   private userByIdCache = new Map<string, Observable<User | null>>();
 
@@ -196,6 +195,7 @@ export class UserService {
   }
 
   /**
+<<<<<<< HEAD
    * Updates a user's avatar (photoURL) in Firestore and the auth profile.
    * @param uid The user ID to update.
    * @param avatar The avatar path or URL.
@@ -212,6 +212,34 @@ export class UserService {
       }
 
       this.userByIdCache.delete(uid);
+=======
+   * Updates the user's recent emojis list.
+   * Adds the emoji to the front, removes duplicates, and keeps max 2 emojis.
+   * @param userId The user ID.
+   * @param emoji The emoji unicode string to add.
+   * @returns A promise that resolves when the operation is complete.
+   */
+  async updateRecentEmojis(userId: string, emoji: string): Promise<void> {
+    if (!userId || !emoji) return;
+
+    return runInInjectionContext(this.injector, async () => {
+      try {
+        const userRef = doc(this.firestore, 'users', userId);
+        const userDoc = await firstValueFrom(
+          this.userById$(userId).pipe(
+            map(user => user),
+            catchError(() => of(null))
+          )
+        );
+        const currentEmojis = userDoc?.recentEmojis ?? [];
+        const filtered = currentEmojis.filter(e => e !== emoji);
+        const updated = [emoji, ...filtered].slice(0, 2);
+        await updateDoc(userRef, { recentEmojis: updated });
+        this.userByIdCache.delete(userId);
+      } catch (e) {
+        console.warn('updateRecentEmojis failed', e);
+      }
+>>>>>>> aab1618843c12da6990d745e551405aca4ce9824
     });
   }
 

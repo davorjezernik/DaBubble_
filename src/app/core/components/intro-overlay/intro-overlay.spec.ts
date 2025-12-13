@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { IntroOverlayComponent } from './intro-overlay.component';
+import { IntroOverlay } from './intro-overlay';
 
-describe('IntroOverlayComponent', () => {
-  let component: IntroOverlayComponent;
-  let fixture: ComponentFixture<IntroOverlayComponent>;
+describe('IntroOverlay', () => {
+  let component: IntroOverlay;
+  let fixture: ComponentFixture<IntroOverlay>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [IntroOverlayComponent]
+      imports: [IntroOverlay]
     })
     .compileComponents();
-    
-    fixture = TestBed.createComponent(IntroOverlayComponent);
+
+    fixture = TestBed.createComponent(IntroOverlay);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

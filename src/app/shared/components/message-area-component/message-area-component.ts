@@ -6,6 +6,11 @@ import {
   ViewChild,
   ElementRef,
   HostListener,
+  OnInit,
+  AfterViewInit,
+  OnDestroy,
+  afterNextRender,
+  Injector,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -19,11 +24,13 @@ import {
   MentionChannel,
 } from '../mention-list.component/mention-list.component';
 import { AuthService } from './../../../../services/auth-service';
-import { Router } from '@angular/router';
+import { NavigationEnd, Router } from '@angular/router';
 import { Firestore, doc, setDoc } from '@angular/fire/firestore';
-import { firstValueFrom } from 'rxjs';
+import { firstValueFrom, Subscription } from 'rxjs';
 import { filter, take } from 'rxjs/operators';
 import { User } from '@angular/fire/auth';
+
+let nextTextareaId = 0;
 
 @Component({
   selector: 'app-message-area-component',
@@ -38,7 +45,7 @@ import { User } from '@angular/fire/auth';
   templateUrl: './message-area-component.html',
   styleUrl: './message-area-component.scss',
 })
-export class MessageAreaComponent {
+export class MessageAreaComponent implements OnInit, AfterViewInit, OnDestroy {
   @Input() disabled = false;
   @Input() maxHeight = 240;
   @Output() send = new EventEmitter<string>();
@@ -46,6 +53,8 @@ export class MessageAreaComponent {
   @Input() channelName = '';
   @Input() mode: 'channel' | 'thread' = 'channel';
   @Input() placeholder: string = '';
+  @Input() textareaId?: string;
+  taId!: string;
 
   @ViewChild('ta') ta!: ElementRef<HTMLTextAreaElement>;
   @ViewChild('root') root!: ElementRef<HTMLElement>;
@@ -53,11 +62,13 @@ export class MessageAreaComponent {
   text = '';
   focused = false;
   showMention = false;
+  mentionSearchTerm = '';
 
   mentionMode: 'users' | 'channels' = 'users';
   mentionUsers: MentionUser[] = [];
   mentionChannels: MentionChannel[] = [];
 
+  private routerSub?: Subscription;
   private pendingPrefix: '@' | '#' | null = null;
 
   /**
@@ -74,8 +85,18 @@ export class MessageAreaComponent {
     private channelsService: ChannelService,
     private router: Router,
     private firestore: Firestore,
-    private authService: AuthService
+    private authService: AuthService,
+    private injector: Injector
   ) {}
+
+  private focusTextareaOnNavigationEnd() {
+    this.routerSub?.unsubscribe();
+    this.routerSub = this.router.events
+      .pipe(filter((e) => e instanceof NavigationEnd))
+      .subscribe(() => {
+        this.focusTextarea();
+      });
+  }
 
   /**
    * Check whether a channel member entry contains the provided uid.
@@ -88,11 +109,28 @@ export class MessageAreaComponent {
     return m?.uid === uid || m?.userId === uid || m?.user?.uid === uid;
   }
 
+  ngOnDestroy(): void {
+    this.routerSub?.unsubscribe();
+  }
+
+  ngAfterViewInit(): void {
+    afterNextRender(
+      () => {
+        this.focusTextarea();
+      },
+      { injector: this.injector }
+    );
+    this.focusTextarea();
+    this.focusTextareaOnNavigationEnd();
+  }
+
   /**
    * Initialize mention users and channels for the current context.
    * Loads all users, resolves current user, and filters channels by membership.
    */
   async ngOnInit() {
+    this.taId = this.textareaId ?? `ta-${nextTextareaId++}`;
+
     const users = await firstValueFrom(this.usersService.users$());
     this.mentionUsers = users.map((u) => ({
       uid: u.uid,
@@ -258,19 +296,20 @@ export class MessageAreaComponent {
       this.text += value;
       return;
     }
-    const start = el.selectionStart ?? this.text.length;
-    const end = el.selectionEnd ?? this.text.length;
 
-    let from = start,
-      to = end;
-    if (from > 0 && (this.text[from - 1] === '@' || this.text[from - 1] === '#')) {
-      from = from - 1;
-    }
-    this.text = this.text.slice(0, from) + value + this.text.slice(to);
+    const pos = el.selectionStart ?? this.text.length;
+    const textBeforeCursor = this.text.substring(0, pos);
+    const wordStart = textBeforeCursor.lastIndexOf(' ') + 1;
+
+    const before = this.text.substring(0, wordStart);
+    const after = this.text.substring(pos);
+
+    this.text = before + value + after;
+
     queueMicrotask(() => {
       el.focus();
-      const pos = from + value.length;
-      el.setSelectionRange(pos, pos);
+      const newPos = (before + value).length;
+      el.setSelectionRange(newPos, newPos);
       this.autoResize(el);
     });
   }
@@ -387,6 +426,12 @@ export class MessageAreaComponent {
     this.showEmojiPicker = false;
   }
 
+  /** Focus the textarea element. */
+  private focusTextarea() {
+    const el = this.ta?.nativeElement;
+    if (el) el.focus();
+  }
+
   /**
    * Ensure DM exists for selected user and navigate to it.
    * @param u Mentioned user to DM
@@ -401,7 +446,7 @@ export class MessageAreaComponent {
 
       this.showMention = false;
       this.pendingPrefix = null;
-      this.router.navigate(['/workspace', 'dm', dmId]);
+      //this.router.navigate(['/workspace', 'dm', dmId]);
     } catch (e) {
       console.error('openDmFromMention failed', e);
     }
@@ -414,6 +459,39 @@ export class MessageAreaComponent {
   openChannelFromMention(c: MentionChannel) {
     this.showMention = false;
     this.pendingPrefix = null;
-    this.router.navigate(['/workspace', 'channel', c.id]);
+    //this.router.navigate(['/workspace', 'channel', c.id]);
+  }
+
+  public onInput() {
+    const el = this.ta?.nativeElement;
+    const text = el.value;
+    const pos = el.selectionStart;
+    if (pos === null) {
+      this.showMention = false;
+      return;
+    }
+    const wordStart = text.lastIndexOf(' ', pos - 1) + 1;
+    const currentWord = text.substring(wordStart, pos);
+    if (currentWord.startsWith('@')) {
+      this.mentionMode = 'users';
+      this.showMention = true;
+      this.mentionSearchTerm = currentWord.substring(1);
+    } else if (currentWord.startsWith('#')) {
+      this.mentionMode = 'channels';
+      this.showMention = true;
+      this.mentionSearchTerm = currentWord.substring(1);
+    } else {
+      this.showMention = false;
+    }
+  }
+
+  /** Handle focus event on textarea. */
+  onFocus() {
+    queueMicrotask(() => (this.focused = true));
+  }
+
+  /** Handle blur event on textarea. */
+  onBlur() {
+    queueMicrotask(() => (this.focused = false));
   }
 }

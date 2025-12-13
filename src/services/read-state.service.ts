@@ -32,11 +32,8 @@ type ReadDoc = { lastReadAt?: Timestamp } | undefined;
 export class ReadStateService {
   private firestore = inject(Firestore);
   private env = inject(EnvironmentInjector);
-
   private optim$ = new Map<string, BehaviorSubject<Timestamp>>();
-
   private bumpMap = new Map<string, BehaviorSubject<number>>();
-
   private unreadChannelCache = new Map<string, Observable<number>>();
   private unreadDmCache = new Map<string, Observable<number>>();
 

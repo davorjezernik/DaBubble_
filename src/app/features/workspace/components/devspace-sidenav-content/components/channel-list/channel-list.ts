@@ -141,10 +141,9 @@ export class ChannelList implements OnInit, OnDestroy, OnChanges {
   /**
    * Subscribes to unread-count streams for each of the user's channels
    * and sums the values into `totalUnreadChannels`.
-   * Only subscribes to visible channels (TIER 3, Fix 8)
+   * Only subscribes to visible channels
    */
   private subscribeToChannelUnreadCounts(myChannels: any[], meUid: string) {
-    // Nur sichtbare Channels laden (TIER 3, Fix 8)
     const visibleChannels = myChannels.slice(0, this.maxVisibleChannels);
     const streams = visibleChannels.map((c) => this.read.unreadChannelCount$(c.id, meUid));
     
@@ -155,7 +154,7 @@ export class ChannelList implements OnInit, OnDestroy, OnChanges {
     
     this.totalUnreadChannelsSub = combineLatest(streams)
       .pipe(
-        auditTime(500), // ← Debouncing (TIER 3, Fix 8)
+        auditTime(500),
         map((arr) => arr.reduce((s, n) => s + (n || 0), 0))
       )
       .subscribe((sum) => (this.totalUnreadChannels = sum));
@@ -221,14 +220,13 @@ export class ChannelList implements OnInit, OnDestroy, OnChanges {
 
   /**
    * Increases the number of visible channels by one "page".
-   * Reloads unread counts for newly visible items (TIER 3, Fix 8)
+   * Reloads unread counts for newly visible items
    */
   public loadMoreChannels() {
     this.maxVisibleChannels = Math.min(
       this.maxVisibleChannels + this.pageSizeChannels,
       this.channels.length
     );
-    // Unread Counts für neue sichtbare Channels laden
     this.buildTotalUnreadChannels(this.channels, this.meUid);
   }
   /**

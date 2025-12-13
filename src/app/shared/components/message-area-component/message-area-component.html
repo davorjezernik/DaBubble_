@@ -7,18 +7,18 @@
 >
   <textarea
     #ta
-    id="ta"
+    [id]="taId"
+    [attr.name]="taId"
     [(ngModel)]="text"
     [disabled]="disabled"
-    (input)="autoResize(ta)"
-    (focus)="focused = true"
-    (blur)="focused = false"
+    (input)="autoResize(ta); onInput()"
+    (focus)="onFocus()"
+    (blur)="onBlur()"
     (click)="onTextareaClick()"
     rows="1"
     (keydown)="onKeyDown($event)"
   ></textarea>
-  @if (focused || text.length > 0) {
-  } @else {
+  @if (focused || text.length > 0) { } @else {
   <span class="textarea-placeholder">{{ hintText }}</span>
   }
 
@@ -51,7 +51,7 @@
 
   <section class="mention-anchor">
     <app-mention-list
-      [searchTerm]="text"
+      [searchTerm]="mentionSearchTerm"
       [visible]="showMention"
       [mode]="mentionMode"
       [users]="mentionUsers"

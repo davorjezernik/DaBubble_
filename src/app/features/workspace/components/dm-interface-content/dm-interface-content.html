@@ -3,7 +3,7 @@
     <button class="dm-info-button" (click)="openUserCard()">
       <figure class="header-avatar-figure">
         <div class="header-avatar-wrapper">
-          <img [src]="recipientData?.avatar" alt="avatar" />
+          <img [src]="recipientData?.avatar || 'assets/img-profile/profile.png'" alt="avatar" />
         </div>
         <figcaption class="header-person-name">{{ recipientData?.name }}</figcaption>
       </figure>
@@ -48,7 +48,6 @@
         [chatId]="chatId || ''"
         [messageId]="message.id"
         [reactionsMap]="message.reactions"
-        [lastReplyAt]="message.lastReplyAt"
       ></app-message-bubble>
     </div>
     } @empty { @if (isOwnDm) {

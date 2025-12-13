@@ -1,10 +1,10 @@
-import { Component, OnDestroy, OnInit, signal } from '@angular/core';
+import { Component, HostListener, OnDestroy, OnInit, signal } from '@angular/core';
 import { NavigationEnd, Router, RouterModule } from '@angular/router';
 import { filter, Subscription } from 'rxjs';
-
+import { IntroOverlay } from "../../core/components/intro-overlay/intro-overlay";
 @Component({
   selector: 'app-auth-layout-component',
-  imports: [RouterModule],
+  imports: [RouterModule, IntroOverlay],
   templateUrl: './auth-layout-component.html',
   styleUrl: './auth-layout-component.scss',
 })
@@ -16,6 +16,8 @@ export class AuthLayoutComponent implements OnInit, OnDestroy{
   isLogin = signal(false);
 
   isAuth = signal(true);
+
+  public showIntro = true;
 
   ngOnInit(): void {
     const isLoginPage = this.router.url.includes('login');
@@ -32,5 +34,14 @@ export class AuthLayoutComponent implements OnInit, OnDestroy{
 
   ngOnDestroy(): void {
     this.routerSub?.unsubscribe();
+  }
+
+  hideIntro(): void {
+    this.showIntro = false;
+  }
+
+  @HostListener('window:resize')
+  onResize(): void {
+    this.hideIntro();
   }
 }

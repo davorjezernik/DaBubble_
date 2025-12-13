@@ -6,16 +6,12 @@ import {
   ViewChild,
   ElementRef,
   AfterViewInit,
-  OnInit,
-  OnDestroy,
   OnChanges,
   SimpleChanges,
   HostListener,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { EmojiPickerComponent } from '../../emoji-picker-component/emoji-picker-component';
-import { MessageReactionService } from '../message-reaction.service';
-import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-message-edit-mode',
@@ -24,7 +20,7 @@ import { Subscription } from 'rxjs';
   templateUrl: './message-edit-mode.component.html',
   styleUrl: './message-edit-mode.component.scss',
 })
-export class MessageEditModeComponent implements AfterViewInit, OnInit, OnDestroy, OnChanges {
+export class MessageEditModeComponent implements AfterViewInit, OnChanges {
   @Input() text: string = '';
   @Input() isSaving: boolean = false;
   @Input() isDeleting: boolean = false;
@@ -38,17 +34,8 @@ export class MessageEditModeComponent implements AfterViewInit, OnInit, OnDestro
 
   editText = '';
   editEmojiPickerVisible = false;
-  private subscription = new Subscription();
 
-  constructor(public reactionService: MessageReactionService) {}
-  /** Subscribe to edit-emoji picker visibility changes. */
-  ngOnInit(): void {
-    this.subscription.add(
-      this.reactionService.editEmojiPickerVisible$.subscribe(
-        (visible) => (this.editEmojiPickerVisible = visible)
-      )
-    );
-  }
+  constructor() {}
 
   /** Initialize view values and autosize the textarea after view is initialized. */
   ngAfterViewInit(): void {
@@ -65,9 +52,14 @@ export class MessageEditModeComponent implements AfterViewInit, OnInit, OnDestro
     }
   }
 
-  /** Cleanup subscriptions when component is destroyed. */
-  ngOnDestroy(): void {
-    this.subscription.unsubscribe();
+  /** Toggle edit emoji picker visibility. */
+  toggleEditEmojiPicker(): void {
+    this.editEmojiPickerVisible = !this.editEmojiPickerVisible;
+  }
+
+  /** Close edit emoji picker. */
+  closeEditEmojiPicker(): void {
+    this.editEmojiPickerVisible = false;
   }
 
   /**
@@ -84,7 +76,7 @@ export class MessageEditModeComponent implements AfterViewInit, OnInit, OnDestro
    */
   onEditEmojiSelected(emoji: string) {
     this.editText = (this.editText || '') + emoji;
-    this.reactionService.closeEditEmojiPicker();
+    this.closeEditEmojiPicker();
     this.autosizeEditTextarea();
   }
 
@@ -125,7 +117,7 @@ export class MessageEditModeComponent implements AfterViewInit, OnInit, OnDestro
       const clickedInsidePicker = this.editEmojiPickerRef?.nativeElement.contains(event.target);
 
       if (!clickedInsideButton && !clickedInsidePicker) {
-        this.reactionService.closeEditEmojiPicker();
+        this.closeEditEmojiPicker();
       }
     }
   }

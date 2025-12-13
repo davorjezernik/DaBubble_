@@ -18,10 +18,12 @@
         class="mention-popover"
         [visible]="true"
         [mode]="mentionMode"
-        [users]="mentionUsers"
-        [channels]="mentionChannels"
+        [users]="filteredMentionUsers"
+        [channels]="filteredMentionChannels"
         [searchTerm]="mentionSearch"
         [allowRawEmail]="true"
+        (mousedown)="isPicking = true"
+        (mouseup)="isPicking = false"
         (pick)="insertMention($event)"
         (userSelected)="onMentionUserPicked($event)"
         (channelSelected)="onMentionChannelPicked($event)"
@@ -33,7 +35,7 @@
 
   <footer class="footer">
     <div class="picked" *ngIf="selectedTargets.length > 0">
-      <span>Senden an:</span>
+      <span class="send-to">Senden an:</span>
       <ng-container *ngFor="let t of selectedTargets; let i = index">
         <span class="chip">
           {{ t.label }}
@@ -43,11 +45,15 @@
       </ng-container>
     </div>
 
+    @if (selectedTargets.length === 0) {
+    <h3 class="info-text">Wähle einen Empfänger aus, um eine Nachricht zu senden.</h3>
+    } @else {
     <app-message-area-component
       [recipientName]="selectedTargets.length === 1 ? selectedTargets[0].label : ''"
       [disabled]="selectedTargets.length === 0"
       (send)="handleSendFromFooter($event)"
       [placeholder]="'Starte eine neue Nachricht'"
     ></app-message-area-component>
+    }
   </footer>
 </section>

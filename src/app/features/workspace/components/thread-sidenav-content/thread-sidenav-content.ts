@@ -76,15 +76,12 @@ export class ThreadSidenavContent implements OnInit, OnDestroy, OnChanges, After
     avatar: '' as string | null,
     displayName: '' as string,
   };
-
   answersAmount: number = 0;
-
   messageDataSub?: Subscription;
   userDataSub?: Subscription;
   answersAmountSub?: Subscription;
   answersDataSub?: Subscription;
   channelNameSub?: Subscription;
-
   messages: any[] = [];
 
   @ViewChild('chatContent') private chatContent?: ElementRef<HTMLDivElement>;

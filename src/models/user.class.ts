@@ -4,6 +4,7 @@ export class User {
   email: string;
   avatar: string;
   online: boolean;
+  recentEmojis: string[];
 
   constructor(obj?: any) {
     this.uid = obj?.uid ?? '';
@@ -11,6 +12,7 @@ export class User {
     this.email = obj?.email ?? '';
     this.avatar = obj?.avatar ?? '';
     this.online = obj?.online ?? false;
+    this.recentEmojis = obj?.recentEmojis ?? [];
   }
 
   public toJSON() {
@@ -20,6 +22,7 @@ export class User {
       email: this.email,
       avatar: this.avatar,
       online: this.online,
+      recentEmojis: this.recentEmojis,
     };
   }
 }

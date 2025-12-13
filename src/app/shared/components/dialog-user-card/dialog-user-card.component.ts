@@ -19,7 +19,7 @@ import { AvatarSelectComponent } from '../../../features/authentication/componen
 @Component({
   selector: 'app-dialog-user-card',
   standalone: true,
-  imports: [CommonModule, MatDialogModule, AvatarSelectComponent],
+  imports: [CommonModule, MatDialogModule],
   templateUrl: './dialog-user-card.component.html',
   styleUrls: ['./dialog-user-card.component.scss', './dialog-user-card.responsive.scss'],
 })
@@ -149,6 +149,9 @@ export class DialogUserCardComponent implements OnInit, OnDestroy {
     return uid1 < uid2 ? `${uid1}-${uid2}` : `${uid2}-${uid1}`;
   }
 
+  /** Opens the avatar selection dialog to change the user's avatar.
+   * @param ev Optional mouse event to stop propagation.
+   */
   openEditAvatar(ev?: MouseEvent) {
     ev?.preventDefault();
     ev?.stopPropagation();
