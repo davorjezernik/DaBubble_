@@ -5,13 +5,13 @@
   </header>
 
   <figure class="user-profil-image-container editable-avatar">
-    <img [src]="data.user.avatar" (error)="fallbackAvatar($event)" [alt]="data.user.name" (click)="openEditAvatar($event)"/>
+    <img [src]="(user$ | async)?.avatar || data.user.avatar" (error)="fallbackAvatar($event)" [alt]="(user$ | async)?.name || data.user.name" (click)="openEditAvatar($event)"/>
   </figure>
 
   <main class="main-container-user-dialog">
     <section class="mat-typography">
       <section class="user-name-edit">
-        <h3>{{ data.user.name }}</h3>
+        <h3>{{ (user$ | async)?.name || data.user.name }}</h3>
         <!-- Desktop-Version -->
         <button class="edit-btn edit-text" *ngIf="isSelf" (click)="onEditUser()">Bearbeiten</button>
 
@@ -28,18 +28,18 @@
       <p class="user-status">
         <span
           class="status-dot"
-          [class.online]="data.user.online"
-          [class.offline]="!data.user.online"
+          [class.online]="(user$ | async)?.online ?? data.user.online"
+          [class.offline]="!((user$ | async)?.online ?? data.user.online)"
         >
         </span>
-        {{ data.user.online ? 'Aktiv' : 'Abwesend' }}
+        {{ (user$ | async)?.online ?? data.user.online ? 'Aktiv' : 'Abwesend' }}
       </p>
 
       <section class="info-email-container">
         <img src="assets/icons/mail.svg" alt="Mail Icon" />
         <h3>E-Mail-Adresse</h3>
       </section>
-      <a class="user-mail" [href]="'mailto:' + data.user.email">{{ data.user.email }}</a>
+      <a class="user-mail" [href]="'mailto:' + ((user$ | async)?.email || data.user.email)">{{ (user$ | async)?.email || data.user.email }}</a>
     </section>
   </main>
 

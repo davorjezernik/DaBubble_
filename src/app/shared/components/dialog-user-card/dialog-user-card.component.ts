@@ -1,4 +1,5 @@
 import { Component, inject, Inject, OnDestroy, OnInit } from '@angular/core';
+import { Observable } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import {
   MatDialog,
@@ -23,6 +24,7 @@ import { AvatarSelectComponent } from '../../../features/authentication/componen
   styleUrls: ['./dialog-user-card.component.scss', './dialog-user-card.responsive.scss'],
 })
 export class DialogUserCardComponent implements OnInit, OnDestroy {
+  user$?: Observable<User | null>;
   private read = inject(ReadStateService);
 
   unread = 0;
@@ -53,6 +55,10 @@ export class DialogUserCardComponent implements OnInit, OnDestroy {
         const u: any = this.data.user;
         const targetId = u.uid ?? u.id;
         this.isSelf = !!me && !!targetId && me.uid === targetId;
+        // Subscribe to the latest user data so UI updates when user's avatar/name change
+        if (targetId) {
+          this.user$ = this.userService.userById$(targetId);
+        }
       });
   }
 
@@ -144,6 +150,7 @@ export class DialogUserCardComponent implements OnInit, OnDestroy {
   }
 
   openEditAvatar(ev?: MouseEvent) {
+    ev?.preventDefault();
     ev?.stopPropagation();
     this.dialog.open(AvatarSelectComponent, {
       data: { user: this.data.user },

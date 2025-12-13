@@ -1,4 +1,4 @@
-import { Component, inject, OnDestroy, OnInit } from '@angular/core';
+import { Component, inject, Inject, OnDestroy, OnInit, Optional } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { CommonModule } from '@angular/common';
@@ -16,6 +16,8 @@ import { Auth, createUserWithEmailAndPassword, updateProfile } from '@angular/fi
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { SharedDataService } from '../../../../core/services/shared-data-service';
+import { UserService } from '../../../../../services/user.service';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { Subscription } from 'rxjs';
@@ -43,10 +45,15 @@ export class AvatarSelectComponent implements OnInit, OnDestroy {
 
   snackBarSub?: Subscription;
 
+  isEditMode = false;
+
   constructor(
     private snackBar: MatSnackBar,
     private router: Router,
-    private sharedUser: SharedDataService
+    private sharedUser: SharedDataService,
+    private userService: UserService,
+    @Optional() private dialogRef?: MatDialogRef<AvatarSelectComponent>,
+    @Optional() @Inject(MAT_DIALOG_DATA) public data?: { user?: any }
   ) {}
 
   /**
@@ -54,7 +61,10 @@ export class AvatarSelectComponent implements OnInit, OnDestroy {
    * Retrieves user data from shared service and redirects if missing.
    */
   ngOnInit(): void {
-    this.userData = this.sharedUser.getUser();
+    this.userData = this.data?.user ?? this.sharedUser.getUser();
+    this.isEditMode = !!this.data?.user;
+    // Preselect avatar if already present on userData (useful for signups with default avatar or edit when opened)
+    this.selectedAvatar = this.userData?.avatar ?? this.selectedAvatar;
     if (!this.userData) {
       this.router.navigate(['/signup']);
       return;
@@ -74,7 +84,12 @@ export class AvatarSelectComponent implements OnInit, OnDestroy {
    * @param avatarPath - Path to the avatar image.
    */
   selectAvatar(avatarPath: string) {
+    console.log('selectAvatar called with', avatarPath, 'isEditMode:', this.isEditMode);
     this.selectedAvatar = avatarPath;
+    if (!this.isEditMode && this.userData) {
+      // also set userData.avatar so registration flow saves it
+      this.userData.avatar = avatarPath;
+    }
   }
 
   /**
@@ -82,6 +97,35 @@ export class AvatarSelectComponent implements OnInit, OnDestroy {
    * Registers the user, adds them to the "everyone" channel, saves profile, and shows success.
    */
   async finishSelection() {
+    console.log('finishSelection', { isEditMode: this.isEditMode, selectedAvatar: this.selectedAvatar, userData: this.userData });
+    if (this.isEditMode) {
+      // In edit mode we only need a selected avatar
+      if (!this.selectedAvatar || !this.userData?.uid) return;
+      this.loading = true;
+      try {
+        await this.userService.updateUserAvatar(this.userData.uid, this.selectedAvatar);
+        this.loading = false;
+        this.snackBar.open('Avatar erfolgreich aktualisiert!', '', { duration: 2500, panelClass: ['success-snackbar'] });
+        this.dialogRef?.close();
+      } catch (error) {
+        console.error('Error updating avatar:', error);
+        this.loading = false;
+      }
+      return;
+    }
+
+    if (!this.selectedAvatar) {
+      this.snackBar.open('Bitte einen Avatar auswählen.', '', { duration: 3000 });
+      return;
+    }
+
+    if (!this.isUserDataValid()) {
+      // Provide user an explanation to help debugging why Weiters not working
+      this.snackBar.open('Unvollständige Registrierung. Bitte prüfe Name, E-Mail und Passwort.', '', { duration: 3500 });
+      console.warn('finishSelection: user data invalid', this.userData);
+      return;
+    }
+
     if (this.isUserDataValid()) {
       this.loading = true;
       try {
@@ -181,6 +225,8 @@ export class AvatarSelectComponent implements OnInit, OnDestroy {
   private handleRegistrationError(error: any) {
     console.error('Error during final registration:', error);
     this.loading = false;
+    const message = error?.message ?? 'Registrierung fehlgeschlagen.';
+    this.snackBar.open(message, '', { duration: 3500 });
   }
 
   /**
@@ -203,6 +249,10 @@ export class AvatarSelectComponent implements OnInit, OnDestroy {
    * Navigates back to the signup route.
    */
   goBack() {
+    if (this.isEditMode) {
+      this.dialogRef?.close();
+      return;
+    }
     this.router.navigate(['/signup']);
   }
 }
