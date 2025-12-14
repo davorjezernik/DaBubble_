@@ -134,6 +134,19 @@ export class LoginComponent {
   }
 
   /**
+   * Resets the `loginFailed` error from all form controls.
+   */
+  private resetLoginFailedError() {
+    for (const key in this.loginForm.controls) {
+      const control = this.loginForm.get(key);
+      if (control && control.hasError('loginFailed')) {
+        delete control.errors!['loginFailed'];
+        control.updateValueAndValidity({ emitEvent: false });
+      }
+    }
+  }
+
+  /**
    * Handles the Google user flow depending on whether the user is new or existing.
    * Deletes newly created users (to prevent dangling accounts) or navigates to self-DM.
    *

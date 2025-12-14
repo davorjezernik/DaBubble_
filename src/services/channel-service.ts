@@ -30,18 +30,25 @@ export class ChannelService {
   private firestore = inject(Firestore);
   private env = inject(EnvironmentInjector);
 
-  // Observable Caching (TIER 1, Fix 2c)
   private channelsCache$?: Observable<Channel[]>;
   private channelCache = new Map<string, Observable<Channel>>();
 
-  // Injection Context Wrapper (TIER 3, Fix 10)
+  constructor(private router: Router) {}
+
+  /**
+   * Wraps a function call in an Angular injection context.
+   * @template T
+   * @param {() => T} fn The function to execute within the injection context.
+   * @returns {T} The result of the function call.
+   */
   private withCtx<T>(fn: () => T): T {
     return runInInjectionContext(this.env, fn);
   }
 
-  constructor(private router: Router) {}
-
-  // Get all documents in 'channels' collection with caching
+  /**
+   * Retrieves all channels from the Firestore 'channels' collection with caching.
+   * @returns {Observable<Channel[]>} An observable that emits an array of channels.
+   */
   getChannels(): Observable<Channel[]> {
     if (!this.channelsCache$) {
       const channelsRef = collection(this.firestore, 'channels');
@@ -53,7 +60,11 @@ export class ChannelService {
     return this.channelsCache$;
   }
 
-  // Get single document by ID with caching
+  /**
+   * Retrieves a single channel by its ID from Firestore with caching.
+   * @param {string} id The ID of the channel to retrieve.
+   * @returns {Observable<Channel>} An observable that emits the channel data.
+   */
   getChannel(id: string): Observable<Channel> {
     if (!this.channelCache.has(id)) {
       const channelDocRef = doc(this.firestore, `channels/${id}`);
@@ -66,54 +77,69 @@ export class ChannelService {
     return this.channelCache.get(id)!;
   }
 
-  // Clear cache (call after updates)
+  /**
+   * Clears the entire channel cache.
+   */
   clearCache(): void {
     this.channelsCache$ = undefined;
     this.channelCache.clear();
   }
 
-  // Add a new document
+  /**
+   * Adds a new channel to the Firestore 'channels' collection.
+   * @param {Channel} channel The channel object to add.
+   * @returns {Promise<any>} A promise that resolves with the document reference of the newly created channel.
+   */
   addChannel(channel: Channel) {
     const channelsRef = collection(this.firestore, 'channels');
     return addDoc(channelsRef, channel);
   }
 
-  // Update an existing document
+  /**
+   * Updates an existing channel in Firestore.
+   * @param {string} id The ID of the channel to update.
+   * @param {Partial<Channel>} data The partial channel data to update.
+   * @returns {Promise<void>} A promise that resolves when the update is complete.
+   */
   updateChannel(id: string, data: Partial<Channel>) {
     const channelDocRef = doc(this.firestore, `channels/${id}`);
-    // Invalidate cache after update
     this.channelCache.delete(id);
     this.channelsCache$ = undefined;
     return updateDoc(channelDocRef, data);
   }
 
-  // Delete a document
+  /**
+   * Deletes a channel from Firestore.
+   * @param {string} id The ID of the channel to delete.
+   * @returns {Promise<void>} A promise that resolves when the deletion is complete.
+   */
   deleteChannel(id: string) {
     const channelDocRef = doc(this.firestore, `channels/${id}`);
-    // Invalidate cache after delete
     this.clearCache();
     return deleteDoc(channelDocRef);
   }
 
+  /**
+   * Adds an array of users to a channel's member list, avoiding duplicates.
+   * @param {string} channelId The ID of the channel to add members to.
+   * @param {Array<{ uid: string; name?: string }>} users An array of user objects to add.
+   * @returns {Promise<void>} A promise that resolves when the members have been added.
+   */
   async addMembersToChannel(
     channelId: string,
     users: Array<{ uid: string; name?: string }>
   ): Promise<void> {
     const ref = doc(this.firestore, `channels/${channelId}`);
-
-    // 1. aktuelles Doc holen
     const snap = await getDoc(ref);
     if (!snap.exists()) return;
 
     const data = snap.data() as Channel;
     const current = data.members ?? [];
 
-    // 2. vorhandene uids rausziehen (egal ob string oder object)
     const existingUids = new Set(
       current.map((m) => (typeof m === 'string' ? m : m.uid)).filter(Boolean)
     );
 
-    // 3. neue Member-Objekte bauen (nur die, die noch nicht drin sind)
     const newMemberObjs = users
       .filter((u) => !!u.uid && !existingUids.has(u.uid))
       .map((u) => ({
@@ -123,19 +149,22 @@ export class ChannelService {
 
     if (!newMemberObjs.length) return;
 
-    // 4. bestehende behalten, neue hinten dranhängen
     const updatedMembers = [...current, ...newMemberObjs];
 
-    // 5. zurückschreiben
     await updateDoc(ref, {
       members: updatedMembers,
     });
 
-    // Invalidate cache after member update
     this.channelCache.delete(channelId);
     this.channelsCache$ = undefined;
   }
 
+  /**
+   * Removes a user from a channel's member list.
+   * @param {string} channelId The ID of the channel to leave.
+   * @param {string} userId The ID of the user leaving the channel.
+   * @returns {Promise<void>} A promise that resolves when the user has been removed.
+   */
   async leaveChannel(channelId: string, userId: string) {
     const { channelRef, snap } = await this.getChannelRefAndSnap(channelId);
     if (!snap.exists()) return;
@@ -144,14 +173,30 @@ export class ChannelService {
     await this.updateMembersDoc(channelRef, channelId, members, userId);
   }
 
+  /**
+   * Retrieves a Firestore document reference and snapshot for a given channel ID.
+   * @private
+   * @param {string} id The ID of the channel.
+   * @returns {Promise<{ channelRef: any; snap: any }>} A promise that resolves with the channel reference and snapshot.
+   */
   private async getChannelRefAndSnap(id: string) {
     const channelRef = doc(this.firestore, `channels/${id}`);
     const snap = await getDoc(channelRef);
     return { channelRef, snap };
   }
 
+  /**
+   * Updates the members array of a channel document in Firestore.
+   * @private
+   * @param {any} channelRef The Firestore document reference for the channel.
+   * @param {string} channelId The ID of the channel.
+   * @param {Array<string | { uid: string }>} members The current list of members.
+   * @param {string} userId The ID of the user to remove.
+   * @returns {Promise<void>} A promise that resolves when the members list is updated.
+   */
   private async updateMembersDoc(
-    channelRef: any, channelId: string,
+    channelRef: any,
+    channelId: string,
     members: Array<string | { uid: string }>,
     userId: string
   ) {
@@ -168,6 +213,10 @@ export class ChannelService {
     this.channelsCache$ = undefined;
   }
 
+  /**
+   * Redirects the user to the 'everyone' channel.
+   * @returns {Promise<void>} A promise that resolves when the redirection is complete, or returns undefined if the channel is not found.
+   */
   async redirectToBasicChannel() {
     const channelsRef = collection(this.firestore, 'channels');
     const q = query(channelsRef, where('name', '==', 'everyone'));

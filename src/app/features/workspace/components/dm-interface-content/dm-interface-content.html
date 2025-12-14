@@ -55,7 +55,7 @@
       <button class="avatar-figure-button" (click)="openUserCard()">
         <figure class="avatar-figure">
           <div class="avatar-wrapper">
-            <img [src]="recipientData?.avatar" alt="avatar" />
+            <img [src]="recipientData?.avatar || 'assets/img-profile/profile.png'" alt="avatar" />
           </div>
           <figcaption class="avatar-caption">{{ recipientData?.name }}</figcaption>
         </figure>
