@@ -34,7 +34,7 @@ import { Subscription } from 'rxjs';
     MatCardModule,
   ],
   templateUrl: './avatar-selection-component.html',
-  styleUrls: ['./avatar-selection-component.scss', './avatar-selection-component.responsive.scss']
+  styleUrls: ['./avatar-selection-component.scss', './avatar-selection-component.responsive.scss'],
 })
 export class AvatarSelectComponent implements OnInit, OnDestroy {
   firestore: Firestore = inject(Firestore);
@@ -84,7 +84,6 @@ export class AvatarSelectComponent implements OnInit, OnDestroy {
    * @param avatarPath - Path to the avatar image.
    */
   selectAvatar(avatarPath: string) {
-    console.log('selectAvatar called with', avatarPath, 'isEditMode:', this.isEditMode);
     this.selectedAvatar = avatarPath;
     if (!this.isEditMode && this.userData) {
       // also set userData.avatar so registration flow saves it
@@ -97,15 +96,16 @@ export class AvatarSelectComponent implements OnInit, OnDestroy {
    * Registers the user, adds them to the "everyone" channel, saves profile, and shows success.
    */
   async finishSelection() {
-    console.log('finishSelection', { isEditMode: this.isEditMode, selectedAvatar: this.selectedAvatar, userData: this.userData });
     if (this.isEditMode) {
-      // In edit mode we only need a selected avatar
       if (!this.selectedAvatar || !this.userData?.uid) return;
       this.loading = true;
       try {
         await this.userService.updateUserAvatar(this.userData.uid, this.selectedAvatar);
         this.loading = false;
-        this.snackBar.open('Avatar erfolgreich aktualisiert!', '', { duration: 2500, panelClass: ['success-snackbar'] });
+        this.snackBar.open('Avatar erfolgreich aktualisiert!', '', {
+          duration: 2500,
+          panelClass: ['success-snackbar'],
+        });
         this.dialogRef?.close();
       } catch (error) {
         console.error('Error updating avatar:', error);
@@ -120,8 +120,11 @@ export class AvatarSelectComponent implements OnInit, OnDestroy {
     }
 
     if (!this.isUserDataValid()) {
-      // Provide user an explanation to help debugging why Weiters not working
-      this.snackBar.open('Unvollständige Registrierung. Bitte prüfe Name, E-Mail und Passwort.', '', { duration: 3500 });
+      this.snackBar.open(
+        'Unvollständige Registrierung. Bitte prüfe Name, E-Mail und Passwort.',
+        '',
+        { duration: 3500 }
+      );
       console.warn('finishSelection: user data invalid', this.userData);
       return;
     }

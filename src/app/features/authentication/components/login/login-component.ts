@@ -1,4 +1,4 @@
-import { Component, HostListener, NgZone, signal } from '@angular/core';
+import { Component, HostListener, signal } from '@angular/core';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -12,7 +12,7 @@ import {
 } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
-import { deleteUser, getAdditionalUserInfo, GoogleAuthProvider } from '@angular/fire/auth';
+import { deleteUser, getAdditionalUserInfo } from '@angular/fire/auth';
 import { Router, RouterLink } from '@angular/router';
 import { MatIcon } from '@angular/material/icon';
 import { merge } from 'rxjs';

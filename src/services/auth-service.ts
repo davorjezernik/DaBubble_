@@ -2,10 +2,12 @@ import { inject, Injectable, EnvironmentInjector, runInInjectionContext } from '
 import {
   Auth,
   authState,
+  createUserWithEmailAndPassword,
   GoogleAuthProvider,
   signInWithEmailAndPassword,
   signInWithPopup,
   User,
+  UserCredential,
 } from '@angular/fire/auth';
 import { Observable } from 'rxjs';
 import { environment } from '../environments/environment';
@@ -51,13 +53,21 @@ export class AuthService {
   }
 
   /**
-   * Logs in as a guest user.
-   * @returns A promise that resolves with the guest user.
+   * Logs in as a guest. If the guest user doesn't exist, it creates the user first.
+   * @returns A promise that resolves with the user credential.
    */
-  async loginAsGuest(): Promise<User> {
+  async loginAsGuest(): Promise<UserCredential> {
     const { email, password } = environment.guest;
-    const cred = await signInWithEmailAndPassword(this.auth, email, password);
-    return cred.user;
+    try {
+      return await this.loginWithEmail(email, password);
+    } catch (error: any) {
+      if (error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential') {
+        // If guest user does not exist, create it
+        return await createUserWithEmailAndPassword(this.auth, email, password);
+      }
+      // For other errors, re-throw
+      throw error;
+    }
   }
 
   /**
