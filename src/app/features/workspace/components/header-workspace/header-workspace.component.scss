@@ -16,25 +16,55 @@
   display: block;
 }
 
-.search {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background-color: #ffffff;
-  border-radius: 42px;
-  padding: 17.5px 45px;
-}
-
-input {
+.search-wrap .search {
   border: none;
   outline: none;
-  width: 989px;
+  width: 100%;
   background: url('/assets/icons/search.svg') no-repeat right center;
   background-size: 35px;
   background-position: calc(100% - 17.5px) center;
   font-family: 'Nunito', sans-serif;
   font-size: 20px;
   font-weight: 400;
+}
+
+input {
+  border: none;
+  outline: none;
+  width: 100%;
+  background: url('/assets/icons/search.svg') no-repeat right center;
+  background-size: 35px;
+  background-position: calc(100% - 17.5px) center;
+  font-family: 'Nunito', sans-serif;
+  font-size: 20px;
+  font-weight: 400;
+}
+
+.search-wrap {
+  position: relative;
+  width: 100%;
+  max-width: 600px; 
+  background-color: #fff;
+  border-radius: 42px;
+  display: flex;
+  align-items: center;
+  padding: 17.5px 25px 17.5px 45px;
+}
+
+.mention-panel {
+  position: absolute;
+  top: calc(100% - 15px); 
+  left: 40px;
+  right: 0;
+  z-index: 9999;
+}
+
+:host ::ng-deep app-mention-list.header-mention-list .mention-panel {
+  border-top-left-radius: 0 !important; 
+  border-top-right-radius: 20px !important;
+  border-bottom-right-radius: 20px !important;
+  border-bottom-left-radius: 20px !important;
+  overflow: hidden;
 }
 
 .user {

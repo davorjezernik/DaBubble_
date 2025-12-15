@@ -143,7 +143,9 @@ a {
   outline: none;
   background: transparent;
   color: inherit;
-  font-size: 1rem;
+  font-family: 'Nunito', sans-serif;
+  font-size: 18px;
+  font-weight: 400;
   padding: 8px;
 
   &::placeholder {
@@ -168,6 +170,29 @@ a {
 
 .search-icon {
   font-size: 1.25rem;
+}
+
+.search-wrap {
+  position: relative;
+  width: 100%;
+}
+
+.mention-panel {
+  position: absolute;
+  top: calc(100% - 15px);
+  left: 30px;
+  right: 0;
+  z-index: 9999;
+}
+
+:host ::ng-deep app-mention-list.devspace-mention-list > .mention-panel {
+  border-top-left-radius: 0 !important;
+  border-top-right-radius: 20px !important;
+  border-bottom-right-radius: 20px !important;
+  border-bottom-left-radius: 20px !important;
+  max-height: 230px; 
+  overflow-y: auto; 
+  overflow-x: hidden;
 }
 
 .mobile-edit-btn {
