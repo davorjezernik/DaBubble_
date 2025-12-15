@@ -63,7 +63,7 @@
         }
       </mat-form-field>
 
-      <div class="privacy-wrapper">
+      <div class="privacy-wrapper" [class.invalid]="showPrivacyError">
         <mat-checkbox formControlName="privacyPolicy" color="primary">
           Ich stimme der
         </mat-checkbox>
@@ -77,6 +77,10 @@
         </a>
         <span>zu.</span>
       </div>
+
+      @if (showPrivacyError) {
+      <div class="privacy-error" role="alert">Bitte bestätige die Datenschutzerklärung.</div>
+      }
     </mat-card-content>
 
     <mat-card-actions class="dialog-authentication-actions">

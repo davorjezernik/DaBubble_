@@ -27,8 +27,8 @@ import { SharedDataService } from '../../../../core/services/shared-data-service
     MatSnackBarModule,
     MatCheckboxModule,
     MatCardModule,
-    RouterLink
-],
+    RouterLink,
+  ],
   providers: [],
   templateUrl: './signup-component.html',
   styleUrls: ['./signup-component.scss', './signup-component.responsive.scss'],
@@ -47,20 +47,37 @@ export class SignupComponent {
 
   constructor(private router: Router, private sharedData: SharedDataService) {}
 
+  get privacyCtrl() {
+    return this.signinForm.get('privacyPolicy');
+  }
+
+  get showPrivacyError(): boolean {
+    const nameValid = this.signinForm.get('name')?.valid;
+    const emailValid = this.signinForm.get('email')?.valid;
+    const passValid = this.signinForm.get('passwort')?.valid;
+
+    const privacyInvalid = this.privacyCtrl?.invalid;
+
+    return !!(nameValid && emailValid && passValid && privacyInvalid);
+  }
+
   /**
    * Proceeds to avatar selection if the signup form is valid.
    * Collects form data and stores it via `SharedDataService`, then navigates.
    */
   proceedToAvatarSelection() {
-    if (this.signinForm.valid) {
-      const userData = {
-        name: this.signinForm.value.name,
-        email: this.signinForm.value.email,
-        password: this.signinForm.value.passwort,
-      };
-      this.sharedData.setUser(userData);
-      this.router.navigate(['/select-avatar']);
+    if (this.signinForm.invalid) {
+      this.signinForm.markAllAsTouched();
+      return;
     }
+
+    const userData = {
+      name: this.signinForm.value.name,
+      email: this.signinForm.value.email,
+      password: this.signinForm.value.passwort,
+    };
+    this.sharedData.setUser(userData);
+    this.router.navigate(['/select-avatar']);
   }
 
   /**
@@ -70,7 +87,7 @@ export class SignupComponent {
     this.router.navigate(['/login']);
   }
 
-   /**
+  /**
    * HostListener that fires whenever the browser window is resized.
    * The method body is intentionally left empty because the resize
    * event itself is enough to trigger Angular's change detection,

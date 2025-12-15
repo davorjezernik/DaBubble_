@@ -83,7 +83,7 @@ export class LoginComponent {
   updateEmailErrorMessage() {
     const emailControl = this.loginForm.controls.email;
     if (emailControl.hasError('loginFailed')) {
-      this.emailErrorMessage.set('Falsches Passwort oder E-Mail. Bitte noch einmal versuchen.');
+      this.emailErrorMessage.set('Falsche E-Mail adresse. Bitte noch einmal versuchen.');
     } else if (emailControl.hasError('required') || emailControl.hasError('email')) {
       this.emailErrorMessage.set('Diese E-Mail-Adresse ist leider ungültig.');
     } else {
@@ -97,7 +97,7 @@ export class LoginComponent {
   updatePasswordErrorMessage() {
     const passwordControl = this.loginForm.controls.password;
     if (passwordControl.hasError('loginFailed')) {
-      this.passwordErrorMessage.set('Falsches Passwort oder E-Mail. Bitte noch einmal versuchen.');
+      this.passwordErrorMessage.set('Falsches Passwort. Bitte noch einmal versuchen.');
     } else if (passwordControl.hasError('required')) {
       this.passwordErrorMessage.set('Bitte geben Sie Ihr Passwort ein.');
     } else {
