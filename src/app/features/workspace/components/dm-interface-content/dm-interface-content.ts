@@ -1,4 +1,12 @@
-import { Component, EnvironmentInjector, inject } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  computed,
+  EnvironmentInjector,
+  inject,
+  signal,
+  WritableSignal,
+} from '@angular/core';
 import { runInInjectionContext } from '@angular/core';
 import { MessageAreaComponent } from '../../../../shared/components/message-area-component/message-area-component';
 import { Firestore, doc, getDoc } from '@angular/fire/firestore';
@@ -26,8 +34,12 @@ import { ReadStateService } from '../../../../../services/read-state.service';
  */
 export class DmInterfaceContent extends BaseChatInterfaceComponent {
   override collectionName: 'channels' | 'dms' = 'dms';
-  recipientData: any = null;
+  private _recipientData: WritableSignal<any | null> = signal(null);
   isOwnDm: boolean = false;
+
+  recipientData = computed(() => {
+    return this.isOwnDm ? this.currentUserProfile() : this._recipientData();
+  });
 
   /**
    * Construct the DM interface component.
@@ -101,7 +113,7 @@ export class DmInterfaceContent extends BaseChatInterfaceComponent {
       const recipientId = this.getRecipientId(dmSnap, user);
       await this.setRecipientData(recipientId, user);
     } else {
-      this.recipientData = null;
+      this._recipientData.set(null);
     }
   }
 
@@ -112,12 +124,12 @@ export class DmInterfaceContent extends BaseChatInterfaceComponent {
    * @param user - Current authenticated user.
    */
   private async setRecipientData(recipientId: string | undefined, user: any) {
-    if (recipientId) {
-      this.recipientData = await this.getUserData(recipientId);
-    } else if (this.isOwnDm) {
-      this.recipientData = await this.getUserData(user.uid);
+    if (this.isOwnDm) {
+      this.recipientData = this.currentUserProfile;
+    } else if (recipientId) {
+      this._recipientData.set(await this.getUserData(recipientId));
     } else {
-      this.recipientData = null;
+      this._recipientData.set(null);
     }
   }
 
@@ -150,10 +162,11 @@ export class DmInterfaceContent extends BaseChatInterfaceComponent {
    * Uses Angular Material Dialog with fixed sizing and restores focus on close.
    */
   openUserCard(): void {
-    if (!this.recipientData) return;
+    const recipientData = this.recipientData();
+    if (!recipientData) return;
 
     this.dialog.open(DialogUserCardComponent, {
-      data: { user: this.recipientData },
+      data: { user: recipientData },
       panelClass: 'user-card-dialog',
       width: '90vw',
       maxWidth: '500px',

@@ -3,9 +3,9 @@
     <button class="dm-info-button" (click)="openUserCard()">
       <figure class="header-avatar-figure">
         <div class="header-avatar-wrapper">
-          <img [src]="recipientData?.avatar || 'assets/img-profile/profile.png'" alt="avatar" />
+          <img [src]="recipientData()?.avatar || 'assets/img-profile/profile.png'" alt="avatar" />
         </div>
-        <figcaption class="header-person-name">{{ recipientData?.name }}</figcaption>
+        <figcaption class="header-person-name">{{ recipientData()?.name }}</figcaption>
       </figure>
     </button>
   </header>
@@ -29,11 +29,11 @@
 
       <app-message-bubble
         [incoming]="message.authorId !== currentUserId"
-        [name]="message.authorId !== currentUserId ? recipientData?.name ?? '' : 'Du'"
+        [name]="message.authorId !== currentUserId ? recipientData()?.name ?? '' : 'Du'"
         [avatar]="
           message.authorId !== currentUserId
-            ? recipientData?.avatar ?? 'assets/img-profile/profile.png'
-            : currentUserProfile?.avatar ?? 'assets/img-profile/profile.png'
+            ? recipientData()?.avatar ?? 'assets/img-profile/profile.png'
+            : currentUserProfile()?.avatar ?? 'assets/img-profile/profile.png'
         "
         [authorId]="message.authorId"
         [time]="
@@ -55,9 +55,9 @@
       <button class="avatar-figure-button" (click)="openUserCard()">
         <figure class="avatar-figure">
           <div class="avatar-wrapper">
-            <img [src]="recipientData?.avatar || 'assets/img-profile/profile.png'" alt="avatar" />
+            <img [src]="recipientData()?.avatar || 'assets/img-profile/profile.png'" alt="avatar" />
           </div>
-          <figcaption class="avatar-caption">{{ recipientData?.name }}</figcaption>
+          <figcaption class="avatar-caption">{{ recipientData()?.name }}</figcaption>
         </figure>
       </button>
       <p class="chat-info">
@@ -71,14 +71,14 @@
       <button class="avatar-figure-button" (click)="openUserCard()">
         <figure class="avatar-figure">
           <div class="avatar-wrapper">
-            <img [src]="recipientData?.avatar || 'assets/img-profile/profile.png'" alt="avatar" />
+            <img [src]="recipientData()?.avatar || 'assets/img-profile/profile.png'" alt="avatar" />
           </div>
-          <figcaption class="avatar-caption">{{ recipientData?.name }}</figcaption>
+          <figcaption class="avatar-caption">{{ recipientData()?.name }}</figcaption>
         </figure>
       </button>
       <p class="chat-info">
         Diese Unterhaltung findet nur zwischen
-        <button class="recipient-tag" (click)="openUserCard()">@{{ recipientData?.name }}</button>
+        <button class="recipient-tag" (click)="openUserCard()">@{{ recipientData()?.name }}</button>
         und dir statt.
       </p>
     </section>
@@ -86,7 +86,7 @@
   </main>
   <footer class="footer">
     <app-message-area-component
-      [recipientName]="recipientData?.name || ''"
+      [recipientName]="recipientData()?.name || ''"
       (send)="handleNewMessage($event)"
     ></app-message-area-component>
   </footer>

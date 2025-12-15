@@ -15,7 +15,6 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatMenuModule } from '@angular/material/menu';
 import { Router } from '@angular/router';
-import { Auth, signOut } from '@angular/fire/auth';
 import { debounceTime, distinctUntilChanged, Subscription, Observable, firstValueFrom } from 'rxjs';
 import { UserService } from '../../../../../services/user.service';
 import { User } from '../../../../../models/user.class';

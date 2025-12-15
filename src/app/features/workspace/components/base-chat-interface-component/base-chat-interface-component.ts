@@ -1,4 +1,14 @@
-import { Directive, ElementRef, OnDestroy, OnInit, ViewChild, EnvironmentInjector, inject, runInInjectionContext } from '@angular/core';
+import {
+  Directive,
+  ElementRef,
+  OnDestroy,
+  OnInit,
+  ViewChild,
+  EnvironmentInjector,
+  inject,
+  runInInjectionContext,
+  signal,
+} from '@angular/core';
 import {
   addDoc,
   collection,
@@ -31,22 +41,19 @@ export abstract class BaseChatInterfaceComponent implements OnInit, OnDestroy {
   currentUserId: string | null = null;
   currentUserAvatar: string = 'assets/img-profile/profile.png';
   currentUserDisplayName: string = 'Unknown User';
-  currentUserProfile: any | null = null;
+  currentUserProfile = signal<any | null>(null);
   protected routeSub?: Subscription;
   protected authSub?: Subscription;
   protected messagesSub?: Subscription;
-  /** Scroll behavior flags */
-  private scrollAfterMySend = false; // only scroll when I send via message area
-  private initialLoadPending = true; // keep autoscroll on first load
+  private scrollAfterMySend = false;
+  private initialLoadPending = true;
   protected env = inject(EnvironmentInjector);
 
   /**
    * Wrapper to run Firebase API calls within injection context
    */
   private collectionData$<T>(query: any, options?: any): Observable<T[]> {
-    return runInInjectionContext(this.env, () => 
-      collectionData(query, options) as Observable<T[]>
-    );
+    return runInInjectionContext(this.env, () => collectionData(query, options) as Observable<T[]>);
   }
 
   /**
@@ -100,9 +107,10 @@ export abstract class BaseChatInterfaceComponent implements OnInit, OnDestroy {
    */
   private async setCurrentUserProfile(user: User) {
     try {
-      this.currentUserProfile = await this.getUserData(user.uid);
-      this.currentUserAvatar = this.currentUserProfile?.avatar || 'assets/img-profile/profile.png';
-      this.currentUserDisplayName = this.currentUserProfile?.name || 'Unknown User';
+      const profile = await this.getUserData(user.uid);
+      this.currentUserProfile.set(profile);
+      this.currentUserAvatar = profile?.avatar || 'assets/img-profile/profile.png';
+      this.currentUserDisplayName = profile?.name || 'Unknown User';
     } catch {
       this.clearCurrentUserProfile();
     }
@@ -112,7 +120,7 @@ export abstract class BaseChatInterfaceComponent implements OnInit, OnDestroy {
    * Reset current user profile-related fields back to neutral defaults.
    */
   private clearCurrentUserProfile() {
-    this.currentUserProfile = null;
+    this.currentUserProfile.set(null);
   }
 
   /**
@@ -250,10 +258,7 @@ export abstract class BaseChatInterfaceComponent implements OnInit, OnDestroy {
 
   /** Get the Firestore collection reference for messages in the current chat. */
   private getMessagesCollectionRef() {
-    return collection(
-      this.firestore,
-      `${this.collectionName}/${this.chatId}/messages`
-    );
+    return collection(this.firestore, `${this.collectionName}/${this.chatId}/messages`);
   }
 
   /**

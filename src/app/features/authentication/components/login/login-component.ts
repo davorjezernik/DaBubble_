@@ -55,7 +55,16 @@ export class LoginComponent {
     private authService: AuthService,
     private userService: UserService
   ) {
-    merge(this.loginForm.controls.email.statusChanges, this.loginForm.controls.email.valueChanges)
+    this.loginForm.valueChanges.pipe(takeUntilDestroyed()).subscribe(() => {
+      this.resetLoginFailedError();
+    });
+
+    merge(
+      this.loginForm.controls.email.statusChanges,
+      this.loginForm.controls.email.valueChanges,
+      this.loginForm.controls.password.statusChanges,
+      this.loginForm.controls.password.valueChanges
+    )
       .pipe(takeUntilDestroyed())
       .subscribe(() => this.updateErrorMessages());
   }
@@ -105,9 +114,10 @@ export class LoginComponent {
     const { email, password } = this.loginForm.getRawValue();
     try {
       await this.authService.loginWithEmail(email!, password!);
-      await this.navigateToSelfDm();
     } catch (err: any) {
       this.setErrorMessages();
+    } finally {
+      await this.navigateToSelfDm();
     }
   }
 
