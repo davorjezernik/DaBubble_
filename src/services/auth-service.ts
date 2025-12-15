@@ -62,10 +62,8 @@ export class AuthService {
       return await this.loginWithEmail(email, password);
     } catch (error: any) {
       if (error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential') {
-        // If guest user does not exist, create it
         return await createUserWithEmailAndPassword(this.auth, email, password);
       }
-      // For other errors, re-throw
       throw error;
     }
   }

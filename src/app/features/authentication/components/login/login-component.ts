@@ -190,9 +190,10 @@ export class LoginComponent {
     try {
       await this.authService.loginAsGuest();
       await this.userService.markOnline(true);
-      await this.navigateToSelfDm();
     } catch (err) {
       console.error('Guest login failed', err);
+    } finally {
+      await this.navigateToSelfDm();
     }
   }
 

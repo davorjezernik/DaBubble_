@@ -43,7 +43,7 @@
     @if (selectedOption === 'specific') {
     <mat-form-field appearance="outline" class="form-field">
       <div class="input-wrapper">
-        <input (blur)="inputValue = ''"
+        <input
           [(ngModel)]="inputValue"
           matInput
           [placeholder]="selectedUsers.length === 0 ? 'Name eingeben' : ''"
