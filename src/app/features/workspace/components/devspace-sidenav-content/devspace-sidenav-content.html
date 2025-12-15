@@ -2,11 +2,40 @@
 <nav class="sidenav" aria-label="Main navigation">
   @if (this.viewStateService.isMobileView) {
   <form role="search" class="search-form" (ngSubmit)="$event.preventDefault()">
-    <div class="search-container">
-      <input placeholder="Gehe zu…" type="search" id="searchInput" [formControl]="searchCtrl" />
-      <button type="submit" class="search-button" aria-label="Search">
-        <mat-icon>search</mat-icon>
-      </button>
+    <div class="search-wrap" #searchRoot>
+      <div class="search-container">
+        <input
+          #searchInput
+          placeholder="Gehe zu…"
+          type="search"
+          [id]="devspaceSearchId"
+          [formControl]="searchCtrl"
+          autocomplete="off"
+          (input)="onSearchInput()"
+          (keydown)="onSearchKeyDown($event)"
+          [class.mention-open]="showMention"
+        />
+
+        <button type="submit" class="search-button" aria-label="Search">
+          <mat-icon>search</mat-icon>
+        </button>
+      </div>
+
+      @if (showMention) {
+      <section class="mention-panel">
+        <app-mention-list
+          class="devspace-mention-list"
+          [searchTerm]="mentionSearchTerm"
+          [visible]="showMention"
+          [mode]="mentionMode"
+          [users]="mentionUsers"
+          [channels]="mentionChannels"
+          (pick)="insertMention($event)"
+          (userSelected)="openDmFromMention($event)"
+          (channelSelected)="openChannelFromMention($event)"
+        ></app-mention-list>
+      </section>
+      }
     </div>
   </form>
   }
@@ -49,18 +78,19 @@
   </header>
 
   <div class="channels-and-contacts devspace-elements-gap">
-    <app-channel-list
-      [channels]="channels"
-      [search]="search"
-      [meUid]="meUid"
-    ></app-channel-list>
+    <app-channel-list [channels]="channels" [search]="search" [meUid]="meUid"></app-channel-list>
 
     <app-dm-list [search]="search" [meUid]="meUid"> </app-dm-list>
   </div>
 </nav>
 
-<button class="mobile-edit-btn" mat-fab aria-label="edit-btn"  (click)="openNewDM()"
-  *ngIf="viewStateService.isMobileView">
+<button
+  class="mobile-edit-btn"
+  mat-fab
+  aria-label="edit-btn"
+  (click)="openNewDM()"
+  *ngIf="viewStateService.isMobileView"
+>
   <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
     <mask
       id="mask0_237_472"

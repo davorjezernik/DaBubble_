@@ -28,14 +28,36 @@
     <img src="assets/img/14. Home-Workspaces.svg" alt="DABubble" class="logo" />
   </section>
 
-  <input
-    class="search"
-    matInput
-    [formControl]="searchCtrl"
-    placeholder="Devspace durchsuchen"
-    autocomplete="off"
-    aria-label="Suche"
-  />
+  <section class="search-wrap" #searchRoot>
+    <input
+      #searchInput
+      class="search"
+      matInput
+      [formControl]="searchCtrl"
+      placeholder="Devspace durchsuchen"
+      autocomplete="off"
+      aria-label="Suche"
+      (input)="onSearchInput()"
+      (keydown)="onSearchKeyDown($event)"
+      [class.mention-open]="showMention"
+    />
+
+    @if (showMention) {
+    <section class="mention-panel">
+      <app-mention-list
+        class="header-mention-list"
+        [searchTerm]="mentionSearchTerm"
+        [visible]="showMention"
+        [mode]="mentionMode"
+        [users]="mentionUsers"
+        [channels]="mentionChannels"
+        (pick)="insertMention($event)"
+        (userSelected)="openDmFromMention($event)"
+        (channelSelected)="openChannelFromMention($event)"
+      ></app-mention-list>
+    </section>
+    }
+  </section>
 
   <section>
     <section class="user" (click)="this.userMenuService.openUserMenu($event, user$)">

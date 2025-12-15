@@ -19,7 +19,6 @@ import { debounceTime, distinctUntilChanged, Subscription, Observable, firstValu
 import { UserService } from '../../../../../services/user.service';
 import { User } from '../../../../../models/user.class';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { take } from 'rxjs/operators';
 import { DialogUserCardComponent } from '../../../../shared/components/dialog-user-card/dialog-user-card.component';
 import { UserMenuDialogComponent } from '../../../../shared/components/user-menu-dialog.component/user-menu-dialog.component';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
@@ -27,6 +26,15 @@ import { SearchBusService } from '../../../../../services/search-bus.service';
 import { UserMenuService } from '../../../../../services/user-menu.service';
 import { ViewStateService } from '../../../../../services/view-state.service';
 import { AuthService } from '../../../../../services/auth-service';
+import { ElementRef, ViewChild } from '@angular/core';
+import { Firestore, doc, setDoc } from '@angular/fire/firestore';
+import { ChannelService } from '../../../../../services/channel-service';
+import {
+  MentionChannel,
+  MentionUser,
+} from '../../../../shared/components/mention-list.component/mention-list.component';
+import { filter, take } from 'rxjs/operators';
+import { MentionListComponent } from '../../../../shared/components/mention-list.component/mention-list.component';
 
 @Component({
   selector: 'app-header-workspace',
@@ -40,6 +48,7 @@ import { AuthService } from '../../../../../services/auth-service';
     MatButtonModule,
     MatMenuModule,
     MatDialogModule,
+    MentionListComponent,
   ],
   templateUrl: './header-workspace.component.html',
   styleUrls: ['./header-workspace.component.scss', './header-workspace-component.responsive.scss'],
@@ -52,6 +61,22 @@ export class HeaderWorkspaceComponent implements OnInit, OnDestroy {
   private searchBus = inject(SearchBusService);
   private router = inject(Router);
   private authService = inject(AuthService);
+  private firestore = inject(Firestore);
+  private channelService = inject(ChannelService);
+
+  @ViewChild('searchInput') searchInput!: ElementRef<HTMLInputElement>;
+  @ViewChild('searchRoot') searchRoot!: ElementRef<HTMLElement>;
+
+  showMention = false;
+  mentionSearchTerm = '';
+  mentionMode: 'users' | 'channels' = 'users';
+  mentionUsers: MentionUser[] = [];
+  mentionChannels: MentionChannel[] = [];
+  private pendingPrefix: '@' | '#' | null = null;
+
+  private buildDmId(a: string, b: string) {
+    return [a, b].sort().join('-');
+  }
 
   user$: Observable<User | null> = this.userService.currentUser$();
 
@@ -74,6 +99,102 @@ export class HeaderWorkspaceComponent implements OnInit, OnDestroy {
    */
   async ngOnInit() {
     await this.userService.markOnline(true);
+    const users = await firstValueFrom(this.userService.users$());
+    this.mentionUsers = users.map((u) => ({
+      uid: u.uid,
+      name: u.name,
+      avatar: u.avatar,
+      online: u.online,
+    }));
+    const me = await firstValueFrom(this.authService.currentUser$.pipe(filter(Boolean), take(1)));
+    const allChannels = await firstValueFrom(this.channelService.getChannels());
+
+    const myChannels = (allChannels ?? []).filter((c: any) =>
+      (c?.members ?? []).some((m: any) => (typeof m === 'string' ? m : m?.uid) === me.uid)
+    );
+
+    this.mentionChannels = myChannels.map((c: any) => ({ id: c.id, name: c.name }));
+  }
+
+  onSearchInput() {
+    const el = this.searchInput?.nativeElement;
+    if (!el) return;
+
+    const text = el.value ?? '';
+    const pos = el.selectionStart ?? text.length;
+
+    const wordStart = text.lastIndexOf(' ', pos - 1) + 1;
+    const currentWord = text.substring(wordStart, pos);
+
+    if (currentWord.startsWith('@')) {
+      this.mentionMode = 'users';
+      this.showMention = true;
+      this.mentionSearchTerm = currentWord.substring(1);
+      this.pendingPrefix = '@';
+    } else if (currentWord.startsWith('#')) {
+      this.mentionMode = 'channels';
+      this.showMention = true;
+      this.mentionSearchTerm = currentWord.substring(1);
+      this.pendingPrefix = '#';
+    } else {
+      this.showMention = false;
+      this.pendingPrefix = null;
+    }
+  }
+
+  insertMention(value: string) {
+    const el = this.searchInput.nativeElement;
+    const text = el.value ?? '';
+    const pos = el.selectionStart ?? text.length;
+
+    const wordStart = text.lastIndexOf(' ', pos - 1) + 1;
+
+    const before = text.substring(0, wordStart);
+    const after = text.substring(pos);
+
+    const next = `${before}${value} ${after}`; // space nach mention
+
+    this.searchCtrl.setValue(next); // triggert deine bestehende searchBus-Logik
+    this.showMention = false;
+    this.pendingPrefix = null;
+
+    queueMicrotask(() => {
+      const newPos = (before + value + ' ').length;
+      el.focus();
+      el.setSelectionRange(newPos, newPos);
+    });
+  }
+
+  async openDmFromMention(u: MentionUser) {
+    const me = await firstValueFrom(this.authService.currentUser$.pipe(filter(Boolean), take(1)));
+    const dmId = this.buildDmId(me.uid, u.uid);
+
+    await setDoc(doc(this.firestore, 'dms', dmId), { members: [me.uid, u.uid] }, { merge: true });
+
+    this.showMention = false;
+    this.searchCtrl.setValue('', { emitEvent: true });
+    this.router.navigate(['/workspace/dm', dmId]);
+  }
+
+  openChannelFromMention(c: MentionChannel) {
+    this.showMention = false;
+    this.searchCtrl.setValue('', { emitEvent: true });
+    this.router.navigate(['/workspace/channel', c.id]);
+  }
+
+  @HostListener('document:click', ['$event'])
+  onDocClick(ev: MouseEvent) {
+    const target = ev.target as HTMLElement;
+    if (this.searchRoot?.nativeElement.contains(target)) return;
+    this.showMention = false;
+    this.pendingPrefix = null;
+  }
+
+  onSearchKeyDown(e: KeyboardEvent) {
+    if (e.key === 'Escape' && this.showMention) {
+      this.showMention = false;
+      this.pendingPrefix = null;
+    }
   }
 
   /**
