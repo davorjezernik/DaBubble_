@@ -54,12 +54,6 @@
   box-sizing: border-box;
 }
 
-@media (max-width: 700px) {
-  .main-content-area {
-        border-radius: 0px;
-  }
-}
-
 .main-and-thread-wrapper {
   flex: 1;
   display: flex;

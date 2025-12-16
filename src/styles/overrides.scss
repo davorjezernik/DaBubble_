@@ -383,20 +383,3 @@ mat-bottom-sheet-container {
 .mdc-checkbox__ripple {
   background-color: transparent !important;
 }
-
-@media (orientation: landscape) and (max-width: 985px) {
-  .cdk-overlay-pane.mat-mdc-dialog-panel {
-    max-width: 100svw !important;
-    width: 100svw !important;
-    height: 100svh !important;
-  }
-
-  .mdc-dialog--open .mat-mdc-dialog-surface {
-    border-radius: 0px !important;
-  }
-
-  .mat-mdc-dialog-content {
-    height: 100% !important;
-    max-height: 100% !important;
-  }
-}

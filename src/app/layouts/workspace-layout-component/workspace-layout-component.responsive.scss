@@ -65,3 +65,9 @@
     width: 56px;
   }
 }
+
+@media (max-width: 700px) {
+  .main-content-area {
+    border-radius: 0px;
+  }
+}

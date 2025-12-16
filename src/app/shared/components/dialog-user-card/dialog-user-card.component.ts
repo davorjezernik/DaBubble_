@@ -11,7 +11,7 @@ import { User } from './../../../../models/user.class';
 import { UserService } from './../../../../services/user.service';
 import { DialogEditUserCardComponent } from '../dialog-edit-user-card/dialog-edit-user-card';
 import { take } from 'rxjs/operators';
-import { pipe, Subscription } from 'rxjs';
+import { Subscription } from 'rxjs';
 import { ReadStateService } from '../../../../services/read-state.service';
 import { Router } from '@angular/router';
 import { AvatarSelectComponent } from '../../../features/authentication/components/avatar-selection/avatar-selection-component';
@@ -161,6 +161,7 @@ export class DialogUserCardComponent implements OnInit, OnDestroy {
     if (!this.isSelf) return;
 
     this.dialog.open(AvatarSelectComponent, {
+      panelClass: 'in-workspace',
       data: { user: this.data.user },
       autoFocus: false,
     });
