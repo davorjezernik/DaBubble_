@@ -384,7 +384,7 @@ mat-bottom-sheet-container {
   background-color: transparent !important;
 }
 
-@media (orientation: landscape) and (max-width: 1000px) {
+@media (orientation: landscape) and (max-width: 985px) {
   .cdk-overlay-pane.mat-mdc-dialog-panel {
     max-width: 100svw !important;
     width: 100svw !important;

@@ -36,11 +36,16 @@ export class DialogEditUserCardComponent {
    * Closes without value when the input is empty.
    */
   save() {
-    const newName = (this.nameCtrl.value ?? '').trim();
-    if (!newName) {
+    if (this.data.user.email === 'guest@example.com') {
       this.dialogRef.close();
       return;
     }
+    const newName = (this.nameCtrl.value ?? '').trim();
+    
+    if (!newName) {
+      this.dialogRef.close();
+      return;
+    } 
     this.dialogRef.close(newName);
   }
 }

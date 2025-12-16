@@ -87,12 +87,19 @@
   }
 }
 
-@media (max-width: 440px) {
+@media (max-width: 460px) {
   .avatar-select-card {
-    width: clamp(300px, 97vw, 500px);
+    box-sizing: border-box;
+    width: clamp(260px, 97vw, 500px);
     padding: 20px 10px;
   }
 
+  mat-card-content {
+    width: 300px;
+  }
+}
+
+@media (max-width: 440px) {
   .profile-picture-container {
     margin-top: 20px;
     margin-bottom: 20px;
@@ -103,17 +110,12 @@
     margin-top: 20px;
   }
 
-  mat-card-content {
-    width: 380px;
-  }
-
   .dialog-authentication-title {
     font-size: 30px;
   }
 }
 
 @media (max-width: 395px) {
-
   .dialog-authentication-back-arrow {
     left: 8px;
     top: 45px;

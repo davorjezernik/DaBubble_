@@ -31,6 +31,7 @@ export class DialogUserCardComponent implements OnInit, OnDestroy {
   isSelf = false;
 
   meUid: string | null = null;
+  currentUser: User | null = null;
 
   private unreadDmCountSub?: Subscription;
 
@@ -51,6 +52,7 @@ export class DialogUserCardComponent implements OnInit, OnDestroy {
       .currentUser$()
       .pipe(take(1))
       .subscribe((me) => {
+        this.currentUser = me;
         this.meUid = me?.uid ?? null;
         const u: any = this.data.user;
         const targetId = u.uid ?? u.id;
@@ -155,6 +157,9 @@ export class DialogUserCardComponent implements OnInit, OnDestroy {
   openEditAvatar(ev?: MouseEvent) {
     ev?.preventDefault();
     ev?.stopPropagation();
+
+    if (!this.isSelf) return;
+
     this.dialog.open(AvatarSelectComponent, {
       data: { user: this.data.user },
       autoFocus: false,
