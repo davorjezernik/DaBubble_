@@ -24,6 +24,7 @@ import {
 import { ActivatedRoute, ParamMap } from '@angular/router';
 import { map, Observable, of, shareReplay, Subscription, switchMap } from 'rxjs';
 import { AuthService } from '../../../../../services/auth-service';
+import { UserService } from '../../../../../services/user.service';
 import { User } from '@angular/fire/auth';
 
 @Directive()
@@ -45,9 +46,13 @@ export abstract class BaseChatInterfaceComponent implements OnInit, OnDestroy {
   protected routeSub?: Subscription;
   protected authSub?: Subscription;
   protected messagesSub?: Subscription;
+  // subscription that keeps current user profile in sync with the users collection
+  private currentUserProfileSub?: Subscription;
   private scrollAfterMySend = false;
   private initialLoadPending = true;
   protected env = inject(EnvironmentInjector);
+  // UserService for reactive user profile lookups (renamed to avoid subclass private name collision)
+  protected userSvc = inject(UserService);
 
   /**
    * Wrapper to run Firebase API calls within injection context
@@ -83,6 +88,7 @@ export abstract class BaseChatInterfaceComponent implements OnInit, OnDestroy {
     this.routeSub?.unsubscribe();
     this.authSub?.unsubscribe();
     this.messagesSub?.unsubscribe();
+    this.currentUserProfileSub?.unsubscribe();
   }
 
   /**
@@ -90,10 +96,19 @@ export abstract class BaseChatInterfaceComponent implements OnInit, OnDestroy {
    * fields (id, avatar, display name) in sync.
    */
   private subscribeToCurrentUser() {
-    this.authSub = this.authService.currentUser$.subscribe(async (user: User | null) => {
+    this.authSub = this.authService.currentUser$.subscribe((user: User | null) => {
       this.currentUserId = user?.uid ?? null;
+
+      // ensure previous profile subscription is disposed when auth changes
+      this.currentUserProfileSub?.unsubscribe();
+
       if (user?.uid) {
-        await this.setCurrentUserProfile(user);
+        // subscribe reactively to the users collection so avatar/name update immediately
+        this.currentUserProfileSub = this.userSvc.userById$(user.uid).subscribe((profile) => {
+          this.currentUserProfile.set(profile);
+          this.currentUserAvatar = profile?.avatar || 'assets/img-profile/profile.png';
+          this.currentUserDisplayName = profile?.name || 'Unknown User';
+        });
       } else {
         this.clearCurrentUserProfile();
       }

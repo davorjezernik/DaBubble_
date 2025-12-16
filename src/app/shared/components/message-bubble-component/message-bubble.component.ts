@@ -78,6 +78,8 @@ export class MessageBubbleComponent implements OnInit, OnChanges, OnDestroy {
   currentUserRecentEmojis: string[] = [];
   readonly DELETED_PLACEHOLDER = DELETED_PLACEHOLDER;
   private subscriptions = new Subscription();
+  // Subscription used to keep author profile in sync so avatars update when users change them
+  private authorProfileSub?: Subscription;
 
   constructor(
     private threadPanel: ThreadPanelService,
@@ -163,16 +165,35 @@ export class MessageBubbleComponent implements OnInit, OnChanges, OnDestroy {
     if ('reactionsMap' in changes) {
       this.rebuildReactions();
     }
+
+    // reactively update avatar/name when the message's authorId changes
+    if ('authorId' in changes) {
+      const newAuthorId = changes['authorId']?.currentValue as string | undefined;
+      this.subscribeToAuthorProfile(newAuthorId);
+    }
   }
 
   // Cleanup: unsubscribe from all component subscriptions to prevent memory leaks.
   ngOnDestroy(): void {
     this.subscriptions.unsubscribe();
+    this.authorProfileSub?.unsubscribe();
   }
 
   /** Rebuild reactions array from reactionsMap input. */
   private rebuildReactions() {
     this.reactionService.rebuildReactions(this.reactionsMap || {}, this.currentUserId);
+  }
+
+  /** Subscribe to the author's user profile so avatar/name update reactively. */
+  private subscribeToAuthorProfile(uid?: string) {
+    this.authorProfileSub?.unsubscribe();
+    if (!uid) return;
+    this.authorProfileSub = this.userService.userById$(uid).subscribe((u) => {
+      if (!u) return;
+      // keep inputs in sync with live profile data
+      this.avatar = u.avatar || 'assets/img-profile/profile.png';
+      this.name = u.name || this.name;
+    });
   }
 
   /** Shorten first and last name separately to 12 chars each with ellipsis. */
