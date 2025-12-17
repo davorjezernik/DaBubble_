@@ -1,6 +1,5 @@
 @media (max-height: 1050px) {
   .avatar-select-card {
-    width: 520px;
     margin-top: 0px;
   }
 
@@ -27,8 +26,9 @@
 }
 
 @media (max-width: 750px) {
-  .avatar-select-card {
-    width: 480px;
+
+  .dialog-authentication-back-arrow {
+    top: 70px;
   }
 
   .dialog-authentication-header {
@@ -55,7 +55,11 @@
 
 @media (max-width: 600px) {
   .avatar-select-card {
-    width: clamp(300px, 90vw, 500px);
+    padding: 30px;
+  }
+
+  .dialog-authentication-back-arrow {
+    top: 50px;
   }
 
   .dialog-authentication-header {
@@ -87,24 +91,21 @@
   }
 }
 
-@media (max-width: 440px) {
+@media (max-width: 460px) {
   .avatar-select-card {
-    width: clamp(300px, 97vw, 500px);
-    padding: 20px 10px;
+    box-sizing: border-box;
+    padding: 24px 16px;
   }
+}
 
+@media (max-width: 440px) {
   .profile-picture-container {
     margin-top: 20px;
     margin-bottom: 20px;
   }
 
   mat-card-actions {
-    margin-right: 40px;
     margin-top: 20px;
-  }
-
-  mat-card-content {
-    width: 380px;
   }
 
   .dialog-authentication-title {
@@ -113,7 +114,6 @@
 }
 
 @media (max-width: 395px) {
-
   .dialog-authentication-back-arrow {
     left: 8px;
     top: 45px;
@@ -125,8 +125,36 @@
     border-radius: 50%;
     overflow: hidden;
   }
+}
 
-  mat-card-content {
-    width: 300px;
+::ng-deep .in-workspace {
+  @media (orientation: landscape) and (max-height: 700px) {
+    max-width: 100svw;
+    width: 100svw;
+    height: 100svh;
+    padding: 0;
+
+    .avatar-select-card {
+      width: 100%;
+      height: 100%;
+      border-radius: 0;
+      box-sizing: border-box;
+      overflow-y: auto;
+      padding: 24px 32px 16px;
+
+      &::-webkit-scrollbar {
+        display: none;
+      }
+    }
+
+    .dialog-authentication-back-arrow {
+      top: 30px;
+    }
+
+    .profile-picture-container {
+      margin-bottom: 0px;
+      margin-top: 20px;
+    }
   }
 }
+

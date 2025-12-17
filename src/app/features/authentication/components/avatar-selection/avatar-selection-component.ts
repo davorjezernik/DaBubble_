@@ -1,4 +1,4 @@
-import { Component, inject, Inject, OnDestroy, OnInit, Optional } from '@angular/core';
+import { Component, HostBinding, inject, Inject, Input, OnDestroy, OnInit, Optional } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { CommonModule } from '@angular/common';
@@ -37,15 +37,24 @@ import { Subscription } from 'rxjs';
   styleUrls: ['./avatar-selection-component.scss', './avatar-selection-component.responsive.scss'],
 })
 export class AvatarSelectComponent implements OnInit, OnDestroy {
-  firestore: Firestore = inject(Firestore);
+
+  @Input() customClass?: string = "";
+  @HostBinding('class') get hostClass() {
+    return this.customClass ? this.customClass : '';
+  }
+
   auth: Auth = inject(Auth);
+  firestore: Firestore = inject(Firestore);
+  
   selectedAvatar: string | null = null;
+
   loading = false;
+  isEditMode = false;
+
   userData: any = null;
 
   snackBarSub?: Subscription;
 
-  isEditMode = false;
 
   constructor(
     private snackBar: MatSnackBar,

@@ -11,7 +11,7 @@ import { User } from './../../../../models/user.class';
 import { UserService } from './../../../../services/user.service';
 import { DialogEditUserCardComponent } from '../dialog-edit-user-card/dialog-edit-user-card';
 import { take } from 'rxjs/operators';
-import { pipe, Subscription } from 'rxjs';
+import { Subscription } from 'rxjs';
 import { ReadStateService } from '../../../../services/read-state.service';
 import { Router } from '@angular/router';
 import { AvatarSelectComponent } from '../../../features/authentication/components/avatar-selection/avatar-selection-component';
@@ -31,6 +31,7 @@ export class DialogUserCardComponent implements OnInit, OnDestroy {
   isSelf = false;
 
   meUid: string | null = null;
+  currentUser: User | null = null;
 
   private unreadDmCountSub?: Subscription;
 
@@ -51,6 +52,7 @@ export class DialogUserCardComponent implements OnInit, OnDestroy {
       .currentUser$()
       .pipe(take(1))
       .subscribe((me) => {
+        this.currentUser = me;
         this.meUid = me?.uid ?? null;
         const u: any = this.data.user;
         const targetId = u.uid ?? u.id;
@@ -155,7 +157,11 @@ export class DialogUserCardComponent implements OnInit, OnDestroy {
   openEditAvatar(ev?: MouseEvent) {
     ev?.preventDefault();
     ev?.stopPropagation();
+
+    if (!this.isSelf) return;
+
     this.dialog.open(AvatarSelectComponent, {
+      panelClass: 'in-workspace',
       data: { user: this.data.user },
       autoFocus: false,
     });

@@ -4,7 +4,7 @@
     <img class="close-icon" mat-dialog-close src="assets/icons/close.svg" alt="Schließen" />
   </header>
 
-  <figure class="user-profil-image-container editable-avatar">
+  <figure class="user-profil-image-container" [class.editable]="isSelf">
     <img [src]="(user$ | async)?.avatar || data.user.avatar" (error)="fallbackAvatar($event)" [alt]="(user$ | async)?.name || data.user.name" (click)="openEditAvatar($event)"/>
   </figure>
 

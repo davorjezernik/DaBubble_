@@ -1,7 +1,7 @@
 <section class="chat-container">
   <header class="chat-header">
     <section>
-      <button class="channel-info-btn" [class.basic-chat]="channelData?.name === 'everyone'">
+      <button class="channel-info-btn" [class.basic-chat]="channelData?.name === 'everyone'" (click)="openEditChannel($event)">
         <svg
           class="info-hashtag"
           width="32"
@@ -15,7 +15,7 @@
             fill="black"
           />
         </svg>
-        <span class="channel-name" (click)="openEditChannel($event)" title="Kanal bearbeiten">{{
+        <span class="channel-name" title="Kanal bearbeiten">{{
           channelData?.name
         }}</span>
         <svg

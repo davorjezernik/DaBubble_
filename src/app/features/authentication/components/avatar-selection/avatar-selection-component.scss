@@ -1,13 +1,12 @@
 .avatar-select-card {
   background-color: white;
   border-radius: 30px;
-  padding: 40px 50px;
+  padding: 50px 60px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 608px;
+  width: auto;
   height: auto;
-  margin-top: 60px;
   position: relative;
 }
 
@@ -19,8 +18,8 @@
 
 .dialog-authentication-back-arrow {
   position: absolute;
-  left: 32px;
-  top: 57px;
+  left: 16px;
+  top: 52px;
   height: 40px;
   width: 40px;
   display: flex;
@@ -44,7 +43,7 @@ mat-card-content {
   align-items: center;
   gap: 16px;
   padding: 0 !important;
-  width: 472px;
+  width: auto;
 }
 
 .profile-picture-container {

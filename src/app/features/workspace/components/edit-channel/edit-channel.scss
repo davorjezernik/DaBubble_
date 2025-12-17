@@ -33,7 +33,7 @@
 
 .modal-content {
   background-color: #fff;
-  padding: 24px;
+  padding: 40px 50px 20px;
   border-radius: 32px;
   width: 800px;
   max-width: 95vw;
@@ -241,6 +241,12 @@
   
   .modal-content {
     width: 80%;
+  }
+
+  @media (max-width: 600px) {
+    .modal-content {
+      padding: 24px 32px;
+    }
   }
 }
 
