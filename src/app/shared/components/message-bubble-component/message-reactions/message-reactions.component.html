@@ -66,7 +66,7 @@
         src="assets/icons/add_reaction.svg"
         alt="Add reaction"
         class="add-reaction-icon icon-btn"
-        (click)="isDeleted ? null : onAddReactionClick()"
+        (click)="isDeleted ? null : onAddReactionClick(); $event.stopPropagation()"
       />
       <app-emoji-picker-component
         [showEmojiPicker]="showEmojiPicker"

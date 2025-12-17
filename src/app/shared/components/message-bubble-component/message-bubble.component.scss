@@ -48,7 +48,7 @@
     padding: 2px 6px;
   }
   .user-name:hover {
-    color: #444DF2;
+    color: #444df2;
   }
   .timestamp {
     font-family: 'Nunito', sans-serif;
@@ -73,7 +73,7 @@
   flex-direction: column;
   align-items: center;
   padding: 15px;
-  background: #797EF3;
+  background: #797ef3;
   border-radius: 30px 0px 30px 30px;
   position: static;
   p {
@@ -87,7 +87,7 @@
       $line-height: 1.4
     );
     line-height: 25px;
-    color: #FFFFFF;
+    color: #ffffff;
     margin: 0;
     width: 100%;
     overflow-wrap: anywhere;
@@ -98,7 +98,7 @@
 
 .speech-bubble.deleted {
   p {
-    color: #B0B8C2 !important;
+    color: #b0b8c2 !important;
     font-style: italic;
   }
 }
@@ -127,7 +127,7 @@
   width: auto;
   padding: 10px 12px;
   background: #ffffff;
-  border: 1px solid #ADB0D9;
+  border: 1px solid #adb0d9;
   border-radius: 0 20px 20px 20px;
   box-shadow: 0px 6px 14px 0px #00000033;
   z-index: 5;
@@ -230,7 +230,12 @@
   margin-right: 8px;
 }
 
-.message-container.incoming ::ng-deep app-message-reactions .reactions .reaction-trigger app-emoji-picker-component {
+.message-container.incoming
+  ::ng-deep
+  app-message-reactions
+  .reactions
+  .reaction-trigger
+  app-emoji-picker-component {
   left: 24px;
   transform: none;
 }
@@ -275,7 +280,7 @@
   }
 
   .emoji-mart-scroll {
-    height: 104px !important;
+    height: 300px !important;
   }
 
   .emoji-mart,
@@ -297,8 +302,13 @@
 }
 
 @media (max-width: 700px) {
+  :host ::ng-deep app-emoji-picker-component {
+    .emoji-mart-scroll {
+      height: 200px !important;
+    }
+  }
   :host ::ng-deep .emoji-mart {
-    width: 150px !important;
+    width: 250px !important;
   }
 }
 
@@ -323,13 +333,12 @@
     justify-content: center;
   }
 
-  .avatar-container{
+  .avatar-container {
     .avatar-img {
-    width: 50px;
-    height: 50px;
+      width: 50px;
+      height: 50px;
+    }
   }
-
-  } 
   .menu-dropdown {
     top: calc(100% + 8px);
     left: 50%;
@@ -348,6 +357,24 @@
 }
 
 @media (max-width: 400px) {
+  :host ::ng-deep app-emoji-picker-component {
+    .emoji-mart-scroll {
+      height: 200px !important;
+    }
+  }
+  :host ::ng-deep .emoji-mart {
+    width: 200px !important;
+  }
+
+  .message-container.incoming
+  ::ng-deep
+  app-message-reactions
+  .reactions
+  .reaction-trigger
+  app-emoji-picker-component {
+  left: -20px !important;
+}
+
   .message-header {
     gap: 16px;
   }
@@ -355,14 +382,21 @@
   .reactions {
     width: 108%;
     margin-left: -14px;
-    margin-right: -14px
+    margin-right: -14px;
+  }
+}
+
+@media (max-width: 360px) {
+    :host ::ng-deep app-emoji-picker-component {
+    .emoji-mart-scroll {
+      height: 150px !important;
+    }
   }
 }
 
 @media (orientation: landscape) and (max-height: 600px) {
-  .avatar-container{
-    .avatar-img
-  {
+  .avatar-container {
+    .avatar-img {
       width: 50px;
       height: 50px;
       margin-left: 8px;
