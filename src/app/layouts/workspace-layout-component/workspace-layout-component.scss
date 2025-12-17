@@ -4,23 +4,27 @@
   position: relative;
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
+  height: 100vh;
   width: 100%;
-  max-width: 1920px;
   box-sizing: border-box;
-  padding: 20px;
   position: relative;
 }
 
-@media (max-width: 700px) {
-  :host {
-  padding: 0px;
-  }
+.workspace-wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
 }
 
 .main-content {
   position: relative;
   display: flex;
+  flex: 1;
+}
+
+app-header-workspace {
+  padding: 0px 30px 20px;
 }
 
 .main-container {
@@ -45,7 +49,8 @@
 
 .main-content-area {
   width: 100%;
-  height: 100%;
+  flex: 1;
+  min-height: 0;
   display: flex;
   align-items: start;
   justify-content: center;
@@ -57,11 +62,16 @@
 .main-and-thread-wrapper {
   flex: 1;
   display: flex;
-  height: 80vh;
 }
 
 .mat-drawer-container {
   background-color: rgb(236 238 254);
+}
+
+:host ::ng-deep .mat-drawer-content {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 .devspace-sidenav-button {
@@ -123,11 +133,19 @@
 }
 
 .main-content-wrapper {
-  margin-left: 20px;
-  margin-right: 20px;
-  height: 100%;
   display: flex;
   flex: 1;
+  min-height: 0;
+  margin-left: 0;
+  margin-right: 0;
+
+  &.has-devspace {
+    margin-left: 20px;
+  }
+
+  &.has-thread {
+    margin-right: 20px;
+  }
 }
 
 .avatar-wrap {

@@ -1,78 +1,13 @@
-<app-header-workspace></app-header-workspace>
-@if (this.viewStateService.isMobileView) {
-<main class="main-content">
-  <section class="main-and-thread-wrapper">
-    @if (viewStateService.currentView === 'devspace') {
-    <mat-drawer #devspaceDrawer class="devspace-sidenav" mode="side" [opened]="true">
-      <app-devspace-sidenav-content></app-devspace-sidenav-content>
-    </mat-drawer>
-    } @else if (viewStateService.currentView === 'thread') {
-    <mat-drawer #threadDrawer class="thread-sidenav" mode="side" position="end">
-      <app-thread-sidenav-content
-        [chatId]="threadContext?.chatId"
-        [messageId]="threadContext?.messageId"
-        [collectionName]="threadContext?.collectionName || 'dms'"
-        (close)="threadDrawer.close()"
-      ></app-thread-sidenav-content>
-    </mat-drawer>
-    } @else if (viewStateService.currentView === 'chat') {
-    <div class="main-content-wrapper">
-      <div class="main-content-area">
-        <router-outlet></router-outlet>
-      </div>
-    </div>
-
-    }
-  </section>
-</main>
-} @else {
-<main class="main-content">
-  @if (devspaceDrawer.opened) {
-  <button
-    class="devspace-sidenav-button"
-    type="button"
-    matButton
-    (click)="devspaceDrawer.toggle(); this.viewStateService.requestCloseThreadDrawer()"
-  >
-    <p>Workspace-Menu-Schließen</p>
-    <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <rect x="8" y="8" width="16" height="16" rx="1" stroke="black" stroke-width="2" />
-      <path d="M13.7144 9V25" stroke="black" stroke-width="2" />
-      <path
-        d="M19.4283 18.2856L17.4961 16.3535C17.3009 16.1582 17.3009 15.8416 17.4961 15.6464L19.4283 13.7142"
-        stroke="black"
-        stroke-width="2"
-        stroke-linecap="round"
-      />
-    </svg>
-  </button>
-  } @else {
-  <button
-    class="devspace-sidenav-button"
-    type="button"
-    matButton
-    (click)="devspaceDrawer.toggle(); this.viewStateService.requestCloseThreadDrawer()"
-  >
-    <p>Workspace-Menu-Öffnen</p>
-    <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <rect x="8" y="8" width="16" height="16" rx="1" stroke="black" stroke-width="2" />
-      <path d="M13.7144 9V25" stroke="black" stroke-width="2" />
-      <path
-        d="M17.143 18.2856L19.0752 16.3535C19.2704 16.1582 19.2704 15.8416 19.0752 15.6464L17.143 13.7142"
-        stroke="black"
-        stroke-width="2"
-        stroke-linecap="round"
-      />
-    </svg>
-  </button>
-  }
-
-  <section class="main-and-thread-wrapper">
-    <mat-drawer-container class="main-container" autosize>
-      <mat-drawer #devspaceDrawer class="devspace-sidenav" mode="side">
+<div class="workspace-wrapper">
+  <app-header-workspace></app-header-workspace>
+  @if (this.viewStateService.isMobileView) {
+  <main class="main-content">
+    <section class="main-and-thread-wrapper">
+      @if (viewStateService.currentView === 'devspace') {
+      <mat-drawer #devspaceDrawer class="devspace-sidenav" mode="side" [opened]="true">
         <app-devspace-sidenav-content></app-devspace-sidenav-content>
       </mat-drawer>
-
+      } @else if (viewStateService.currentView === 'thread') {
       <mat-drawer #threadDrawer class="thread-sidenav" mode="side" position="end">
         <app-thread-sidenav-content
           [chatId]="threadContext?.chatId"
@@ -81,13 +16,92 @@
           (close)="threadDrawer.close()"
         ></app-thread-sidenav-content>
       </mat-drawer>
-
+      } @else if (viewStateService.currentView === 'chat') {
       <div class="main-content-wrapper">
         <div class="main-content-area">
           <router-outlet></router-outlet>
         </div>
       </div>
-    </mat-drawer-container>
-  </section>
-</main>
-}
+
+      }
+    </section>
+  </main>
+  } @else {
+  <main class="main-content">
+    @if (devspaceDrawer.opened) {
+    <button
+      class="devspace-sidenav-button"
+      type="button"
+      matButton
+      (click)="devspaceDrawer.toggle(); this.viewStateService.requestCloseThreadDrawer()"
+    >
+      <p>Workspace-Menu-Schließen</p>
+      <svg
+        width="32"
+        height="32"
+        viewBox="0 0 32 32"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <rect x="8" y="8" width="16" height="16" rx="1" stroke="black" stroke-width="2" />
+        <path d="M13.7144 9V25" stroke="black" stroke-width="2" />
+        <path
+          d="M19.4283 18.2856L17.4961 16.3535C17.3009 16.1582 17.3009 15.8416 17.4961 15.6464L19.4283 13.7142"
+          stroke="black"
+          stroke-width="2"
+          stroke-linecap="round"
+        />
+      </svg>
+    </button>
+    } @else {
+    <button
+      class="devspace-sidenav-button"
+      type="button"
+      matButton
+      (click)="devspaceDrawer.toggle(); this.viewStateService.requestCloseThreadDrawer()"
+    >
+      <p>Workspace-Menu-Öffnen</p>
+      <svg
+        width="32"
+        height="32"
+        viewBox="0 0 32 32"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <rect x="8" y="8" width="16" height="16" rx="1" stroke="black" stroke-width="2" />
+        <path d="M13.7144 9V25" stroke="black" stroke-width="2" />
+        <path
+          d="M17.143 18.2856L19.0752 16.3535C19.2704 16.1582 19.2704 15.8416 19.0752 15.6464L17.143 13.7142"
+          stroke="black"
+          stroke-width="2"
+          stroke-linecap="round"
+        />
+      </svg>
+    </button>
+    }
+
+    <section class="main-and-thread-wrapper">
+      <mat-drawer-container class="main-container" autosize>
+        <mat-drawer #devspaceDrawer class="devspace-sidenav" mode="side">
+          <app-devspace-sidenav-content></app-devspace-sidenav-content>
+        </mat-drawer>
+
+        <mat-drawer #threadDrawer class="thread-sidenav" mode="side" position="end">
+          <app-thread-sidenav-content
+            [chatId]="threadContext?.chatId"
+            [messageId]="threadContext?.messageId"
+            [collectionName]="threadContext?.collectionName || 'dms'"
+            (close)="threadDrawer.close()"
+          ></app-thread-sidenav-content>
+        </mat-drawer>
+
+        <div class="main-content-wrapper" [class.has-devspace]="devspaceDrawer?.opened" [class.has-thread]="threadDrawer?.opened">
+          <div class="main-content-area">
+            <router-outlet></router-outlet>
+          </div>
+        </div>
+      </mat-drawer-container>
+    </section>
+  </main>
+  }
+</div>

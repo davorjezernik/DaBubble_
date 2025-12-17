@@ -10,6 +10,14 @@
     padding: 0;
   }
 
+  .workspace-wrapper {
+    padding: 0;
+  }
+
+  app-header-workspace {
+    padding: 0;
+  }
+
   .main-content {
     flex: 1;
     overflow-y: hidden;
@@ -27,9 +35,7 @@
     margin: 0;
   }
 
-  .main-and-thread-wrapper {
-    height: 100%;
-  }
+
 
   .thread-sidenav {
     width: 100vw;
@@ -67,6 +73,10 @@
 }
 
 @media (max-width: 700px) {
+  .workspace-wrapper {
+    padding: 0px;
+  }
+
   .main-content-area {
     border-radius: 0px;
   }
